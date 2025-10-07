@@ -15,7 +15,7 @@ export const authOptions: NextAuthOptions = {
             let googleId: string | undefined = undefined;
             let facebookId: string | undefined = undefined;
             let githubId: string | undefined = undefined;
-            let existingUser;
+            // let existingUser;
             return true;
             //     googleId = profile.sub; // Google UID
             //     email = profile.email;

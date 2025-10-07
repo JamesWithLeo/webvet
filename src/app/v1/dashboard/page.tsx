@@ -11,10 +11,9 @@ export default async function dashboard() {
         redirect("/");
     }
     return (
-        <div>
+        <div className="flex items-center flex-col py-8 px-16">
             <h1>Dashboard</h1>
             <h1>{session.user.name}</h1>
-            <LogoutButton />
 
             <Button asChild variant={"link"}>
                 <Link href={"/v1/appointment"}>Appointment</Link>
@@ -22,6 +21,7 @@ export default async function dashboard() {
             <Button asChild variant={"link"}>
                 <Link href={"/v1/payment"}>Payment</Link>
             </Button>
+            <LogoutButton />
         </div>
     );
 }
