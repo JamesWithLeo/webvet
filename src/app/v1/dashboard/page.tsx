@@ -16,7 +16,7 @@ export default async function dashboard() {
             <h1>{session.user.name}</h1>
 
             <Button asChild variant={"link"}>
-                <Link href={"/v1/appointment"}>Appointment</Link>
+                <Link href={"/v1/appointments"}>Appointment</Link>
             </Button>
             <Button asChild variant={"link"}>
                 <Link href={"/v1/payment"}>Payment</Link>

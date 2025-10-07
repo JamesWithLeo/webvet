@@ -3,13 +3,18 @@
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import multiMonthPlugin from "@fullcalendar/multimonth";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
 import { DateSelectArg } from "@fullcalendar/core/index.js";
 import { useState } from "react";
-import ModalConfirmation from "@/app/v1/appointment/modalConfirmation";
+import ModalConfirmation from "@/app/v1/appointments/modalConfirmation";
 
-export default function AppointmentCalendar() {
+export default function AppointmentCalendar({
+    type,
+    name,
+}: {
+    type: string;
+    name: string;
+}) {
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [isSelectingTime, setIsSelectingTime] = useState<boolean>(false);
@@ -48,6 +53,8 @@ export default function AppointmentCalendar() {
         <>
             <ModalConfirmation
                 onCancel={onCancel}
+                name={name}
+                type={type}
                 date={selectedDate}
                 time={selectedTime}
             />
@@ -58,12 +65,7 @@ export default function AppointmentCalendar() {
                         : "Step 1: Pick an Appointment Date"}
                 </h1>
                 <FullCalendar
-                    plugins={[
-                        multiMonthPlugin,
-                        dayGridPlugin,
-                        timeGridPlugin,
-                        interactionPlugin,
-                    ]}
+                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                     initialView="dayGridMonth"
                     headerToolbar={{
                         left: "title",

@@ -7,11 +7,15 @@ export default function ModalConfirmation({
     date,
     time,
     onCancel,
+    name,
+    type,
 }: {
     date: string | null;
 
     time: string | null;
     onCancel: () => void;
+    name: string;
+    type: string;
 }) {
     if (!date || !time) return null;
 
@@ -36,13 +40,14 @@ export default function ModalConfirmation({
             <div className="fixed inset-0 flex shadow items-center justify-center z-50">
                 <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
                     <h2 className="text-xl font-bold mb-4">
-                        Confirm your appointment
+                        Appointment: {name} {type.replaceAll("_", " ")}
                     </h2>
                     <p className="mb-4">
-                        Your selected time is: {date} at {formattedTime}
+                        Your selected Date is: {date} at {formattedTime}
                     </p>
 
                     <div className="flex justify-end gap-4">
+                        <Button>Confirm</Button>
                         <Button onClick={onCancel} variant={"secondary"}>
                             Close
                         </Button>
