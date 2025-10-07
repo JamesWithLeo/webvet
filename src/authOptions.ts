@@ -11,10 +11,10 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async signIn({ account, profile }) {
-            let email: string | undefined = undefined;
-            let googleId: string | undefined = undefined;
-            let facebookId: string | undefined = undefined;
-            let githubId: string | undefined = undefined;
+            // let email: string | undefined = undefined;
+            // let googleId: string | undefined = undefined;
+            // let facebookId: string | undefined = undefined;
+            // let githubId: string | undefined = undefined;
             // let existingUser;
             return true;
             //     googleId = profile.sub; // Google UID
