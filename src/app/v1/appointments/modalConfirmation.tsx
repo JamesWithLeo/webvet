@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useRouter, useSearchParams } from "next/navigation";
 
 export default function ModalConfirmation({
     date,
@@ -29,7 +28,7 @@ export default function ModalConfirmation({
         }
     );
 
-    const onSave = () => {
+    const onConfirm = () => {
         console.log(date, time);
     };
 
@@ -47,7 +46,7 @@ export default function ModalConfirmation({
                     </p>
 
                     <div className="flex justify-end gap-4">
-                        <Button>Confirm</Button>
+                        <Button onClick={onConfirm}>Confirm</Button>
                         <Button onClick={onCancel} variant={"secondary"}>
                             Close
                         </Button>

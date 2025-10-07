@@ -14,9 +14,9 @@ export default async function Page({
 }) {
     const name = (await params).name.replaceAll("-", " ");
     const type = (await params).type.replaceAll("-", "_");
-    const isValidType = appointmentTypeValues.includes(
-        type.toUpperCase() as any
-    );
+    const isValidType = appointmentTypeValues
+        .map((v) => v as string)
+        .includes(type as string);
 
     if (!isValidType) {
         redirect("/v1/appointments"); // ❌ Invalid type — redirect
