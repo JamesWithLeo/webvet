@@ -1,6 +1,6 @@
 import { authOptions } from "@/authOptions";
-import LogoutButton from "@/components/LogoutButton";
 import { Button } from "@/components/ui/button";
+import { ArrowRight, MenuIcon } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,17 +11,59 @@ export default async function dashboard() {
         redirect("/");
     }
     return (
-        <div className="flex items-center flex-col py-8 px-16">
-            <h1>Dashboard</h1>
-            <h1>{session.user.name}</h1>
+        <div className="flex items-center md:py-8 flex-col h-screen py-4 md:px-16 px-4">
+            <header className="flex w-full  border-b border-gray-300 items-center flex-col">
+                <div className="flex w-5xl justify-between ">
+                    <h1>Joseph & Mary</h1>
+                    <Button variant={"outline"} className="md:hidden">
+                        <MenuIcon />
+                    </Button>
 
-            <Button asChild variant={"link"}>
-                <Link href={"/v1/appointments"}>Appointment</Link>
-            </Button>
-            <Button asChild variant={"link"}>
-                <Link href={"/v1/payment"}>Payment</Link>
-            </Button>
-            <LogoutButton />
+                    <div className="md:flex hidden  gap-8">
+                        <Button variant="link">Home</Button>
+                        <Button variant="link">Pets</Button>
+                        <Button asChild variant={"link"}>
+                            <Link href={"/v1/appointments"}>Appointments</Link>
+                        </Button>
+                        <Button asChild variant={"link"}>
+                            <Link href={"/v1/profile"}>Profile</Link>
+                        </Button>
+                    </div>
+                </div>
+            </header>
+
+            <section className="w-full h-screen grid grid-cols-[1fr_3fr_1fr] gap-3">
+                <div className="bg-[url('/paw-prints.svg')]  h-full w-full bg-repeat bg-[length:80px_80px]  bg-center"></div>
+                <div className="border-x p-3  min-h-full flex gap-4 flex-col">
+                    <section className="border  bg-linear-to-br  from-cyan-100 to-blue-500 p-8 rounded h-60  w-full">
+                        <h1 className="text-sm text-gray-700">
+                            Nearest schedule:
+                        </h1>
+                        <h1 className="text-4xl font-bold">Jins Grooming</h1>
+                        <h1 className="text-lg">October 25, 2025 - 8:30 AM</h1>
+                        <h1 className="text-lg"></h1>
+                    </section>
+
+                    <section className="border-t py-4 flex gap-2 flex-col">
+                        <div className="h-40 w-full bg-gray-100  p-8 rounded-md">
+                            <h1>Ara Deworming</h1>
+                        </div>
+
+                        <div className="h-40 w-full bg-gray-100  p-8 rounded-md">
+                            <h1>Chloe Check up</h1>
+                        </div>
+                        <div className="flex items-end flex-col w-full">
+                            <Button className="w-min " variant={"outline"}>
+                                See more
+                                <ArrowRight />
+                            </Button>
+                        </div>
+                    </section>
+                </div>
+
+                <div className="bg-[url('/paw-prints.svg')]  h-full w-full bg-repeat bg-[length:80px_80px]  bg-center"></div>
+            </section>
+            <footer className="border-t border-gray-300 h-16 w-full"></footer>
         </div>
     );
 }

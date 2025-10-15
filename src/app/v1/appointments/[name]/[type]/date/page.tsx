@@ -14,12 +14,15 @@ export default async function Page({
 }) {
     const name = (await params).name.replaceAll("-", " ");
     const type = (await params).type.replaceAll("-", "_");
-    const isValidType = appointmentTypeValues
-        .map((v) => v as string)
-        .includes(type as string);
+
+    const isValidType = appointmentTypeValues.find((v) => {
+        if ((v as string).toLowerCase() === type) {
+            return true;
+        } else return false;
+    });
 
     if (!isValidType) {
-        redirect("/v1/appointments"); // ❌ Invalid type — redirect
+        redirect("/v1/appointments");
     }
     return (
         <>
