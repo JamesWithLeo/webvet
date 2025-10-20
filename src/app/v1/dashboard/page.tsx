@@ -1,6 +1,7 @@
 import { authOptions } from "@/authOptions";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, MenuIcon } from "lucide-react";
+import Logo from "@/components/Logo";
+// import { Button } from "@/components/ui/button";
+import { Button } from "@mantine/core";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,27 +12,7 @@ export default async function dashboard() {
         redirect("/");
     }
     return (
-        <div className="flex items-center md:py-8 flex-col h-screen py-4 md:px-16 px-4">
-            <header className="flex w-full  border-b border-gray-300 items-center flex-col">
-                <div className="flex w-5xl justify-between ">
-                    <h1>Joseph & Mary</h1>
-                    <Button variant={"outline"} className="md:hidden">
-                        <MenuIcon />
-                    </Button>
-
-                    <div className="md:flex hidden  gap-8">
-                        <Button variant="link">Home</Button>
-                        <Button variant="link">Pets</Button>
-                        <Button asChild variant={"link"}>
-                            <Link href={"/v1/appointments"}>Appointments</Link>
-                        </Button>
-                        <Button asChild variant={"link"}>
-                            <Link href={"/v1/profile"}>Profile</Link>
-                        </Button>
-                    </div>
-                </div>
-            </header>
-
+        <div className="flex items-center  flex-col h-screen md:px-16 px-4">
             <section className="w-full h-screen grid grid-cols-[1fr_3fr_1fr] gap-3">
                 <div className="bg-[url('/paw-prints.svg')]  h-full w-full bg-repeat bg-[length:80px_80px]  bg-center"></div>
                 <div className="border-x p-3  min-h-full flex gap-4 flex-col">
@@ -55,7 +36,7 @@ export default async function dashboard() {
                         <div className="flex items-end flex-col w-full">
                             <Button className="w-min " variant={"outline"}>
                                 See more
-                                <ArrowRight />
+                                {/* <ArrowRight /> */}
                             </Button>
                         </div>
                     </section>

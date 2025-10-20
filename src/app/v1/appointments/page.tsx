@@ -1,15 +1,12 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import AppointmentDialog from "./AppointmentDialog";
+import { Button } from "@mantine/core";
+import AppointmentDialog from "../../../components/AppointmentDialog";
 
 export default async function AppointmentPage() {
     return (
         <>
-            <div className="flex px-16 py-8 flex-col items-start  min-w-dvw   h-full min-h-dvh ">
+            <div className="flex items-center py-8  flex-col h-screen md:px-16 px-4">
                 <AppointmentDialog />
-                <Button asChild variant={"link"}>
-                    <Link href={"/"}>Back to Home</Link>
-                </Button>
+                {/* <AppointmentDialog /> */}
             </div>
         </>
     );

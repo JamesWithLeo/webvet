@@ -1,0 +1,6 @@
+// app/v1/page.tsx
+import { redirect } from "next/navigation";
+
+export default function V1IndexPage() {
+    redirect("/v1/dashboard");
+}

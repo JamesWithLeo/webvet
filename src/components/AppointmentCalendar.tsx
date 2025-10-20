@@ -6,7 +6,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
 import { DateSelectArg } from "@fullcalendar/core/index.js";
 import { useState } from "react";
-import ModalConfirmation from "@/app/v1/appointments/modalConfirmation";
+import ModalConfirmation from "@/components/modalConfirmation";
 
 export default function AppointmentCalendar({
     type,
