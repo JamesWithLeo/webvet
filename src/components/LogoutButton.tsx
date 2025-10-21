@@ -1,13 +1,16 @@
-"use client"
+"use client";
 
-import { signOut } from "next-auth/react"
-import { Button } from "./ui/button"
-
-
+import { signOut } from "next-auth/react";
+import { Button } from "@mantine/core";
 
 export default function LogoutButton() {
     return (
-        <Button onClick={()=> {signOut({callbackUrl:"/"})}}>Logout</Button>
-         
-    )
+        <Button
+            onClick={() => {
+                signOut({ callbackUrl: "/" });
+            }}
+        >
+            Logout
+        </Button>
+    );
 }

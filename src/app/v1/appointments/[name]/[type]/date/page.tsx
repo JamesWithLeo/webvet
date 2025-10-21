@@ -1,5 +1,5 @@
 import AppointmentCalendar from "@/components/AppointmentCalendar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@mantine/core";
 import { appointmentTypeValues } from "@/db/schema/appointments";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -30,9 +30,9 @@ export default async function Page({
                 <h1>{name}</h1>
                 <h1>{type.replaceAll("_", " ")}</h1>
                 <AppointmentCalendar type={type} name={name} />
-                <Button asChild variant={"link"}>
+                {/* <Button asChild variant={"link"}>
                     <Link href={"/"}>Back to Home</Link>
-                </Button>
+                </Button> */}
             </div>
         </>
     );
