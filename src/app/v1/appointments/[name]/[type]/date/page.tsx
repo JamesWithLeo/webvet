@@ -27,8 +27,8 @@ export default async function Page({
     return (
         <>
             <div className="flex px-16 py-8 flex-col items-start  min-w-dvw   h-full min-h-dvh ">
-                <h1>{name}</h1>
-                <h1>{type.replaceAll("_", " ")}</h1>
+                {/* <h1>{name}</h1>
+                <h1>{type.replaceAll("_", " ")}</h1> */}
                 <AppointmentCalendar type={type} name={name} />
                 {/* <Button asChild variant={"link"}>
                     <Link href={"/"}>Back to Home</Link>

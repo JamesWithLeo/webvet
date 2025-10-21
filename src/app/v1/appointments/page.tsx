@@ -6,7 +6,6 @@ export default async function AppointmentPage() {
         <>
             <div className="flex items-center py-8  flex-col h-screen md:px-16 px-4">
                 <AppointmentDialog />
-                {/* <AppointmentDialog /> */}
             </div>
         </>
     );

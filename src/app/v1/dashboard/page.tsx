@@ -12,10 +12,9 @@ export default async function dashboard() {
         redirect("/");
     }
     return (
-        <div className="flex items-center  flex-col h-screen md:px-16 px-4">
-            <section className="w-full h-screen grid grid-cols-[1fr_3fr_1fr] gap-3">
-                <div className="bg-[url('/paw-prints.svg')]  h-full w-full bg-repeat bg-[length:80px_80px]  bg-center"></div>
-                <div className="border-x p-3  min-h-full flex gap-4 flex-col">
+        <div className="flex items-center  bg-[url('/pattern.svg')] flex-col h-screen md:px-16 px-4">
+            <section className="w-full h-screen grid grid-cols-[1fr_3fr_1fr]  gap-3">
+                <div className="border-x p-3 col-start-2 bg-white  min-h-full flex gap-4 flex-col">
                     <section className="border  bg-linear-to-br  from-cyan-100 to-blue-500 p-8 rounded h-60  w-full">
                         <h1 className="text-sm text-gray-700">
                             Nearest schedule:
@@ -41,8 +40,6 @@ export default async function dashboard() {
                         </div>
                     </section>
                 </div>
-
-                <div className="bg-[url('/paw-prints.svg')]  h-full w-full bg-repeat bg-[length:80px_80px]  bg-center"></div>
             </section>
             <footer className="border-t border-gray-300 h-16 w-full"></footer>
         </div>

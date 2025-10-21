@@ -10,14 +10,25 @@ import AppoinmentComboBox from "./AppointmentCombobox";
 export default function AppointmentDialog() {
     const router = useRouter();
     const [opened, { open, close }] = useDisclosure(false);
+
     const [type, setType] = useState<
         (typeof appointmentTypeValues)[number] | ""
     >("");
+
     const onReset = () => {
         setType("");
         (
             document.getElementById("AppointmentNameInput") as HTMLInputElement
         ).value = "";
+    };
+    const onNext = () => {
+        close();
+        const name = (
+            document.getElementById("AppointmentNameInput") as HTMLInputElement
+        ).value;
+        router.push(
+            `/v1/appointments/${encodeURIComponent(name)}/${encodeURIComponent(type.toLowerCase())}/date`
+        );
     };
     return (
         <>
@@ -39,7 +50,7 @@ export default function AppointmentDialog() {
                     />
                     <AppoinmentComboBox value={type} setValue={setType} />
                     <div className="mt-8 w-full grid grid-cols-[1fr_auto] gap-2">
-                        <Button>Next</Button>
+                        <Button onClick={onNext}>Next</Button>
                         <Button variant="light" color="red" onClick={onReset}>
                             Reset
                         </Button>
