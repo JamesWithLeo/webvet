@@ -39,7 +39,7 @@ const headlines = [
 
 export default function Signup() {
     return (
-        <div className="items-centers gap-0 grid grid-cols-1 xl:grid-cols-[7fr_auto] grid-rows-[auto_.5fr] bg-[url('/pattern.svg')] xl:grid-rows-1 min-h-dvh xl:px-32 ">
+        <div className="items-centers gap-0 grid grid-cols-1 xl:grid-cols-[1fr_1fr] grid-rows-[auto_.5fr] bg-[url('/pattern.svg')] xl:grid-rows-1 min-h-dvh xl:px-32 ">
             <section className=" flex flex-col h-screen items-center justify-center  bg-white">
                 <div className=" w-full flex mb-16 justify-center">
                     <Logo />
@@ -74,7 +74,7 @@ export default function Signup() {
             /> */}
 
             <section className="h-full flex w-full items-center bg-white justify-center pb-16 xl:pb-0  md:border-l-0">
-                <div className="grid xl:gap-6 gap-16 w-full items-center">
+                <div className="grid xl:gap-6 justify-center gap-16 w-full items-center">
                     {headlines.map((h, index) => (
                         <FeatureHeadline
                             icon={h.icon}

@@ -1,5 +1,10 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import {
+    CheckExistingUserByEmail,
+    CreateUser,
+    GetUserByProvider,
+} from "./lib/db/users";
 
 export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -16,75 +21,73 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async signIn({ account, profile }) {
-            // let email: string | undefined = undefined;
-            // let googleId: string | undefined = undefined;
-            // let facebookId: string | undefined = undefined;
-            // let githubId: string | undefined = undefined;
-            // let existingUser;
-            return true;
-            //     googleId = profile.sub; // Google UID
-            //     email = profile.email;
-            //     existingUser = await db
-            //       .select()
-            //       .from(users)
-            //       .where(eq(users.googleId, googleId));
-            //   } else if (account?.provider === "facebook" && profile?.sub) {
-            //     facebookId = profile.sub; // Facebook UID
-            //     email = profile.email;
-            //     console.log("profile:", profile);
-            //     existingUser = await db
-            //       .select()
-            //       .from(users)
-            //       .where(eq(users.facebookId, facebookId));
-            //   } else if (account?.provider === "github" && profile?.sub) {
-            //     githubId = profile.sub; // GitHub UID
-            //     email = profile.email;
-            //     existingUser = await db
-            //       .select()
-            //       .from(users)
-            //       .where(eq(users.githubId, githubId));
-            //   } else {
-            //     return false;
-            //   }
+            let googleId: string | undefined = undefined;
+            let facebookId: string | undefined = undefined;
+            let githubId: string | undefined = undefined;
+            const email = profile?.email;
 
-            //   // create account
-            //   if (!existingUser.length) {
-            //     await db
-            //       .insert(users)
-            //       .values({ googleId, githubId, facebookId, email })
-            //       .returning();
-            //     return true;
-            //   } else {
-            //     console.log(existingUser);
-            //     return true;
-            //   }
+            CheckExistingUserByEmail({ email });
+            const user = await GetUserByProvider({
+                provider: account?.provider,
+                providerId: profile?.sub,
+            });
+            if (user) return true;
+
+            const newUser = await CreateUser({
+                provider: account?.provider,
+                email,
+                googleId,
+                githubId,
+                facebookId,
+            });
+            if (newUser) return true;
+            return false;
         },
         async redirect({ baseUrl }) {
             return baseUrl;
         },
-        async jwt({ token, account, user }) {
-            //   let dbUser:
-            //     | {
-            //         id?: string;
-            //         firstName?: string | null;
-            //         lastName?: string | null;
-            //       }
-            //     | undefined = undefined;
-            //   if (account) {
-            //     if (account.provider === "google") {
-            //       dbUser = await getUsersByProvider(user.id, "googleId");
-            //     } else if (account.provider === "facebook") {
-            //       dbUser = await getUsersByProvider(user.id, "facebookId");
-            //     }
+        async jwt({ token, account, user: jwtUser }) {
+            const user = await GetUserByProvider({
+                provider: account?.provider,
+                providerId: jwtUser.id,
+            });
+            if (!user) return token;
 
-            //     token.accessToken = account.access_token;
-            //     token.id = dbUser?.id;
-            //   }
+            token.accessToken = account?.access_token;
+            token.firstName = user.firstName ?? undefined;
+            token.lastName = user.lastName ?? undefined;
+            token.id = user.id;
+            token.role = user.role ?? undefined;
+            token.sex = user.sex ?? "UNKNOWN";
+            token.dateOfbirth = user.dateOfBirth ?? undefined;
+            token.email = user.email;
+            token.photoUrl = user.photoUrl ?? undefined;
+
             return token;
         },
         async session({ session, token }) {
-            //   session.user.accessToken = token.accessToken;
-            //   session.user.id = token.id;
+            const {
+                accessToken,
+                id,
+                email,
+                firstName,
+                lastName,
+                role,
+                sex,
+                dateOfBirth,
+                photoUrl,
+            } = token;
+            session.user = {
+                accessToken,
+                id,
+                email,
+                firstName,
+                lastName,
+                role,
+                sex,
+                dateOfBirth,
+                photoUrl,
+            };
             return session;
         },
     },
