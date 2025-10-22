@@ -24,11 +24,11 @@ export default async function AppPage() {
                 <div className="w-full py-8 flex items-center flex-col z-10">
                     {/* text-[#252728] */}
                     <h1
-                        className={`${alexBrush.className} text-white text-9xl `}
+                        className={`${alexBrush.className} text-white text-5xl sm:text-7xl lg:text-9xl `}
                     >
                         Joseph & Mary
                     </h1>
-                    <h1 className="text-7xl font-black text-[#0b6088] ">
+                    <h1 className="text-3xl lg:text-7xl font-black sm:text-5xl text-[#0b6088] ">
                         Veterinary Clinic
                     </h1>
                 </div>
