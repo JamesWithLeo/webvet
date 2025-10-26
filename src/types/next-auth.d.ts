@@ -6,11 +6,11 @@ declare module "next-auth" {
         user: {
             email?: string;
             image?: string;
-            id?: string;
-            role?: (typeof role.enumValues)[number];
+            id: string;
+            role: (typeof role.enumValues)[number];
             firstName?: string;
             lastName?: string;
-            sex?: (typeof sexValues)[number];
+            sex: (typeof sexValues)[number];
             dateOfBirth?: string;
             accessToken?: string;
             photoUrl?: string;
@@ -21,13 +21,13 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
     interface JWT {
         email?: string;
-        id?: string;
+        id: string;
         accessToken?: string;
         image?: string;
-        role?: (typeof role.enumValues)[number];
+        role: (typeof role.enumValues)[number];
         firstName?: string;
         lastName?: string;
-        sex?: (typeof sexValues)[number];
+        sex: (typeof sexValues)[number];
         dateOfBirth?: string;
         photoUrl?: string;
     }

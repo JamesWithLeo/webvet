@@ -20,6 +20,7 @@ import {
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { setupUser } from "@/actions/setupUser";
+import SuccessModal from "./SuccessModal";
 
 export default function AccountStepper({
     currentStep,
@@ -29,6 +30,7 @@ export default function AccountStepper({
     userId: string;
 }) {
     const [active, setActive] = useState<number>(currentStep);
+    const [isSuccesful, setIsSuccesful] = useState(false);
     const [dateOfBirth, setDateOfBirth] = useState<string | null>(null);
     const [firstName, setFirstName] = useState<string>("");
     const [lastName, setLastName] = useState<string>("");
@@ -43,17 +45,20 @@ export default function AccountStepper({
 
     const onConfirm = async () => {
         console.log("userId:", userId);
-        if (sex && dateOfBirth && userId) {
-            const form = new FormData();
-            form.append("id", userId);
-            form.append("firstName", firstName);
-            form.append("lastName", lastName);
-            form.append("sex", sex);
-            form.append("dateOfBirth", dateOfBirth);
-            await setupUser(userId, form);
+        if (!sex || !dateOfBirth || !userId) {
+            return;
         }
-        // setActive((prev) => prev + 1);
-        // close();
+        const form = new FormData();
+        form.append("id", userId);
+        form.append("firstName", firstName);
+        form.append("lastName", lastName);
+        form.append("sex", sex);
+        form.append("dateOfBirth", dateOfBirth);
+        const updatedUser = await setupUser(userId, form);
+        if (updatedUser.succesful) {
+            close();
+            setIsSuccesful(true);
+        }
     };
 
     return (
@@ -196,6 +201,17 @@ export default function AccountStepper({
                     </span>
                 </Box>
             </Modal>
+
+            <SuccessModal
+                opened={isSuccesful}
+                timeOut={5000}
+                onClose={() => {
+                    setIsSuccesful(false);
+                    setActive((prev) => prev + 1);
+                }}
+                title="Profile Updated"
+                body="Your personal information has been saved successfully."
+            />
         </>
     );
 }

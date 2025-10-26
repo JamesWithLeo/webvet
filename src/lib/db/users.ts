@@ -1,8 +1,8 @@
 import { db } from "@/db";
-import { users } from "@/db/schema/users";
+import { role, sexValues, users } from "@/db/schema/users";
 import { and, eq } from "drizzle-orm";
 
-export const CheckExistingUserByEmail = async ({
+export const checkExistingUserByEmail = async ({
     email,
 }: {
     email: string | undefined;
@@ -11,7 +11,7 @@ export const CheckExistingUserByEmail = async ({
         return await db.select().from(users).where(eq(users.email, email));
 };
 
-export const GetUserByProvider = async ({
+export const getUserByProvider = async ({
     provider,
     providerId,
 }: {
@@ -37,28 +37,24 @@ export const GetUserByProvider = async ({
         .then((result) => result[0]);
 };
 
-export const CreateUser = async ({
-    googleId,
-    githubId,
-    facebookId,
+export const createUser = async ({
     email,
     provider,
+    id,
 }: {
-    googleId: string | undefined;
-    githubId: string | undefined;
-    facebookId: string | undefined;
     email: string | undefined;
     provider: string | undefined;
+    id: string | undefined;
 }) => {
     if (!provider || !email) return;
     let conditions;
 
     if (provider === "google") {
-        conditions = { googleId: googleId, email };
+        conditions = { googleId: id, email };
     } else if (provider === "facebook") {
-        conditions = { facebookId: facebookId, email };
+        conditions = { facebookId: id, email };
     } else if (provider === "github") {
-        conditions = { githubId: githubId, email };
+        conditions = { githubId: id, email };
     } else {
         return;
     }
@@ -68,4 +64,29 @@ export const CreateUser = async ({
         .values(conditions)
         .returning()
         .then((result) => result[0]);
+};
+
+export const saveSetupInDb = async ({
+    firstName,
+    lastName,
+    sex,
+    dateOfBirth,
+    id,
+}: {
+    firstName: string;
+    lastName: string;
+    sex: (typeof sexValues)[number];
+    dateOfBirth: string;
+    id: string;
+}) => {
+    return await db
+        .update(users)
+        .set({ firstName, lastName, sex, dateOfBirth })
+        .where(eq(users.id, id))
+        .returning({
+            firstName: users.firstName,
+            lastName: users.lastName,
+            sex: users.sex,
+            dateOfBirth: users.dateOfBirth,
+        });
 };

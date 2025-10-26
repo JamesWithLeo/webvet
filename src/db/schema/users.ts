@@ -7,9 +7,10 @@ import {
     varchar,
 } from "drizzle-orm/pg-core";
 
-export const sexEnum = pgEnum("sex_enum", ["MALE", "FEMALE", "UNKNOWN"]);
-export type SexType = (typeof sexEnum.enumValues)[number];
-export const sexValues = sexEnum.enumValues;
+export const sexValuesTuple = ["MALE", "FEMALE", "UNKNOWN"] as const;
+export const sex = pgEnum("sex_enum", sexValuesTuple);
+export type Sex = (typeof sex.enumValues)[number];
+export const sexValues = sex.enumValues;
 
 export const role = pgEnum("role", ["client", "doctor", "admin"]);
 export const users = pgTable("users", {
@@ -24,5 +25,5 @@ export const users = pgTable("users", {
     lastName: varchar("last_name", { length: 50 }),
     created_at: timestamp("created_at").defaultNow().notNull(),
     dateOfBirth: date(),
-    sex: sexEnum("sex").default("UNKNOWN").notNull(),
+    sex: sex("sex").default("UNKNOWN").notNull(),
 });

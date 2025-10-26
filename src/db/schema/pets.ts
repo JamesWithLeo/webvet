@@ -12,7 +12,7 @@ import {
     pgEnum,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { users, sexEnum } from "./users";
+import { users, sex } from "./users";
 
 export const reproductiveStatusEnum = pgEnum("reproductive_status", [
     "INTACT", // not spayed or neutered
@@ -56,7 +56,7 @@ export const pets = pgTable(
         }),
         age: integer("age").notNull(),
         created_at: timestamp("created_at").defaultNow().notNull(),
-        sex: sexEnum("sex").default("UNKNOWN").notNull(),
+        sex: sex("sex").default("UNKNOWN").notNull(),
         color: text(),
         marks: varchar().array(),
         yearOfBirth: integer("year_of_birth"),
