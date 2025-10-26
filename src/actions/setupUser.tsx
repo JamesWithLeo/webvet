@@ -1,13 +1,17 @@
 "use server";
 
+import { authOptions } from "@/authOptions";
 import { saveSetupInDb } from "@/lib/db/users";
 import { userSetupSchema } from "@/lib/validators/usersSetupSchema";
+import { getServerSession } from "next-auth";
 
 export async function setupUser(userId: string, formData: FormData) {
     if (!userId) {
         console.error("Missing user ID");
         return { succesful: false };
     }
+    const session = await getServerSession(authOptions);
+    if (!session) throw new Error("Not authenticated");
 
     const rawData = {
         firstName: formData.get("firstName")?.toString(),
@@ -34,6 +38,5 @@ export async function setupUser(userId: string, formData: FormData) {
     if (!Array.isArray(result) || !result.length) {
         return { succesful: false };
     }
-
-    return { succesful: true };
+    return { succesful: true, user: result[0] ? result[0] : undefined };
 }

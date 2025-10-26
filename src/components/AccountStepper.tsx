@@ -21,6 +21,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { setupUser } from "@/actions/setupUser";
 import SuccessModal from "./SuccessModal";
+import { useSession } from "next-auth/react";
 
 export default function AccountStepper({
     currentStep,
@@ -29,6 +30,7 @@ export default function AccountStepper({
     currentStep: number;
     userId: string;
 }) {
+    const { update } = useSession();
     const [active, setActive] = useState<number>(currentStep);
     const [isSuccesful, setIsSuccesful] = useState(false);
     const [dateOfBirth, setDateOfBirth] = useState<string | null>(null);
@@ -55,9 +57,14 @@ export default function AccountStepper({
         form.append("sex", sex);
         form.append("dateOfBirth", dateOfBirth);
         const updatedUser = await setupUser(userId, form);
-        if (updatedUser.succesful) {
-            close();
-            setIsSuccesful(true);
+
+        if (updatedUser.succesful && updatedUser.user) {
+            await update({
+                ...updatedUser.user,
+            }).then(() => {
+                close();
+                setIsSuccesful(true);
+            });
         }
     };
 
@@ -67,7 +74,7 @@ export default function AccountStepper({
                 ref={stepperRef}
                 active={active}
                 className="w-full items-center"
-                onStepClick={active === 1 ? undefined : (step) => onSave}
+                // onStepClick={active === 1 ? undefined : (step) => onSave}
                 allowNextStepsSelect={false}
                 size="xl"
             >
@@ -202,16 +209,18 @@ export default function AccountStepper({
                 </Box>
             </Modal>
 
-            <SuccessModal
-                opened={isSuccesful}
-                timeOut={5000}
-                onClose={() => {
-                    setIsSuccesful(false);
-                    setActive((prev) => prev + 1);
-                }}
-                title="Profile Updated"
-                body="Your personal information has been saved successfully."
-            />
+            {isSuccesful && (
+                <SuccessModal
+                    opened={isSuccesful}
+                    timeOut={2000}
+                    onClose={() => {
+                        setIsSuccesful(false);
+                        setActive((prev) => prev + 1);
+                    }}
+                    title="Profile Updated"
+                    body="Your personal information has been saved successfully."
+                />
+            )}
         </>
     );
 }

@@ -37,7 +37,15 @@ export const authOptions: NextAuthOptions = {
         async redirect({ baseUrl }) {
             return baseUrl;
         },
-        async jwt({ token, account, user: jwtUser }) {
+        async jwt({ token, account, user: jwtUser, trigger, session }) {
+            if (trigger === "update") {
+                token.firstName = session.firstName ?? undefined;
+                token.lastName = session.lastName ?? undefined;
+                token.sex = session.sex ?? "UNKNOWN";
+                token.dateOfBirth = session.dateOfBirth ?? undefined;
+                return token;
+            }
+
             if (account && jwtUser) {
                 const user = await getUserByProvider({
                     provider: account.provider,
