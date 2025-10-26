@@ -1,16 +1,11 @@
 import { authOptions } from "@/authOptions";
-import Logo from "@/components/Logo";
-// import { Button } from "@/components/ui/button";
+import checkSetup from "@/lib/checkSetup";
 import { Button } from "@mantine/core";
 import { getServerSession } from "next-auth";
-import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export default async function dashboard() {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-        redirect("/");
-    }
+    checkSetup(session);
     return (
         <div className="flex items-center  bg-[url('/pattern.svg')] flex-col h-screen md:px-16 px-4">
             <section className="w-full h-screen grid grid-cols-[1fr_3fr_1fr]  gap-3">

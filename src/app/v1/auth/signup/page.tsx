@@ -3,6 +3,9 @@ import { ActionIcon, Button, TextInput } from "@mantine/core";
 import Link from "next/link";
 import { IconCalendarWeek, IconLogs, IconLeaf } from "@tabler/icons-react";
 import Logo from "@/components/Logo";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/authOptions";
+import { redirect, RedirectType } from "next/navigation";
 
 const headlines = [
     {
@@ -37,10 +40,12 @@ const headlines = [
     },
 ];
 
-export default function Signup() {
+export default async function Signup() {
+    const session = await getServerSession(authOptions);
+    if (session?.user.id) redirect("/");
     return (
         <div className="items-centers gap-0 grid grid-cols-1 xl:grid-cols-[1fr_1fr] grid-rows-[auto_.5fr] bg-[url('/pattern.svg')] xl:grid-rows-1 min-h-dvh xl:px-32 ">
-            <section className=" flex flex-col h-screen items-center justify-center  bg-white">
+            <section className=" flex flex-col h-screen border-l-2 border-dashed items-center justify-center   bg-white">
                 <div className=" w-full flex mb-16 justify-center">
                     <Logo />
                 </div>
@@ -58,7 +63,7 @@ export default function Signup() {
                             Already have an account?
                         </h1>
                         <Link
-                            href={"/v1/login"}
+                            href={"/v1/auth/login"}
                             className="underline-offset-2 underline"
                         >
                             Log in
@@ -66,14 +71,8 @@ export default function Signup() {
                     </span>
                 </div>
             </section>
-            {/* <Divider
-                orientation="vertical"
-                variant="dashed"
-                size={"lg"}
-                className=""
-            /> */}
 
-            <section className="h-full flex w-full items-center bg-white justify-center pb-16 xl:pb-0  md:border-l-0">
+            <section className="h-full flex w-full items-center border-r-2 border-dashed bg-white justify-center pb-16 xl:pb-0  md:border-l-0">
                 <div className="grid xl:gap-6 justify-center gap-16 w-full items-center">
                     {headlines.map((h, index) => (
                         <FeatureHeadline

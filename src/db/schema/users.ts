@@ -19,7 +19,7 @@ export const users = pgTable("users", {
     googleId: varchar("google_id", { length: 255 }).unique(),
     facebookId: varchar("facebook_id", { length: 255 }).unique(),
     githubId: varchar("githubId", { length: 255 }).unique(),
-    role: role("role").default("client"),
+    role: role("role").default("client").notNull(),
     firstName: varchar("first_name", { length: 50 }),
     lastName: varchar("last_name", { length: 50 }),
     created_at: timestamp("created_at").defaultNow().notNull(),

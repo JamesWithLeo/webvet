@@ -1,10 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import {
-    CheckExistingUserByEmail,
-    CreateUser,
-    GetUserByProvider,
-} from "./lib/db/users";
+import { createUser, getUserByProvider } from "./lib/db/users";
 
 export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -19,26 +15,21 @@ export const authOptions: NextAuthOptions = {
             },
         }),
     ],
+
     callbacks: {
         async signIn({ account, profile }) {
-            let googleId: string | undefined = undefined;
-            let facebookId: string | undefined = undefined;
-            let githubId: string | undefined = undefined;
             const email = profile?.email;
 
-            CheckExistingUserByEmail({ email });
-            const user = await GetUserByProvider({
+            const user = await getUserByProvider({
                 provider: account?.provider,
                 providerId: profile?.sub,
             });
             if (user) return true;
 
-            const newUser = await CreateUser({
+            const newUser = await createUser({
                 provider: account?.provider,
                 email,
-                googleId,
-                githubId,
-                facebookId,
+                id: profile?.sub,
             });
             if (newUser) return true;
             return false;
@@ -47,52 +38,47 @@ export const authOptions: NextAuthOptions = {
             return baseUrl;
         },
         async jwt({ token, account, user: jwtUser }) {
-            const user = await GetUserByProvider({
-                provider: account?.provider,
-                providerId: jwtUser.id,
-            });
-            if (!user) return token;
+            if (account && jwtUser) {
+                const user = await getUserByProvider({
+                    provider: account.provider,
+                    providerId: jwtUser.id,
+                });
 
-            token.accessToken = account?.access_token;
-            token.firstName = user.firstName ?? undefined;
-            token.lastName = user.lastName ?? undefined;
-            token.id = user.id;
-            token.role = user.role ?? undefined;
-            token.sex = user.sex ?? "UNKNOWN";
-            token.dateOfbirth = user.dateOfBirth ?? undefined;
-            token.email = user.email;
-            token.photoUrl = user.photoUrl ?? undefined;
+                if (user) {
+                    token.accessToken = account.access_token;
+                    token.firstName = user.firstName ?? undefined;
+                    token.lastName = user.lastName ?? undefined;
+                    token.id = user.id;
+                    token.role = user.role;
+                    token.sex = user.sex;
+                    token.dateOfBirth = user.dateOfBirth ?? undefined;
+                    token.email = user.email;
+                    token.photoUrl = user.photoUrl ?? undefined;
+                }
+                console.log(user);
+            }
 
             return token;
         },
         async session({ session, token }) {
-            const {
-                accessToken,
-                id,
-                email,
-                firstName,
-                lastName,
-                role,
-                sex,
-                dateOfBirth,
-                photoUrl,
-            } = token;
-            session.user = {
-                accessToken,
-                id,
-                email,
-                firstName,
-                lastName,
-                role,
-                sex,
-                dateOfBirth,
-                photoUrl,
-            };
+            if (session.user) {
+                session.user.id = token.id;
+                session.user.role = token.role;
+                session.user.firstName = token.firstName;
+                session.user.lastName = token.lastName;
+                session.user.sex = token.sex;
+                session.user.dateOfBirth = token.dateOfBirth;
+                session.user.email = token.email;
+                session.user.photoUrl = token.photoUrl;
+                session.user.accessToken = token.accessToken;
+            }
+
+            console.log("Session generated:", session);
             return session;
         },
     },
     pages: {
-        signIn: "/signup",
+        signIn: "/v1/auth/signup",
         signOut: "/",
     },
     session: {

@@ -13,8 +13,8 @@ import { Button } from "@mantine/core";
 
 export default async function AppPage() {
     const session = await getServerSession(authOptions);
-    if (session?.user) {
-        redirect("/v1/dashboard");
+    if (session?.user.id) {
+        redirect("/v1");
     }
 
     return (
@@ -37,7 +37,7 @@ export default async function AppPage() {
                         className="w-min mt-4 text-[#043343]"
                         color="#043343"
                     >
-                        <Link href={"/v1/signup"}>Get started</Link>
+                        <Link href={"/v1/auth/signup"}>Get started</Link>
                     </Button>
                 </div>
 
