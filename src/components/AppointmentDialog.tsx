@@ -45,7 +45,7 @@ export default function AppointmentDialog() {
                 <div className="flex gap-4 flex-col">
                     <TextInput
                         id="AppointmentNameInput"
-                        label="name"
+                        label=""
                         placeholder="Jin's Gala"
                     />
                     <AppoinmentComboBox value={type} setValue={setType} />

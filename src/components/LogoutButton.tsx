@@ -1,11 +1,14 @@
 "use client";
 
 import { signOut } from "next-auth/react";
-import { Button } from "@mantine/core";
+import { Button, ButtonProps } from "@mantine/core";
 
-export default function LogoutButton() {
+type LogoutButtonProps = ButtonProps & {};
+
+export default function LogoutButton({ ...props }: LogoutButtonProps) {
     return (
         <Button
+            {...props}
             onClick={() => {
                 signOut({ callbackUrl: "/" });
             }}

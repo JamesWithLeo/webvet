@@ -74,7 +74,6 @@ export default function AccountStepper({
                 ref={stepperRef}
                 active={active}
                 className="w-full items-center"
-                // onStepClick={active === 1 ? undefined : (step) => onSave}
                 allowNextStepsSelect={false}
                 size="xl"
             >
@@ -88,7 +87,7 @@ export default function AccountStepper({
                             height={32}
                         />
                     }
-                    label="Setup Account"
+                    label="Set up Account"
                     description="OcampoJames04@gmail.com"
                     className=""
                 >
@@ -150,7 +149,11 @@ export default function AccountStepper({
                                 />
                             </div>
                             <div className="flex w-full mt-10 justify-end gap-4">
-                                <Button size="md" onClick={onSave}>
+                                <Button
+                                    size="md"
+                                    onClick={onSave}
+                                    variant="light"
+                                >
                                     Save
                                 </Button>
                             </div>

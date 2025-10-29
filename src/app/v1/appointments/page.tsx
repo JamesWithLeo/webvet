@@ -1,4 +1,3 @@
-import { Button } from "@mantine/core";
 import AppointmentDialog from "../../../components/AppointmentDialog";
 
 export default async function AppointmentPage() {
