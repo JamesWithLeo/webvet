@@ -20,7 +20,10 @@ export const appointments = pgTable("appointments", {
     petId: uuid("pet_id")
         .notNull()
         .references(() => pets.id, { onDelete: "cascade" }),
-    event_datetime: timestamp("event_datetime").notNull(),
+    event_datetime: timestamp("event_datetime", {
+        withTimezone: true,
+        mode: "string",
+    }).notNull(),
     type: appointmentType("type").notNull(),
     created_at: timestamp("created_at").defaultNow().notNull(),
 });

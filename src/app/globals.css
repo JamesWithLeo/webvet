@@ -120,3 +120,70 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* FullCalendar uses .fc-daygrid-day-frame for the cell container */
+/* The main cell element is a <td> with the class .fc-daygrid-day */
+
+/* Target the day cell element */
+.fc-daygrid-day:hover {
+    background-color: #e0f7fa !important; /* A light, noticeable color */
+}
+
+/* IMPORTANT: You might also need to target the frame for full coverage */
+.fc-daygrid-day-frame:hover {
+    background-color: #e0f7fa !important;
+}
+
+.fc-day:hover {
+    /* background: #e0f7fa !important; */
+    cursor: pointer;
+}
+
+/* Date Calendar .css */
+
+.fc-daygrid-day.past-date-cell {
+    /* background-color: gray !important; */
+    cursor: not-allowed;
+    /* You may also need to target the child frame for full coverage */
+}
+
+.fc-daygrid-day.past-date-cell .fc-daygrid-day-frame {
+    background-color: inherit !important;
+}
+
+.fc-daygrid-day.past-date-cell:hover {
+    background-color: lightgrey !important;
+}
+
+/* FIX for hover: Also ensure the inner frame follows the hover color */
+.fc-daygrid-day.past-date-cell:hover .fc-daygrid-day-frame {
+    background-color: inherit !important; /* Inherit the red color from the parent */
+    /* Or explicitly set: background-color: red !important; */
+}
+
+/* Time css */
+.fc-timegrid-slot-lane {
+    cursor: pointer;
+}
+
+.fc-timegrid-slot-lane:hover {
+    background-color: #e0f7fa !important;
+    opacity: 1;
+}
+
+.fc-timegrid-slot-minor:hover {
+    background-color: #e0f7fa !important;
+    opacity: 1;
+}
+
+/* Forbidden Slots: Dimmed, Disabled, and Not Allowed */
+.fc-forbidden-slot-direct {
+    /* Dim the background */
+    background-color: #f0f0f0 !important; /* Light Gray background */
+    cursor: not-allowed !important;
+}
+
+.fc-forbidden-slot-direct:hover {
+    background-color: #e0e0e0 !important; /* Slightly darker gray on hover */
+    cursor: not-allowed !important;
+}

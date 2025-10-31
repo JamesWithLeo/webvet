@@ -21,6 +21,7 @@ export default function AppointmentComboBox({
     onBlur,
     error,
     setValue,
+    label,
 }: AppointmentComboBoxProps) {
     const combobox = useCombobox({
         onDropdownClose: () => combobox.resetSelectedOption(),
@@ -44,6 +45,7 @@ export default function AppointmentComboBox({
                 <InputBase
                     component="button"
                     type="button"
+                    label={label}
                     error={error}
                     pointer
                     onClick={() => combobox.toggleDropdown()}
