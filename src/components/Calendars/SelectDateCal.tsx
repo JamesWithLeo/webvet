@@ -5,66 +5,110 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import monthGridPlugin from "@fullcalendar/multimonth";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
 import { DayCellContentArg } from "@fullcalendar/core/index.js";
+import { notifications } from "@mantine/notifications";
+import { appointmentTypeValues } from "@/db/schema/appointments";
+
+const typePerSchedule: Record<
+    (typeof appointmentTypeValues)[number],
+    number[]
+> = {
+    CHECK_UP: [2, 3, 5, 6],
+    GROOMING: [1, 3, 4, 5, 6],
+    VACCINATION: [2, 3, 5, 6],
+    CONSULTATION: [2, 3, 5, 6],
+    DEWORMING: [2, 3, 5, 6],
+};
 
 export default function SelectDateCal({
     value,
     onChange,
     onBlur,
     error,
+    type,
 }: {
     value: string | null;
     onChange: (value: string) => void;
     onBlur?: () => void;
     error?: string;
+    type: (typeof appointmentTypeValues)[number];
 }) {
+    const isDayMatchToType = (day: number) => {
+        return typePerSchedule[type].includes(day);
+    };
     const onDateClick = (dateArg: DateClickArg) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         const clickedDate = dateArg.date;
         clickedDate.setHours(0, 0, 0, 0);
+        const dayOfWeek = clickedDate.getDay();
 
-        if (clickedDate.getDay() === 0) {
-            console.log("Past date clicked - action blocked:", clickedDate);
+        if (dayOfWeek === 0) {
+            notifications.show({
+                title: "Appointment Not Available",
+                message:
+                    "The clinic is not open on sunday. Please choose a different date.",
+                color: "red",
+            });
+            return;
+        } else if (clickedDate < today) {
+            notifications.show({
+                title: "Appointment Not Available",
+                message:
+                    "The selected date is no longer available. Please choose another date.",
+                color: "red",
+            });
+            return;
+        } else if (!isDayMatchToType(dayOfWeek)) {
+            notifications.show({
+                title: "Appointment Not Available",
+                message:
+                    "The clinic is not open for this type of appointment on the selected day of the week. Please choose a different date.",
+                color: "red",
+            });
+            return;
         } else if (clickedDate >= today) {
-            console.log("Date clicked:", dateArg.dateStr);
             onChange(dateArg.dateStr);
+            return;
         } else {
-            // The date is in the past, so do nothing or show a message
-            console.log("Past date clicked - action blocked:", clickedDate);
+            notifications.show({
+                title: "Appointment Not Available",
+                message:
+                    "The selected date is no longer available. Please choose another date.",
+                color: "red",
+            });
+            return;
         }
-        // const calendarApi = dateArg.view.calendar;
-        // const selectedDate = dateArg.date;
     };
 
     const getDayClassNames = (arg: DayCellContentArg) => {
-        // Standard logic to check for past/future dates
-        // ... (Your existing logic here for past-date-cell or future-date-cell)
+        const date = arg.date;
+        const dayOfWeek = date.getDay();
 
-        // Check if the day is Sunday (getDay() returns 0 for Sunday)
-        if (arg.date.getDay() === 0) {
-            return "past-date-cell";
+        if (dayOfWeek === 0) {
+            return "past-date-cell"; // Use a distinct class, maybe "weekend-cell" or "unavailable-cell"
         }
 
-        // Return other classes based on your existing logic (e.g., future-date-cell)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const cellDate = arg.date;
+        const cellDate = new Date(date);
         cellDate.setHours(0, 0, 0, 0);
 
-        if (cellDate >= today) {
-            return "future-date-cell";
-        } else {
+        // Get today's date adjusted to midnight for an accurate day-to-day comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Check if the cell date is strictly in the past (before today)
+        if (cellDate < today) {
             return "past-date-cell";
         }
-    };
 
-    // ... in your return statement:
-    <FullCalendar
-        // ...
-        dayCellClassNames={getDayClassNames}
-        // ...
-    />;
+        const availSchedule = typePerSchedule[type];
+
+        if (!availSchedule || !availSchedule.includes(dayOfWeek)) {
+            return "past-date-cell";
+        }
+
+        return "future-date-cell";
+    };
 
     return (
         <>

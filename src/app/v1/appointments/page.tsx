@@ -5,9 +5,7 @@ export default async function AppointmentPage() {
     return (
         <>
             <div className="flex items-center py-8  flex-col h-screen md:px-16 px-4">
-                <Button>
-                    <Link href={"new/appointment"}>New</Link>
-                </Button>
+                <Link href={"new/appointment"}>New</Link>
             </div>
         </>
     );

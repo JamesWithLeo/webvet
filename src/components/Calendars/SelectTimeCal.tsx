@@ -3,21 +3,12 @@
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import "@mantine/notifications/styles.css";
+import { notifications } from "@mantine/notifications";
 
 // Define the slot duration in minutes (FullCalendar default is 30)
 const SLOT_DURATION_MINUTES = 30;
-
-// Define a type alias for the argument to ensure structural compatibility
-type SlotLaneMountArg = {
-    date?: Date; // Use '?' to indicate optionality
-    el: HTMLElement;
-    // FullCalendar passes other properties, but these are the ones we care about
-    [key: string]: any;
-};
-// Note: The correct type for slotLaneDidMount is typically SlotLaneMountArg.
-// We are using a direct structural type { date: Date | undefined; el: HTMLElement; }
-// to satisfy TypeScript based on the error message.
 
 export default function SelectTimeCal({
     value,
@@ -32,8 +23,15 @@ export default function SelectTimeCal({
     error?: string;
     initialDate: string;
 }) {
-    // Current date (fixed at component mount time for stable calculation)
-    const today = useMemo(() => new Date(), []);
+    const [currentTime, setCurrentTime] = useState(new Date());
+    // update the time per minute
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 60000); // 60000 ms = 1 minute
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     // Create a date object for the calendar's initial date without time
     const initialViewDate = useMemo(() => {
@@ -45,16 +43,17 @@ export default function SelectTimeCal({
     // Check if the initial date is today
     const isToday = useMemo(
         () =>
-            initialViewDate.getFullYear() === today.getFullYear() &&
-            initialViewDate.getMonth() === today.getMonth() &&
-            initialViewDate.getDate() === today.getDate(),
-        [initialViewDate, today]
+            initialViewDate.getFullYear() === currentTime.getFullYear() &&
+            initialViewDate.getMonth() === currentTime.getMonth() &&
+            initialViewDate.getDate() === currentTime.getDate(),
+        [initialViewDate, currentTime]
     );
 
-    // --- Minimum Selectable Time Calculation ---
     const minSelectableTime = useMemo(() => {
         if (isToday) {
-            const requiredStart = new Date(today.getTime() + 60 * 60 * 1000);
+            const requiredStart = new Date(
+                currentTime.getTime() + 60 * 60 * 1000
+            );
             const currentMinutes = requiredStart.getMinutes();
             const remainder = currentMinutes % SLOT_DURATION_MINUTES;
 
@@ -73,49 +72,50 @@ export default function SelectTimeCal({
         }
 
         return new Date(0);
-    }, [isToday, initialViewDate, today]);
+    }, [isToday, initialViewDate, currentTime]);
 
-    // --- Slot Lane Did Mount Handler (For Visual Styling) ---
-    // 🔑 Corrected Type: The date property is marked as optional by FullCalendar types.
     const handleSlotRender = (info: { date?: Date; el: HTMLElement }) => {
-        // Type Guard: We must check if date is defined before proceeding
         if (!info.date) {
             return;
         }
 
         const slotTime = info.date;
 
+        const comparableSlotTime = new Date(initialViewDate);
+        comparableSlotTime.setHours(
+            slotTime.getHours(),
+            slotTime.getMinutes(),
+            0,
+            0
+        );
+
+        // Check if we are viewing the current day
         if (!isToday) {
-            // Ensure classes are cleared when viewing non-today dates
             info.el.classList.remove("fc-forbidden-slot-direct");
             info.el.style.pointerEvents = "";
             return;
         }
 
-        // Check if the current slot time is BEFORE the minimum allowed time
-        if (slotTime < minSelectableTime) {
+        if (comparableSlotTime < minSelectableTime) {
             info.el.classList.add("fc-forbidden-slot-direct");
         } else {
-            // Ensure the class and pointer events are removed for all valid slots
             info.el.classList.remove("fc-forbidden-slot-direct");
-            //
         }
     };
 
-    // --- Date Click Handler (For Functional Blocking) ---
     const onDateClick = (dateArg: DateClickArg) => {
         const clickedTime = new Date(dateArg.dateStr);
-
         if (isToday) {
             if (clickedTime < minSelectableTime) {
-                console.log(
-                    "Selection blocked: Slot is too close to the current time."
-                );
+                notifications.show({
+                    color: "red",
+                    title: "Unavailable",
+                    message:
+                        "The selected time slot is no longer available. Please choose another time.",
+                });
                 return;
             }
         }
-
-        console.log(dateArg.dateStr);
         onChange(dateArg.dateStr);
     };
 
@@ -145,7 +145,6 @@ export default function SelectTimeCal({
                 slotMinTime="08:00:00"
                 slotMaxTime="17:00:00"
                 allDaySlot={false}
-                // 🔑 Now correctly typed to resolve the error
                 slotLaneDidMount={handleSlotRender}
             />
             {error && <h1 className="text-red-500">{error}</h1>}

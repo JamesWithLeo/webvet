@@ -1,6 +1,6 @@
 "use client";
 
-import { Stepper, TextInput, Button } from "@mantine/core";
+import { Stepper, TextInput, Button, Divider, Modal, Box } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useState } from "react";
@@ -10,6 +10,11 @@ import SelectTimeCal from "./Calendars/SelectTimeCal";
 import { newAppointmentSchema } from "@/lib/validators/newAppointmentSchema";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { appointmentTypeValues } from "@/db/schema/appointments";
+import z from "zod";
+import { toTitleCase } from "@/lib/toTitleCase";
+import SuccessModal from "./SuccessModal";
+import { useDisclosure } from "@mantine/hooks";
 
 const STEP_FIELDS: Record<
     number,
@@ -20,11 +25,17 @@ const STEP_FIELDS: Record<
     2: ["selectedDateTime"],
 };
 
+type IAppointmentFormValues = z.infer<typeof newAppointmentSchema>;
 export default function AppointmentStepper() {
     const [active, setActive] = useState(0);
     const router = useRouter();
+    const [opened, { open, close }] = useDisclosure(false);
+    const [
+        isOpenConfirmDialog,
+        { open: openConfirmDialog, close: closeConfirmDialog },
+    ] = useDisclosure(false);
 
-    const form = useForm({
+    const form = useForm<IAppointmentFormValues>({
         initialValues: {
             title: "",
             type: "",
@@ -123,23 +134,24 @@ export default function AppointmentStepper() {
                         </div>
                     </section>
                 )}
-                {active === 1 && (
-                    <section className="w-full h-full max-w-7xl">
+                {active === 1 && form.values.type !== "" && (
+                    <section className="w-full h-full flex flex-col justify-between max-w-7xl">
                         <SelectDateCal
                             value={form.values.selectedDate}
+                            type={form.values.type}
                             {...form.getInputProps("selectedDate")}
                             onChange={(date: string) => {
                                 form.setFieldValue("selectedDate", date);
                                 nextStep();
                             }}
                         />
-                        <h1 className="text-lg">
+                        <h1 className="text-sm">
                             Tip: Click on date to Select
                         </h1>
                     </section>
                 )}
                 {active === 2 && (
-                    <section className="w-full h-full max-w-7xl">
+                    <section className="w-full h-full flex flex-col justify-between max-w-7xl">
                         <SelectTimeCal
                             initialDate={form.values.selectedDate}
                             value={form.values.selectedDateTime}
@@ -149,28 +161,108 @@ export default function AppointmentStepper() {
                                 nextStep();
                             }}
                         />
+                        <h1 className="text-sm">
+                            Tip: Click on time to Select
+                        </h1>
                     </section>
                 )}
                 {active === 3 && (
-                    <section className=" w-full  flex items-center justify-center h-full flex-col">
-                        <h1>{form.values.title}</h1>
-                        <h1>{form.values.type}</h1>
-                        <h1>
-                            {new Date(
-                                form.values.selectedDateTime
-                            ).toLocaleString()}
-                        </h1>
+                    <section className=" w-full max-w-7xl  flex items-center justify-center h-full flex-col">
+                        <div className="text-center w-full flex items-center justify-center flex-col gap-3 h-full row-start-2 col-start-2">
+                            <h1 className="text-xl">
+                                {toTitleCase(form.values.title)}
+                            </h1>
+                            <h1 className="text-lg">
+                                {toTitleCase(form.values.type)}
+                            </h1>
+                            <h1 className="text-lg">
+                                {new Date(
+                                    form.values.selectedDateTime
+                                ).toDateString()}{" "}
+                                {new Date(
+                                    form.values.selectedDateTime
+                                ).toLocaleTimeString()}
+                            </h1>
+                            <div className="flex justify-center gap-8  col-start-2 row-start-3">
+                                <Button onClick={openConfirmDialog}>
+                                    Save
+                                </Button>
+                                <SuccessModal
+                                    opened={opened}
+                                    onClose={close}
+                                    timeOut={2500}
+                                    title="Appointment Saved"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex-1"></div>
+                        <div className="flex border-t text-sm  w-full row-start-5 gap-1 items-center col-start-2">
+                            <h1 className="">Your mind changes?</h1>
+                            <button
+                                className="text-red-500 cursor-pointer"
+                                onClick={() => {
+                                    form.reset();
+                                    setActive(0);
+                                }}
+                            >
+                                Reset
+                            </button>
+                        </div>
                     </section>
                 )}
             </div>
 
-            {/* <div className="w-full flex items-center flex-col">
-                {active !== 0 && (
-                    <Button onClick={prevStep} variant="transparent">
-                        <IconCircleArrowLeftFilled size={42} />
-                    </Button>
-                )}
-            </div> */}
+            <Modal
+                opened={isOpenConfirmDialog}
+                centered
+                onClose={closeConfirmDialog}
+                withCloseButton={false}
+                size={"lg"}
+            >
+                <Box className="flex flex-col gap-6 p-4">
+                    <span>
+                        <h1 className="text-3xl">
+                            Confirm Your Appointment Details?
+                        </h1>
+                        <h1>
+                            Please carefully review the following details before
+                            you confirm.
+                        </h1>
+                    </span>
+                    <span className="grid grid-cols-[1fr_9fr]  ">
+                        <h1 className="text-xl col-span-2">
+                            {toTitleCase(form.values.title)}
+                        </h1>
+                        <h1 className="text-lg">Service:</h1>
+                        <h1 className="text-lg ml-8">
+                            {toTitleCase(form.values.type)}
+                        </h1>
+
+                        <h1 className="text-lg">Date:</h1>
+                        <h1 className="text-lg ml-8">
+                            {new Date(
+                                form.values.selectedDateTime
+                            ).toDateString()}{" "}
+                        </h1>
+                        <h1 className="text-lg">Time:</h1>
+                        <h1 className="text-lg ml-8">
+                            {new Date(
+                                form.values.selectedDateTime
+                            ).toLocaleTimeString()}
+                        </h1>
+                    </span>
+                    <span className="w-full flex justify-end gap-4">
+                        <Button onClick={open}>Confirm</Button>
+                        <Button
+                            variant="subtle"
+                            color="gray"
+                            onClick={closeConfirmDialog}
+                        >
+                            Cancel
+                        </Button>
+                    </span>
+                </Box>
+            </Modal>
         </>
     );
 }

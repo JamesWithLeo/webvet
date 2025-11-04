@@ -5,12 +5,16 @@ import "./globals.css";
 
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import "@mantine/notifications/styles.css";
 
 import {
     ColorSchemeScript,
     MantineProvider,
+    Notification,
     mantineHtmlProps,
 } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+import RouterLoadingAnimation from "@/components/RouterLoadingAnimation";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -42,6 +46,8 @@ export default function RootLayout({
             >
                 <MantineProvider>
                     <ThemeProvider attribute={"class"}>
+                        <Notifications position="bottom-right" limit={3} />
+                        <RouterLoadingAnimation />
                         {children}
                     </ThemeProvider>
                 </MantineProvider>

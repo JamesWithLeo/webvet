@@ -126,29 +126,23 @@
 
 /* Target the day cell element */
 .fc-daygrid-day:hover {
-    background-color: #e0f7fa !important; /* A light, noticeable color */
+    background-color: #e0f7fa !important;
 }
 
-/* IMPORTANT: You might also need to target the frame for full coverage */
 .fc-daygrid-day-frame:hover {
     background-color: #e0f7fa !important;
 }
 
 .fc-day:hover {
-    /* background: #e0f7fa !important; */
     cursor: pointer;
 }
 
 /* Date Calendar .css */
 
 .fc-daygrid-day.past-date-cell {
-    /* background-color: gray !important; */
     cursor: not-allowed;
+    background-color: var(--fc-non-business-color) !important;
     /* You may also need to target the child frame for full coverage */
-}
-
-.fc-daygrid-day.past-date-cell .fc-daygrid-day-frame {
-    background-color: inherit !important;
 }
 
 .fc-daygrid-day.past-date-cell:hover {
@@ -157,10 +151,10 @@
 
 /* FIX for hover: Also ensure the inner frame follows the hover color */
 .fc-daygrid-day.past-date-cell:hover .fc-daygrid-day-frame {
-    background-color: inherit !important; /* Inherit the red color from the parent */
+    background-color: inherit !important;
+    /* Inherit the red color from the parent */
     /* Or explicitly set: background-color: red !important; */
 }
-
 /* Time css */
 .fc-timegrid-slot-lane {
     cursor: pointer;
@@ -176,14 +170,38 @@
     opacity: 1;
 }
 
-/* Forbidden Slots: Dimmed, Disabled, and Not Allowed */
 .fc-forbidden-slot-direct {
-    /* Dim the background */
-    background-color: #f0f0f0 !important; /* Light Gray background */
+    background-color: #f0f0f0 !important;
     cursor: not-allowed !important;
 }
 
 .fc-forbidden-slot-direct:hover {
-    background-color: #e0e0e0 !important; /* Slightly darker gray on hover */
+    background-color: #e0e0e0 !important;
     cursor: not-allowed !important;
+}
+
+/* =================================================================
+   TODAY INDICATOR FIX
+   ================================================================= */
+
+/* Target the outer cell specifically when it is TODAY */
+.fc-daygrid-day.fc-day-today {
+    /* FullCalendar usually applies a border or ring to the outer cell for 'today' */
+    /* Ensure no unwanted background color is applied here by your general rules */
+    background-color: var(--mantine-color-yellow-1) !important;
+}
+
+/* 💡 Ensure the INNER FRAME of TODAY gets the correct visual indicator */
+.fc-daygrid-day.fc-day-today .fc-daygrid-day-frame {
+    background-color: var(--mantine-color-yellow-1) !important;
+}
+.fc-daygrid-day.fc-day-today:hover {
+    background-color: var(--mantine-color-yellow-1) !important;
+}
+
+/* 💡 CRUCIAL: Remove hover effect for TODAY if it's an available future date */
+/* The TODAY indicator should usually remain even when hovered, so you reset the hover background. */
+.fc-daygrid-day.fc-day-today:hover .fc-daygrid-day-frame {
+    /* Set the hover color to be the same as the base color to avoid the custom lightgrey hover */
+    background-color: var(--mantine-color-yellow-1) !important;
 }

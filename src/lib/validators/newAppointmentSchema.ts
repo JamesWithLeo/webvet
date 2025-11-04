@@ -1,24 +1,14 @@
 import { appointmentTypeValues } from "@/db/schema/appointments";
 import { z } from "zod/v4";
 
-const appointmentTypes = [
-    "CHECK_UP",
-    "GROOMING",
-    "VACCINATION",
-    "CONSULTATION",
-    "DEWORMING",
-] as const;
-
-// Create the type for the allowed enum values
-const AllowedType = z.enum(appointmentTypes, {
+const AllowedType = z.enum(appointmentTypeValues, {
     message: "Value must be a valid appointment type",
 });
 
-// 💡 THE KEY FIX: Use z.union to allow the initial empty string,
-// then use .refine() to fail validation if the value is ""
 export const newAppointmentSchema = z.object({
     title: z
         .string()
+        .trim()
         .min(3, { message: "Title must be at least 3 characters long" }),
 
     type: z

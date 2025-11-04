@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal } from "@mantine/core";
+import { Modal, Transition } from "@mantine/core";
 import { useEffect, useRef } from "react";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import successAnim from "@/../public/lottie/Success-Animation.json";
@@ -16,9 +16,12 @@ export default function SuccessModal({
     onClose: () => void;
     timeOut: number;
     title: string;
-    body: string;
+    body?: string;
 }) {
     const lottieRef = useRef<LottieRefCurrentProps>(null);
+    const textTransitionClass = opened
+        ? "opacity-100 transition-opacity duration-800 delay-400"
+        : "opacity-0"; // Starts invisible when closed
 
     useEffect(() => {
         if (!opened) return;
@@ -37,24 +40,40 @@ export default function SuccessModal({
             withCloseButton={false}
             closeOnClickOutside={false}
             closeOnEscape={false}
-            size="lg"
             overlayProps={{
                 backgroundOpacity: 0.55,
-                blur: 3,
+                blur: 4,
+            }}
+            styles={{
+                content: {
+                    backgroundColor: "transparent",
+                    boxShadow: "none",
+                },
+                body: {
+                    backgroundColor: "transparent",
+                    padding: 0,
+                },
+                header: {
+                    backgroundColor: "transparent",
+                },
             }}
         >
-            <div className="flex select-none flex-col gap-4 items-center  p-4 text-center">
-                <div className="w-md h-auto   max-w-md">
+            <div className="flex select-none  flex-col gap-4 justify-center items-center overflow-hidden text-center">
+                <div className="w-sm h-auto   max-w-md">
                     <Lottie
                         lottieRef={lottieRef}
                         animationData={successAnim}
                         loop={false}
-                        initialSegment={[0, 60]}
+                        // initialSegment={[0, 60]}
                     />
                 </div>
 
-                <h1 className="text-2xl">{title}</h1>
-                <h1 className="text-lg">{body}</h1>
+                <h1 className={`text-2xl text-white ${textTransitionClass}`}>
+                    {title}
+                </h1>
+                {body && (
+                    <h1 className={`text-lg ${textTransitionClass}`}>{body}</h1>
+                )}
             </div>
         </Modal>
     );
