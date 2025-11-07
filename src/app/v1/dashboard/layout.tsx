@@ -1,12 +1,13 @@
 import { ReactNode } from "react";
 import Logo from "@/components/Logo";
 import NavLink from "@/components/NavLink";
+import MenuTab from "@/components/MenuTab";
 
 export default function Layout({ children }: { children: ReactNode }) {
     return (
         <div>
             <header className="flex w-full h-20  border-b border-gray-300 items-center flex-col">
-                <div className="flex w-5xl justify-between  h-full  items-center">
+                <div className="flex lg:w-5xl w-full px-8 justify-between  h-full  items-center">
                     <span>
                         <Logo size="md" />
                     </span>
@@ -20,6 +21,9 @@ export default function Layout({ children }: { children: ReactNode }) {
                 </div>
             </header>
             {children}
+            <div className="fixed backdrop-blur-3xl h-16 -translate-x-1/2 rounded-3xl  md:hidden  bottom-2 left-1/2 overflow-clip w-[92%] z-10">
+                <MenuTab />
+            </div>
         </div>
     );
 }

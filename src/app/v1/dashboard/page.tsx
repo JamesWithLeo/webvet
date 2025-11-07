@@ -1,5 +1,4 @@
 import { authOptions } from "@/authOptions";
-import AppointmentDialog from "@/components/AppointmentDialog";
 import CalendarList from "@/components/CalendarList";
 import checkSetup from "@/lib/checkSetup";
 import { Button } from "@mantine/core";
@@ -9,8 +8,8 @@ export default async function dashboard() {
     const session = await getServerSession(authOptions);
     checkSetup(session);
     return (
-        <div className="flex items-center   flex-col h-full max-h-full md:px-16 px-4">
-            <section className="w-full h-screen grid grid-cols-[1fr_3fr_1fr]  gap-3">
+        <div className="flex items-center w-full flex-col h-full max-h-full md:px-16 px-4">
+            <section className="w-full h-screen flex flex-col grid-cols-[1fr_3fr_1fr]  gap-3">
                 <div className="border-x p-3 col-start-2 bg-white  min-h-full flex gap-4 flex-col">
                     <section className="border  bg-linear-to-br  from-cyan-100 to-blue-500 p-8 rounded h-60  w-full">
                         <h1 className="text-sm text-gray-700">
@@ -22,11 +21,9 @@ export default async function dashboard() {
                         <Button>view on calendar</Button>
                     </section>
 
-                    {/* <AppointmentDialog /> */}
                     <CalendarList />
                 </div>
             </section>
-            {/* <footer className="border-t border-gray-300 h-16 w-full"></footer> */}
         </div>
     );
 }

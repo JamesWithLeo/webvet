@@ -63,7 +63,6 @@ export const authOptions: NextAuthOptions = {
                     token.email = user.email;
                     token.photoUrl = user.photoUrl ?? undefined;
                 }
-                console.log(user);
             }
 
             return token;
@@ -81,7 +80,6 @@ export const authOptions: NextAuthOptions = {
                 session.user.accessToken = token.accessToken;
             }
 
-            console.log("Session generated:", session);
             return session;
         },
     },
