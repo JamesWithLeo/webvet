@@ -6,8 +6,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Button } from "@mantine/core";
-import Lottie, { LottieRefCurrentProps } from "lottie-react";
-import confetti from "@/../public/lottie/confetti.json";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -36,7 +34,6 @@ const processSteps = [
 ];
 
 export default function ProcessSection() {
-    const lottierRef = useRef<LottieRefCurrentProps>(null);
     const processSectionRef = useRef(null);
     const imageContainerRef = useRef<HTMLDivElement>(null);
 
@@ -243,14 +240,6 @@ export default function ProcessSection() {
                 ref={thatsItRef}
                 className="flex h-screen gap-8 flex-col bg-[url('/pattern.svg')] bg-white px-10  items-center justify-center "
             >
-                <div className="absolute inset-0 w-full h-full pointer-events-none">
-                    <Lottie
-                        lottieRef={lottierRef}
-                        animationData={confetti}
-                        loop={false}
-                        autoPlay={false}
-                    />
-                </div>
                 <h1 className="text-9xl font-extrabold  text-white">
                     THAT'S IT!
                 </h1>

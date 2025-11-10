@@ -56,7 +56,7 @@ export default function AdminNav() {
             className={`
                 ${
                     active === item.label.toLowerCase()
-                        ? " bg-[#043343] text-white "
+                        ? " bg-[var(--mantine-color-blue-light)] text-[var(--mantine-color-blue-light-color)] "
                         : " text-gray-500 hover:bg-gray-100 "
                 } 
                 ${isCollapsed ? " justify-center " : " p-4 "}
@@ -79,12 +79,12 @@ export default function AdminNav() {
         <nav
             className={`
                 flex flex-col border-r border-gray-200 h-screen relative 
-                ${isCollapsed ? " w-20 p-2 " : " w-sm p-4 "}
+                ${isCollapsed ? " w-20 p-2 " : " min-w-sm p-4 "}
                 transition-all duration-300 ease-in-out
             `}
         >
             <div
-                className={`w-full flex items-center justify-start gap-6 border-b border-gray-200 ${isCollapsed ? "pb-4 px-2" : "pb-4 px-0"}`}
+                className={`w-full flex items-center justify-start gap-6 border-b border-gray-200 ${isCollapsed ? " p-4 " : " p-4 "}`}
             >
                 <Logo size="md" />
                 {!isCollapsed && (
