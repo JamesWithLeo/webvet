@@ -36,7 +36,7 @@ export default function RouterLoadingAnimation() {
         };
     }, [pathname]);
 
-    if (!isLoading) {
+    if (!isLoading || pathname.startsWith("/v1/admin")) {
         return null;
     }
 

@@ -15,6 +15,26 @@ import {
 } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import RouterLoadingAnimation from "@/components/RouterLoadingAnimation";
+import { MantineColorsTuple, createTheme } from "@mantine/core";
+
+const myColor: MantineColorsTuple = [
+    "#ecf9fe",
+    "#d9f0f8",
+    "#ade1f3",
+    "#81d2ef",
+    "#61c4eb",
+    "#50bce9",
+    "#46b8e9",
+    "#39a2cf",
+    "#2b90ba",
+    "#043343",
+];
+
+const theme = createTheme({
+    colors: {
+        myColor,
+    },
+});
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -44,10 +64,10 @@ export default function RootLayout({
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
-                <MantineProvider>
+                <MantineProvider theme={theme}>
                     <ThemeProvider attribute={"class"}>
                         <Notifications position="bottom-right" limit={3} />
-                        {/* <RouterLoadingAnimation /> */}
+                        <RouterLoadingAnimation />
                         {children}
                     </ThemeProvider>
                 </MantineProvider>
