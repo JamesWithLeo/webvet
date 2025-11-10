@@ -11,8 +11,8 @@ export default async function LoginPage() {
     if (session?.user.id) redirect("/");
 
     return (
-        <div className="items-center  grid grid-cols-[1fr]  bg-[url('/pattern.svg')] grid-rows-1 min-h-dvh px-32 ">
-            <section className="h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-200 bg-white">
+        <div className="items-center  grid grid-cols-[1fr]  bg-[url('/bgPattern.svg')] grid-rows-1 min-h-dvh px-42 ">
+            <section className="h-full flex flex-col items-center justify-center  bg-white">
                 <div className=" w-full flex mb-16 justify-center">
                     <Logo />
                 </div>

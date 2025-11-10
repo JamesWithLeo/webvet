@@ -47,7 +47,7 @@ export default function RootLayout({
                 <MantineProvider>
                     <ThemeProvider attribute={"class"}>
                         <Notifications position="bottom-right" limit={3} />
-                        <RouterLoadingAnimation />
+                        {/* <RouterLoadingAnimation /> */}
                         {children}
                     </ThemeProvider>
                 </MantineProvider>
