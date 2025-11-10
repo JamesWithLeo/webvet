@@ -1,7 +1,9 @@
+import PetTable from "@/components/PetTable";
+
 export default function Pets() {
     return (
-        <div>
-            <h1>Pets</h1>
+        <div className="w-full h-screen p-16 bg-gray-50 ">
+            <PetTable />
         </div>
     );
 }

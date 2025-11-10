@@ -8,25 +8,134 @@ import {
     IconLogout2,
     IconUser,
     IconChevronLeft,
+    Icon,
+    IconListSearch,
 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "./LogoutButton";
+import {
+    Box,
+    Collapse,
+    Group,
+    Button,
+    Text,
+    UnstyledButton,
+} from "@mantine/core";
 
 const data = [
     {
         link: "/v1/admin/dashboard",
         label: "Dashboard",
-        icon: IconGauge,
+        icon: <IconGauge stroke={1.5} />,
+    },
+    {
+        link: "/v1/admin/calendar",
+        label: "Calendar",
+        icon: <IconCalendarSearch stroke={1.5} />,
     },
     {
         link: "/v1/admin/appointments",
         label: "Appointments",
-        icon: IconCalendarSearch,
+        icon: <IconListSearch stroke={1.5} />,
+        sublinks: [
+            {
+                link: "/v1/admin/appointments/calendar",
+                label: "upcoming",
+            },
+            {
+                link: "/v1/admin/appointments/list",
+                label: "past dates",
+            },
+        ],
     },
-    { link: "/v1/admin/accounts", label: "Accounts", icon: IconUser },
-    { link: "/v1/admin/pets", label: "Pets", icon: IconCat },
+    {
+        link: "/v1/admin/accounts",
+        label: "Accounts",
+        icon: <IconUser stroke={1.5} />,
+    },
+    { link: "/v1/admin/pets", label: "Pets", icon: <IconCat /> },
 ];
+const NavLink = ({
+    isActive,
+    isCollapsed,
+    link,
+    label,
+    icon,
+    onClick,
+    subLinks,
+}: {
+    isActive: boolean;
+    isCollapsed: boolean;
+    link: string;
+    label: string;
+    icon: ReactNode;
+    onClick: () => void;
+    subLinks?: { link: string; label: string }[];
+}) => {
+    const [opened, setOpened] = useState(false);
+    const router = useRouter();
+    if (Array.isArray(subLinks) && subLinks.length) {
+        return (
+            <>
+                <button
+                    className={`
+                ${
+                    isActive
+                        ? " bg-[var(--mantine-color-blue-light)] text-[var(--mantine-color-blue-light-color)] "
+                        : " text-gray-500 hover:bg-gray-100 "
+                }
+                ${isCollapsed ? " justify-center " : " p-4 "}
+                transition-colors duration-200 ease-in-out mt-2 
+                rounded flex gap-4 h-12 items-center  `}
+                    onClick={() => {
+                        setOpened(!opened);
+                        onClick();
+                        router.replace(link);
+                    }}
+                >
+                    {icon}
+                    {!isCollapsed && <span>{label}</span>}
+                </button>
+                {!isCollapsed && (
+                    <Collapse in={opened} className="ml-8 ">
+                        {subLinks.map((link, index) => (
+                            <Box<"a">
+                                key={index}
+                                className="border-l h-12 hover:bg-gray-100 text-gray-500 flex items-center px-4 border-gray-200"
+                            >
+                                {link.label}
+                            </Box>
+                        ))}
+                    </Collapse>
+                )}
+            </>
+        );
+    } else
+        return (
+            <UnstyledButton>
+                <a
+                    data-active={isActive || undefined}
+                    href={link}
+                    key={label}
+                    onClick={onClick}
+                    className={`
+                ${
+                    isActive
+                        ? " bg-[var(--mantine-color-blue-light)] text-[var(--mantine-color-blue-light-color)] "
+                        : " text-gray-500 hover:bg-gray-100 "
+                } 
+                ${isCollapsed ? " justify-center " : " p-4 "}
+                transition-colors duration-200 ease-in-out mt-2 
+                rounded flex gap-4 h-12 items-center  
+            `}
+                >
+                    {icon}
+                    {!isCollapsed && <span>{label}</span>}
+                </a>
+            </UnstyledButton>
+        );
+};
 
 export default function AdminNav() {
     const pathname = usePathname();
@@ -46,27 +155,18 @@ export default function AdminNav() {
     };
 
     const links = data.map((item) => (
-        <a
-            data-active={item.label.toLowerCase() === active || undefined}
-            href={item.link}
+        <NavLink
             key={item.label}
+            icon={item.icon}
+            isActive={item.label.toLowerCase() === active}
+            link={item.link}
+            label={item.label}
+            isCollapsed={isCollapsed}
             onClick={() => {
-                setActive(item.label.toLowerCase());
+                setActive(lastpath);
             }}
-            className={`
-                ${
-                    active === item.label.toLowerCase()
-                        ? " bg-[var(--mantine-color-blue-light)] text-[var(--mantine-color-blue-light-color)] "
-                        : " text-gray-500 hover:bg-gray-100 "
-                } 
-                ${isCollapsed ? " justify-center " : " p-4 "}
-                transition-colors duration-200 ease-in-out 
-                rounded flex gap-4 h-12 items-center  
-            `}
-        >
-            <item.icon stroke={1.5} />
-            {!isCollapsed && <span>{item.label}</span>}
-        </a>
+            subLinks={item.sublinks}
+        />
     ));
     useEffect(() => {
         const savedState = localStorage.getItem("sidebarCollapsed");
@@ -95,7 +195,7 @@ export default function AdminNav() {
             </div>
 
             <div
-                className={`flex flex-col flex-1 gap-2 w-full ${isCollapsed ? "p-2" : "p-4"}`}
+                className={`flex flex-col flex-1 w-full ${isCollapsed ? "p-2" : "p-4"}`}
             >
                 {links}
             </div>

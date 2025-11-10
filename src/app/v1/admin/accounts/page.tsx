@@ -1,7 +1,9 @@
+import AccountTable from "@/components/AccountTable";
+
 export default function Users() {
     return (
-        <div>
-            <h1>Users</h1>
+        <div className="w-full h-screen p-16 bg-gray-50 ">
+            <AccountTable />
         </div>
     );
 }

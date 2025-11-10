@@ -188,20 +188,44 @@
 .fc-daygrid-day.fc-day-today {
     /* FullCalendar usually applies a border or ring to the outer cell for 'today' */
     /* Ensure no unwanted background color is applied here by your general rules */
-    background-color: var(--mantine-color-yellow-1) !important;
+    background-color: #228be6 !important;
 }
 
 /* 💡 Ensure the INNER FRAME of TODAY gets the correct visual indicator */
 .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame {
-    background-color: var(--mantine-color-yellow-1) !important;
+    background-color: #228be6 !important;
 }
 .fc-daygrid-day.fc-day-today:hover {
-    background-color: var(--mantine-color-yellow-1) !important;
+    background-color: #228be6 !important;
+}
+.fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+    color: white;
 }
 
 /* 💡 CRUCIAL: Remove hover effect for TODAY if it's an available future date */
 /* The TODAY indicator should usually remain even when hovered, so you reset the hover background. */
 .fc-daygrid-day.fc-day-today:hover .fc-daygrid-day-frame {
     /* Set the hover color to be the same as the base color to avoid the custom lightgrey hover */
-    background-color: var(--mantine-color-yellow-1) !important;
+    background-color: #228be6 !important;
+}
+
+/* admin calendar */
+.fc .fc-daygrid-day.fc-day-severe {
+    background-color: #ff9999 !important; /* A noticeable, darker red/pink */
+    /* Optional: Add a subtle border or text shadow for emphasis */
+}
+
+/* 2. HIGH BUSY DAY (11-15 Appointments) */
+.fc .fc-daygrid-day.fc-day-high {
+    background-color: #ffcccc !important; /* Light Red */
+}
+
+/* 3. MEDIUM BUSY DAY (6-10 Appointments) */
+.fc .fc-daygrid-day.fc-day-medium {
+    background-color: #ffddb3 !important; /* Light Orange */
+}
+
+/* 4. LOW BUSY DAY (1-5 Appointments) */
+.fc .fc-daygrid-day.fc-day-low {
+    background-color: #ffffcc !important; /* Light Yellow */
 }

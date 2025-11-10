@@ -6,11 +6,11 @@ import "./globals.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
+import "mantine-datatable/styles.layer.css";
 
 import {
     ColorSchemeScript,
     MantineProvider,
-    Notification,
     mantineHtmlProps,
 } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
