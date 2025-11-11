@@ -1,141 +1,61 @@
 import { Divider, Group, Paper } from "@mantine/core";
 import { IconArrowUpRight } from "@tabler/icons-react";
+import { LineChart } from "@mantine/charts";
+import { Sparkline } from "@mantine/charts";
+import { DonutChart } from "@mantine/charts";
+import AdminGreet from "@/components/AdminGridPanels/AdminGreeting";
+import UsersPanels from "@/components/AdminGridPanels/UserPanels";
+import AppointmentPanels from "@/components/AdminGridPanels/AppointmentPanels";
+import PetPanels from "@/components/AdminGridPanels/PetPanel";
 
+export const donutData = [
+    { name: "USA", value: 400, color: "indigo.6" },
+    { name: "India", value: 300, color: "yellow.6" },
+    { name: "Japan", value: 100, color: "teal.6" },
+    { name: "Other", value: 200, color: "gray.6" },
+];
+export const data = [
+    {
+        date: "Mar 22",
+        Apples: 2890,
+        Oranges: 2338,
+        Tomatoes: 2452,
+    },
+    {
+        date: "Mar 23",
+        Apples: 2756,
+        Oranges: 2103,
+        Tomatoes: 2402,
+    },
+    {
+        date: "Mar 24",
+        Apples: 3322,
+        Oranges: 986,
+        Tomatoes: 1821,
+    },
+    {
+        date: "Mar 25",
+        Apples: 3470,
+        Oranges: 2108,
+        Tomatoes: 2809,
+    },
+    {
+        date: "Mar 26",
+        Apples: 3129,
+        Oranges: 1726,
+        Tomatoes: 2290,
+    },
+];
 export default function Dashboard() {
     return (
         <div className="w-full h-screen p-16 bg-gray-50 ">
-            <section className=" grid h-full  gap-8 grid-cols-3 grid-rows-4">
-                <Paper withBorder className="p-4  col-span-3">
-                    <Group align="start">
-                        <div className="flex-2 ">
-                            <h1 className="text-md text-gray-400 font-medium">
-                                Todays appointments
-                            </h1>
-                            <h1 className="text-6xl font-bold ">10</h1>
+            <section className=" grid h-full  gap-4 grid-cols-3 grid-rows-4">
+                <AdminGreet />
+                <AppointmentPanels />
+                <UsersPanels />
+                <PetPanels />
 
-                            <Group align="flex-end" mt={25} mb={12}>
-                                <h1 className="text-gray-500">Total: </h1>
-                                <h1>2101</h1>
-                            </Group>
-                        </div>
-                        <Divider orientation="vertical" />
-                        <div className="flex-2">
-                            <h1 className=" text-gray-400">
-                                Current Apppintment
-                            </h1>
-                            <Group align="flex-end" mt={40}>
-                                <div>
-                                    <h1>Service Type:</h1>
-                                    <div className="flex   items-baseline  gap-4">
-                                        <h1 className="text-3xl font-bold">
-                                            Check up
-                                        </h1>
-                                        <h1 className="h-min text-blue-300 font-bold">
-                                            / 10:00 AM
-                                        </h1>
-                                    </div>
-                                </div>
-                            </Group>
-                            <Group>
-                                <div>
-                                    <h1>James Ocampo - Cat</h1>
-                                    <h1>Assigned doctor: Dra. Aba</h1>
-                                </div>
-                            </Group>
-                        </div>
-                        <Divider orientation="vertical" />
-                        <div className="flex-2">
-                            <h1 className=" text-gray-400">Next Apppintment</h1>
-                            <Group align="flex-end" mt={40}>
-                                <div>
-                                    <h1>Service Type:</h1>
-                                    <div className="flex   items-baseline  gap-4">
-                                        <h1 className="text-3xl font-bold">
-                                            Grooming
-                                        </h1>
-                                        <h1 className="h-min text-blue-300 font-bold">
-                                            / 10:30 AM
-                                        </h1>
-                                    </div>
-                                </div>
-                            </Group>
-                            <Group>
-                                <div>
-                                    <h1>John Darrelle Laizon - Dog</h1>
-                                    <h1>Assigned doctor: Dra. Abe</h1>
-                                </div>
-                            </Group>
-                        </div>
-
-                        <div className="text-right">
-                            <h1>November 15 2025</h1>
-                            <h1>10:25 AM</h1>
-                        </div>
-                    </Group>
-                </Paper>
-                <Paper withBorder className="p-4 row-span-2">
-                    <Group justify="space-between">
-                        <div className="w-full h-full">
-                            <h1 className="text-md text-gray-400 font-medium">
-                                Today New Users
-                            </h1>
-                            <h1 className="text-6xl font-bold">8</h1>
-                        </div>
-
-                        <Divider my={10} className="w-full" />
-
-                        <div className="w-full h-full">
-                            <h1 className="text-md text-gray-400  font-medium">
-                                This month
-                            </h1>
-                            <div className="flex ">
-                                <h1 className="text-6xl font-bold">200</h1>
-                                <IconArrowUpRight color="red" />
-                            </div>
-                        </div>
-                        <Divider my={10} className="w-full" />
-
-                        <div className="w-full h-full">
-                            <h1 className="text-md text-gray-400  font-medium">
-                                Total users
-                            </h1>
-
-                            <h1 className="text-6xl font-bold">899</h1>
-                        </div>
-                    </Group>
-                </Paper>
-                <Paper withBorder className="p-4 row-span-2">
-                    <Group justify="space-between">
-                        <div className="w-full h-full">
-                            <h1 className="text-md text-gray-400 font-medium">
-                                Today's Pets
-                            </h1>
-                            <h1 className="text-6xl font-bold">8</h1>
-                        </div>
-
-                        <Divider my={10} className="w-full" />
-
-                        <div className="w-full h-full">
-                            <h1 className="text-md text-gray-400  font-medium">
-                                This month
-                            </h1>
-                            <div className="flex ">
-                                <h1 className="text-6xl font-bold">87</h1>
-                                <IconArrowUpRight color="red" />
-                            </div>
-                        </div>
-                        <Divider my={10} className="w-full" />
-
-                        <div className="w-full h-full">
-                            <h1 className="text-md text-gray-400  font-medium">
-                                Total pets
-                            </h1>
-
-                            <h1 className="text-6xl font-bold">1092</h1>
-                        </div>
-                    </Group>
-                </Paper>
-                <Paper withBorder className="p-4 row-span-3">
+                <Paper withBorder className="p-4 row-span-2 ">
                     <h1 className="text-md text-gray-400 font-medium">
                         Active Personel
                     </h1>

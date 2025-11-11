@@ -7,6 +7,7 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
 import "mantine-datatable/styles.layer.css";
+import "@mantine/charts/styles.css";
 
 import {
     ColorSchemeScript,

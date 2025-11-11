@@ -1,4 +1,4 @@
-import AdminCalendar from "@/components/Calendars/AdminCalendar";
+import AdminCalendar from "@/components/calendars/AdminCalendar";
 
 export default function Appointments() {
     return (
