@@ -15,7 +15,7 @@ export default function LayoutContent({
             <Paper
                 withBorder
                 style={{ borderTop: 0, borderLeft: 0, borderRight: 0 }}
-                className="h-16  z-10 sticky top-0 "
+                className="h-16  z-20 sticky top-0 "
             >
                 <Group
                     className="w-full md:px-20 px-10    h-full  "
@@ -45,16 +45,21 @@ export default function LayoutContent({
                             align="center"
                             direction="row"
                             w={"100%"}
-                            gap={"xl"}
                         >
                             <a
                                 href="/v1/dashboard"
-                                className=" hover:bg-gray-50"
+                                className=" hover:bg-gray-50 p-4"
                             >
                                 Home
                             </a>
-                            <a href="/v1/pets" className=" hover:bg-gray-50">
+                            <a href="/v1/pets" className="p-4 hover:bg-gray-50">
                                 Pets
+                            </a>
+                            <a
+                                href="/v1/appointments"
+                                className=" hover:bg-gray-50 p-4"
+                            >
+                                Appointments
                             </a>
                         </Flex>
                     </Group>

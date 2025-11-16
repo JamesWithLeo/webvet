@@ -8,11 +8,18 @@ import {
     Title,
     Group,
     Checkbox,
+    Text,
+    Menu,
+    Button,
 } from "@mantine/core";
 import {
+    IconCat,
     IconDotsVertical,
     IconHeart,
     IconHeartFilled,
+    IconLogs,
+    IconPlus,
+    IconTrash,
 } from "@tabler/icons-react";
 
 export default function PetCard({
@@ -38,6 +45,83 @@ export default function PetCard({
             // p={"xl"}
             radius={"md"}
         >
+            <Card.Section withBorder p={"sm"}>
+                <Group justify="space-between">
+                    <Stack gap={1}>
+                        <Title
+                            c="primary"
+                            order={1}
+                            className="text-2xl font-bold"
+                        >
+                            {name}
+                        </Title>
+                        <Title c={"dimmed"} order={6} className=" font-bold">
+                            {breed}
+                        </Title>
+                    </Stack>
+                    <Group justify="center" gap={0}>
+                        <ActionIcon variant="transparent" size={"xl"}>
+                            {heart ? (
+                                <IconHeartFilled size={20} />
+                            ) : (
+                                <IconHeart size={20} />
+                            )}
+                        </ActionIcon>
+                        <ActionIcon variant="transparent" size={"xl"}>
+                            <Menu
+                                shadow="md"
+                                width={200}
+                                position="bottom-start"
+                            >
+                                <Menu.Target>
+                                    <IconDotsVertical size={24} stroke={1.5} />
+                                </Menu.Target>
+                                <Menu.Dropdown>
+                                    <Menu.Label>Pet Menu</Menu.Label>
+                                    <Menu.Item
+                                        leftSection={
+                                            <IconCat size={20} stroke={1.5} />
+                                        }
+                                    >
+                                        Profile
+                                    </Menu.Item>
+                                    <Menu.Item
+                                        leftSection={
+                                            <IconLogs size={20} stroke={1.5} />
+                                        }
+                                    >
+                                        History
+                                    </Menu.Item>
+                                    <Menu.Divider />
+                                    <Menu.Label>Action</Menu.Label>
+                                    <Menu.Item
+                                        color="primary"
+                                        leftSection={
+                                            <IconPlus size={20} stroke={1.5} />
+                                        }
+                                    >
+                                        New Appointment
+                                    </Menu.Item>
+                                    <Menu.Item
+                                        color="red"
+                                        leftSection={
+                                            <IconTrash size={20} stroke={1.5} />
+                                        }
+                                    >
+                                        Delete
+                                    </Menu.Item>
+                                </Menu.Dropdown>
+                            </Menu>
+                        </ActionIcon>
+                    </Group>
+                </Group>
+
+                <Group gap={1} c={"dimmed"}>
+                    <Title order={6}>
+                        {gender === "Male" ? "M" : "F"} / {age} years old
+                    </Title>
+                </Group>
+            </Card.Section>
             <Card.Section className="relative">
                 <Group
                     justify="space-between"
@@ -78,38 +162,8 @@ export default function PetCard({
                 )}
             </Card.Section>
             <Card.Section withBorder p={"sm"}>
-                <Group justify="space-between">
-                    <Stack gap={1}>
-                        <Title
-                            c="primary"
-                            order={1}
-                            className="text-2xl font-bold"
-                        >
-                            {name}
-                        </Title>
-                        <Title c={"dimmed"} order={5} className=" font-bold">
-                            {breed}
-                        </Title>
-                    </Stack>
-                    <Group justify="center" gap={0}>
-                        <ActionIcon variant="transparent" size={"xl"}>
-                            {heart ? (
-                                <IconHeartFilled size={20} />
-                            ) : (
-                                <IconHeart size={20} />
-                            )}
-                        </ActionIcon>
-                        <ActionIcon variant="transparent" size={"xl"}>
-                            <IconDotsVertical size={24} stroke={1.5} />
-                        </ActionIcon>
-                    </Group>
-                </Group>
-
-                <Group gap={1} c={"dimmed"}>
-                    <h1>
-                        {gender === "Male" ? "M" : "F"} / {age} years old
-                    </h1>
-                </Group>
+                <Text c={"dimmed"}>Next Appointment: None</Text>
+                <Text c={"dimmed"}>Last Appointment: Nov 10, 2025</Text>
             </Card.Section>
         </Card>
     );
