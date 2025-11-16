@@ -153,7 +153,8 @@ export default function ProcessSection() {
                     scrub: 1,
                 },
 
-                backgroundColor: "#043343",
+                // backgroundColor: "#043343",
+                backgroundColor: "#14678f",
                 opacity: 1,
                 ease: "power2.in",
             });

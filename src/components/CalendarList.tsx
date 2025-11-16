@@ -2,23 +2,35 @@
 
 import FullCalendar from "@fullcalendar/react";
 import multiMonthPlugin from "@fullcalendar/multimonth";
-import { EventClickArg, EventSourceInput } from "@fullcalendar/core/index.js";
-import { useMemo, useRef } from "react";
+import dayMonthPlugin from "@fullcalendar/daygrid";
+import { DatesSetArg, EventClickArg } from "@fullcalendar/core/index.js";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@mantine/core";
+import { useRouter } from "next/navigation";
+import {
+    IconChevronLeft,
+    IconChevronRight,
+    IconPlus,
+} from "@tabler/icons-react";
 
 const eventsList = [
     {
-        title: "Gin's Grooming",
+        title: "Jin's Grooming",
         start: "2025-11-10T12:00:00",
         end: "2025-11-10T12:30:00",
-        // display: "block",
-        // color: "#3b82f6",
+        display: "block",
     },
-    { user: "Alice", title: "Team Meeting", start: "2025-10-27T10:00:00" },
-    { user: "Bob", title: "Code Review", start: "2025-10-27T14:00:00" },
-    { user: "Charlie", title: "Demo", start: "2025-10-28T09:00:00" },
+    {
+        title: "Ara's Vaccination",
+        start: "2025-11-21T08:30:00",
+        end: "2025-11-21T12:30:00",
+        display: "block",
+    },
 ];
 export default function CalendarList() {
     const calendarRef = useRef<FullCalendar>(null);
+    const [currentTitle, setCurrentTitle] = useState("loading calendar..");
+    const router = useRouter();
     const totals = useMemo(() => {
         const map: Record<string, number> = {};
         eventsList.forEach((e) => {
@@ -34,20 +46,61 @@ export default function CalendarList() {
         // alert("Coordinates: " + info.jsEvent.pageX + "," + info.jsEvent.pageY);
         // alert("View: " + info.view.type);
     };
+
+    const handleDatesSet = (dateInfo: DatesSetArg) => {
+        const calendarApi = calendarRef.current?.getApi();
+        if (calendarApi) {
+            const title = calendarApi.view.title;
+            setCurrentTitle(title);
+        }
+    };
+    useEffect(() => {
+        const calendar = calendarRef.current?.getApi();
+        if (!calendar) return;
+        setCurrentTitle(calendar.view.title);
+    }, []);
     return (
         <>
+            <div className="justify-between flex">
+                <label className="text-2xl ">{currentTitle}</label>
+                <div className="flex gap-2">
+                    <Button
+                        variant="default"
+                        onClick={() => {
+                            router.push("/v1/new/appointment");
+                        }}
+                        leftSection={<IconPlus size={20} />}
+                    >
+                        New Appointment
+                    </Button>
+                    <Button.Group>
+                        <Button
+                            onClick={() => calendarRef.current?.getApi().prev()}
+                            size="sm"
+                            variant="default"
+                        >
+                            <IconChevronLeft size={20} />
+                        </Button>
+                        <Button
+                            onClick={() => calendarRef.current?.getApi().next()}
+                            size="sm"
+                            variant="default"
+                        >
+                            <IconChevronRight size={20} />
+                        </Button>
+                    </Button.Group>
+                </div>
+            </div>
             <FullCalendar
                 ref={calendarRef}
-                plugins={[multiMonthPlugin]}
-                initialView="multiMonthYear"
-                aspectRatio={1.5}
+                plugins={[multiMonthPlugin, dayMonthPlugin]}
+                initialView="dayGridMonth"
+                selectable={false}
+                datesSet={handleDatesSet}
+                aspectRatio={2}
                 multiMonthMaxColumns={1}
                 headerToolbar={{ left: "", center: "", right: "" }}
-                footerToolbar={{
-                    left: "",
-                    center: "",
-                    right: "prev,next today",
-                }}
+                footerToolbar={false}
                 events={eventsList}
                 eventClick={onEventClick}
                 viewClassNames={"cursor-pointer"}

@@ -9,7 +9,6 @@ import Link from "next/link";
 import { Button } from "@mantine/core";
 import Image from "next/image";
 
-// Font setup
 const alexBrush = Alex_Brush({
     subsets: ["latin"],
     display: "swap",
@@ -17,34 +16,26 @@ const alexBrush = Alex_Brush({
     weight: ["400"],
 });
 
-// Register plugin once (for the client component context)
 gsap.registerPlugin(ScrollTrigger);
 
 export default function HeroSection() {
-    // 1. Ref for the element to be PINNED (the wrapper)
     const pinWrapper = useRef(null);
-    // 2. Ref for the Image element to be SCALED
     const imageContainer = useRef(null);
-    // 3. Ref for the Text content to be FADED
     const textContent = useRef(null);
 
     useGSAP(
         () => {
-            // 4. Create the ScrollTrigger Timeline
             const heroTL = gsap.timeline({
                 scrollTrigger: {
-                    trigger: pinWrapper.current, // Pin the outermost container
-                    pin: true, // Enable pinning
-                    start: "top top", // Start effect when top of hero hits top of viewport
-                    end: "+=800", // The animation will last for 800px of scrolling
-                    scrub: 1, // Smoothly link animation to scroll
+                    trigger: pinWrapper.current,
+                    pin: true,
+                    start: "top top",
+                    end: "+=800",
+                    scrub: 1,
                     markers: false,
                 },
             });
 
-            // 5. ANIMATIONS (All start at the same time: 0)
-
-            // A. Scale the Image Container and darken its filter
             heroTL.to(
                 imageContainer.current,
                 {
@@ -55,7 +46,6 @@ export default function HeroSection() {
                 0
             );
 
-            // B. Fade and slide the Text/Button Content
             heroTL.to(
                 textContent.current,
                 {
@@ -68,17 +58,15 @@ export default function HeroSection() {
             );
         },
         { scope: pinWrapper }
-    ); // Scope to the pinned wrapper
+    );
 
     return (
         <>
-            {/* 1. OUTER WRAPPER (This is the element that will be PINNED) */}
             <section
                 id="hero-pin-wrapper"
                 ref={pinWrapper}
                 className="w-full relative min-h-dvh"
             >
-                {/* 2. IMAGE CONTAINER (This is the element that will be SCALED/SHRUNK) */}
                 <div
                     ref={imageContainer}
                     className="w-full h-full absolute top-0 left-0 overflow-hidden"
@@ -90,15 +78,10 @@ export default function HeroSection() {
                         objectFit="cover"
                         quality={100}
                         priority={true}
-                        // Added a filter style to ensure the GSAP animation works easily
-                        // style={{ filter: "brightness(0.7)" }}
                     />
-                    <div className="bg-gradient-to-t from-gray-700 from-80% absolute top-0 left-0 w-full h-full opacity-45 z-10 "></div>
+                    <div className="bg-linear-to-t from-gray-700 from-80% absolute top-0 left-0 w-full h-full opacity-45 z-10 "></div>
                 </div>
 
-                {/* Overlay - Stays on top of the image container */}
-
-                {/* 3. TEXT & BUTTON CONTAINER (This is the element that will be FADED) */}
                 <div
                     ref={textContent}
                     className="w-full h-full flex items-center flex-col justify-center relative z-20"
@@ -114,10 +97,7 @@ export default function HeroSection() {
                         </h1>
                     </div>
                     <div className="w-full flex items-center flex-col">
-                        <Button
-                            className="w-min mt-4 text-[#043343]"
-                            color="#043343"
-                        >
+                        <Button className="w-min mt-4 " color="#043343">
                             <Link href={"/v1/auth/signup"}>Get started</Link>
                         </Button>
                     </div>

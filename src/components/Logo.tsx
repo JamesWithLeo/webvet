@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { LogoSvg } from "./LogoSvg";
 
 export default function Logo({ size }: { size?: "lg" | "md" | "sx" }) {
     let width, height;
@@ -20,7 +21,12 @@ export default function Logo({ size }: { size?: "lg" | "md" | "sx" }) {
 
     return (
         <Link href={"/v1/"}>
-            <Image src={"/logo.svg"} width={width} height={height} alt="j&m" />
+            <LogoSvg
+                width={width}
+                height={height}
+                color="primary"
+                className="text-[#14678f] "
+            />
         </Link>
     );
 }

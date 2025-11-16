@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import Lottie from "lottie-react";
 import loadingAnim from "@/../public/lottie/loading-animation.json";
 
-const POSSIBLE_DURATIONS = [1000, 2000, 3000, 4000];
+const POSSIBLE_DURATIONS = [1000, 2000, 3000];
 
 const getRandomDuration = () => {
     const randomIndex = Math.floor(Math.random() * POSSIBLE_DURATIONS.length);

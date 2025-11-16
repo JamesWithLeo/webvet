@@ -1,7 +1,7 @@
 import { authOptions } from "@/authOptions";
 import GoogleButton from "@/components/GoogleButton";
 import Logo from "@/components/Logo";
-import { Button, TextInput } from "@mantine/core";
+import { Box, Button, TextInput } from "@mantine/core";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -13,18 +13,19 @@ export default async function LoginPage() {
     return (
         <div className="items-center  grid grid-cols-[1fr]  bg-[url('/bgPattern.svg')] grid-rows-1 min-h-dvh px-42 ">
             <section className="h-full flex flex-col items-center justify-center  bg-white">
-                <div className=" w-full flex mb-16 justify-center">
+                <Box
+                    color="primary"
+                    className=" w-full flex mb-16 justify-center"
+                >
                     <Logo />
-                </div>
+                </Box>
                 <div className="flex gap-3.5 w-sm flex-col ">
                     <h1 className="text-4xl font-bold mb-6">Welcome Back!</h1>
                     <TextInput
                         label="Email"
                         placeholder="juantamad@gmail.com"
                     />
-                    <Button color="#043343" className="w-full">
-                        Login
-                    </Button>
+                    <Button className="w-full">Login</Button>
 
                     <GoogleButton />
 

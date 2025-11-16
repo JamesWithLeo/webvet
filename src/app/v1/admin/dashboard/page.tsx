@@ -1,8 +1,4 @@
-import { Divider, Group, Paper } from "@mantine/core";
-import { IconArrowUpRight } from "@tabler/icons-react";
-import { LineChart } from "@mantine/charts";
-import { Sparkline } from "@mantine/charts";
-import { DonutChart } from "@mantine/charts";
+import { Paper } from "@mantine/core";
 import AdminGreet from "@/components/AdminGridPanels/AdminGreeting";
 import UsersPanels from "@/components/AdminGridPanels/UserPanels";
 import AppointmentPanels from "@/components/AdminGridPanels/AppointmentPanels";
@@ -48,7 +44,7 @@ export const data = [
 ];
 export default function Dashboard() {
     return (
-        <div className="w-full h-screen p-16 bg-gray-50 ">
+        <div className="w-full h-screen p-16 ">
             <section className=" grid h-full  gap-4 grid-cols-3 grid-rows-4">
                 <AdminGreet />
                 <AppointmentPanels />

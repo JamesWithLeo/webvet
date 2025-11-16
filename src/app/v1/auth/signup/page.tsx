@@ -45,7 +45,7 @@ export default async function Signup() {
     if (session?.user.id) redirect("/");
     return (
         <div className="items-centers gap-0 grid grid-cols-1 xl:grid-cols-[1fr_1fr] grid-rows-[auto_.5fr] bg-[url('/bgPattern.svg')] xl:grid-rows-1 min-h-dvh xl:px-42 ">
-            <section className=" flex flex-col h-screen  items-center justify-center   bg-white">
+            <section className=" flex flex-col h-screen  items-center justify-center  bg-white">
                 <div className=" w-full flex mb-16 justify-center">
                     <Logo />
                 </div>
@@ -54,7 +54,7 @@ export default async function Signup() {
                         Care for your pet, anytime, anywhere.
                     </h1>
                     <TextInput label="Email" />
-                    <Button color="#043343">Sign up</Button>
+                    <Button>Sign up</Button>
 
                     <GoogleButton />
 
@@ -72,7 +72,7 @@ export default async function Signup() {
                 </div>
             </section>
 
-            <section className="h-full flex w-full items-center  bg-white justify-center pb-16 xl:pb-0  md:border-l-0">
+            <section className="h-full flex w-full items-center bg-white  justify-center pb-16 xl:pb-0  md:border-l-0">
                 <div className="grid xl:gap-6 justify-center gap-16 w-full items-center">
                     {headlines.map((h, index) => (
                         <FeatureHeadline

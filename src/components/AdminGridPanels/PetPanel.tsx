@@ -1,6 +1,6 @@
 "use client";
 
-import { Group, Paper } from "@mantine/core";
+import { Paper } from "@mantine/core";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { AreaChart } from "@mantine/charts";
 export const data = [
@@ -72,7 +72,6 @@ export default function PetPanels() {
                         dataKey="date"
                         series={[
                             { name: "Apples", color: "indigo.6" },
-                            { name: "Oranges", color: "blue.6" },
                             { name: "Tomatoes", color: "teal.6" },
                         ]}
                         curveType="natural"

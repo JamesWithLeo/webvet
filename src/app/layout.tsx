@@ -12,30 +12,12 @@ import "@mantine/charts/styles.css";
 import {
     ColorSchemeScript,
     MantineProvider,
+    MantineTheme,
     mantineHtmlProps,
 } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import RouterLoadingAnimation from "@/components/RouterLoadingAnimation";
-import { MantineColorsTuple, createTheme } from "@mantine/core";
-
-const myColor: MantineColorsTuple = [
-    "#ecf9fe",
-    "#d9f0f8",
-    "#ade1f3",
-    "#81d2ef",
-    "#61c4eb",
-    "#50bce9",
-    "#46b8e9",
-    "#39a2cf",
-    "#2b90ba",
-    "#043343",
-];
-
-const theme = createTheme({
-    colors: {
-        myColor,
-    },
-});
+import { theme } from "@/components/MantineThemeConfig";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -60,12 +42,12 @@ export default function RootLayout({
     return (
         <html lang="en" {...mantineHtmlProps} suppressHydrationWarning>
             <head>
-                <ColorSchemeScript />
+                <ColorSchemeScript defaultColorScheme="auto" />
             </head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
-                <MantineProvider theme={theme}>
+                <MantineProvider theme={theme} defaultColorScheme="auto">
                     <ThemeProvider attribute={"class"}>
                         <Notifications position="bottom-right" limit={3} />
                         <RouterLoadingAnimation />

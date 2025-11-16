@@ -3,6 +3,7 @@
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import timeGridPlugin from "@fullcalendar/timegrid";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import {
     DateSelectArg,
@@ -113,33 +114,56 @@ export default function AdminCalendar() {
         <>
             <div className="justify-between mb-3 flex">
                 <label className="text-2xl ">{currentTitle}</label>
-                <Button.Group>
+                <div className="flex gap-2">
                     <Button
-                        onClick={() => calendarRef.current?.getApi().prev()}
+                        onClick={() =>
+                            calendarRef.current?.getApi().view.type ===
+                            "multiMonthYear"
+                                ? calendarRef.current
+                                      ?.getApi()
+                                      .changeView("timeGridDay")
+                                : calendarRef.current
+                                      ?.getApi()
+                                      .changeView("multiMonthYear")
+                        }
                         size="sm"
                         variant="default"
                     >
-                        <IconChevronLeft />
+                        {calendarRef.current?.getApi().view.type ===
+                        "multiMonthYear"
+                            ? "Time view"
+                            : "Month view"}
                     </Button>
-                    <Button
-                        onClick={() => calendarRef.current?.getApi().next()}
-                        size="sm"
-                        variant="default"
-                    >
-                        <IconChevronRight />
-                    </Button>
-                </Button.Group>
+                    <Button.Group>
+                        <Button
+                            onClick={() => calendarRef.current?.getApi().prev()}
+                            size="sm"
+                            variant="default"
+                        >
+                            <IconChevronLeft />
+                        </Button>
+                        <Button
+                            onClick={() => calendarRef.current?.getApi().next()}
+                            size="sm"
+                            variant="default"
+                        >
+                            <IconChevronRight />
+                        </Button>
+                    </Button.Group>
+                </div>
             </div>
             <div className="flex-1">
                 <FullCalendar
                     ref={calendarRef}
+                    defaultAllDay={false}
                     plugins={[
                         dayGridPlugin,
                         multiMonthPlugin,
                         interactionPlugin,
+                        timeGridPlugin,
                     ]}
                     initialView="multiMonthYear"
-                    aspectRatio={1.5}
+                    aspectRatio={2}
                     multiMonthMaxColumns={2}
                     datesSet={handleDatesSet}
                     businessHours={{
@@ -158,7 +182,15 @@ export default function AdminCalendar() {
                     dayCellDidMount={onDayCellMount}
                 />
             </div>
-            <div className="justify-end  flex">
+            <div className="justify-end gap-2  flex">
+                <Button
+                    className="fc-ignore-unselect w-min"
+                    disabled={!isSelectionPending}
+                    onClick={handleBlockButtonClick}
+                    size="sm"
+                >
+                    Enabled Selected Date
+                </Button>
                 <Button
                     className="fc-ignore-unselect w-min"
                     disabled={!isSelectionPending}
@@ -166,7 +198,7 @@ export default function AdminCalendar() {
                     size="sm"
                     color="red"
                 >
-                    Block Selected Date(s)
+                    Block Selected Date
                 </Button>
             </div>
 

@@ -89,7 +89,7 @@ export default function TimeSection() {
     return (
         <section
             ref={timeSectionRef}
-            className="w-full flex bg-white  justify-center py-10 items-center gap-4 "
+            className="w-full flex bg-white justify-center py-10 items-center gap-4 "
         >
             <div
                 className="
@@ -105,7 +105,7 @@ export default function TimeSection() {
             "
             >
                 <div
-                    className=" w-96 rounded-md shadow-lg  overflow-hidden  h-96"
+                    className=" w-96 rounded-md shadow-lg  dark:bg-[#262626] overflow-hidden  h-96"
                     ref={imageContainer}
                 >
                     <Image

@@ -3,18 +3,9 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import ScrollVelocity from "@/components/ScrollVelocity";
 import HeroSection from "@/components/HeroSection";
-import { Alex_Brush } from "next/font/google";
 import TimeSection from "@/components/TimeSection";
 import TransitionBlock from "@/components/TransitionBlock";
 import ProcessSection from "@/components/ProcessSection";
-
-// Font setup
-const alexBrush = Alex_Brush({
-    subsets: ["latin"],
-    display: "swap",
-    style: ["normal"],
-    weight: ["400"],
-});
 
 export default async function AppPage() {
     const session = await getServerSession(authOptions);
@@ -23,7 +14,7 @@ export default async function AppPage() {
     }
 
     return (
-        <div className="items-center justify-center bg-[#043343] min-h-dvh flex flex-col  ">
+        <div className="items-center justify-center bg-[#14678f] min-h-dvh flex flex-col  ">
             <HeroSection />
             <section className="h-min  w-full   z-10">
                 <ScrollVelocity
@@ -35,7 +26,7 @@ export default async function AppPage() {
                     className="custom-scroll-text select-none text-md    text-white "
                 />
             </section>
-            <section className="z-10 bg-white w-full  ">
+            <section className="z-10  w-full  bg-white ">
                 <TimeSection />
                 <TransitionBlock />
                 <ProcessSection />

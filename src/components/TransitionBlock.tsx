@@ -52,7 +52,8 @@ export default function TransitionBlock() {
                 overlayRef.current,
                 {
                     ease: "power1.in",
-                    backgroundColor: "#043343",
+                    // backgroundColor: "#043343",
+                    backgroundColor: "#14678f",
                 },
                 0
             );

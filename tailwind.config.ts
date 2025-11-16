@@ -1,19 +1,16 @@
 // tailwind.config.js
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    // ... (other configurations)
-
-    // ADD THIS SAFELIST BLOCK:
-    safelist: [
-        // This forces Tailwind to generate the active link background color
-        "[data-active]:bg-[#043343]",
-        // If you want white text on active:
-        "[data-active]:text-white",
-        // And to ensure the active color persists on hover:
-        "[data-active]:hover:bg-[#043343]",
-        "[data-active]:hover:text-white",
+    // Configure Tailwind to use Mantine's data attribute for dark mode
+    darkMode: ["class", '[data-mantine-color-scheme="dark"]'],
+    content: [
+        "./app/**/*.{js,ts,jsx,tsx,mdx}",
+        "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+        "./components/**/*.{js,ts,jsx,tsx,mdx}",
     ],
 
-    // ... (rest of the config)
+    theme: {
+        extend: {},
+    },
+    plugins: [],
 };

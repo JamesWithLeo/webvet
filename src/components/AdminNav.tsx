@@ -8,20 +8,12 @@ import {
     IconLogout2,
     IconUser,
     IconChevronLeft,
-    Icon,
     IconListSearch,
 } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "./LogoutButton";
-import {
-    Box,
-    Collapse,
-    Group,
-    Button,
-    Text,
-    UnstyledButton,
-} from "@mantine/core";
+import { Box, Collapse, UnstyledButton } from "@mantine/core";
 
 const data = [
     {
@@ -82,7 +74,7 @@ const NavLink = ({
                     className={`
                 ${
                     isActive
-                        ? " bg-[var(--mantine-color-blue-light)] text-[var(--mantine-color-blue-light-color)] "
+                        ? " bg-(--mantine-color-blue-light) text-(--mantine-color-blue-light-color) "
                         : " text-gray-500 hover:bg-gray-100 "
                 }
                 ${isCollapsed ? " justify-center " : " p-4 "}
@@ -122,7 +114,7 @@ const NavLink = ({
                     className={`
                 ${
                     isActive
-                        ? " bg-[var(--mantine-color-blue-light)] text-[var(--mantine-color-blue-light-color)] "
+                        ? " bg-(--mantine-color-blue-light) text-(--mantine-color-blue-light-color) "
                         : " text-gray-500 hover:bg-gray-100 "
                 } 
                 ${isCollapsed ? " justify-center " : " p-4 "}
@@ -178,17 +170,17 @@ export default function AdminNav() {
     return (
         <nav
             className={`
-                flex flex-col border-r border-gray-200 h-screen relative 
+                flex flex-col border-r     border-gray-200 h-screen relative 
                 ${isCollapsed ? " w-20 p-2 " : " min-w-sm p-4 "}
                 transition-all duration-300 ease-in-out
             `}
         >
             <div
-                className={`w-full flex items-center justify-start gap-6 border-b border-gray-200 ${isCollapsed ? " p-4 " : " p-4 "}`}
+                className={`w-full flex items-center justify-start  gap-6 border-b   ${isCollapsed ? " p-4 " : " p-4 "}`}
             >
                 <Logo size="md" />
                 {!isCollapsed && (
-                    <h1 className="font-bold text-2xl text-[#043343]">
+                    <h1 className="font-bold text-2xl text-[#14678f] dark:text-[#50bce9]">
                         JOSEPH & MARY
                     </h1>
                 )}
@@ -201,7 +193,7 @@ export default function AdminNav() {
             </div>
 
             <div
-                className={`flex flex-col border-t border-gray-200 gap-4 w-full pt-4 ${isCollapsed ? "px-2" : "px-4"}`}
+                className={`flex flex-col border-t  gap-4 w-full pt-4 ${isCollapsed ? "px-2" : "px-4"}`}
             >
                 <LogoutButton
                     className="font-normal"
@@ -219,10 +211,11 @@ export default function AdminNav() {
                 </LogoutButton>
             </div>
 
+            {/* <ThemeModeButton /> */}
             <button
                 className="
                     absolute top-1/2 -right-4 transform -translate-y-1/2 
-                    bg-white border border-gray-300 p-1 rounded-full shadow-lg 
+                    light:bg-white  border  p-1 rounded-full shadow-lg 
                     hover:bg-gray-100 z-10 
                     transition-all duration-300
                 "
