@@ -1,6 +1,6 @@
 "use client";
 
-import { Stepper, TextInput, Button, Divider, Modal, Box } from "@mantine/core";
+import { Stepper, TextInput, Button, Modal, Box } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useState } from "react";
@@ -10,7 +10,6 @@ import SelectTimeCal from "./calendars/SelectTimeCal";
 import { newAppointmentSchema } from "@/lib/validators/newAppointmentSchema";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { appointmentTypeValues } from "@/db/schema/appointments";
 import z from "zod";
 import { toTitleCase } from "@/lib/toTitleCase";
 import SuccessModal from "./SuccessModal";

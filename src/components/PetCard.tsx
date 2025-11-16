@@ -10,7 +10,6 @@ import {
     Checkbox,
     Text,
     Menu,
-    Button,
 } from "@mantine/core";
 import {
     IconCat,

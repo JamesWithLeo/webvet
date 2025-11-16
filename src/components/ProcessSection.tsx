@@ -21,7 +21,7 @@ const processSteps = [
         title: "2. Choose the Date",
         description1: "Select a date that fits your schedule.",
         description2:
-            "We'll show you the next available appointments for the care type you selected.",
+            "We&apos;ll show you the next available appointments for the care type you selected.",
         imageSrc: "/Group2.svg",
     },
     {

@@ -101,7 +101,7 @@ export default function TimeSection() {
                 rounded-lg      
                 shadow-xl       
                 relative                        z-10            
-                flex-shrink-0   
+                shrink-0   
             "
             >
                 <div
@@ -126,7 +126,7 @@ export default function TimeSection() {
                     ,
                 </h1>
                 <h1 className="text-4xl/tight  text-[#043343] font-bold">
-                    and that scheduling pet care shouldn't be a chore.
+                    and that scheduling pet care shouldn&apos;t be a chore.
                 </h1>
             </span>
         </section>

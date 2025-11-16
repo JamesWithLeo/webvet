@@ -1,13 +1,6 @@
 import PetCard from "@/components/PetCard";
 import PetControllers from "@/components/PetControllers";
-import {
-    ActionIcon,
-    Button,
-    Center,
-    Group,
-    Paper,
-    TextInput,
-} from "@mantine/core";
+import { ActionIcon, Center, Paper } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 
 const myPets: {
@@ -55,7 +48,6 @@ export default function Page() {
     return (
         <div className="flex  items-center gap-8 w-full h-screen  flex-col   ">
             <div className="min-h-screen w-full relative md:px-16 px-4 py-4 flex gap-8 flex-col">
-                {/* Dashed Bottom Fade Grid */}
                 <div
                     className="absolute inset-0 z-0"
                     style={{

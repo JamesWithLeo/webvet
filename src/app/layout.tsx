@@ -12,7 +12,6 @@ import "@mantine/charts/styles.css";
 import {
     ColorSchemeScript,
     MantineProvider,
-    MantineTheme,
     mantineHtmlProps,
 } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";

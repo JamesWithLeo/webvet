@@ -6,12 +6,8 @@ import dayMonthPlugin from "@fullcalendar/daygrid";
 import { DatesSetArg, EventClickArg } from "@fullcalendar/core/index.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@mantine/core";
-import { useRouter } from "next/navigation";
-import {
-    IconChevronLeft,
-    IconChevronRight,
-    IconPlus,
-} from "@tabler/icons-react";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import NewAppointmentButton from "./NewAppointmentButton";
 
 const eventsList = [
     {
@@ -30,7 +26,6 @@ const eventsList = [
 export default function CalendarList() {
     const calendarRef = useRef<FullCalendar>(null);
     const [currentTitle, setCurrentTitle] = useState("loading calendar..");
-    const router = useRouter();
     const totals = useMemo(() => {
         const map: Record<string, number> = {};
         eventsList.forEach((e) => {
@@ -64,15 +59,7 @@ export default function CalendarList() {
             <div className="justify-between flex">
                 <label className="text-2xl ">{currentTitle}</label>
                 <div className="flex gap-2">
-                    <Button
-                        variant="default"
-                        onClick={() => {
-                            router.push("/v1/new/appointment");
-                        }}
-                        leftSection={<IconPlus size={20} />}
-                    >
-                        New Appointment
-                    </Button>
+                    <NewAppointmentButton />
                     <Button.Group>
                         <Button
                             onClick={() => calendarRef.current?.getApi().prev()}

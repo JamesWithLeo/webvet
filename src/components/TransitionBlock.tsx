@@ -3,15 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Alex_Brush } from "next/font/google";
 import { useRef } from "react";
-
-const alexBrush = Alex_Brush({
-    subsets: ["latin"],
-    display: "swap",
-    style: ["normal"],
-    weight: ["400"],
-});
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -115,7 +107,7 @@ export default function TransitionBlock() {
                 ref={keyPhraseTwoRef}
             >
                 <h1 className="text-white text-2xl font-semibold">
-                    we've streamlined the entire booking process into{" "}
+                    we&apos;ve streamlined the entire booking process into{" "}
                     <span className="text-7xl font-extrabold text-amber-400">
                         3
                     </span>{" "}

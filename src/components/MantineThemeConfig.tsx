@@ -1,7 +1,6 @@
-// theme/mantine-client-config.tsx
 "use client";
 
-import { createTheme, MantineColorsTuple, MantineTheme } from "@mantine/core";
+import { createTheme, MantineColorsTuple } from "@mantine/core";
 
 const myColor: MantineColorsTuple = [
     "#edf7fc",

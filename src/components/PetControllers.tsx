@@ -1,19 +1,7 @@
 "use client";
 
-import {
-    ActionIcon,
-    Button,
-    Checkbox,
-    Grid,
-    Group,
-    Input,
-    Menu,
-} from "@mantine/core";
-import {
-    IconAdjustmentsHorizontal,
-    IconArrowsSort,
-    IconLayoutSidebarLeftCollapse,
-} from "@tabler/icons-react";
+import { Button, Checkbox, Grid, Group, Input, Menu } from "@mantine/core";
+import { IconAdjustmentsHorizontal, IconArrowsSort } from "@tabler/icons-react";
 
 export default function PetControllers() {
     return (

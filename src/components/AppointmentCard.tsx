@@ -12,6 +12,7 @@ import {
     Title,
 } from "@mantine/core";
 import { IconCreditCardPay } from "@tabler/icons-react";
+import { isPast } from "date-fns";
 
 const DogSvg = () => {
     return (
@@ -22,7 +23,7 @@ const DogSvg = () => {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
             className="icon icon-tabler icons-tabler-outline icon-tabler-dog"
@@ -49,7 +50,7 @@ const CatSvg = () => {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth={2}
+            strokeWidth={1.5}
             strokeLinecap="round"
             strokeLinejoin="round"
             className="icon icon-tabler icons-tabler-outline icon-tabler-cat"
@@ -93,6 +94,7 @@ export default function AppointmentCard({
     paid?: boolean;
     date: Date;
 }) {
+    const passed = isPast(date);
     const handlePaymentClick = async () => {
         const amount = 1000;
         const email = "jamesocampo@gmail.com";
@@ -119,9 +121,14 @@ export default function AppointmentCard({
         }
     };
     return (
-        <Card withBorder w={400} p={"md"} radius={"md"}>
-            <Card.Section p={"md"}>
-                <div className="absolute -right-7 text-gray-300 -rotate-12 -top-5">
+        <Card withBorder w={500} h={200} p={"md"} radius={"md"}>
+            <Card.Section
+                p={"md"}
+                className="group"
+                component="a"
+                href={`/v1/appointments/${name}`}
+            >
+                <div className="absolute group-hover:scale-[1.05] -right-7 text-gray-200 -rotate-12 -top-5">
                     {species === "DOG" ? <DogSvg /> : <CatSvg />}
                 </div>
                 <Group>
@@ -130,10 +137,10 @@ export default function AppointmentCard({
                             align="center"
                             className="rounded"
                             gap={0}
-                            bg={"primary"}
+                            bg={passed ? "gray" : "primary"}
                             p={"sm"}
                         >
-                            <Text c={"primary.2"}>
+                            <Text c={passed ? "gray.7" : "primary.2"}>
                                 {monthAbbreviations[date.getMonth()]}
                             </Text>
                             <Text c={"white"}>{date.getDate()}</Text>
@@ -142,7 +149,7 @@ export default function AppointmentCard({
                     <Group>
                         <Stack justify="flex-end" gap={0}>
                             <Title c={"primary"} order={4} fw={"bold"}>
-                                {name}'s {service}
+                                {name}&apos;s {service}
                             </Title>
                             <Text c={"dimmed"}>Thur 10:30 AM</Text>
                             <Text c={"dimmed"}>{doctor}</Text>
@@ -150,9 +157,8 @@ export default function AppointmentCard({
                     </Group>
                 </Group>
             </Card.Section>
-            {/* <Text size="sm">Amount</Text> */}
-            <Divider label={"Amount"} />
-            <Card.Section p={"md"}>
+            <Card.Section px={"md"}>
+                <Divider label={"Amount"} />
                 <Flex c={"dimmed"} align={"center"} justify="space-between">
                     <Text>
                         <NumberFormatter

@@ -5,7 +5,7 @@ import { IconCalendarWeek, IconLogs, IconLeaf } from "@tabler/icons-react";
 import Logo from "@/components/Logo";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/authOptions";
-import { redirect, RedirectType } from "next/navigation";
+import { redirect } from "next/navigation";
 
 const headlines = [
     {

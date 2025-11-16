@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal, Transition } from "@mantine/core";
+import { Modal } from "@mantine/core";
 import { useEffect, useRef } from "react";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import successAnim from "@/../public/lottie/Success-Animation.json";

@@ -7,7 +7,6 @@ import {
     timestamp,
     serial,
     text,
-    boolean,
     date,
     pgEnum,
 } from "drizzle-orm/pg-core";

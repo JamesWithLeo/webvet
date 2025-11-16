@@ -3,7 +3,7 @@
 import { DataTable, useDataTableColumns } from "mantine-datatable";
 import { ActionIcon } from "@mantine/core";
 import { Group, Box, Button } from "@mantine/core";
-import { IconEdit, IconEye, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 
 interface IAccount {
     id: number;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Group, Paper } from "@mantine/core";
+import { Paper } from "@mantine/core";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { Sparkline } from "@mantine/charts";
 export const data = [

@@ -1,12 +1,12 @@
 import AppointmentCard from "@/components/AppointmentCard";
-import { Title } from "@mantine/core";
+import NewAppointmentButton from "@/components/NewAppointmentButton";
+import { Group, Title } from "@mantine/core";
 
 export default async function AppointmentPage() {
     return (
         <>
             <div className="flex  items-center gap-8 w-full h-screen  flex-col   ">
                 <div className="min-h-screen w-full relative md:p-16 px-4 flex gap-8 flex-col">
-                    {/* Dashed Bottom Fade Grid */}
                     <div
                         className="absolute inset-0 z-0"
                         style={{
@@ -54,14 +54,27 @@ export default async function AppointmentPage() {
                             WebkitMaskComposite: "source-in",
                         }}
                     />
-                    <Title c={"dimmed"}>2025</Title>
-                    <AppointmentCard
-                        name="Jin"
-                        service="Grooming"
-                        species="DOG"
-                        doctor="Dr. Han"
-                        date={new Date("2025-11-23")}
-                    />
+                    <Group align="center" justify="space-between">
+                        <Title c={"dimmed"}>2025</Title>
+                        <NewAppointmentButton />
+                    </Group>
+                    <Group className="">
+                        <AppointmentCard
+                            name="Ara"
+                            service="Vaccination"
+                            species="DOG"
+                            doctor="Dr. Abe"
+                            date={new Date("2025-11-21")}
+                        />
+                        <AppointmentCard
+                            name="Jin"
+                            service="Grooming"
+                            species="DOG"
+                            doctor="Dr. Han"
+                            date={new Date("2025-11-10")}
+                            paid={true}
+                        />
+                    </Group>
                     <Title c={"dimmed"}>2024</Title>
                     <AppointmentCard
                         name="Kirby"

@@ -2,7 +2,7 @@ import { authOptions } from "@/authOptions";
 import AccountStepperWrapper from "@/components/AccountStepperWrapper";
 import LogoutButton from "@/components/LogoutButton";
 import { Box } from "@mantine/core";
-import { IconLogout, IconLogout2 } from "@tabler/icons-react";
+import { IconLogout } from "@tabler/icons-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
