@@ -120,8 +120,7 @@ export default function TimeSection() {
                 <h1 className="text-5xl/tight mt-8 text-[#043343] font-bold">
                     We know your
                     <i className="text-6xl text-blue-500">
-                        {" "}
-                        'time is valuable'
+                        &apos;time is valuable&apos;
                     </i>
                     ,
                 </h1>

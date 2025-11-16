@@ -100,7 +100,9 @@ export default function TransitionBlock() {
                 className="relative z-20 flex w-max rounded" // Added z-20
                 ref={keyPhraseRef}
             >
-                <h1 className={`font-bold text-white text-9xl`}>That's why</h1>
+                <h1 className={`font-bold text-white text-9xl`}>
+                    That&apos;s why
+                </h1>
             </div>
             <div
                 className="relative z-20 mt-4 flex w-max rounded" // Added z-20

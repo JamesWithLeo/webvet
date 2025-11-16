@@ -4,6 +4,7 @@ import Logo from "@/components/Logo";
 import ThemeModeButton from "@/components/ThemeModeButton";
 import { ActionIcon } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
+import Link from "next/link";
 
 export default function LayoutContent({
     children,
@@ -46,21 +47,24 @@ export default function LayoutContent({
                             direction="row"
                             w={"100%"}
                         >
-                            <a
+                            <Link
                                 href="/v1/dashboard"
                                 className=" hover:bg-gray-50 p-4"
                             >
                                 Home
-                            </a>
-                            <a href="/v1/pets" className="p-4 hover:bg-gray-50">
+                            </Link>
+                            <Link
+                                href="/v1/pets"
+                                className="p-4 hover:bg-gray-50"
+                            >
                                 Pets
-                            </a>
-                            <a
+                            </Link>
+                            <Link
                                 href="/v1/appointments"
                                 className=" hover:bg-gray-50 p-4"
                             >
                                 Appointments
-                            </a>
+                            </Link>
                         </Flex>
                     </Group>
                     <Group h={"100%"}>

@@ -242,7 +242,7 @@ export default function ProcessSection() {
                 className="flex h-screen gap-8 flex-col bg-[url('/pattern.svg')] bg-white px-10  items-center justify-center "
             >
                 <h1 className="text-9xl font-extrabold  text-white">
-                    THAT'S IT!
+                    THAT&apos;S IT!
                 </h1>
                 <Button
                     variant="transparent"
