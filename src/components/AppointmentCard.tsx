@@ -11,8 +11,8 @@ import {
     Text,
     Title,
 } from "@mantine/core";
-import { IconCreditCardPay } from "@tabler/icons-react";
 import { isPast } from "date-fns";
+import { useRouter } from "next/navigation";
 
 const DogSvg = () => {
     return (
@@ -95,31 +95,31 @@ export default function AppointmentCard({
     date: Date;
 }) {
     const passed = isPast(date);
-    const handlePaymentClick = async () => {
-        const amount = 1000;
-        const email = "jamesocampo@gmail.com";
-
-        const response = await fetch("/api/xendit/checkout", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                amount: amount,
-                email: email,
-                currency: "PHP",
-            }),
-        });
-
-        if (response.ok) {
-            const invoiceData = await response.json();
-            const invoiceUrl = invoiceData.invoice_url;
-
-            window.location.href = invoiceUrl;
-        } else {
-            const errorData = await response.json();
-            console.error("Payment initiation failed:", errorData);
-            alert("Could not start payment. Please try again.");
-        }
+    const router = useRouter();
+    const handleInvoiceClick = async () => {
+        router.push("/v1/invoice");
+        // const amount = 1000;
+        // const email = "jamesocampo@gmail.com";
+        // const response = await fetch("/api/xendit/checkout", {
+        //     method: "POST",
+        //     headers: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({
+        //         amount: amount,
+        //         email: email,
+        //         currency: "PHP",
+        //     }),
+        // });
+        // if (response.ok) {
+        //     const invoiceData = await response.json();
+        //     const invoiceUrl = invoiceData.invoice_url;
+        //     window.location.href = invoiceUrl;
+        // } else {
+        //     const errorData = await response.json();
+        //     console.error("Payment initiation failed:", errorData);
+        //     alert("Could not start payment. Please try again.");
+        // }
     };
+
     return (
         <Card withBorder w={500} h={200} p={"md"} radius={"md"}>
             <Card.Section
@@ -169,13 +169,8 @@ export default function AppointmentCard({
                         />
                     </Text>
                     {!paid ? (
-                        <Button
-                            variant="subtle"
-                            color="red"
-                            rightSection={<IconCreditCardPay />}
-                            onClick={handlePaymentClick}
-                        >
-                            Payment
+                        <Button variant="default" onClick={handleInvoiceClick}>
+                            Invoice
                         </Button>
                     ) : (
                         <Text c={"dimmed"} size="sm">

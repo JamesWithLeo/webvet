@@ -5,12 +5,16 @@ import {
     Title,
     Text,
     List,
-    SimpleGrid,
     Grid,
     Group,
     Flex,
     Space,
+    Button,
+    Divider,
+    ActionIcon,
+    Alert,
 } from "@mantine/core";
+import { IconArrowBarToDownDashed, IconInfoCircle } from "@tabler/icons-react";
 import Image from "next/image";
 
 export default function Page() {
@@ -65,39 +69,79 @@ export default function Page() {
                     }}
                 />
                 <Grid className="flex flex-col  items-center">
-                    <Grid.Col span={5}>
+                    <Grid.Col span={12}>
+                        <Alert
+                            variant="light"
+                            color="red"
+                            withCloseButton
+                            w={"100%"}
+                            title="Unsettled Payment"
+                            closeButtonLabel="Dismiss payment remainder"
+                            icon={<IconInfoCircle />}
+                        />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
                         <Flex align={"center"} justify={"flex-end"}>
-                            <div className="w-96 h-96">
+                            <div className="w-full h-96">
                                 <Image
                                     className="rounded-md  w-full"
                                     priority
                                     src={"/goldenr.jpg"}
                                     width={100}
+                                    quality={100}
                                     height={100}
                                     alt="golden retriever"
                                 />
                             </div>
                         </Flex>
                     </Grid.Col>
-                    <Grid.Col span={7}>
-                        <Stack h={"100%"} gap={3} justify="center">
-                            <Title c={"primary"}>Ara</Title>
-                            <Title order={6} c={"dimmed"}>
-                                F / 8 years old
-                            </Title>
-                            <Space h={"sm"} />
-                            <Text>Last Vaccination: Null</Text>
-                            <Text>Last Grooming: July 01, 2025</Text>
-                            <Text>Descriptive Features</Text>
+                    <Grid.Col span={8}>
+                        <Group align="flex-start" justify="" wrap="nowrap">
+                            <Stack
+                                h={"100%"}
+                                w={"100%"}
+                                gap={3}
+                                justify="center"
+                            >
+                                <Title c={"primary"}>Ara</Title>
+                                <Title order={6} c={"dimmed"}>
+                                    Female / 8 years old
+                                </Title>
+                                <Title order={6} c={"dimmed"}>
+                                    Weight: 30 kg
+                                </Title>
+                                <Space h={"sm"} />
+                                <Text>Last Vaccination: Null</Text>
+                                <Text>Last Grooming: July 01, 2025</Text>
+                                <Text>Descriptive Features</Text>
 
-                            <List listStyleType="disc">
-                                <List.Item>Short Tail </List.Item>
-                                <List.Item>Broken paw print </List.Item>
-                                <List.Item>white blaze</List.Item>
-                            </List>
-                        </Stack>
+                                <List listStyleType="disc">
+                                    <List.Item>Short Tail </List.Item>
+                                    <List.Item>Broken paw print </List.Item>
+                                    <List.Item>white blaze</List.Item>
+                                </List>
+                            </Stack>
+                            <Stack
+                                // w={"100%"}
+                                h={"100%"}
+                                align="flex-start"
+                                justify="flex-start"
+                            >
+                                <Button color="red">Payment</Button>
+                            </Stack>
+                        </Group>
                     </Grid.Col>
-                    <Grid.Col span={5} offset={5}>
+                    <Grid.Col span={4} offset={4}>
+                        <Title c={"gray"} order={3}>
+                            Appointments
+                        </Title>
+                        <Space h={"sm"} />
+                        <Divider
+                            my={"md"}
+                            label={"Present"}
+                            labelPosition="left"
+                            orientation="horizontal"
+                        />
                         <Timeline
                             className="col-span-2"
                             active={2}
@@ -105,30 +149,89 @@ export default function Page() {
                             reverseActive
                             lineWidth={2}
                         >
-                            <Timeline.Item title="Vaccination">
-                                <Text size="xs" mt={4}>
-                                    Up next: November 21, 2025
-                                </Text>
+                            <Timeline.Item>
+                                <Group justify="space-between">
+                                    <Stack gap={0}>
+                                        <Title order={5} fw={"500"}>
+                                            {" "}
+                                            Vaccination
+                                        </Title>
+                                        <Text size="xs" mt={4}>
+                                            Up next: November 21, 2025
+                                        </Text>
+                                    </Stack>
+                                    <ActionIcon variant="transparent">
+                                        <IconArrowBarToDownDashed
+                                            size={20}
+                                            stroke={1.5}
+                                        />
+                                    </ActionIcon>
+                                </Group>
                             </Timeline.Item>
 
-                            <Timeline.Item title="Grooming">
-                                <Text size="xs" c={"dimmed"} mt={4}>
-                                    5 months ago
-                                </Text>
+                            <Timeline.Item>
+                                <Group justify="space-between">
+                                    <Stack gap={0}>
+                                        <Title order={5} fw={"500"}>
+                                            Grooming
+                                        </Title>
+                                        <Text size="xs" c={"dimmed"} mt={4}>
+                                            5 days ago
+                                        </Text>
+                                    </Stack>
+                                    <ActionIcon variant="transparent">
+                                        <IconArrowBarToDownDashed
+                                            size={20}
+                                            stroke={1.5}
+                                        />
+                                    </ActionIcon>
+                                </Group>
                             </Timeline.Item>
+                        </Timeline>
 
-                            <Timeline.Item title="Grooming" lineVariant="solid">
-                                <Text size="xs" c={"dimmed"} mt={4}>
-                                    9 months ago
-                                </Text>
+                        <Divider
+                            my={"md"}
+                            label={"July 13, 2025"}
+                            labelPosition="left"
+                            orientation="horizontal"
+                        />
+                        <Timeline>
+                            <Timeline.Item lineVariant="solid">
+                                <Group justify="space-between">
+                                    <Stack gap={0}>
+                                        <Title order={5} fw={"500"}>
+                                            Grooming
+                                        </Title>
+                                        <Text size="xs" c={"dimmed"} mt={4}>
+                                            9 months ago
+                                        </Text>
+                                    </Stack>
+                                    <ActionIcon variant="transparent">
+                                        <IconArrowBarToDownDashed
+                                            size={20}
+                                            stroke={1.5}
+                                        />
+                                    </ActionIcon>
+                                </Group>
                             </Timeline.Item>
-
+                        </Timeline>
+                        <Divider
+                            my={"md"}
+                            label={"March 05, 2024"}
+                            labelPosition="left"
+                            orientation="horizontal"
+                        />
+                        <Timeline>
                             <Timeline.Item title="Check up">
                                 <Text size="xs" c={"dimmed"} mt={4}>
                                     1 year ago
                                 </Text>
                             </Timeline.Item>
                         </Timeline>
+                        <Space h={"md"} />
+                        <Button variant="default" fw={"500"} size="sm">
+                            Show more
+                        </Button>
                     </Grid.Col>
                 </Grid>
             </div>

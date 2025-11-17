@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import {
     ActionIcon,
     Avatar,
-    Box,
     Button,
     Group,
     Paper,
@@ -19,7 +18,6 @@ import {
     IconCalendarCheck,
     IconCat,
     IconGenderMale,
-    IconLogout,
 } from "@tabler/icons-react";
 
 export default async function ProfilePage() {
