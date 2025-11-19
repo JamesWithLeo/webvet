@@ -46,7 +46,7 @@ const data = [
         label: "Accounts",
         icon: <IconUser stroke={1.5} />,
     },
-    { link: "/v1/admin/pets", label: "Pets", icon: <IconCat /> },
+    { link: "/v1/admin/pets", label: "Pets", icon: <IconCat stroke={1.5} /> },
 ];
 const NavLink = ({
     isActive,

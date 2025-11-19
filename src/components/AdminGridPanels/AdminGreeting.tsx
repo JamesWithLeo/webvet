@@ -1,14 +1,15 @@
 "use client";
 
-import { Button, Divider, Group, Paper } from "@mantine/core";
+import { Button, Divider, Group, Paper, Space } from "@mantine/core";
 import { IconHeartbeat, IconWalk } from "@tabler/icons-react";
 import StaticMiniCalendar from "../StaticMiniCalendar";
-
+import Lottie from "lottie-react";
+import animDate from "@/../public/lottie/Meeting.json";
 export default function AdminGreet() {
     return (
         <Paper withBorder className="w-full p-4 col-span-3">
             <Group className="h-full">
-                <div className="flex-1 flex flex-col justify-between h-full">
+                <div className="flex-1 relative flex flex-col justify-between h-full">
                     <div>
                         <h1 className="text-2xl font-bold">
                             Hello again, Admin!
@@ -17,29 +18,36 @@ export default function AdminGreet() {
                             Lot of things changed since your last active
                         </h1>
                     </div>
-                    <Button.Group>
-                        <Button
-                            size="xs"
-                            color="red"
-                            variant="filled"
-                            leftSection={<IconHeartbeat size={16} />}
-                        >
-                            Emergency
-                        </Button>
-                        <Button
-                            size="xs"
-                            variant="default"
-                            leftSection={<IconWalk size={16} />}
-                        >
-                            Quick Walk-In
-                        </Button>
-                        <Button size="xs" variant="default">
-                            Add Pet
-                        </Button>
-                    </Button.Group>
-                    {/* <div className="absolute w-72 h-72 left-1/2 top-36">
+                    <Group>
+                        <Button.Group>
+                            <Button
+                                size="xs"
+                                color="red"
+                                variant="filled"
+                                leftSection={<IconHeartbeat size={16} />}
+                            >
+                                Emergency
+                            </Button>
+                            <Button
+                                size="xs"
+                                variant="default"
+                                leftSection={<IconWalk size={16} />}
+                            >
+                                Quick Walk-In
+                            </Button>
+                        </Button.Group>
+                        <Button.Group>
+                            <Button size="xs" variant="default">
+                                Add Pet
+                            </Button>
+                            <Button size="xs" variant="default">
+                                Verify Pet
+                            </Button>
+                        </Button.Group>
+                    </Group>
+                    <div className="absolute w-72 h-72 left-[700px] -top-7">
                         <Lottie animationData={animDate} />
-                    </div> */}
+                    </div>
                 </div>
 
                 <Divider orientation="vertical" />

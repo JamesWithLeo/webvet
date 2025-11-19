@@ -3,6 +3,8 @@ import AdminGreet from "@/components/AdminGridPanels/AdminGreeting";
 import UsersPanels from "@/components/AdminGridPanels/UserPanels";
 import AppointmentPanels from "@/components/AdminGridPanels/AppointmentPanels";
 import PetPanels from "@/components/AdminGridPanels/PetPanel";
+import AdminServiceOpertations from "@/components/AdminGridPanels/AdminServiceOperations";
+import AdminNotificatons from "@/components/AdminNotifications";
 
 export const donutData = [
     { name: "USA", value: 400, color: "indigo.6" },
@@ -48,10 +50,12 @@ export default function Dashboard() {
             <section className=" grid h-full  gap-4 grid-cols-3 grid-rows-4">
                 <AdminGreet />
                 <AppointmentPanels />
+                <AdminServiceOpertations />
+                <AdminNotificatons />
                 <UsersPanels />
                 <PetPanels />
 
-                <Paper withBorder className="p-4 row-span-2 ">
+                {/* <Paper withBorder className="p-4 row-span-2 ">
                     <h1 className="text-md text-gray-400 font-medium">
                         Active Personel
                     </h1>
@@ -73,7 +77,7 @@ export default function Dashboard() {
                         </div>
                         <h1 className="text-sm ">Veterinarian</h1>
                     </Paper>
-                </Paper>
+                </Paper> */}
             </section>
         </div>
     );

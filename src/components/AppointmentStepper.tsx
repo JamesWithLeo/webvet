@@ -1,6 +1,6 @@
 "use client";
 
-import { Stepper, TextInput, Button, Modal, Box } from "@mantine/core";
+import { Stepper, TextInput, Button, Modal, Box, Select } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useState } from "react";
@@ -93,16 +93,13 @@ export default function AppointmentStepper() {
                     size="lg"
                     className="h-min  w-full max-w-7xl "
                 >
-                    <Stepper.Step
-                        label="Step 1"
-                        description="Set title & appointmet type"
-                    />
+                    <Stepper.Step label="Step 1" description="Set details" />
                     <Stepper.Step
                         label="Step 2"
                         description="Pick an appointment date"
                     />
                     <Stepper.Step
-                        label="Step 1"
+                        label="Step 3"
                         description="Select specific time"
                     />
                     <Stepper.Completed>
@@ -118,7 +115,7 @@ export default function AppointmentStepper() {
                             <TextInput
                                 label="Title"
                                 name="title"
-                                placeholder="Jin's Gala"
+                                placeholder="Ara's Gala"
                                 {...form.getInputProps("title")}
                             />
                             <AppoinmentComboBox
@@ -127,6 +124,14 @@ export default function AppointmentStepper() {
                                 {...form.getInputProps("type")}
                             />
 
+                            <Select
+                                label="Pet"
+                                name="pet"
+                                data={["Jin", "Ara", "Kirby"]}
+                                placeholder="Ara"
+                                searchable
+                                nothingFoundMessage="Nothing found..."
+                            />
                             <div className="w-full flex justify-end">
                                 <Button onClick={nextStep}>Next</Button>
                             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Paper } from "@mantine/core";
+import { Group, Paper, SimpleGrid } from "@mantine/core";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { Sparkline } from "@mantine/charts";
 export const data = [
@@ -38,9 +38,13 @@ export const data = [
 
 export default function PetPanels() {
     return (
-        <Paper withBorder className="w-full flex p-4 col-span-1 row-span-2">
-            <div className="flex-1 flex flex-col justify-between h-full">
-                <div className="flex h-full  flex-col gap-6 flex-1">
+        <Paper withBorder className="w-full flex p-4 col-span-1 row-span-1">
+            <SimpleGrid
+                cols={3}
+                spacing={0}
+                className="flex-1 flex flex-col justify-between h-full"
+            >
+                <div className="flex h-full  flex-col gap-6 ">
                     <div>
                         <h1 className="font-bold text-sm text-gray-500">
                             TOTAL USERS
@@ -65,7 +69,7 @@ export default function PetPanels() {
                         </div>
                     </div>
                 </div>
-                <div className="flex  items-end   h-full">
+                <div className="w-full col-span-2  flex items-end  h-full">
                     <Sparkline
                         w={"100%"}
                         h={200}
@@ -77,7 +81,7 @@ export default function PetPanels() {
                         strokeWidth={2}
                     />
                 </div>
-            </div>
+            </SimpleGrid>
         </Paper>
     );
 }
