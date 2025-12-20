@@ -16,7 +16,7 @@ import {
     IconX,
     IconTrash,
 } from "@tabler/icons-react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { useState } from "react";
 
 interface IPet {

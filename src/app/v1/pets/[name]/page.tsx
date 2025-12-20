@@ -15,7 +15,7 @@ import {
     Alert,
 } from "@mantine/core";
 import { IconArrowBarToDownDashed, IconInfoCircle } from "@tabler/icons-react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 export default function Page() {
     return (
