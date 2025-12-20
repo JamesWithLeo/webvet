@@ -2,8 +2,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/authOptions";
 import { redirect } from "next/navigation";
 import {
-    ActionIcon,
-    Avatar,
     Button,
     Divider,
     Group,
@@ -19,12 +17,11 @@ import {
     IconCalendarCheck,
     IconCalendarEvent,
     IconCalendarSad,
-    IconCat,
-    IconGenderMale,
     IconPaw,
     IconPawFilled,
     IconPawOff,
 } from "@tabler/icons-react";
+import ProfileCardGroup from "@/components/ProfileCardGroup";
 
 export default async function ProfilePage() {
     const session = await getServerSession(authOptions);
@@ -41,37 +38,12 @@ export default async function ProfilePage() {
                 className="relative max-w-3xl"
             >
                 <Stack gap={"xl"}>
-                    <Group>
-                        <Avatar
-                            radius={120}
-                            size={120}
-                            src={session.user.photoUrl}
-                        >
-                            {session.user.firstName?.at(0)}
-                            {session.user.lastName?.at(0)}
-                        </Avatar>
-                        <Space />
-                        <Stack
-                            h={100}
-                            bg="var(--mantine-color-body)"
-                            align="stretch"
-                            justify="flex-end"
-                            gap={0}
-                        >
-                            <Title>
-                                {session.user.firstName} {session.user.lastName}
-                            </Title>
-                            <Text>Hinululu04@gmail.com</Text>
-                            <Group>
-                                <Text c={"dimmed"}>
-                                    {session.user.dateOfBirth}{" "}
-                                </Text>
-                                <ActionIcon variant="transparent">
-                                    <IconGenderMale color="blue" size={20} />
-                                </ActionIcon>
-                            </Group>
-                        </Stack>
-                    </Group>
+                    <ProfileCardGroup
+                        firstName={session.user.firstName}
+                        lastName={session.user.lastName}
+                        dateOfBirth={session.user.dateOfBirth}
+                        photoUrl={session.user.photoUrl}
+                    />
                     <SimpleGrid cols={2}>
                         <Stack c={"primary"}>
                             <Group>

@@ -8,8 +8,6 @@ import { useRef } from "react";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function TransitionBlock() {
-    // ⚠️ FIX 1: Correct Ref Type: Should be HTMLDivElement or HTMLElement
-    // We'll use HTMLDivElement for the section wrapper for better type accuracy
     const transitionBlockRef = useRef<HTMLDivElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
     const keyPhraseRef = useRef<HTMLHeadingElement>(null);
@@ -17,7 +15,6 @@ export default function TransitionBlock() {
 
     useGSAP(
         () => {
-            // Type safety check
             if (
                 !transitionBlockRef.current ||
                 !overlayRef.current ||
@@ -30,25 +27,21 @@ export default function TransitionBlock() {
                 scrollTrigger: {
                     toggleActions: "restart pause reverse pause",
                     trigger: transitionBlockRef.current,
-                    pin: true,
+                    pin: false,
                     scrub: 1, // Changed to 0.5 for smoother linkage
-                    start: "top top",
-                    end: "+=800",
-                    // markers: true,
+                    start: "top bottom",
+                    // end: "+=800",
+                    markers: true,
                     // pinSpacing: false,
                 },
             });
 
             // --- Part 1: Bring in the New Background (Color Wipe) ---
-            tl.to(
-                overlayRef.current,
-                {
-                    ease: "power1.in",
-                    // backgroundColor: "#043343",
-                    backgroundColor: "#14678f",
-                },
-                0
-            );
+            tl.to(overlayRef.current, {
+                ease: "power1.in",
+                // backgroundColor: "#043343",
+                // backgroundColor: "#14678f",
+            });
 
             // --- Part 2: Reveal the Key Phrase ---
             tl.fromTo(
@@ -60,7 +53,7 @@ export default function TransitionBlock() {
                     duration: 0.5,
                     ease: "back.out(1.7)",
                 },
-                0.1 // Start slightly after background begins
+                0.2 // Start slightly after background begins
             );
 
             tl.fromTo(
@@ -73,14 +66,13 @@ export default function TransitionBlock() {
                     duration: 0.5,
                     ease: "back.out(1.7)",
                 },
-                0.8
+                0.3
             );
         },
         { scope: transitionBlockRef }
     );
 
     return (
-        // ⚠️ FIX 3: Ensure the section takes up at least one full viewport height
         <section
             ref={transitionBlockRef}
             className="w-full h-screen relative flex-col my-10  gap-0
@@ -100,7 +92,7 @@ export default function TransitionBlock() {
                 className="relative z-20 flex w-max rounded" // Added z-20
                 ref={keyPhraseRef}
             >
-                <h1 className={`font-bold text-white text-9xl`}>
+                <h1 className={`font-bold text-[#14678f] text-9xl`}>
                     That&apos;s why
                 </h1>
             </div>

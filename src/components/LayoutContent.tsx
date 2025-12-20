@@ -1,5 +1,5 @@
 "use client";
-import { Group, Flex, Paper } from "@mantine/core";
+import { Group, Flex, Paper, Text } from "@mantine/core";
 import Logo from "@/components/Logo";
 import ThemeModeButton from "@/components/ThemeModeButton";
 import { ActionIcon } from "@mantine/core";
@@ -36,6 +36,7 @@ export default function LayoutContent({
                         >
                             <Logo size="md" />
                             <h1 className="font-bold  text-xl md:text-2xl text-[#14678f] dark:text-[#50bce9]">
+                                {" "}
                                 JOSEPH & MARY
                             </h1>
                         </Flex>

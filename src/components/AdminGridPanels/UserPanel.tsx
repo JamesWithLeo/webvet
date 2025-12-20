@@ -36,7 +36,7 @@ export const data = [
     },
 ];
 
-export default function PetPanels() {
+export default function UserPanel() {
     return (
         <Paper withBorder className="w-full flex p-4 col-span-1 row-span-1">
             <SimpleGrid

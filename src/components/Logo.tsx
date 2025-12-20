@@ -1,16 +1,20 @@
 import Link from "next/link";
 import { LogoSvg } from "./LogoSvg";
 
-export default function Logo({ size }: { size?: "lg" | "md" | "sx" }) {
+export default function Logo({ size }: { size?: "lg" | "md" | "xs" | "sm" }) {
     let width, height;
     switch (size) {
         case "md":
             width = 40;
             height = 40;
             break;
-        case "sx":
-            width = 25;
-            height = 25;
+        case "sm":
+            width = 35;
+            height = 35;
+            break;
+        case "xs":
+            width = 20;
+            height = 20;
             break;
         default:
             width = 100;

@@ -5,7 +5,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { Button } from "@mantine/core";
+import { Button, Group } from "@mantine/core";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -66,7 +66,7 @@ export default function ProcessSection() {
                     end: "+=3000",
                     scrub: 1,
                     start: "top top",
-                    markers: true,
+                    markers: false,
                 },
             });
 
@@ -199,7 +199,7 @@ export default function ProcessSection() {
                         <div
                             ref={imageRefOne}
                             className="absolute w-full top-0 left-0"
-                            style={{ zIndex: 30 }} // Initial stack order
+                            style={{ zIndex: 30 }}
                         >
                             <Image
                                 src={processSteps[0].imageSrc}
@@ -244,6 +244,24 @@ export default function ProcessSection() {
                 <h1 className="text-9xl font-extrabold  text-white">
                     THAT&apos;S IT!
                 </h1>
+                <Group>
+                    <Button
+                        variant="outline"
+                        radius={"xl"}
+                        color="white"
+                        px={"xl"}
+                    >
+                        Pricing
+                    </Button>
+                    <Button
+                        variant="outline"
+                        radius={"xl"}
+                        color="white"
+                        px={"xl"}
+                    >
+                        About
+                    </Button>
+                </Group>
                 <Button
                     variant="transparent"
                     color="white"

@@ -1,42 +1,42 @@
 "use client";
 
-import { Paper, SimpleGrid } from "@mantine/core";
+import { Button, Paper, SimpleGrid } from "@mantine/core";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { AreaChart } from "@mantine/charts";
 export const data = [
     {
         date: "Mar 22",
-        Apples: 2890,
-        Oranges: 2338,
+        Dogs: 2890,
+        Cats: 2338,
         Tomatoes: 2452,
     },
     {
         date: "Mar 23",
-        Apples: 2756,
-        Oranges: 2103,
+        Dogs: 2756,
+        Cats: 2103,
         Tomatoes: 2402,
     },
     {
         date: "Mar 24",
-        Apples: 3322,
-        Oranges: 986,
+        Dogs: 3322,
+        Cats: 986,
         Tomatoes: 1821,
     },
     {
         date: "Mar 25",
-        Apples: 3470,
-        Oranges: 2108,
+        Dogs: 3470,
+        Cats: 2108,
         Tomatoes: 2809,
     },
     {
         date: "Mar 26",
-        Apples: 3129,
-        Oranges: 1726,
+        Dogs: 3129,
+        Cats: 1726,
         Tomatoes: 2290,
     },
 ];
 
-export default function PetPanels() {
+export default function PetPanels({ detailed }: { detailed?: boolean }) {
     return (
         <Paper withBorder className="w-full flex p-4 col-span-1 row-span-1">
             <SimpleGrid
@@ -74,14 +74,15 @@ export default function PetPanels() {
                         data={data}
                         dataKey="date"
                         series={[
-                            { name: "Apples", color: "indigo.6" },
-                            { name: "Tomatoes", color: "teal.6" },
+                            { name: "Dogs", color: "indigo.6" },
+                            { name: "Cats", color: "teal.6" },
                         ]}
                         curveType="natural"
-                        tickLine="none"
-                        gridAxis={"y"}
-                        // withXAxis={false}
-                        withYAxis={false}
+                        withXAxis={detailed}
+                        withDots={detailed}
+                        withYAxis={detailed}
+                        gridAxis={detailed ? "xy" : "y"}
+                        tickLine={detailed ? "xy" : "none"}
                     />
                 </div>
             </SimpleGrid>

@@ -23,12 +23,12 @@ export default function TimeSection() {
                 scrollTrigger: {
                     trigger: timeSectionRef.current,
                     toggleActions: "restart pause reverse pause",
-                    pin: true,
+                    // pin: true,
                     scrub: 1,
                     start: "top center",
                     end: "+=500",
                     pinSpacing: false,
-                    // markers: true,
+                    markers: false,
                 },
             });
             tl.from(

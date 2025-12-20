@@ -19,10 +19,10 @@ import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 type DateCounts = Record<string, number>;
 
 const eventCounts: DateCounts = {
-    "2025-11-07": 2,
-    "2025-11-08": 5,
-    "2025-11-11": 10,
-    "2025-11-12": 28,
+    "2025-11-30": 2,
+    "2025-12-01": 5,
+    "2025-12-02": 10,
+    "2025-12-03": 28,
 };
 
 export default function AdminCalendar() {
@@ -176,7 +176,7 @@ export default function AdminCalendar() {
                     select={onDateSelect}
                     unselect={onDateUnselect}
                     unselectCancel=".fc-ignore-unselect"
-                    timeZone="UTC"
+                    // timeZone="UTC"
                     slotMinTime="08:00:00"
                     slotMaxTime="17:00:00"
                     dayCellDidMount={onDayCellMount}

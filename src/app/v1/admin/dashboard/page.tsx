@@ -1,6 +1,6 @@
 import { Paper } from "@mantine/core";
 import AdminGreet from "@/components/AdminGridPanels/AdminGreeting";
-import UsersPanels from "@/components/AdminGridPanels/UserPanels";
+import UsersPanels from "@/components/AdminGridPanels/UserPanel";
 import AppointmentPanels from "@/components/AdminGridPanels/AppointmentPanels";
 import PetPanels from "@/components/AdminGridPanels/PetPanel";
 import AdminServiceOpertations from "@/components/AdminGridPanels/AdminServiceOperations";

@@ -2,18 +2,20 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
-import "mantine-datatable/styles.layer.css";
 import "@mantine/charts/styles.css";
+// import "mantine-datatable/styles.layer.css";
+import "mantine-datatable/styles.css";
+import "./layout.css";
 
 import {
     ColorSchemeScript,
     MantineProvider,
     mantineHtmlProps,
 } from "@mantine/core";
+
 import { Notifications } from "@mantine/notifications";
 import RouterLoadingAnimation from "@/components/RouterLoadingAnimation";
 import { theme } from "@/components/MantineThemeConfig";

@@ -13,7 +13,7 @@ import {
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "./LogoutButton";
-import { Box, Collapse, UnstyledButton } from "@mantine/core";
+import { Indicator, UnstyledButton } from "@mantine/core";
 
 const data = [
     {
@@ -30,16 +30,6 @@ const data = [
         link: "/v1/admin/appointments",
         label: "Appointments",
         icon: <IconListSearch stroke={1.5} />,
-        sublinks: [
-            {
-                link: "/v1/admin/appointments/calendar",
-                label: "upcoming",
-            },
-            {
-                link: "/v1/admin/appointments/list",
-                label: "past dates",
-            },
-        ],
     },
     {
         link: "/v1/admin/accounts",
@@ -67,45 +57,35 @@ const NavLink = ({
 }) => {
     const [opened, setOpened] = useState(false);
     const router = useRouter();
-    if (Array.isArray(subLinks) && subLinks.length) {
+    if (label === "Appointments")
         return (
-            <>
-                <button
-                    className={`
+            <Indicator offset={5} label={"10+"} inline size={"lg"} color="red">
+                <UnstyledButton w={"100%"}>
+                    <a
+                        data-active={isActive || undefined}
+                        href={link}
+                        key={label}
+                        onClick={onClick}
+                        className={`
                 ${
                     isActive
                         ? " bg-(--mantine-color-blue-light) text-(--mantine-color-blue-light-color) "
                         : " text-gray-500 hover:bg-gray-100 "
-                }
+                } 
                 ${isCollapsed ? " justify-center " : " p-4 "}
                 transition-colors duration-200 ease-in-out mt-2 
-                rounded flex gap-4 h-12 items-center  `}
-                    onClick={() => {
-                        setOpened(!opened);
-                        onClick();
-                        router.replace(link);
-                    }}
-                >
-                    {icon}
-                    {!isCollapsed && <span>{label}</span>}
-                </button>
-                {!isCollapsed && (
-                    <Collapse in={opened} className="ml-8 ">
-                        {subLinks.map((link, index) => (
-                            <Box<"a">
-                                key={index}
-                                className="border-l h-12 hover:bg-gray-100 text-gray-500 flex items-center px-4 border-gray-200"
-                            >
-                                {link.label}
-                            </Box>
-                        ))}
-                    </Collapse>
-                )}
-            </>
+                rounded flex gap-4 h-12 items-center  
+            `}
+                    >
+                        {icon}
+                        {!isCollapsed && <span>{label}</span>}
+                    </a>
+                </UnstyledButton>
+            </Indicator>
         );
-    } else
+    else
         return (
-            <UnstyledButton>
+            <UnstyledButton w={"100%"}>
                 <a
                     data-active={isActive || undefined}
                     href={link}
@@ -157,7 +137,6 @@ export default function AdminNav() {
             onClick={() => {
                 setActive(lastpath);
             }}
-            subLinks={item.sublinks}
         />
     ));
     useEffect(() => {

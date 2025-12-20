@@ -1,9 +1,24 @@
 "use client";
 
 import { DataTable, useDataTableColumns } from "mantine-datatable";
-import { ActionIcon } from "@mantine/core";
-import { Group, Box, Button } from "@mantine/core";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import {
+    ActionIcon,
+    Flex,
+    Stack,
+    Text,
+    Group,
+    Box,
+    Button,
+    Menu,
+    Kbd,
+} from "@mantine/core";
+import {
+    IconDog,
+    IconDotsVertical,
+    IconEdit,
+    IconTrash,
+} from "@tabler/icons-react";
+import { useState } from "react";
 
 interface IAccount {
     id: number;
@@ -84,38 +99,24 @@ const records: IAccount[] = [
     },
     {
         id: 15,
-        Firstname: "Benjamin",
-        Lastname: "King",
+        Firstname: "Amelia",
+        Lastname: "Stone",
     },
     {
         id: 16,
-        Firstname: "Evelyn",
-        Lastname: "Dixon",
+        Firstname: "James",
+        Lastname: "Porter",
     },
     {
         id: 17,
-        Firstname: "Henry",
-        Lastname: "Myers",
-    },
-    {
-        id: 18,
-        Firstname: "Abigail",
-        Lastname: "Carter",
-    },
-    {
-        id: 19,
-        Firstname: "Daniel",
-        Lastname: "Nelson",
-    },
-    {
-        id: 20,
-        Firstname: "Emily",
-        Lastname: "Fisher",
+        Firstname: "Sophia",
+        Lastname: "Brooks",
     },
 ];
 export default function AccountTable() {
     const key = "draggable-example";
-    const { effectiveColumns, resetColumnsOrder } =
+    const [selectedRecords, SetSelectedRecords] = useState<IAccount[]>([]);
+    const { effectiveColumns, resetColumnsOrder, resetColumnsToggle } =
         useDataTableColumns<IAccount>({
             key,
             columns: [
@@ -124,19 +125,20 @@ export default function AccountTable() {
                     title: "id",
                     textAlign: "right",
                     sortable: true,
-                    width: "10%",
+                    width: 80,
                 },
                 {
                     accessor: "Firstname",
                     title: "First name",
-
                     resizable: true,
+                    toggleable: true,
                     draggable: true,
                 },
                 {
                     accessor: "Lastname",
                     title: "Last name",
                     resizable: true,
+                    toggleable: true,
                     draggable: true,
                 },
                 {
@@ -160,79 +162,158 @@ export default function AccountTable() {
             ],
         });
     return (
-        <DataTable
-            withTableBorder
-            // withColumnBorders
-            // withRowBorders
-            striped
-            pinLastColumn={true}
-            highlightOnHover={true}
-            verticalSpacing="md"
-            borderRadius="sm"
-            records={records}
-            totalRecords={1500}
-            storeColumnsKey={key}
-            page={1}
-            recordsPerPage={20}
-            onPageChange={() => {}}
-            columns={effectiveColumns}
-            rowExpansion={{
-                allowMultiple: false,
-                content: (content) => (
-                    <DataTable
-                        noHeader
-                        verticalSpacing="xs"
-                        horizontalSpacing="xs"
-                        columns={[
-                            {
-                                accessor: "nickname",
-                                title: "nickname",
-                                render: ({ nickname }) => (
-                                    <Box component="span" ml={150}>
-                                        {nickname}
-                                    </Box>
-                                ),
-                            },
-                            { accessor: "species", title: "species" },
-                            { accessor: "breed", title: "breed" },
-                            {
-                                accessor: "id",
-                                title: "id",
-                                render: () => (
-                                    <Box component="span">
-                                        <Button
-                                            className="group-hover:visible invisible"
-                                            size="xs"
-                                            variant="subtle"
+        <Stack>
+            <DataTable
+                withTableBorder
+                // withColumnBorders
+                // withRowBorders
+                striped={false}
+                pinLastColumn={true}
+                highlightOnHover={true}
+                verticalSpacing="xs"
+                borderRadius="sm"
+                records={records}
+                totalRecords={1500}
+                storeColumnsKey={key}
+                page={1}
+                recordsPerPage={10}
+                onPageChange={() => {}}
+                columns={effectiveColumns}
+                selectedRecords={selectedRecords}
+                onSelectedRecordsChange={SetSelectedRecords}
+                rowExpansion={{
+                    allowMultiple: false,
+                    content: (content) => (
+                        <DataTable
+                            noHeader
+                            withRowBorders={false}
+                            withTableBorder={false}
+                            withColumnBorders={false}
+                            verticalSpacing="xs"
+                            horizontalSpacing="xs"
+                            columns={[
+                                {
+                                    accessor: "species",
+                                    title: "species",
+                                    render: ({ species }) => (
+                                        <Flex
+                                            c="primary"
+                                            gap={4}
+                                            align={"center"}
+                                            justify={"flex-end"}
                                         >
-                                            view
-                                        </Button>
-                                    </Box>
-                                ),
-                            },
-                        ]}
-                        rowClassName={"group"}
-                        records={[
-                            {
-                                id: 15,
-                                name: "Simba",
-                                nickname: "The King",
-                                breed: "Shiba",
-                                age: 11,
-                                species: "dog",
-                            },
-                            {
-                                id: 16,
-                                name: "Zoe",
-                                nickname: "Giggles",
-                                breed: "Poodle",
-                                age: 3,
-                                species: "dog",
-                            },
-                        ]}
-                    />
-                ),
-            }}
-        />
+                                            <IconDog stroke="1.5" />
+                                            <Text>{species}</Text>
+                                        </Flex>
+                                    ),
+                                },
+                                {
+                                    accessor: "nickname",
+                                    title: "nickname",
+                                    render: ({ nickname }) => (
+                                        <Box component="span">{nickname}</Box>
+                                    ),
+                                },
+                                {
+                                    accessor: "breed",
+                                    title: "breed",
+                                },
+                                {
+                                    accessor: "id",
+                                    title: "id",
+                                    render: () => (
+                                        <Group gap={"sm"}>
+                                            <Button
+                                                size="compact-xs"
+                                                variant="light"
+                                            >
+                                                view
+                                            </Button>
+                                            <Menu shadow="md" width={300}>
+                                                <Menu.Target>
+                                                    <ActionIcon
+                                                        c={"dimmed"}
+                                                        variant="transparent"
+                                                    >
+                                                        <IconDotsVertical />
+                                                    </ActionIcon>
+                                                </Menu.Target>
+                                                <Menu.Dropdown>
+                                                    <Menu.Label>
+                                                        Pets Action
+                                                    </Menu.Label>
+                                                    <Menu.Item
+                                                        leftSection={
+                                                            <IconEdit
+                                                                size={14}
+                                                            />
+                                                        }
+                                                        rightSection={
+                                                            <div dir="ltr">
+                                                                <Kbd>⌘</Kbd> +{" "}
+                                                                <Kbd>Shift</Kbd>{" "}
+                                                                + <Kbd>E</Kbd>
+                                                            </div>
+                                                        }
+                                                    >
+                                                        Edit
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        leftSection={
+                                                            <IconTrash
+                                                                size={14}
+                                                            />
+                                                        }
+                                                        rightSection={
+                                                            <Kbd>DEL</Kbd>
+                                                        }
+                                                    >
+                                                        Delete
+                                                    </Menu.Item>
+                                                </Menu.Dropdown>
+                                            </Menu>
+                                        </Group>
+                                    ),
+                                },
+                            ]}
+                            rowClassName={"group"}
+                            records={[
+                                {
+                                    id: 15,
+                                    name: "Simba",
+                                    nickname: "The King",
+                                    breed: "Shiba",
+                                    age: 11,
+                                    species: "Dog",
+                                },
+                                {
+                                    id: 16,
+                                    name: "Zoe",
+                                    nickname: "Giggles",
+                                    breed: "Poodle",
+                                    age: 3,
+                                    species: "Dog",
+                                },
+                            ]}
+                        />
+                    ),
+                }}
+            />
+            <Group justify="flex-end">
+                <Button size="xs" onClick={resetColumnsToggle}>
+                    Reset Toggled Columns
+                </Button>
+                <Button size="xs" onClick={resetColumnsOrder}>
+                    Reset Column Order
+                </Button>
+                <Button
+                    size="xs"
+                    color="red"
+                    leftSection={<IconTrash size={14} />}
+                >
+                    Delete
+                </Button>
+            </Group>
+        </Stack>
     );
 }

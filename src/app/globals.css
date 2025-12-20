@@ -204,8 +204,8 @@
 
 /* 💡 CRUCIAL: Remove hover effect for TODAY if it's an available future date */
 /* The TODAY indicator should usually remain even when hovered, so you reset the hover background. */
+/* Set the hover color to be the same as the base color to avoid the custom lightgrey hover */
 .fc-daygrid-day.fc-day-today:hover .fc-daygrid-day-frame {
-    /* Set the hover color to be the same as the base color to avoid the custom lightgrey hover */
     background-color: #228be6 !important;
 }
 
