@@ -178,6 +178,7 @@ export default function AdminNav() {
                     className="font-normal"
                     size="md"
                     variant="transparent"
+                    label="Logout"
                     color="gray"
                     leftSection={
                         <IconLogout2
