@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -86,11 +86,11 @@ export default function ProcessSection() {
                     ],
                     {
                         opacity: 0,
-                        duration: 0.15, // Quick fade out
+                        duration: 0.15,
                         ease: "none",
                     },
                     label
-                ) // Start at the label
+                )
 
                     .set(textTitleRef.current, {
                         textContent: currentStep.title,
@@ -111,11 +111,11 @@ export default function ProcessSection() {
                         ],
                         {
                             opacity: 1,
-                            duration: 0.1, // Quick fade in
+                            duration: 0.1,
                             ease: "none",
                         },
                         `+=${0.1}`
-                    ); // Fade in just after the fade out/set completes
+                    );
 
                 tl.to(
                     currentImage,
@@ -123,12 +123,11 @@ export default function ProcessSection() {
                         xPercent: 0,
                         ease: "power2.inOut",
                         zIndex: 40,
-                        duration: 1.5, // The duration of the slide relative to the timeline segment
+                        duration: 1.5,
                     },
-                    label // Start this with the text update
+                    label
                 );
 
-                // 3. Keep the Previous Image in the background (Optional: slight visual change)
                 tl.to(
                     prevImage,
                     {
@@ -141,7 +140,7 @@ export default function ProcessSection() {
                     label
                 );
 
-                tl.to({}, { duration: 0.5 }); // Add 0.5 seconds of scrub time pause
+                tl.to({}, { duration: 0.5 });
             }
 
             tl.to(processSectionRef.current, { opacity: 0.5, duration: 1 });
@@ -153,7 +152,6 @@ export default function ProcessSection() {
                     scrub: 1,
                 },
 
-                // backgroundColor: "#043343",
                 backgroundColor: "#14678f",
                 opacity: 1,
                 ease: "power2.in",
@@ -206,6 +204,10 @@ export default function ProcessSection() {
                                 height={1000}
                                 width={1000}
                                 alt="Booking step: Set the Type"
+                                style={{
+                                    maxWidth: "100%",
+                                    height: "auto",
+                                }}
                             />
                         </div>
 
@@ -219,6 +221,10 @@ export default function ProcessSection() {
                                 height={1000}
                                 width={1000}
                                 alt="Booking step: Set the Date"
+                                style={{
+                                    maxWidth: "100%",
+                                    height: "auto",
+                                }}
                             />
                         </div>
 
@@ -232,6 +238,10 @@ export default function ProcessSection() {
                                 height={1000}
                                 width={1000}
                                 alt="Booking step: Set the Time"
+                                style={{
+                                    maxWidth: "100%",
+                                    height: "auto",
+                                }}
                             />
                         </div>
                     </div>

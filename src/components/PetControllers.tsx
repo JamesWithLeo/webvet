@@ -1,9 +1,15 @@
 "use client";
 
 import { Button, Checkbox, Grid, Group, Input, Menu } from "@mantine/core";
-import { IconAdjustmentsHorizontal, IconArrowsSort } from "@tabler/icons-react";
+import {
+    IconAdjustmentsHorizontal,
+    IconArrowsSort,
+    IconPlus,
+} from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
 export default function PetControllers() {
+    const router = useRouter();
     return (
         <Grid w={"100%"} justify="space-between" grow>
             <Grid.Col span={4}>
@@ -72,12 +78,25 @@ export default function PetControllers() {
                             Search
                         </Button>
                     </Button.Group>
-                    <Button
-                        variant="default"
-                        leftSection={<IconArrowsSort size={20} />}
-                    >
-                        Sort
-                    </Button>
+                    <Button.Group>
+                        <Button
+                            variant="default"
+                            leftSection={<IconPlus size={20} stroke={1.5} />}
+                            onClick={() => {
+                                router.push("/v1/pets/new");
+                            }}
+                        >
+                            Add new Pet
+                        </Button>
+                        <Button
+                            variant="default"
+                            leftSection={
+                                <IconArrowsSort size={20} stroke={1.5} />
+                            }
+                        >
+                            Sort
+                        </Button>
+                    </Button.Group>
                     <Button color="red">Delete (2)</Button>
                 </Group>
             </Grid.Col>

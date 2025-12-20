@@ -1,7 +1,6 @@
+import NewPetCard from "@/components/NewPetCard";
 import PetCard from "@/components/PetCard";
 import PetControllers from "@/components/PetControllers";
-import { ActionIcon, Center, Paper } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
 
 const myPets: {
     gender: "Male" | "Female";
@@ -108,23 +107,7 @@ export default function Page() {
                             age={p.age}
                         />
                     ))}
-                    <Paper
-                        withBorder
-                        bg={"white"}
-                        className=" z-10 w-96 group flex items-center flex-col justify-center h-[500px]"
-                        p={{ base: "sm", lg: "lg" }}
-                    >
-                        <Center className="h-full">
-                            <ActionIcon
-                                className="group-hover:scale-[1.04]"
-                                size={"xl"}
-                                radius={"xl"}
-                                variant="gradient"
-                            >
-                                <IconPlus size={20} stroke={1.5} />
-                            </ActionIcon>
-                        </Center>
-                    </Paper>
+                    <NewPetCard />
                 </section>
             </div>
         </div>

@@ -1,10 +1,16 @@
 "use client";
-import { Group, Flex, Paper, Text } from "@mantine/core";
+import { Group, Flex, Paper, Text, Title } from "@mantine/core";
 import Logo from "@/components/Logo";
-import ThemeModeButton from "@/components/ThemeModeButton";
 import { ActionIcon } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
 import Link from "next/link";
+import { Alex_Brush } from "next/font/google";
+const alexBrush = Alex_Brush({
+    subsets: ["latin"],
+    display: "swap",
+    style: ["normal"],
+    weight: ["400"],
+});
 
 export default function LayoutContent({
     children,
@@ -35,9 +41,10 @@ export default function LayoutContent({
                             gap={"md"}
                         >
                             <Logo size="md" />
-                            <h1 className="font-bold  text-xl md:text-2xl text-[#14678f] dark:text-[#50bce9]">
-                                {" "}
-                                JOSEPH & MARY
+                            <h1
+                                className={`${alexBrush.className} text-3xl   `}
+                            >
+                                Joseph & Mary
                             </h1>
                         </Flex>
                     </Group>
@@ -87,12 +94,11 @@ export default function LayoutContent({
                             >
                                 <IconUser size={20} fill="none" stroke={1.5} />
                             </ActionIcon>
-                            <ThemeModeButton visibleFrom="md" />
                         </Flex>
                     </Group>
                 </Group>
             </Paper>
-            {children} {/* This renders your actual page content */}
+            {children}
         </main>
     );
 }

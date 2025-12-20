@@ -1,18 +1,7 @@
 import { authOptions } from "@/authOptions";
 import CalendarList from "@/components/CalendarList";
 import checkSetup from "@/lib/checkSetup";
-import {
-    ActionIcon,
-    Avatar,
-    Button,
-    Divider,
-    Flex,
-    Group,
-    Paper,
-    SimpleGrid,
-    Stack,
-    Title,
-} from "@mantine/core";
+import { ActionIcon, Button, Group, Paper, Stack, Title } from "@mantine/core";
 import {
     IconCalendarCancel,
     IconCalendarCheck,

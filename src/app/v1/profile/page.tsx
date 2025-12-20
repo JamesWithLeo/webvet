@@ -3,7 +3,6 @@ import { authOptions } from "@/authOptions";
 import { redirect } from "next/navigation";
 import {
     Button,
-    Divider,
     Group,
     Paper,
     SimpleGrid,
@@ -22,6 +21,7 @@ import {
     IconPawOff,
 } from "@tabler/icons-react";
 import ProfileCardGroup from "@/components/ProfileCardGroup";
+import LogoutButton from "@/components/LogoutButton";
 
 export default async function ProfilePage() {
     const session = await getServerSession(authOptions);
@@ -96,18 +96,13 @@ export default async function ProfilePage() {
                         <Text>Play Loading Animation</Text>
                         <Switch size="lg" onLabel="ON" offLabel="OFF" />
                     </Group>
-
-                    <Group w={"100%"} justify="space-between">
-                        <Text>Dark Mode</Text>
-                        <Switch size="lg" onLabel="ON" offLabel="OFF" />
-                    </Group>
                 </Stack>
             </Paper>
             <SimpleGrid w={"100%"} cols={2} className="max-w-3xl">
                 <Button maw={"100%"} variant="light" c={"primary.9"}>
                     Forgot Password
                 </Button>
-                <Button color="red">Logout</Button>
+                <LogoutButton color="red" label={"Logout"} />
             </SimpleGrid>
         </div>
     );

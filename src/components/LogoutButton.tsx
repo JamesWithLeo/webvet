@@ -3,9 +3,9 @@
 import { signOut } from "next-auth/react";
 import { Button, ButtonProps } from "@mantine/core";
 
-type LogoutButtonProps = ButtonProps & {};
+type LogoutButtonProps = ButtonProps & { label: string };
 
-export default function LogoutButton({ ...props }: LogoutButtonProps) {
+export default function LogoutButton({ label, ...props }: LogoutButtonProps) {
     return (
         <Button
             {...props}
@@ -13,7 +13,7 @@ export default function LogoutButton({ ...props }: LogoutButtonProps) {
                 signOut({ callbackUrl: "/" });
             }}
         >
-            Logout
+            {label}
         </Button>
     );
 }

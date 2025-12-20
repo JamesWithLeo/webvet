@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Alex_Brush } from "next/font/google";
 import Link from "next/link";
 import { Button } from "@mantine/core";
-import Image from "next/legacy/image";
+import Image from "next/image";
 
 const alexBrush = Alex_Brush({
     subsets: ["latin"],
@@ -74,11 +74,13 @@ export default function HeroSection() {
                     <Image
                         src="/pexels-gustavo.jpg"
                         alt="Happy dog getting a checkup at the vet clinic"
-                        layout="fill"
-                        objectFit="cover"
                         quality={100}
                         priority={true}
-                    />
+                        fill
+                        sizes="100vw"
+                        style={{
+                            objectFit: "cover"
+                        }} />
                     <div className="bg-linear-to-t from-gray-700 from-80% absolute top-0 left-0 w-full h-full opacity-45 z-10 "></div>
                 </div>
 

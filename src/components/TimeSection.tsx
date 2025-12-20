@@ -2,7 +2,7 @@
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -113,6 +113,10 @@ export default function TimeSection() {
                         alt="cat with clock"
                         className="object-contain object-bottom"
                         fill={true}
+                        // style={{
+                        //     maxWidth: "100%",
+                        //     height: "auto"
+                        // }}
                     />
                 </div>
             </div>

@@ -37,13 +37,7 @@ export default function PetCard({
     age: number;
 }) {
     return (
-        <Card
-            withBorder
-            // bg={"primary"}
-            className="group w-96 h-[500px]   "
-            // p={"xl"}
-            radius={"md"}
-        >
+        <Card withBorder className="group w-96 h-[500px]   " radius={"md"}>
             <Card.Section withBorder p={"sm"}>
                 <Group justify="space-between">
                     <Stack gap={1}>

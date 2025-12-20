@@ -15,7 +15,7 @@ import {
     Alert,
 } from "@mantine/core";
 import { IconArrowBarToDownDashed, IconInfoCircle } from "@tabler/icons-react";
-import Image from "next/legacy/image";
+import Image from "next/image";
 
 export default function Page() {
     return (
@@ -91,7 +91,10 @@ export default function Page() {
                                     quality={100}
                                     height={100}
                                     alt="golden retriever"
-                                />
+                                    style={{
+                                        maxWidth: "100%",
+                                        height: "auto"
+                                    }} />
                             </div>
                         </Flex>
                     </Grid.Col>

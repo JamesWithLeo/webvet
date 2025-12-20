@@ -16,7 +16,7 @@ import {
     IconX,
     IconTrash,
 } from "@tabler/icons-react";
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { useState } from "react";
 
 interface IPet {
@@ -325,7 +325,10 @@ export default function PetTable() {
                                     quality={100}
                                     priority
                                     width={200}
-                                />
+                                    style={{
+                                        maxWidth: "100%",
+                                        height: "auto"
+                                    }} />
                                 <Stack>
                                     <div className="text-sm">
                                         <h1>Next Appointment: No record</h1>

@@ -36,14 +36,6 @@ export default function TransitionBlock() {
                 },
             });
 
-            // --- Part 1: Bring in the New Background (Color Wipe) ---
-            tl.to(overlayRef.current, {
-                ease: "power1.in",
-                // backgroundColor: "#043343",
-                // backgroundColor: "#14678f",
-            });
-
-            // --- Part 2: Reveal the Key Phrase ---
             tl.fromTo(
                 keyPhraseRef.current,
                 { opacity: 0 }, // Start state
@@ -53,7 +45,7 @@ export default function TransitionBlock() {
                     duration: 0.5,
                     ease: "back.out(1.7)",
                 },
-                0.2 // Start slightly after background begins
+                0.1 // Start slightly after background begins
             );
 
             tl.fromTo(
@@ -66,7 +58,7 @@ export default function TransitionBlock() {
                     duration: 0.5,
                     ease: "back.out(1.7)",
                 },
-                0.3
+                0.2
             );
         },
         { scope: transitionBlockRef }
@@ -78,16 +70,13 @@ export default function TransitionBlock() {
             className="w-full h-screen relative flex-col my-10  gap-0
                flex justify-center items-center"
         >
-            {/* 1. Background Overlay (Needs full height) */}
             <div
                 id="bg-overlay"
                 ref={overlayRef}
-                // ⚠️ FIX 4: Ensure background is full screen and starts with an initial color
-                className="absolute inset-0    w-full h-full"
-                style={{ backgroundColor: "transparent" }} // Start color before animation takes over
+                className="absolute inset-0 w-full h-full"
+                style={{ backgroundColor: "transparent" }}
             ></div>
 
-            {/* 2. Key Phrase Text (Ensure Z-index is high to sit above the overlay) */}
             <div
                 className="relative z-20 flex w-max rounded" // Added z-20
                 ref={keyPhraseRef}
@@ -100,7 +89,7 @@ export default function TransitionBlock() {
                 className="relative z-20 mt-4 flex w-max rounded" // Added z-20
                 ref={keyPhraseTwoRef}
             >
-                <h1 className="text-white text-2xl font-semibold">
+                <h1 className="text-black text-2xl font-semibold">
                     we&apos;ve streamlined the entire booking process into{" "}
                     <span className="text-7xl font-extrabold text-amber-400">
                         3

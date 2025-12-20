@@ -17,6 +17,7 @@ export default async function SetupAccount() {
         <div className="py-4 px-4 bg-gray-100 min-h-dvh h-full ">
             <div className="w-full h-min flex flex-col items-end">
                 <LogoutButton
+                    label="Logout"
                     className="col-start-1 "
                     variant="subtle"
                     color="red"

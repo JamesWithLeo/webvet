@@ -5,7 +5,6 @@ export default function Layout({ children }: { children: ReactNode }) {
     return (
         <LayoutContent>
             <div className="min-h-screen w-full relative md:px-16 px-4 py-4 flex gap-8 flex-col">
-                {/* Dashed Bottom Fade Grid */}
                 <div
                     className="absolute inset-0 z-0"
                     style={{

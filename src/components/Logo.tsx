@@ -28,7 +28,7 @@ export default function Logo({ size }: { size?: "lg" | "md" | "xs" | "sm" }) {
                 width={width}
                 height={height}
                 color="primary"
-                className="text-[#14678f] "
+                className="text-[#47a3d8] "
             />
         </Link>
     );

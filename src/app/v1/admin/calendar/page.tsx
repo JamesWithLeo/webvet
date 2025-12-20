@@ -1,13 +1,10 @@
 "use client";
 import AdminCalendar from "@/components/calendars/AdminCalendar";
 import {
-    Flex,
     Group,
     Paper,
     RangeSlider,
-    SimpleGrid,
     Slider,
-    Space,
     Stack,
     Switch,
 } from "@mantine/core";

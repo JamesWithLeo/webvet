@@ -6,15 +6,11 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/charts/styles.css";
-// import "mantine-datatable/styles.layer.css";
 import "mantine-datatable/styles.css";
+import "@mantine/dropzone/styles.css";
 import "./layout.css";
 
-import {
-    ColorSchemeScript,
-    MantineProvider,
-    mantineHtmlProps,
-} from "@mantine/core";
+import { MantineProvider, mantineHtmlProps } from "@mantine/core";
 
 import { Notifications } from "@mantine/notifications";
 import RouterLoadingAnimation from "@/components/RouterLoadingAnimation";
@@ -42,13 +38,11 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" {...mantineHtmlProps} suppressHydrationWarning>
-            <head>
-                <ColorSchemeScript defaultColorScheme="auto" />
-            </head>
+            <head></head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
-                <MantineProvider theme={theme} defaultColorScheme="auto">
+                <MantineProvider theme={theme} defaultColorScheme="light">
                     <ThemeProvider attribute={"class"}>
                         <Notifications position="bottom-right" limit={3} />
                         <RouterLoadingAnimation />
