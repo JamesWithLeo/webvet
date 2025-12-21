@@ -1,5 +1,3 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/authOptions";
 import { redirect } from "next/navigation";
 import {
     Button,
@@ -22,9 +20,10 @@ import {
 } from "@tabler/icons-react";
 import ProfileCardGroup from "@/components/ProfileCardGroup";
 import LogoutButton from "@/components/LogoutButton";
+import { auth } from "@/auth";
 
 export default async function ProfilePage() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session || !session.user) {
         redirect("/");
     }

@@ -30,8 +30,7 @@ export default function TransitionBlock() {
                     pin: false,
                     scrub: 1, // Changed to 0.5 for smoother linkage
                     start: "top bottom",
-                    // end: "+=800",
-                    markers: true,
+                    markers: false,
                     // pinSpacing: false,
                 },
             });

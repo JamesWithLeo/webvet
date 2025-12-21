@@ -3,12 +3,12 @@ import {
     check,
     varchar,
     integer,
-    uuid,
     timestamp,
     serial,
     text,
     date,
     pgEnum,
+    uuid,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { users, sex } from "./users";

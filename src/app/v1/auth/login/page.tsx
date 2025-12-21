@@ -1,13 +1,12 @@
-import { authOptions } from "@/authOptions";
+import { auth } from "@/auth";
 import GoogleButton from "@/components/GoogleButton";
 import Logo from "@/components/Logo";
 import { Box, Button, TextInput } from "@mantine/core";
-import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function LoginPage() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (session?.user.id) redirect("/");
 
     return (

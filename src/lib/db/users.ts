@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { role, sexValues, users } from "@/db/schema/users";
+import { sexValues, users } from "@/db/schema/users";
 import { and, eq } from "drizzle-orm";
 
 export const checkExistingUserByEmail = async ({
@@ -16,12 +16,15 @@ export const getUserByProvider = async ({
     providerId,
 }: {
     provider: string | undefined;
-    providerId: string | undefined;
+    providerId: string | undefined | null;
 }) => {
     if (!providerId || !provider) return;
 
     const conditions = [];
-    if (provider === "google") {
+    if (provider === "email") {
+        console.log("resend!");
+        return;
+    } else if (provider === "google") {
         conditions.push(eq(users.googleId, providerId));
     } else if (provider === "facebook") {
         conditions.push(eq(users.facebookId, providerId));
@@ -36,15 +39,48 @@ export const getUserByProvider = async ({
         .where(and(...conditions))
         .then((result) => result[0]);
 };
+const getUserEmail = async (email: string) => {
+    return await db.select().from(users).where(eq(users.email, email));
+};
+export const getUserByProviderType = async ({
+    providerType,
+    email,
+}: {
+    providerType:
+        | "oidc"
+        | "oauth"
+        | "email"
+        | "credentials"
+        | "webauthn"
+        | undefined;
+    email: string | null | undefined;
+}) => {
+    switch (providerType) {
+        case "oidc":
+            // google
+            break;
+        case "oauth":
+            return;
+        case "email":
+            if (email) {
+                getUserEmail(email);
+            }
+            break;
+        case "credentials":
+            return;
+        default:
+            return;
+    }
+};
 
 export const createUser = async ({
     email,
     provider,
     id,
 }: {
-    email: string | undefined;
+    email: string | undefined | null;
     provider: string | undefined;
-    id: string | undefined;
+    id: string | undefined | null;
 }) => {
     if (!provider || !email) return;
     let conditions;

@@ -1,11 +1,11 @@
 import GoogleButton from "@/components/GoogleButton";
-import { ActionIcon, Button, TextInput } from "@mantine/core";
+import { ActionIcon } from "@mantine/core";
 import Link from "next/link";
 import { IconCalendarWeek, IconLogs, IconLeaf } from "@tabler/icons-react";
 import Logo from "@/components/Logo";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/authOptions";
 import { redirect } from "next/navigation";
+import SignupForm from "@/components/auth/SignupForm";
+import { auth } from "@/auth";
 
 const headlines = [
     {
@@ -41,7 +41,7 @@ const headlines = [
 ];
 
 export default async function Signup() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (session?.user.id) redirect("/");
     return (
         <div className="items-centers gap-0 grid grid-cols-1 xl:grid-cols-[1fr_1fr] grid-rows-[auto_.5fr] bg-[url('/bgPattern.svg')] xl:grid-rows-1 min-h-dvh xl:px-42 ">
@@ -53,9 +53,7 @@ export default async function Signup() {
                     <h1 className="text-4xl font-bold mb-6">
                         Care for your pet, anytime, anywhere.
                     </h1>
-                    <TextInput label="Email" />
-                    <Button>Sign up</Button>
-
+                    <SignupForm />
                     <GoogleButton />
 
                     <span className="w-full flex justify-center gap-4">

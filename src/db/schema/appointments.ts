@@ -1,4 +1,11 @@
-import { pgEnum, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+    pgEnum,
+    pgTable,
+    text,
+    timestamp,
+    uuid,
+    varchar,
+} from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 
 export const appointmentTypeValues = [

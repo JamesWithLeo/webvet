@@ -1,6 +1,6 @@
 import AccountTable from "@/components/AccountTable";
 import UserPanel from "@/components/AdminGridPanels/UserPanel";
-import { Flex, Title, TextInput, Group, Button, Stack } from "@mantine/core";
+import { Title, Stack } from "@mantine/core";
 
 export default function Users() {
     return (

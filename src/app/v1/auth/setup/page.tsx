@@ -1,13 +1,12 @@
-import { authOptions } from "@/authOptions";
+import { auth } from "@/auth";
 import AccountStepperWrapper from "@/components/AccountStepperWrapper";
 import LogoutButton from "@/components/LogoutButton";
 import { Box } from "@mantine/core";
 import { IconLogout } from "@tabler/icons-react";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 export default async function SetupAccount() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session) redirect("/");
     const { user } = session;
     if (user.firstName && user.lastName && user.dateOfBirth && user.sex) {

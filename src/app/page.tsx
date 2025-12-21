@@ -1,5 +1,4 @@
-import { authOptions } from "@/authOptions";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import ScrollVelocity from "@/components/ScrollVelocity";
 import HeroSection from "@/components/HeroSection";
@@ -8,7 +7,7 @@ import TransitionBlock from "@/components/TransitionBlock";
 import ProcessSection from "@/components/ProcessSection";
 
 export default async function AppPage() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (session?.user.id) {
         redirect("/v1");
     }

@@ -3,8 +3,9 @@ import {
     pgEnum,
     pgTable,
     timestamp,
-    uuid,
+    text,
     varchar,
+    uuid,
 } from "drizzle-orm/pg-core";
 
 export const sexValuesTuple = ["MALE", "FEMALE", "UNKNOWN"] as const;
@@ -14,8 +15,6 @@ export const sexValues = sex.enumValues;
 
 export const role = pgEnum("role", ["client", "doctor", "admin"]);
 export const users = pgTable("users", {
-    id: uuid("id").defaultRandom().primaryKey(),
-    email: varchar("email", { length: 255 }).notNull().unique(),
     photoUrl: varchar("photo_url", { length: 255 }),
     googleId: varchar("google_id", { length: 255 }).unique(),
     facebookId: varchar("facebook_id", { length: 255 }).unique(),
@@ -26,4 +25,10 @@ export const users = pgTable("users", {
     created_at: timestamp("created_at").defaultNow().notNull(),
     dateOfBirth: date(),
     sex: sex("sex").default("UNKNOWN").notNull(),
+
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name"),
+    email: text("email").unique(),
+    emailVerified: timestamp("emailVerified", { mode: "date" }),
+    image: text("image"),
 });

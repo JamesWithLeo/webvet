@@ -1,16 +1,15 @@
 "use server";
 
-import { authOptions } from "@/authOptions";
+import { auth } from "@/auth";
 import { saveSetupInDb } from "@/lib/db/users";
 import { userSetupSchema } from "@/lib/validators/usersSetupSchema";
-import { getServerSession } from "next-auth";
 
 export async function setupUser(userId: string, formData: FormData) {
     if (!userId) {
         console.error("Missing user ID");
         return { succesful: false };
     }
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session) throw new Error("Not authenticated");
 
     const rawData = {

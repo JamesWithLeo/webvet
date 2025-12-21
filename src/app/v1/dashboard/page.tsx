@@ -1,4 +1,4 @@
-import { authOptions } from "@/authOptions";
+import { auth } from "@/auth";
 import CalendarList from "@/components/CalendarList";
 import checkSetup from "@/lib/checkSetup";
 import { ActionIcon, Button, Group, Paper, Stack, Title } from "@mantine/core";
@@ -7,11 +7,10 @@ import {
     IconCalendarCheck,
     IconCat,
 } from "@tabler/icons-react";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 export default async function dashboard() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     checkSetup(session);
     if (!session?.user) redirect("/");
     return (
