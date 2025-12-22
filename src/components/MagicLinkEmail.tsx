@@ -1,4 +1,5 @@
-// src/emails/MagicLinkEmail.tsx
+"use client`";
+
 import {
     Body,
     Container,
@@ -21,7 +22,6 @@ export const MagicLinkEmail = ({ url }: { url: string }) => {
             <Tailwind>
                 <Body className="bg-slate-50 font-sans">
                     <Container className="mx-auto py-10 mt-8 px-4 max-w-[580px]">
-                        {/* Logo */}
                         <Img
                             src="https://cap1-webvet.vercel.app/logo.svg"
                             width="75"
