@@ -1,6 +1,5 @@
 import type { Account, NextAuthConfig, Profile, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import Resend from "next-auth/providers/resend";
 import { AdapterUser } from "next-auth/adapters";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { getUserByProvider, getUserByProviderType } from "./lib/db/users";
