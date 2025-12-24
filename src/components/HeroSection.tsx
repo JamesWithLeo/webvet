@@ -79,8 +79,9 @@ export default function HeroSection() {
                         fill
                         sizes="100vw"
                         style={{
-                            objectFit: "cover"
-                        }} />
+                            objectFit: "cover",
+                        }}
+                    />
                     <div className="bg-linear-to-t from-gray-700 from-80% absolute top-0 left-0 w-full h-full opacity-45 z-10 "></div>
                 </div>
 

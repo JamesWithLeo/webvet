@@ -27,10 +27,10 @@ export default function TransitionBlock() {
                 scrollTrigger: {
                     toggleActions: "restart pause reverse pause",
                     trigger: transitionBlockRef.current,
-                    pin: false,
+                    pin: true,
                     scrub: 1, // Changed to 0.5 for smoother linkage
-                    start: "top bottom",
-                    markers: false,
+                    start: "top top",
+                    markers: true,
                     // pinSpacing: false,
                 },
             });
@@ -66,8 +66,8 @@ export default function TransitionBlock() {
     return (
         <section
             ref={transitionBlockRef}
-            className="w-full h-screen relative flex-col my-10  gap-0
-               flex justify-center items-center"
+            className="w-full  h-screen relative flex-col my-10  gap-0
+               flex justify-center items-center bg-amber-50"
         >
             <div
                 id="bg-overlay"

@@ -9,8 +9,10 @@ import { db } from "./db";
 import { verificationTokens } from "./db/schema/verificationToken";
 import { users } from "./db/schema/users";
 import { accounts } from "./db/schema/accounts";
+import Nodemailer from "next-auth/providers/nodemailer";
 import { render } from "@react-email/render";
 import { MagicLinkEmail } from "./components/MagicLinkEmail";
+import { createTransport } from "nodemailer";
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -29,36 +31,67 @@ export const authConfig = {
                 },
             },
         }),
-        Resend({
-            apiKey: process.env.AUTH_RESEND_KEY,
-            from: "onboarding@resend.dev",
+        Nodemailer({
+            server: {
+                host: "smtp.gmail.com",
+                port: 587,
+                auth: {
+                    user: process.env.GMAIL_USER,
+                    pass: process.env.GMAIL_PASS, // The 16-character App Password
+                },
+            },
+            from: "Joseph and Mary Clinic <ocampojamesleo04@gmail.com>",
             sendVerificationRequest: async ({
-                expires,
-                identifier: email,
-                request,
-                url,
                 provider,
-                theme,
-                token,
+                url,
+                identifier: email,
             }) => {
+                const transport = createTransport(provider.server);
                 const emailHtml = await render(MagicLinkEmail({ url }));
-                const response = await fetch("https://api.resend.com/emails", {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${provider.apiKey}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        from: provider.from,
-                        to: email,
-                        subject: "Sign in to Joseph and Mary Vet Clinic",
-                        html: emailHtml,
-                    }),
-                });
+                const response = await transport.sendMail({
+                    to: email,
+                    from: provider.from,
+                    subject: "Sign in to Joseph and Mary Vet Clinic",
 
-                if (!response.ok) throw new Error("Failed to send magic link");
+                    text: `Sign in to your account: ${url}`,
+                    html: emailHtml,
+                });
+                if (response.rejected.length > 0) {
+                    throw new Error(
+                        `Email(s) (${response.rejected.join(", ")}) were rejected`
+                    );
+                }
             },
         }),
+        // Resend({
+        //     apiKey: process.env.AUTH_RESEND_KEY,
+        //     from: "webvet.js.org",
+        //     sendVerificationRequest: async ({
+        //         expires,
+        //         identifier: email,
+        //         request,
+        //         url,
+        //         provider,
+        //         theme,
+        //         token,
+        //     }) => {
+        //         const emailHtml = await render(MagicLinkEmail({ url }));
+        //         const response = await fetch("https://api.resend.com/emails", {
+        //             method: "POST",
+        //             headers: {
+        //                 Authorization: `Bearer ${provider.apiKey}`,
+        //                 "Content-Type": "application/json",
+        //             },
+        //             body: JSON.stringify({
+        //                 from: provider.from,
+        //                 to: email,
+        //                 subject: "Sign in to Joseph and Mary Vet Clinic",
+        //                 html: emailHtml,
+        //             }),
+        //         });
+        //         if (!response.ok) throw new Error("Failed to send magic link");
+        //     },
+        // }),
     ],
 
     callbacks: {
@@ -152,8 +185,7 @@ export const authConfig = {
     },
     pages: {
         signIn: "/v1/auth/signup",
-        // todo
-        verifyRequest: "/",
+        verifyRequest: "/v1/auth/verify-request",
         signOut: "/",
     },
     session: {

@@ -13,7 +13,11 @@ export default async function AppPage() {
     }
 
     return (
-        <div className="items-center justify-center bg-[#14678f] min-h-dvh flex flex-col  ">
+        <div
+            className="items-center justify-center
+         bg-[#043343]
+          min-h-dvh flex flex-col  "
+        >
             <HeroSection />
             <section className="h-min  w-full   z-10">
                 <ScrollVelocity
@@ -27,7 +31,7 @@ export default async function AppPage() {
             </section>
             <section className="z-10  w-full  bg-white ">
                 <TimeSection />
-                <TransitionBlock />
+                {/* <TransitionBlock /> */}
                 <ProcessSection />
             </section>
         </div>

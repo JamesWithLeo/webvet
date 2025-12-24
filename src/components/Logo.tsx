@@ -4,6 +4,10 @@ import { LogoSvg } from "./LogoSvg";
 export default function Logo({ size }: { size?: "lg" | "md" | "xs" | "sm" }) {
     let width, height;
     switch (size) {
+        case "lg":
+            width = 75;
+            height = 75;
+            break;
         case "md":
             width = 40;
             height = 40;
