@@ -11,9 +11,10 @@ import {
 export const sexValuesTuple = ["MALE", "FEMALE", "UNKNOWN"] as const;
 export const sex = pgEnum("sex_enum", sexValuesTuple);
 export type Sex = (typeof sex.enumValues)[number];
+export type USERTYPE = typeof users.$inferSelect;
 export const sexValues = sex.enumValues;
 
-export const role = pgEnum("role", ["client", "doctor", "admin"]);
+export const role = pgEnum("role", ["client", "staff", "admin"]);
 export const users = pgTable("users", {
     photoUrl: varchar("photo_url", { length: 255 }),
     googleId: varchar("google_id", { length: 255 }).unique(),

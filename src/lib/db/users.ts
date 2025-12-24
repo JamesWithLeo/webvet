@@ -1,6 +1,8 @@
 import { db } from "@/db";
 import { sexValues, users } from "@/db/schema/users";
 import { and, eq } from "drizzle-orm";
+import { string } from "zod";
+import isUser from "../isUser";
 
 export const checkExistingUserByEmail = async ({
     email,
@@ -62,8 +64,17 @@ export const getUserByProviderType = async ({
         case "oauth":
             return;
         case "email":
-            if (email) {
-                getUserEmail(email);
+            if (!email) return;
+            const user = await getUserEmail(email);
+
+            if (Array.isArray(user) && user.length && isUser(user[0])) {
+                // user existed
+                console.log("Acount existing!");
+                console.log(user[0]);
+            } else {
+                // create user
+                console.log("Account doesn't exist!");
+                console.log("is user type:", isUser(user[0]));
             }
             break;
         case "credentials":
