@@ -34,7 +34,7 @@ export const MagicLinkEmail = ({
             <Preview>Login link for Joseph and Mary Clinic</Preview>
             <Tailwind>
                 <Body className="bg-slate-50 font-sans">
-                    <Container className="mx-auto py-10 mt-8 px-4 max-w-145">
+                    <Container className="mx-auto py-8 mt-8 px-4 max-w-145">
                         <Img
                             src="https://cap1-webvet.vercel.app/logo.svg"
                             width="75"
@@ -42,7 +42,7 @@ export const MagicLinkEmail = ({
                             alt="Clinic Logo"
                             className="mx-auto "
                         />
-                        <Section className="bg-white border border-slate-200 rounded-lg p-8  mt-8 text-center">
+                        <Section className="bg-white border border-slate-200 rounded-lg p-8  mt-4 text-center">
                             <Heading className="text-lg font-bold text-slate-800 mt-8">
                                 Welcome to the Joseph & Mary <br />
                                 Veterinary Clinic

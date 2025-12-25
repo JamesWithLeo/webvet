@@ -121,7 +121,9 @@ export const authConfig = {
             // if (newUser) return true;
             return true;
         },
-        async redirect({ baseUrl }) {
+        async redirect({ baseUrl, url }) {
+            if (url.startsWith("/")) return `${baseUrl}${url}`;
+            if (new URL(url).origin === baseUrl) return url;
             return baseUrl;
         },
         async jwt({
