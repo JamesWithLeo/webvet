@@ -20,6 +20,7 @@ export const authConfig = {
         usersTable: users,
         verificationTokensTable: verificationTokens,
     }),
+    debug: true,
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -44,9 +45,13 @@ export const authConfig = {
                 provider,
                 url,
                 identifier: email,
+                token,
             }) => {
                 const transport = createTransport(provider.server);
-                const emailHtml = await render(MagicLinkEmail({ url }));
+                const baseUrl = "https://cap1-webvet.vercel.app";
+                const emailHtml = await render(
+                    MagicLinkEmail({ baseUrl, identifier: email, token })
+                );
                 const response = await transport.sendMail({
                     to: email,
                     from: provider.from,
@@ -185,6 +190,8 @@ export const authConfig = {
     pages: {
         signIn: "/v1/auth/signup",
         verifyRequest: "/v1/auth/verify-request",
+        // todo:
+        //error:
         signOut: "/",
     },
     session: {
