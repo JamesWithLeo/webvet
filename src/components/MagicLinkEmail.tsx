@@ -56,7 +56,7 @@ export const MagicLinkEmail = ({
 
                             <Section className="mt-4 mb-8">
                                 <Link
-                                    href={`${baseUrl}/auth/verify?${params}`}
+                                    href={`${baseUrl}/v1/auth/verify?${params}`}
                                     className="bg-[#47a3d8] text-white text-sm font-semibold py-3 px-6 rounded-md no-underline"
                                 >
                                     Sign In to Dashboard

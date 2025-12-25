@@ -27,7 +27,7 @@ export default function VerifyAccountButton({ email, token }: Props) {
             email: email,
         });
 
-        const finalUrl = `/api/auth/callback/nodemailer?${params.toString()}`;
+        const finalUrl = `/api/auth/verify?${params.toString()}`;
 
         window.location.href = finalUrl;
     };
