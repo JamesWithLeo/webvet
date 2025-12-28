@@ -1,10 +1,10 @@
-import type { Account, NextAuthConfig, Profile, User } from "next-auth";
+import { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { AdapterUser } from "next-auth/adapters";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { getUserByProvider, getUserByProviderType } from "./lib/db/users";
-import { JWT } from "next-auth/jwt";
 import { db } from "./db";
+import type { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
+import { AdapterUser, AdapterSession } from "next-auth/adapters";
 import { verificationTokens } from "./db/schema/verificationToken";
 import { users } from "./db/schema/users";
 import { accounts } from "./db/schema/accounts";
@@ -15,12 +15,14 @@ import { createTransport } from "nodemailer";
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
+
+    // drizzle will handle the signIn
     adapter: DrizzleAdapter(db, {
         accountsTable: accounts,
         usersTable: users,
         verificationTokensTable: verificationTokens,
     }),
-    debug: true,
+
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -30,7 +32,9 @@ export const authConfig = {
                     prompt: "consent select_account",
                 },
             },
+            allowDangerousEmailAccountLinking: true,
         }),
+
         Nodemailer({
             server: {
                 host: "smtp.gmail.com",
@@ -67,128 +71,60 @@ export const authConfig = {
                 }
             },
         }),
-        // Resend({
-        //     apiKey: process.env.AUTH_RESEND_KEY,
-        //     from: "webvet.js.org",
-        //     sendVerificationRequest: async ({
-        //         expires,
-        //         identifier: email,
-        //         request,
-        //         url,
-        //         provider,
-        //         theme,
-        //         token,
-        //     }) => {
-        //         const emailHtml = await render(MagicLinkEmail({ url }));
-        //         const response = await fetch("https://api.resend.com/emails", {
-        //             method: "POST",
-        //             headers: {
-        //                 Authorization: `Bearer ${provider.apiKey}`,
-        //                 "Content-Type": "application/json",
-        //             },
-        //             body: JSON.stringify({
-        //                 from: provider.from,
-        //                 to: email,
-        //                 subject: "Sign in to Joseph and Mary Vet Clinic",
-        //                 html: emailHtml,
-        //             }),
-        //         });
-        //         if (!response.ok) throw new Error("Failed to send magic link");
-        //     },
-        // }),
     ],
 
     callbacks: {
-        async signIn({ account, profile }) {
-            const email = profile?.email;
-            console.log("Provider type: ", account?.type);
-
-            const user = await getUserByProviderType({
-                email: profile?.email,
-                providerType: account?.type,
-            });
-            // const user = await getUserByProvider({
-            //     provider: account?.provider,
-            //     providerId: profile?.sub,
-            // });
-            // if (user) return true;
-
-            // const newUser = await createUser({
-            //     provider: account?.provider,
-            //     email,
-            //     id: profile?.sub,
-            // });
-            // if (newUser) return true;
-            return true;
-        },
         async redirect({ baseUrl, url }) {
             if (url.startsWith("/")) return `${baseUrl}${url}`;
             if (new URL(url).origin === baseUrl) return url;
             return baseUrl;
         },
-        async jwt({
-            token,
-            account,
-            user: jwtUser,
-            trigger,
-            session,
-        }: {
-            token: JWT;
-            user: User | AdapterUser;
-            account?: Account | null;
-            profile?: Profile;
-            trigger?: "signIn" | "signUp" | "update";
-            isNewUser?: boolean;
-            session?: any;
-        }) {
-            if (trigger === "update") {
-                token.firstName = session.firstName ?? undefined;
-                token.lastName = session.lastName ?? undefined;
-                token.sex = session.sex ?? "UNKNOWN";
-                token.dateOfBirth = session.dateOfBirth ?? undefined;
-                return token;
+
+        async jwt({ token, user, trigger, session }) {
+            if (user) {
+                token.id = user.id;
+                token.role = user.role;
+                token.firstName = user.firstName;
+                token.lastName = user.lastName;
+                token.sex = user.sex;
+                token.dateOfBirth = user.dateOfBirth;
+                token.email = user.email;
+                token.emailVerified = user.emailVerified;
+                token.photoUrl = user.photoUrl;
+                token.image = user.image;
             }
-
-            if (account && jwtUser) {
-                const user = await getUserByProvider({
-                    provider: account.provider,
-                    providerId: jwtUser.id,
-                });
-
-                if (user) {
-                    token.accessToken = account.access_token;
-                    token.firstName = user.firstName ?? undefined;
-                    token.lastName = user.lastName ?? undefined;
-                    token.id = user.id;
-                    token.role = user.role;
-                    token.sex = user.sex;
-                    token.dateOfBirth = user.dateOfBirth ?? undefined;
-                    token.email = user.email;
-                    token.photoUrl = user.photoUrl ?? undefined;
-                }
+            if (trigger === "update" && session) {
+                return { ...token, ...session };
             }
-
             return token;
         },
-        async session({ session, token }) {
-            console.log("--> session: ", session);
-            return {
-                ...session,
-                user: {
-                    ...session,
-                    id: token.id,
-                    role: token.role,
-                    firstName: token.firstName,
-                    lastName: token.lastName,
-                    sex: token.sex,
-                    dateOfBirth: token.dateOfBirth,
-                    email: token.email,
-                    photoUrl: token.photoUrl,
-                    accessToken: token.accessToken,
-                },
-            };
+
+        // async session({ session, token }) {
+        async session({
+            session,
+            token,
+        }: {
+            session: {
+                user: AdapterUser;
+            } & AdapterSession &
+                Session;
+            token: JWT;
+        }) {
+            if (token && session.user) {
+                session.user.id = token.id;
+                session.user.role = token.role;
+                session.user.firstName = token.firstName;
+                session.user.lastName = token.lastName;
+                session.user.sex = token.sex;
+                session.user.dateOfBirth = token.dateOfBirth;
+                session.user.emailVerified = token.emailVerified;
+                session.user.photoUrl = token.photoUrl;
+                session.user.image = token.image;
+            }
+            return session;
         },
     },
+
     pages: {
         signIn: "/v1/auth/signup",
         verifyRequest: "/v1/auth/verify-request",
@@ -196,6 +132,7 @@ export const authConfig = {
         //error:
         signOut: "/",
     },
+
     session: {
         strategy: "jwt",
     },

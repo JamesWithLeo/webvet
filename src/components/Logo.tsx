@@ -17,8 +17,8 @@ export default function Logo({ size }: { size?: "lg" | "md" | "xs" | "sm" }) {
             height = 35;
             break;
         case "xs":
-            width = 20;
-            height = 20;
+            width = 30;
+            height = 30;
             break;
         default:
             width = 100;
@@ -32,7 +32,7 @@ export default function Logo({ size }: { size?: "lg" | "md" | "xs" | "sm" }) {
                 width={width}
                 height={height}
                 color="primary"
-                className="text-[#47a3d8] "
+                className="text-[#14678f] "
             />
         </Link>
     );

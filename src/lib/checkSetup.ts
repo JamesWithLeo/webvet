@@ -1,17 +1,12 @@
 import { Session } from "next-auth";
-import { RedirectType, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
-const checkSetup = (session: Session | null) => {
-    if (
-        session &&
-        session.user.id &&
-        (!session.user.firstName ||
-            !session.user.lastName ||
-            !session.user.sex ||
-            !session.user.dateOfBirth)
-    ) {
-        redirect("/v1/auth/setup", RedirectType.replace);
+export default function checkSetup(session: Session | null) {
+    if (!session?.user?.id) return;
+
+    const { firstName, lastName, sex, dateOfBirth } = session.user;
+
+    if (!firstName || !lastName || !sex || !dateOfBirth) {
+        redirect("/v1/auth/setup");
     }
-};
-
-export default checkSetup;
+}

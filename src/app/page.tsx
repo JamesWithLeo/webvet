@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import ScrollVelocity from "@/components/ScrollVelocity";
 import HeroSection from "@/components/HeroSection";
 import TimeSection from "@/components/TimeSection";
-import TransitionBlock from "@/components/TransitionBlock";
 import ProcessSection from "@/components/ProcessSection";
 
 export default async function AppPage() {

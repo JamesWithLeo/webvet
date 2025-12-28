@@ -1,7 +1,6 @@
 import { db } from "@/db";
 import { sexValues, users } from "@/db/schema/users";
 import { and, eq } from "drizzle-orm";
-import { string } from "zod";
 import isUser from "../isUser";
 
 export const checkExistingUserByEmail = async ({
@@ -41,11 +40,14 @@ export const getUserByProvider = async ({
         .where(and(...conditions))
         .then((result) => result[0]);
 };
+
 const getUserEmail = async (email: string) => {
     return await db.select().from(users).where(eq(users.email, email));
 };
+
 export const getUserByProviderType = async ({
     providerType,
+    providerId,
     email,
 }: {
     providerType:
@@ -55,62 +57,33 @@ export const getUserByProviderType = async ({
         | "credentials"
         | "webauthn"
         | undefined;
+    providerId: string | undefined;
     email: string | null | undefined;
 }) => {
     switch (providerType) {
         case "oidc":
             // google
-            break;
+            return;
         case "oauth":
             return;
         case "email":
-            if (!email) return;
+            if (!email) return false;
             const user = await getUserEmail(email);
 
             if (Array.isArray(user) && user.length && isUser(user[0])) {
-                // user existed
                 console.log("Acount existing!");
                 console.log(user[0]);
+                return user[0];
             } else {
-                // create user
                 console.log("Account doesn't exist!");
                 console.log("is user type:", isUser(user[0]));
+                return;
             }
-            break;
         case "credentials":
             return;
         default:
             return;
     }
-};
-
-export const createUser = async ({
-    email,
-    provider,
-    id,
-}: {
-    email: string | undefined | null;
-    provider: string | undefined;
-    id: string | undefined | null;
-}) => {
-    if (!provider || !email) return;
-    let conditions;
-
-    if (provider === "google") {
-        conditions = { googleId: id, email };
-    } else if (provider === "facebook") {
-        conditions = { facebookId: id, email };
-    } else if (provider === "github") {
-        conditions = { githubId: id, email };
-    } else {
-        return;
-    }
-
-    return await db
-        .insert(users)
-        .values(conditions)
-        .returning()
-        .then((result) => result[0]);
 };
 
 export const saveSetupInDb = async ({

@@ -63,8 +63,8 @@ export default function SuccessModal({
                     <Lottie
                         lottieRef={lottieRef}
                         animationData={successAnim}
-                        loop={false}
-                        // initialSegment={[0, 60]}
+                        // loop={false}
+                        // initialSegment={[0, 95]}
                     />
                 </div>
 
@@ -72,7 +72,11 @@ export default function SuccessModal({
                     {title}
                 </h1>
                 {body && (
-                    <h1 className={`text-lg ${textTransitionClass}`}>{body}</h1>
+                    <h1
+                        className={`text-lg text-white/65 ${textTransitionClass}`}
+                    >
+                        {body}
+                    </h1>
                 )}
             </div>
         </Modal>

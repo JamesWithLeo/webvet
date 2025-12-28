@@ -9,6 +9,7 @@ const myPets: {
     breed: string;
     imageUrl: string;
     age: number;
+    species: "CAT" | "DOG";
 }[] = [
     {
         name: "Ara",
@@ -17,6 +18,7 @@ const myPets: {
         gender: "Female",
         imageUrl: "/goldenr.jpg",
         age: 8,
+        species: "DOG",
     },
     {
         name: "Howl",
@@ -25,6 +27,7 @@ const myPets: {
         breed: "Dachshund",
         imageUrl: "/dachshund.jpg",
         age: 3,
+        species: "DOG",
     },
     {
         name: "Thunder",
@@ -33,6 +36,7 @@ const myPets: {
         breed: "Aspin",
         imageUrl: "",
         age: 5,
+        species: "DOG",
     },
     {
         name: "Kirby",
@@ -41,6 +45,7 @@ const myPets: {
         breed: "Persian",
         imageUrl: "/persian.jpg",
         age: 2,
+        species: "CAT",
     },
 ];
 export default function Page() {
@@ -105,6 +110,7 @@ export default function Page() {
                             gender={p.gender}
                             imageUrl={p.imageUrl}
                             age={p.age}
+                            species={p.species}
                         />
                     ))}
                     <NewPetCard />

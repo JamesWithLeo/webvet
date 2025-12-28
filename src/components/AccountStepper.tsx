@@ -10,6 +10,8 @@ import {
     NavLink,
     Image,
     Modal,
+    Group,
+    Text,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useState, useRef } from "react";
@@ -30,7 +32,8 @@ export default function AccountStepper({
     currentStep: number;
     userId: string;
 }) {
-    const { update } = useSession();
+    const { update, data: session } = useSession();
+
     const [active, setActive] = useState<number>(currentStep);
     const [isSuccesful, setIsSuccesful] = useState(false);
     const [dateOfBirth, setDateOfBirth] = useState<string | null>(null);
@@ -46,6 +49,7 @@ export default function AccountStepper({
     const stepperRef = useRef<HTMLDivElement>(null);
 
     const onConfirm = async () => {
+        // todo error
         console.log("userId:", userId);
         if (!sex || !dateOfBirth || !userId) {
             return;
@@ -73,7 +77,7 @@ export default function AccountStepper({
             <Stepper
                 ref={stepperRef}
                 active={active}
-                className="w-full items-center"
+                className="w-full items-center  "
                 allowNextStepsSelect={false}
                 size="xl"
             >
@@ -88,7 +92,7 @@ export default function AccountStepper({
                         />
                     }
                     label="Set up Account"
-                    description="OcampoJames04@gmail.com"
+                    description={session?.user.email}
                     className=""
                 >
                     <form>
@@ -98,6 +102,7 @@ export default function AccountStepper({
                                 withAsterisk
                                 label={"First name"}
                                 size="md"
+                                maxLength={25}
                                 placeholder="Juan Carlo"
                                 variant="filled"
                                 onChange={(event) =>
@@ -109,6 +114,7 @@ export default function AccountStepper({
                                 label={"Last name"}
                                 size="md"
                                 placeholder="Legazpi"
+                                maxLength={25}
                                 variant="filled"
                                 onChange={(event) =>
                                     setLastName(event.currentTarget.value)
@@ -138,9 +144,9 @@ export default function AccountStepper({
 
                                 <DatePickerInput
                                     name="dateOfBirth"
-                                    // dropdownType="modal"
                                     size="md"
                                     onChange={setDateOfBirth}
+                                    maxDate={new Date()}
                                     className="w-full"
                                     label="Date of Birth"
                                     placeholder="November 04, 1999"
@@ -215,7 +221,7 @@ export default function AccountStepper({
             {isSuccesful && (
                 <SuccessModal
                     opened={isSuccesful}
-                    timeOut={2000}
+                    timeOut={3000}
                     onClose={() => {
                         setIsSuccesful(false);
                         setActive((prev) => prev + 1);

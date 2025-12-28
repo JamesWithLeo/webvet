@@ -4,12 +4,13 @@ import Logo from "@/components/Logo";
 import { ActionIcon } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
 import Link from "next/link";
-import { Alex_Brush } from "next/font/google";
-const alexBrush = Alex_Brush({
+
+import { Baskervville_SC } from "next/font/google";
+const baskerville = Baskervville_SC({
     subsets: ["latin"],
     display: "swap",
     style: ["normal"],
-    weight: ["400"],
+    weight: ["500"],
 });
 
 export default function LayoutContent({
@@ -40,9 +41,9 @@ export default function LayoutContent({
                             w={"100%"}
                             gap={"md"}
                         >
-                            <Logo size="md" />
+                            <Logo size="xs" />
                             <h1
-                                className={`${alexBrush.className} text-3xl   `}
+                                className={`${baskerville.className} text-[#14678f]  text-3xl`}
                             >
                                 Joseph & Mary
                             </h1>

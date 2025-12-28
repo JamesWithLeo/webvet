@@ -1,15 +1,5 @@
 import { redirect } from "next/navigation";
-import {
-    Button,
-    Group,
-    Paper,
-    SimpleGrid,
-    Space,
-    Stack,
-    Switch,
-    Text,
-    Title,
-} from "@mantine/core";
+import { Group, Paper, SimpleGrid, Stack, Text } from "@mantine/core";
 import {
     IconCalendarCheck,
     IconCalendarEvent,
@@ -19,7 +9,6 @@ import {
     IconPawOff,
 } from "@tabler/icons-react";
 import ProfileCardGroup from "@/components/ProfileCardGroup";
-import LogoutButton from "@/components/LogoutButton";
 import { auth } from "@/auth";
 
 export default async function ProfilePage() {
@@ -42,6 +31,8 @@ export default async function ProfilePage() {
                         lastName={session.user.lastName}
                         dateOfBirth={session.user.dateOfBirth}
                         photoUrl={session.user.photoUrl}
+                        email={session.user.email}
+                        sex={session.user.sex}
                     />
                     <SimpleGrid cols={2}>
                         <Stack c={"primary"}>
@@ -58,7 +49,6 @@ export default async function ProfilePage() {
                                 <Text fw={500}>Total pets: 4</Text>
                             </Group>
                         </Stack>
-                        {/* <Divider orientation="vertical" w={"auto"} /> */}
                         <Stack c={"primary"}>
                             <Group>
                                 <IconCalendarEvent stroke={1.5} />
@@ -76,7 +66,7 @@ export default async function ProfilePage() {
                     </SimpleGrid>
                 </Stack>
             </Paper>
-            <Paper
+            {/* <Paper
                 withBorder
                 p={"xl"}
                 w={"100%"}
@@ -96,13 +86,13 @@ export default async function ProfilePage() {
                         <Switch size="lg" onLabel="ON" offLabel="OFF" />
                     </Group>
                 </Stack>
-            </Paper>
-            <SimpleGrid w={"100%"} cols={2} className="max-w-3xl">
+            </Paper> */}
+            {/* <SimpleGrid w={"100%"} cols={2} className="max-w-3xl">
                 <Button maw={"100%"} variant="light" c={"primary.9"}>
                     Forgot Password
                 </Button>
                 <LogoutButton color="red" label={"Logout"} />
-            </SimpleGrid>
+            </SimpleGrid> */}
         </div>
     );
 }

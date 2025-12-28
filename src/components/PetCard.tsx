@@ -10,6 +10,7 @@ import {
     Checkbox,
     Text,
     Menu,
+    Center,
 } from "@mantine/core";
 import {
     IconCat,
@@ -20,6 +21,8 @@ import {
     IconPlus,
     IconTrash,
 } from "@tabler/icons-react";
+import DogPlaceholder from "./DogPlaceholder";
+import CatPlaceholder from "./CatPlaceholder";
 
 export default function PetCard({
     name,
@@ -28,6 +31,7 @@ export default function PetCard({
     gender,
     imageUrl,
     age,
+    species,
 }: {
     name: string;
     breed: string;
@@ -35,9 +39,10 @@ export default function PetCard({
     heart?: boolean;
     imageUrl: string;
     age: number;
+    species: "CAT" | "DOG";
 }) {
     return (
-        <Card withBorder className="group w-96 h-[500px]   " radius={"md"}>
+        <Card withBorder className="group w-96 h-125" radius={"md"}>
             <Card.Section withBorder p={"sm"}>
                 <Group justify="space-between">
                     <Stack gap={1}>
@@ -138,20 +143,15 @@ export default function PetCard({
                         src={imageUrl}
                         mah={"200"}
                         mih={"300"}
-                    >
-                        {/* <Overlay
-                        gradient="linear-gradient(145deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 100%)"
-                        opacity={0.45}
-                    /> */}
-                    </BackgroundImage>
-                ) : (
-                    <BackgroundImage
-                        className="ease-in-out duration-300s delay-200"
-                        color="primary"
-                        src={"/dogPlaceholder.svg"}
-                        mah={"200"}
-                        mih={"300"}
                     ></BackgroundImage>
+                ) : (
+                    <Center mah={"200"} bg={"gray.0"} mih={"300"}>
+                        {species === "CAT" ? (
+                            <CatPlaceholder />
+                        ) : (
+                            <DogPlaceholder />
+                        )}
+                    </Center>
                 )}
             </Card.Section>
             <Card.Section withBorder p={"sm"}>
