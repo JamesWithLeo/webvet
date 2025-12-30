@@ -12,6 +12,7 @@ import {
     Menu,
     Center,
 } from "@mantine/core";
+
 import {
     IconCat,
     IconDotsVertical,
@@ -21,9 +22,24 @@ import {
     IconPlus,
     IconTrash,
 } from "@tabler/icons-react";
+
 import DogPlaceholder from "./DogPlaceholder";
 import CatPlaceholder from "./CatPlaceholder";
 
+type Props = {
+    // Pet props
+    name: string;
+    breed: string;
+    gender: "Male" | "Female";
+    heart?: boolean;
+    imageUrl: string;
+    age: number;
+    species: "CAT" | "DOG";
+    life: "ALIVE" | "DECEASED";
+
+    // Component State
+    isSelecting: boolean;
+};
 export default function PetCard({
     name,
     breed,
@@ -32,15 +48,8 @@ export default function PetCard({
     imageUrl,
     age,
     species,
-}: {
-    name: string;
-    breed: string;
-    gender: "Male" | "Female";
-    heart?: boolean;
-    imageUrl: string;
-    age: number;
-    species: "CAT" | "DOG";
-}) {
+    isSelecting,
+}: Props) {
     return (
         <Card withBorder className="group w-96 h-125" radius={"md"}>
             <Card.Section withBorder p={"sm"}>
@@ -126,17 +135,8 @@ export default function PetCard({
                     className="absolute top-2 "
                     px={"sm"}
                 >
-                    <Checkbox />
+                    {isSelecting && <Checkbox />}
                 </Group>
-                {/* <div className="w-full absolute flex items-end justify-end p-2">
-                    <ActionIcon variant="transparent" size={"xl"}>
-                        {heart ? (
-                            <IconHeartFilled size={20} />
-                        ) : (
-                            <IconHeart size={20} />
-                        )}
-                    </ActionIcon>
-                </div> */}
                 {imageUrl ? (
                     <BackgroundImage
                         className="ease-in-out duration-300s delay-200"
@@ -145,7 +145,7 @@ export default function PetCard({
                         mih={"300"}
                     ></BackgroundImage>
                 ) : (
-                    <Center mah={"200"} bg={"gray.0"} mih={"300"}>
+                    <Center mah={"200"} bg={"gray.0"} c={"gray.3"} mih={"300"}>
                         {species === "CAT" ? (
                             <CatPlaceholder />
                         ) : (

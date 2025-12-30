@@ -1,53 +1,5 @@
-import NewPetCard from "@/components/NewPetCard";
-import PetCard from "@/components/PetCard";
-import PetControllers from "@/components/PetControllers";
+import PetWrapper from "@/components/PetWrapper";
 
-const myPets: {
-    gender: "Male" | "Female";
-    name: string;
-    heart: boolean;
-    breed: string;
-    imageUrl: string;
-    age: number;
-    species: "CAT" | "DOG";
-}[] = [
-    {
-        name: "Ara",
-        heart: true,
-        breed: "Golden Retriever",
-        gender: "Female",
-        imageUrl: "/goldenr.jpg",
-        age: 8,
-        species: "DOG",
-    },
-    {
-        name: "Howl",
-        heart: false,
-        gender: "Male",
-        breed: "Dachshund",
-        imageUrl: "/dachshund.jpg",
-        age: 3,
-        species: "DOG",
-    },
-    {
-        name: "Thunder",
-        heart: false,
-        gender: "Male",
-        breed: "Aspin",
-        imageUrl: "",
-        age: 5,
-        species: "DOG",
-    },
-    {
-        name: "Kirby",
-        heart: false,
-        gender: "Female",
-        breed: "Persian",
-        imageUrl: "/persian.jpg",
-        age: 2,
-        species: "CAT",
-    },
-];
 export default function Page() {
     return (
         <div className="flex  items-center gap-8 w-full h-screen  flex-col   ">
@@ -99,22 +51,7 @@ export default function Page() {
                         WebkitMaskComposite: "source-in",
                     }}
                 />
-                <PetControllers />
-                <section className="flex gap-4 w-full justify-center flex-wrap">
-                    {myPets.map((p, index) => (
-                        <PetCard
-                            key={`${p.name}_${index}`}
-                            name={p.name}
-                            heart={p.heart}
-                            breed={p.breed}
-                            gender={p.gender}
-                            imageUrl={p.imageUrl}
-                            age={p.age}
-                            species={p.species}
-                        />
-                    ))}
-                    <NewPetCard />
-                </section>
+                <PetWrapper />
             </div>
         </div>
     );

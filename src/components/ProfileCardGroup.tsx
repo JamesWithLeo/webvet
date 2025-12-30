@@ -1,6 +1,7 @@
 "use client";
 
 import { sexValues } from "@/db/schema/users";
+
 import {
     Group,
     Avatar,
@@ -15,7 +16,9 @@ import {
     MenuItem,
     MenuDivider,
 } from "@mantine/core";
+
 import { useDisclosure } from "@mantine/hooks";
+
 import {
     IconGenderMale,
     IconDotsVertical,
