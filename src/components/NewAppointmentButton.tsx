@@ -11,7 +11,7 @@ export default function NewAppointmentButton() {
         <Button
             variant="default"
             onClick={() => {
-                router.push("/v1/new/appointment");
+                router.push("/v1/appointments/new");
             }}
             leftSection={<IconPlus size={20} />}
         >

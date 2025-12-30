@@ -86,22 +86,13 @@ export const getUserByProviderType = async ({
     }
 };
 
-export const saveSetupInDb = async ({
-    firstName,
-    lastName,
-    sex,
-    dateOfBirth,
-    id,
-}: {
-    firstName: string;
-    lastName: string;
-    sex: (typeof sexValues)[number];
-    dateOfBirth: string;
-    id: string;
-}) => {
+export const saveSetupInDb = async (
+    id: string,
+    userData: Partial<typeof users.$inferInsert>
+) => {
     return await db
         .update(users)
-        .set({ firstName, lastName, sex, dateOfBirth })
+        .set(userData)
         .where(eq(users.id, id))
         .returning({
             firstName: users.firstName,
@@ -109,4 +100,9 @@ export const saveSetupInDb = async ({
             sex: users.sex,
             dateOfBirth: users.dateOfBirth,
         });
+};
+
+export const getUserById = async (id: string) => {
+    return await db.select().from(users).where(eq(users.id, id)).limit(1);
+    // .then((result) => result[0]);
 };

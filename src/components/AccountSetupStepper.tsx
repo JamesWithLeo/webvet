@@ -10,8 +10,6 @@ import {
     NavLink,
     Image,
     Modal,
-    Group,
-    Text,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useState, useRef } from "react";
@@ -21,7 +19,7 @@ import {
     IconChevronRight,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import { setupUser } from "@/actions/setupUser";
+import editUser from "@/actions/editUser";
 import SuccessModal from "./SuccessModal";
 import { useSession } from "next-auth/react";
 
@@ -50,17 +48,19 @@ export default function AccountStepper({
 
     const onConfirm = async () => {
         // todo error
-        console.log("userId:", userId);
         if (!sex || !dateOfBirth || !userId) {
             return;
         }
         const form = new FormData();
-        form.append("id", userId);
         form.append("firstName", firstName);
         form.append("lastName", lastName);
         form.append("sex", sex);
         form.append("dateOfBirth", dateOfBirth);
-        const updatedUser = await setupUser(userId, form);
+        const updatedUser = await editUser(
+            { userId: userId, schema: "setup" },
+            null,
+            form
+        );
 
         if (updatedUser.succesful && updatedUser.user) {
             await update({

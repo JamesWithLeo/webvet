@@ -34,6 +34,7 @@
         "@react-email/render": "^2.0.0",
         "@react-email/tailwind": "^2.0.2",
         "@tabler/icons-react": "^3.35.0",
+        "@uploadthing/react": "^7.3.3",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",
@@ -53,6 +54,7 @@
         "react-dom": "^19.2.3",
         "recharts": "^3.4.1",
         "tailwind-merge": "^3.3.1",
+        "uploadthing": "^7.7.4",
         "ws": "^8.18.3",
         "xendit-node": "^7.0.0",
         "zod": "^4.1.12"

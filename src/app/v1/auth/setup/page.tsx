@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import AccountStepperWrapper from "@/components/AccountStepperWrapper";
+import AccountStepperWrapper from "@/components/AccountSetupStepperWrapper";
 import Logo from "@/components/Logo";
 import LogoutButton from "@/components/LogoutButton";
 import { Box, Group } from "@mantine/core";

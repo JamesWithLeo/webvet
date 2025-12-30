@@ -11,4 +11,13 @@ export const userSetupSchema = z.object({
         .refine((date) => !isNaN(Date.parse(date)), {
             message: "Invalid date format",
         }),
+    photoUrl: z.string(),
+});
+
+export const userEditSchema = z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    sex: z.enum(sexValuesTuple, { message: "Invalid sex" }).optional(),
+    dateOfBirth: z.string().optional(),
+    photoUrl: z.string().optional(),
 });

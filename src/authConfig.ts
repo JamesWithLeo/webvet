@@ -12,6 +12,7 @@ import Nodemailer from "next-auth/providers/nodemailer";
 import { render } from "@react-email/render";
 import { MagicLinkEmail } from "./components/MagicLinkEmail";
 import { createTransport } from "nodemailer";
+import { getUserById } from "./lib/db/users";
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -94,7 +95,16 @@ export const authConfig = {
                 token.image = user.image;
             }
             if (trigger === "update" && session) {
-                return { ...token, ...session };
+                const [dbUser] = await getUserById(token.id);
+
+                if (dbUser) {
+                    token.firstName = dbUser.firstName;
+                    token.lastName = dbUser.lastName;
+                    token.sex = dbUser.sex;
+                    token.dateOfBirth = dbUser.dateOfBirth;
+                    token.photoUrl = dbUser.photoUrl;
+                }
+                return token;
             }
             return token;
         },
