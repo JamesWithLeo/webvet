@@ -316,7 +316,7 @@ export default function EditProfileModal({ opened, close }: Props) {
                     />
                     <TextInput name="lastName" label={"Last Name"} />
                     <NativeSelect
-                        name="sex"
+                        name="gender"
                         className="w-full"
                         size="md"
                         data={userGenderValue}

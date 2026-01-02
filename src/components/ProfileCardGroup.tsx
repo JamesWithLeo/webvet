@@ -24,6 +24,7 @@ import {
     IconDotsVertical,
     IconEdit,
     IconLogout,
+    IconGenderFemale,
 } from "@tabler/icons-react";
 
 import EditProfileModal from "./EditProfileModal";
@@ -34,8 +35,18 @@ export default function ProfileCardGroup(user: {
     photoUrl?: string | null;
     dateOfBirth?: string | null;
     email?: string | null;
-    sex: (typeof userGenderValue)[number];
+    gender: (typeof userGenderValue)[number];
 }) {
+    const gender = () => {
+        switch (user.gender) {
+            case "female":
+                return <IconGenderFemale color="blue" size={20} />;
+            case "male":
+                return <IconGenderMale color="blue" size={20} />;
+            default:
+                return <></>;
+        }
+    };
     const [opened, { open, close }] = useDisclosure();
     return (
         <>
@@ -61,7 +72,7 @@ export default function ProfileCardGroup(user: {
                     <Group>
                         <Text c={"dimmed"}>{user.dateOfBirth} </Text>
                         <ActionIcon variant="transparent">
-                            <IconGenderMale color="blue" size={20} />
+                            {gender()}
                         </ActionIcon>
                     </Group>
                 </Stack>

@@ -17,7 +17,7 @@ export default async function SetupAccount() {
     const session = await auth();
     if (!session) redirect("/");
     const { user } = session;
-    if (user.firstName && user.lastName && user.dateOfBirth && user.sex) {
+    if (user.firstName && user.lastName && user.dateOfBirth && user.gender) {
         redirect("/");
     }
     return (

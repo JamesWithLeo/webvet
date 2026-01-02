@@ -34,7 +34,7 @@ export default async function ProfilePage() {
                             dateOfBirth={session.user.dateOfBirth}
                             photoUrl={session.user.photoUrl}
                             email={session.user.email}
-                            sex={session.user.sex}
+                            sex={session.user.gender}
                         />
                         <SimpleGrid cols={2}>
                             <Stack c={"primary"}>
