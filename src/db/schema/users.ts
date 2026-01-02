@@ -8,11 +8,11 @@ import {
     uuid,
 } from "drizzle-orm/pg-core";
 
-export const sexValuesTuple = ["MALE", "FEMALE", "UNKNOWN"] as const;
-export const sex = pgEnum("sex_enum", sexValuesTuple);
-export type Sex = (typeof sex.enumValues)[number];
+export const userGenderValueTuple = ["male", "female", "other"] as const;
+export const userGender = pgEnum("user_gender", userGenderValueTuple);
+export type UserGender = (typeof userGender.enumValues)[number];
 export type USERTYPE = typeof users.$inferSelect;
-export const sexValues = sex.enumValues;
+export const userGenderValue = userGender.enumValues;
 
 export const role = pgEnum("role", ["client", "staff", "admin"]);
 export const users = pgTable("users", {
@@ -25,7 +25,7 @@ export const users = pgTable("users", {
     lastName: varchar("last_name", { length: 50 }),
     created_at: timestamp("created_at").defaultNow().notNull(),
     dateOfBirth: date(),
-    sex: sex("sex").default("UNKNOWN").notNull(),
+    gender: userGender("gender").default("other").notNull(),
 
     id: uuid("id").defaultRandom().primaryKey(),
     name: text("name"),

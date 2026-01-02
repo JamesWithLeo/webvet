@@ -1,0 +1,82 @@
+import { OWNERSHIP_STATUS, petGenderValues } from "@/db/schema/pets";
+import { z } from "zod/v4";
+
+export const petCreateSchema = z.object({
+    name: z
+        .string()
+        .regex(
+            /^[a-zA-Z0-9 .\-]+$/,
+            "Only letters, numbers, spaces, periods, and hyphens are allowed."
+        )
+        .trim()
+        .nonempty("Missing pets name."),
+    breedId: z.number().nonnegative().nonoptional(),
+    color: z
+        .string()
+        .regex(/^[a-zA-Z ]+$/, "No special characters in color description")
+        .trim()
+        .nonempty("Missing pets color."),
+    dateOfBirth: z
+        .string("Invalid date.")
+        .nonempty("Please select the date of birth of pet."),
+
+    isEstimatedDOB: z.boolean().nonoptional(),
+    breedSpecification: z.string().trim().nonempty("Missing pet breed."),
+    photoUrl: z.string().nonempty("Missing pet profile picture."),
+    gender: z.enum(petGenderValues).default("unknown").nonoptional(),
+    distinguishingMarks: z
+        .string()
+        .nonempty("Distinguishing marks is too short.")
+        .regex(/^[a-zA-Z0-9\s,]*$/, "Only letters, numbers, and commas allowed")
+        // .array()
+        .max(200, "Distinguishing marks is too long.")
+        .transform(
+            (val) =>
+                val
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter((item) => item.length > 0)
+                    .filter(Boolean) // Remove empty entries
+        )
+        .nonoptional(),
+
+    diet: z
+        .string()
+        .nonempty("Diet description is too short.")
+        .regex(/^[a-zA-Z0-9\s,]*$/, "Only letters, numbers, and commas allowed")
+        // .array()
+        .max(300, "Diet description is too long.")
+        .transform(
+            (val) =>
+                val
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean) // Remove empty entries
+        )
+        .nonoptional(),
+    allergies: z
+        .string()
+        .regex(/^[a-zA-Z0-9\s,]*$/, "Only letters, numbers, and commas allowed")
+        // .array()
+        .max(200, "Allergies description is too long.")
+        .transform(
+            (val) =>
+                val
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter((item) => item.length > 0)
+                    .filter(Boolean) // Remove empty entries
+        )
+        .nonoptional(),
+
+    ownerId: z.string().trim().optional(),
+    ownershipStatus: z.enum(OWNERSHIP_STATUS).nonoptional(),
+});
+
+// Use this for your React Hook Form / UI State
+export type PetFormInput = z.input<typeof petCreateSchema>;
+// Result: { name: string; diet: string; }
+
+// Use this for your Server Action / Drizzle Insert
+export type PetFormOutput = z.output<typeof petCreateSchema>;
+// Result: { name: string; diet: string[]; }

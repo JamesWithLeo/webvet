@@ -140,7 +140,6 @@ function SortReducer(state: SortStateType, action: SortAction) {
 }
 
 export default function PetWrapper() {
-    const [isSelecting, setIsSelecting] = useState<boolean>(false);
     const [filterState, filterDispatch] = useReducer(
         filterReducer,
         filterInitialState
@@ -178,8 +177,6 @@ export default function PetWrapper() {
     return (
         <>
             <PetControllers
-                isSelecting={isSelecting}
-                setIsSelecting={setIsSelecting}
                 filterState={filterState}
                 filterDispatch={filterDispatch}
                 sortState={sortState}
@@ -207,7 +204,6 @@ export default function PetWrapper() {
                                 age={p.age}
                                 species={p.species}
                                 life={p.life}
-                                isSelecting={isSelecting}
                             />
                         );
                 })}

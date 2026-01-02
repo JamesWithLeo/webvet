@@ -1,6 +1,6 @@
 "use client";
 
-import { sexValues } from "@/db/schema/users";
+import { userGenderValue } from "@/db/schema/users";
 import {
     Box,
     TextInput,
@@ -19,7 +19,7 @@ import {
     IconChevronRight,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import editUser from "@/actions/editUser";
+import editUser from "@/actions/updateUser";
 import SuccessModal from "./SuccessModal";
 import { useSession } from "next-auth/react";
 
@@ -37,7 +37,7 @@ export default function AccountStepper({
     const [dateOfBirth, setDateOfBirth] = useState<string | null>(null);
     const [firstName, setFirstName] = useState<string>("");
     const [lastName, setLastName] = useState<string>("");
-    const [sex, setSex] = useState<(typeof sexValues)[number]>("UNKNOWN");
+    const [sex, setSex] = useState<(typeof userGenderValue)[number]>("other");
 
     const [isOpenModal, { open, close }] = useDisclosure();
     const onSave = () => {
@@ -126,7 +126,7 @@ export default function AccountStepper({
                                     name="sex"
                                     className="w-full"
                                     size="md"
-                                    data={sexValues}
+                                    data={userGenderValue}
                                     value={sex}
                                     multiple={false}
                                     label="Gender"
@@ -135,9 +135,9 @@ export default function AccountStepper({
                                     onChange={(e) =>
                                         setSex(
                                             e.currentTarget.value as
-                                                | "MALE"
-                                                | "FEMALE"
-                                                | "UNKNOWN"
+                                                | "male"
+                                                | "female"
+                                                | "other"
                                         )
                                     }
                                 />

@@ -1,6 +1,6 @@
 // @/types/next-auth.d.ts
 import { type DefaultSession } from "next-auth";
-import { role, sexValues } from "@/db/schema/users";
+import { role, userGenderValue } from "@/db/schema/users";
 
 declare module "next-auth" {
     interface User {
@@ -10,7 +10,7 @@ declare module "next-auth" {
         role: (typeof role.enumValues)[number];
         firstName?: string | null;
         lastName?: string | null;
-        sex?: (typeof sexValues.enumValues)[number] | null;
+        gender?: (typeof userGenderValue.enumValues)[number] | null;
         dateOfBirth?: string | null;
         photoUrl?: string | null;
         accessToken?: string | null; // Allow null here too
@@ -25,7 +25,7 @@ declare module "next-auth" {
             role: (typeof role.enumValues)[number];
             firstName?: string | null;
             lastName?: string | null;
-            sex?: (typeof sexValues.enumValues)[number] | null;
+            gender?: (typeof userGenderValue.enumValues)[number] | null;
             dateOfBirth?: string | null;
             photoUrl?: string | null;
             accessToken?: string | null;
@@ -42,7 +42,7 @@ declare module "next-auth/jwt" {
         role: (typeof role.enumValues)[number];
         firstName?: string | null;
         lastName?: string | null;
-        sex?: (typeof sexValues.enumValues)[number] | null;
+        gender?: (typeof userGenderValue.enumValues)[number] | null;
         dateOfBirth?: string | null;
         photoUrl?: string | null;
         accessToken?: string | null;
@@ -58,7 +58,7 @@ declare module "@auth/core/adapters" {
         role: (typeof role.enumValues)[number];
         firstName?: string | null;
         lastName?: string | null;
-        sex?: (typeof sexValues.enumValues)[number] | null;
+        gender?: (typeof userGenderValue.enumValues)[number] | null;
         dateOfBirth?: string | null;
         photoUrl?: string | null;
         accessToken?: string | null;

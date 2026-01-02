@@ -1,10 +1,10 @@
-import { sexValuesTuple } from "@/db/schema/users";
+import { userGenderValueTuple } from "@/db/schema/users";
 import { z } from "zod";
 
 export const userSetupSchema = z.object({
     firstName: z.string().nonempty("Missing firstName"),
     lastName: z.string().nonempty("Missing lastName"),
-    sex: z.enum(sexValuesTuple, { message: "Invalid sex" }),
+    sex: z.enum(userGenderValueTuple, { message: "Invalid sex" }),
     dateOfBirth: z
         .string()
         .nonempty("Missing dateOfBirth")
@@ -17,7 +17,7 @@ export const userSetupSchema = z.object({
 export const userEditSchema = z.object({
     firstName: z.string().optional(),
     lastName: z.string().optional(),
-    sex: z.enum(sexValuesTuple, { message: "Invalid sex" }).optional(),
+    sex: z.enum(userGenderValueTuple, { message: "Invalid sex" }).optional(),
     dateOfBirth: z.string().optional(),
     photoUrl: z.string().optional(),
 });

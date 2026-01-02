@@ -9,9 +9,11 @@ import {
     date,
     pgEnum,
     uuid,
+    boolean,
+    jsonb,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { users, sex } from "./users";
+import { users, userGender } from "./users";
 
 export const reproductiveStatusEnum = pgEnum("reproductive_status", [
     "INTACT", // not spayed or neutered
@@ -20,16 +22,26 @@ export const reproductiveStatusEnum = pgEnum("reproductive_status", [
     "UNKNOWN", // unknown status
 ]);
 
+export const OWNERSHIP_STATUS = {
+    OWNED: "OWNED", // confirmed owner
+    STRAY: "STRAY", // no owner found
+    RESCUED: "RESCUED", // taken in by shelter or rescuer
+    UNKNOWN: "UNKNOWN", // no info yet
+} as const; // 'as const' makes the values read-only strings
+
 export const ownershipStatusEnum = pgEnum("ownership_status", [
-    "OWNED", // confirmed owner
-    "MISSING", // owner known, but pet is lost
-    "STRAY", // no owner found
-    "RESCUED", // taken in by shelter or rescuer
-    "SHELTERED", // under care of a shelter
-    "UNKNOWN", // no info yet
+    OWNERSHIP_STATUS.OWNED,
+    OWNERSHIP_STATUS.STRAY,
+    OWNERSHIP_STATUS.RESCUED,
+    OWNERSHIP_STATUS.UNKNOWN,
 ]);
 
-export const petTypes = pgTable("pet_types", {
+export const petGenderValueTuple = ["male", "female", "unknown"] as const;
+export const petGender = pgEnum("pet_gender", petGenderValueTuple);
+export type PetGender = (typeof petGender.enumValues)[number];
+export const petGenderValues = petGender.enumValues;
+
+export const species = pgTable("pet_types", {
     id: serial("id").primaryKey(),
     name: text("name").notNull().unique(),
 });
@@ -39,7 +51,7 @@ export const breeds = pgTable("breeds", {
     name: text("name").notNull(),
     petTypeId: integer("pet_type_id")
         .notNull()
-        .references(() => petTypes.id, { onDelete: "cascade" }),
+        .references(() => species.id, { onDelete: "cascade" }),
 });
 
 export const pets = pgTable(
@@ -50,19 +62,27 @@ export const pets = pgTable(
         breedId: integer("breed_id")
             .notNull()
             .references(() => breeds.id, { onDelete: "restrict" }),
+        breedSpecification: text("breed_specification"),
         ownerId: uuid("owner_id").references(() => users.id, {
             onDelete: "set null",
         }),
-        age: integer("age").notNull(),
-        created_at: timestamp("created_at").defaultNow().notNull(),
-        sex: sex("sex").default("UNKNOWN").notNull(),
+        gender: petGender("gender").default("unknown").notNull(),
         color: text(),
-        marks: varchar().array(),
+        distinguishingMarks: jsonb().$type<string[]>().default([]),
         yearOfBirth: integer("year_of_birth"),
         monthOfBirth: integer("month_of_birth"),
         dayOfBirth: integer("day_of_birth"),
         dateOfBirth: date("date_of_birth"),
         createdAt: timestamp("created_at").defaultNow().notNull(),
+        diet: jsonb().$type<string[]>().default([]),
+        allergies: jsonb().$type<string[]>().default([]),
+
+        isEstimatedDOB: boolean().default(false),
+        isVerified: boolean().default(false),
+        isLike: boolean().default(false),
+        isMissing: boolean().default(false),
+
+        photoUrl: varchar("photo_url", { length: 255 }),
 
         reproductiveStatus: reproductiveStatusEnum("reproductive_status")
             .notNull()
@@ -72,15 +92,16 @@ export const pets = pgTable(
             .notNull(),
     },
     (table) => [
-        check("age_check", sql`${table.age} >= 0 AND ${table.age} <= 100`),
         check(
             "valid_reproductive_status",
-            sql`(${table.reproductiveStatus} != 'SPAYED' OR ${table.sex} = 'FEMALE')
-            AND (${table.reproductiveStatus} != 'NEUTERED' OR ${table.sex} = 'MALE')`
+            sql`(${table.reproductiveStatus} != 'SPAYED' OR ${table.gender} = 'female')
+            AND (${table.reproductiveStatus} != 'NEUTERED' OR ${table.gender} = 'male')`
         ),
+        // If ownerId is NULL, status CANNOT be 'OWNED'
         check(
-            "ownership_owner_check",
-            sql`(${table.ownershipStatus} != 'OWNED' OR ${table.ownerId} IS NOT NULL)`
+            "ownership_consistency",
+            sql`(${table.ownerId} IS NOT NULL AND ${table.ownershipStatus} = 'OWNED') 
+            OR (${table.ownerId} IS NULL AND ${table.ownershipStatus} != 'OWNED')`
         ),
     ]
 );

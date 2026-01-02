@@ -1,11 +1,14 @@
-"use client";
-import { GenderCombo } from "@/components/GenderCombo";
-import { Button, Group, Stack, Text, Textarea, TextInput } from "@mantine/core";
-import { DatePickerInput } from "@mantine/dates";
-import { Dropzone, IMAGE_MIME_TYPE } from "@mantine/dropzone";
-import { IconUpload, IconX, IconDog } from "@tabler/icons-react";
+import { auth } from "@/auth";
+import CreatePetsWrapper from "@/components/pets/CreatePetsWrapper";
+import { getPetsSpeciesExcept } from "@/lib/db/pets";
+import { redirect } from "next/navigation";
 
-export default function Page() {
+export default async function Page() {
+    const species = await getPetsSpeciesExcept(["other"]);
+    const session = await auth();
+    if (!session || !session.user.id) {
+        redirect("/");
+    }
     return (
         <div className="flex items-center gap-8 w-full h-full min-h-dvh  flex-col   ">
             <div
@@ -55,82 +58,7 @@ export default function Page() {
                     WebkitMaskComposite: "source-in",
                 }}
             />
-            <div className="h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col">
-                <Dropzone
-                    px={"xl"}
-                    onDrop={(files) => console.log("accepted files", files)}
-                    onReject={(files) => console.log("rejected files", files)}
-                    maxSize={5 * 1024 ** 2}
-                    accept={IMAGE_MIME_TYPE}
-                >
-                    <Group
-                        justify="center"
-                        gap="xl"
-                        mih={220}
-                        style={{ pointerEvents: "none" }}
-                    >
-                        <Dropzone.Accept>
-                            <IconUpload
-                                size={52}
-                                color="var(--mantine-color-blue-6)"
-                                stroke={1.5}
-                            />
-                        </Dropzone.Accept>
-                        <Dropzone.Reject>
-                            <IconX
-                                size={52}
-                                color="var(--mantine-color-red-6)"
-                                stroke={1.5}
-                            />
-                        </Dropzone.Reject>
-                        <Dropzone.Idle>
-                            <IconDog
-                                size={52}
-                                color="var(--mantine-color-dimmed)"
-                                stroke={1.5}
-                            />
-                        </Dropzone.Idle>
-
-                        <div>
-                            <Text size="xl" inline>
-                                Pet profile picture
-                            </Text>
-                            <Text size="sm" c="dimmed" inline mt={7}>
-                                Drag image here or click to select file
-                            </Text>
-                            <Text size="sm" c="dimmed" inline mt={7}>
-                                Image should not exceed 5mb
-                            </Text>
-                        </div>
-                    </Group>
-                </Dropzone>
-                <Stack>
-                    <TextInput label={"Name"} />
-                    <TextInput label={"Color"} />
-                    <DatePickerInput
-                        clearable
-                        label="Date of Birth"
-                        placeholder="Pick date"
-                    />
-                    <GenderCombo label={"Gender"} />
-                    <TextInput label={"Species"} />
-                    <TextInput label={"Breed"} />
-                    <Textarea
-                        label="Food diet"
-                        description="What food do they eat?"
-                    />
-                    <Textarea
-                        label="Allergies"
-                        description="Does your pet have any known allergies?"
-                    />
-                    <Textarea
-                        label="Unique Identificaton"
-                        description="Description about the pet"
-                        placeholder="Birthmark on the paw and spot on the left eye"
-                    />
-                </Stack>
-                <Button mt={"lg"}>Save</Button>
-            </div>
+            <CreatePetsWrapper species={species} id={session.user.id} />
         </div>
     );
 }

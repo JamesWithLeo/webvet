@@ -36,9 +36,6 @@ type Props = {
     age: number;
     species: "CAT" | "DOG";
     life: "ALIVE" | "DECEASED";
-
-    // Component State
-    isSelecting: boolean;
 };
 export default function PetCard({
     name,
@@ -48,7 +45,6 @@ export default function PetCard({
     imageUrl,
     age,
     species,
-    isSelecting,
 }: Props) {
     return (
         <Card withBorder className="group w-96 h-125" radius={"md"}>
@@ -130,13 +126,6 @@ export default function PetCard({
                 </Group>
             </Card.Section>
             <Card.Section className="relative">
-                <Group
-                    justify="space-between"
-                    className="absolute top-2 "
-                    px={"sm"}
-                >
-                    {isSelecting && <Checkbox />}
-                </Group>
                 {imageUrl ? (
                     <BackgroundImage
                         className="ease-in-out duration-300s delay-200"

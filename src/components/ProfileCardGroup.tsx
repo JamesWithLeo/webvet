@@ -1,6 +1,6 @@
 "use client";
 
-import { sexValues } from "@/db/schema/users";
+import { userGenderValue } from "@/db/schema/users";
 
 import {
     Group,
@@ -34,7 +34,7 @@ export default function ProfileCardGroup(user: {
     photoUrl?: string | null;
     dateOfBirth?: string | null;
     email?: string | null;
-    sex: (typeof sexValues)[number];
+    sex: (typeof userGenderValue)[number];
 }) {
     const [opened, { open, close }] = useDisclosure();
     return (

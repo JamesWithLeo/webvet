@@ -99,6 +99,7 @@ export default function LayoutContent({
                     </Group>
                 </Group>
             </Paper>
+
             {children}
         </main>
     );

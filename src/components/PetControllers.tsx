@@ -13,14 +13,10 @@ import {
     IconAdjustmentsHorizontal,
     IconArrowsSort,
     IconCheck,
-    IconHandClick,
-    IconHandClickOff,
     IconPlus,
     IconRefresh,
-    IconSearch,
     IconSortAscending2,
     IconSortDescending2,
-    IconX,
 } from "@tabler/icons-react";
 
 import { useRouter } from "next/navigation";
@@ -34,8 +30,6 @@ import {
 import { toTitleCase } from "@/lib/toTitleCase";
 
 type Props = {
-    isSelecting: boolean;
-    setIsSelecting: Dispatch<SetStateAction<boolean>>;
     filterState: FilterStateType;
     filterDispatch: ActionDispatch<[action: FilterAction]>;
     sortState: SortStateType;
@@ -44,8 +38,6 @@ type Props = {
 };
 
 export default function PetControllers({
-    isSelecting,
-    setIsSelecting,
     filterState,
     filterDispatch,
     sortState,
@@ -225,21 +217,6 @@ export default function PetControllers({
                         >
                             Add new Pet
                         </Button>
-                        <Button
-                            variant="default"
-                            onClick={() => {
-                                setIsSelecting(!isSelecting);
-                            }}
-                            leftSection={
-                                isSelecting ? (
-                                    <IconHandClickOff stroke={1.5} size={20} />
-                                ) : (
-                                    <IconHandClick stroke={1.5} size={20} />
-                                )
-                            }
-                        >
-                            Select
-                        </Button>
                         <Menu shadow="md" width={200} position="bottom-start">
                             <Menu.Target>
                                 <Button
@@ -288,9 +265,6 @@ export default function PetControllers({
                             </Menu.Dropdown>
                         </Menu>
                     </Button.Group>
-                    <Button color="red" disabled={!isSelecting}>
-                        Delete (2)
-                    </Button>
                 </Group>
             </Grid.Col>
         </Grid>

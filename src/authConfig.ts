@@ -100,7 +100,7 @@ export const authConfig = {
                 if (dbUser) {
                     token.firstName = dbUser.firstName;
                     token.lastName = dbUser.lastName;
-                    token.sex = dbUser.sex;
+                    token.sex = dbUser.gender;
                     token.dateOfBirth = dbUser.dateOfBirth;
                     token.photoUrl = dbUser.photoUrl;
                 }
@@ -125,7 +125,7 @@ export const authConfig = {
                 session.user.role = token.role;
                 session.user.firstName = token.firstName;
                 session.user.lastName = token.lastName;
-                session.user.sex = token.sex;
+                session.user.sex = token.gender;
                 session.user.dateOfBirth = token.dateOfBirth;
                 session.user.emailVerified = token.emailVerified;
                 session.user.photoUrl = token.photoUrl;

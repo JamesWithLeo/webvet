@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { sexValues, users } from "@/db/schema/users";
+import { users } from "@/db/schema/users";
 import { and, eq } from "drizzle-orm";
 import isUser from "../isUser";
 

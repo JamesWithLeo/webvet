@@ -1,7 +1,7 @@
 "use client";
 
-import editUser from "@/actions/editUser";
-import { sexValues } from "@/db/schema/users";
+import editUser from "@/actions/updateUser";
+import { userGenderValue } from "@/db/schema/users";
 import { useUploadThing } from "@/lib/uploadThing";
 import {
     Group,
@@ -78,7 +78,6 @@ export default function EditProfileModal({ opened, close }: Props) {
 
     const { startUpload, isUploading } = useUploadThing("profileUpload", {
         onClientUploadComplete: (res) => {
-            console.log("client - uploadthing :", res);
             close();
         },
     });
@@ -320,7 +319,7 @@ export default function EditProfileModal({ opened, close }: Props) {
                         name="sex"
                         className="w-full"
                         size="md"
-                        data={sexValues}
+                        data={userGenderValue}
                         multiple={false}
                         label="Gender"
                     />

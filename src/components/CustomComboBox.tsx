@@ -3,7 +3,6 @@
 import {
     CheckIcon,
     Combobox,
-    ComboboxProps,
     Group,
     Input,
     InputBase,
@@ -12,9 +11,11 @@ import {
 } from "@mantine/core";
 import { useState } from "react";
 
-const gender = ["male", "female"];
-
-export function GenderCombo({ ...props }: InputBaseProps) {
+interface GenderComboProps extends InputBaseProps {
+    options: string[];
+    name: string;
+}
+export function CustomComboBox({ options, name, ...props }: GenderComboProps) {
     const combobox = useCombobox({
         onDropdownClose: () => combobox.resetSelectedOption(),
         onDropdownOpen: (eventSource) => {
@@ -28,7 +29,7 @@ export function GenderCombo({ ...props }: InputBaseProps) {
 
     const [value, setValue] = useState<string | null>(null);
 
-    const options = gender.map((item) => (
+    const newOptions = options.map((item) => (
         <Combobox.Option value={item} key={item} active={item === value}>
             <Group gap="xs">
                 {item === value && <CheckIcon size={12} />}
@@ -56,6 +57,7 @@ export function GenderCombo({ ...props }: InputBaseProps) {
                     rightSection={<Combobox.Chevron />}
                     rightSectionPointerEvents="none"
                     onClick={() => combobox.toggleDropdown()}
+                    name={name}
                     {...props}
                 >
                     {value || (
@@ -65,7 +67,7 @@ export function GenderCombo({ ...props }: InputBaseProps) {
             </Combobox.Target>
 
             <Combobox.Dropdown>
-                <Combobox.Options>{options}</Combobox.Options>
+                <Combobox.Options>{newOptions}</Combobox.Options>
             </Combobox.Dropdown>
         </Combobox>
     );
