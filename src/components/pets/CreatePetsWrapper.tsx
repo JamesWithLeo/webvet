@@ -131,7 +131,6 @@ export default function CreatePetsWrapper({
             value.ownerId = id;
             value.ownershipStatus = OWNERSHIP_STATUS.OWNED;
 
-            console.log(value);
             formAction({
                 ...value,
                 photoUrlKey: uploadedFile[0].key,
@@ -140,6 +139,7 @@ export default function CreatePetsWrapper({
         });
     };
 
+    // fetching breed
     useEffect(() => {
         async function fetchBreeds() {
             setIsLoadingBreed(true);

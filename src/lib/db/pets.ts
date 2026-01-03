@@ -2,7 +2,18 @@ import { db } from "@/db";
 import { pets, species } from "@/db/schema/pets";
 import { and, ne, SQL } from "drizzle-orm";
 
-export const checkExistingPets = async () => {};
+export const checkExistingPets = async ({
+    name,
+    breedId,
+    ownerId,
+}: {
+    name: string;
+    breedId: string;
+    ownerId: string;
+}) => {
+    return await db.query;
+};
+
 export const savePetsToDb = async (petsData: typeof pets.$inferInsert) => {
     return await db
         .insert(pets)

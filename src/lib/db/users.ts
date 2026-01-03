@@ -104,5 +104,4 @@ export const saveSetupInDb = async (
 
 export const getUserById = async (id: string) => {
     return await db.select().from(users).where(eq(users.id, id)).limit(1);
-    // .then((result) => result[0]);
 };
