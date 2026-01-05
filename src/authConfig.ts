@@ -87,7 +87,7 @@ export const authConfig = {
                 token.role = user.role;
                 token.firstName = user.firstName;
                 token.lastName = user.lastName;
-                token.sex = user.gender;
+                token.gender = user.gender;
                 token.dateOfBirth = user.dateOfBirth;
                 token.email = user.email;
                 token.emailVerified = user.emailVerified;
@@ -100,7 +100,7 @@ export const authConfig = {
                 if (dbUser) {
                     token.firstName = dbUser.firstName;
                     token.lastName = dbUser.lastName;
-                    token.sex = dbUser.gender;
+                    token.gender = dbUser.gender;
                     token.dateOfBirth = dbUser.dateOfBirth;
                     token.photoUrl = dbUser.photoUrl;
                 }
@@ -109,7 +109,6 @@ export const authConfig = {
             return token;
         },
 
-        // async session({ session, token }) {
         async session({
             session,
             token,

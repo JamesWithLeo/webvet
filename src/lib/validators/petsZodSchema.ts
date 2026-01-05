@@ -28,7 +28,7 @@ export const petCreateSchema = z.object({
         .nonempty("Missing pet breed.")
         .toLowerCase(),
     photoUrl: z.string().nonempty("Missing pet profile picture."),
-    gender: z.enum(petGenderValues).default("unknown").nonoptional(),
+    gender: z.enum(petGenderValues).nonoptional("Missing pet gender"),
     distinguishingMarks: z
         .string()
         .nonempty("Distinguishing marks is too short.")
@@ -73,6 +73,7 @@ export const petCreateSchema = z.object({
 
     ownerId: z.string().trim().optional(),
     ownershipStatus: z.enum(OWNERSHIP_STATUS).nonoptional(),
+    species: z.string().nonempty("Missing pet species"),
 });
 
 // Use this for your React Hook Form / UI State

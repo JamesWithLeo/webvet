@@ -26,7 +26,6 @@ export const users = pgTable("users", {
     created_at: timestamp("created_at").defaultNow().notNull(),
     dateOfBirth: date(),
     gender: userGender("gender").default("other").notNull(),
-
     id: uuid("id").defaultRandom().primaryKey(),
     name: text("name"),
     email: text("email").unique(),

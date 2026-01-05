@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
             { hostname: "place.dog" },
             {
                 protocol: "https",
-                hostname: "<APP_ID>.ufs.sh",
+                hostname: "7p6b2m8uq7.ufs.sh",
                 pathname: "/f/*",
             },
         ],

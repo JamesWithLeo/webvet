@@ -4,12 +4,12 @@ import { Button, Card, Group, Text } from "@mantine/core";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import lottieData from "@/../public/lottie/Email.json";
 import { useRef } from "react";
-import { Alex_Brush } from "next/font/google";
-const alexBrush = Alex_Brush({
+import { Baskervville_SC } from "next/font/google";
+const baskerville = Baskervville_SC({
     subsets: ["latin"],
     display: "swap",
     style: ["normal"],
-    weight: ["400"],
+    weight: ["500"],
 });
 
 export default function Page() {
@@ -17,8 +17,10 @@ export default function Page() {
     return (
         <div className="flex bg-gray-50 min-h-dvh gap-8 flex-col items-center  p-16">
             <Group>
-                <Logo size="md" />
-                <h1 className={`${alexBrush.className} text-3xl`}>
+                <Logo size="sm" />
+                <h1
+                    className={`${baskerville.className} text-[#14678f]  text-4xl`}
+                >
                     Joseph & Mary
                 </h1>
             </Group>

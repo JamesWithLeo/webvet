@@ -10,10 +10,10 @@ declare module "next-auth" {
         role: (typeof role.enumValues)[number];
         firstName?: string | null;
         lastName?: string | null;
-        gender?: (typeof userGenderValue.enumValues)[number] | null;
+        gender?: (typeof userGenderValue)[number] | null;
         dateOfBirth?: string | null;
         photoUrl?: string | null;
-        accessToken?: string | null; // Allow null here too
+        accessToken?: string | null;
         image: string | null;
     }
 
@@ -25,7 +25,7 @@ declare module "next-auth" {
             role: (typeof role.enumValues)[number];
             firstName?: string | null;
             lastName?: string | null;
-            gender?: (typeof userGenderValue.enumValues)[number] | null;
+            gender?: (typeof userGenderValue)[number] | null;
             dateOfBirth?: string | null;
             photoUrl?: string | null;
             accessToken?: string | null;
@@ -42,7 +42,7 @@ declare module "next-auth/jwt" {
         role: (typeof role.enumValues)[number];
         firstName?: string | null;
         lastName?: string | null;
-        gender?: (typeof userGenderValue.enumValues)[number] | null;
+        gender?: (typeof userGenderValue)[number] | null;
         dateOfBirth?: string | null;
         photoUrl?: string | null;
         accessToken?: string | null;
@@ -58,7 +58,7 @@ declare module "@auth/core/adapters" {
         role: (typeof role.enumValues)[number];
         firstName?: string | null;
         lastName?: string | null;
-        gender?: (typeof userGenderValue.enumValues)[number] | null;
+        gender?: (typeof userGenderValue)[number] | null;
         dateOfBirth?: string | null;
         photoUrl?: string | null;
         accessToken?: string | null;

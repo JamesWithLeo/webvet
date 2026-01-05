@@ -13,7 +13,7 @@ const baskerville = Baskervville_SC({
     weight: ["500"],
 });
 
-export default async function SetupAccount() {
+export default async function Page() {
     const session = await auth();
     if (!session) redirect("/");
     const { user } = session;
