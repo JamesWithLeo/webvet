@@ -39,3 +39,7 @@ export const getPetsSpeciesExcept = async (names: string[]) => {
         .from(species)
         .where(and(...condition));
 };
+
+export const getAllPets = async (id: string) => {
+    return await db.select().from(pets).where(eq(pets.ownerId, id));
+};

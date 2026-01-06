@@ -25,17 +25,20 @@ import {
 
 import DogPlaceholder from "./DogPlaceholder";
 import CatPlaceholder from "./CatPlaceholder";
+import { LifeStatus, PetGender } from "@/db/schema/pets";
+import { toTitleCase } from "@/lib/toTitleCase";
+import calculatePetAge from "@/lib/calculatePetAge";
 
 type Props = {
     // Pet props
     name: string;
     breed: string;
-    gender: "Male" | "Female";
-    heart?: boolean;
-    imageUrl: string;
-    age: number;
-    species: "CAT" | "DOG";
-    life: "ALIVE" | "DECEASED";
+    gender: PetGender;
+    heart: boolean | null;
+    imageUrl: string | null;
+    dateOfBirth: string;
+    species: "cat" | "dog";
+    life: LifeStatus;
 };
 export default function PetCard({
     name,
@@ -43,9 +46,10 @@ export default function PetCard({
     heart,
     gender,
     imageUrl,
-    age,
+    dateOfBirth,
     species,
 }: Props) {
+    const { years } = calculatePetAge(dateOfBirth);
     return (
         <Card withBorder className="group w-96 h-125" radius={"md"}>
             <Card.Section withBorder p={"sm"}>
@@ -56,10 +60,10 @@ export default function PetCard({
                             order={1}
                             className="text-2xl font-bold"
                         >
-                            {name}
+                            {name ? toTitleCase(name) : "Unknown pet name"}
                         </Title>
                         <Title c={"dimmed"} order={6} className=" font-bold">
-                            {breed}
+                            {breed ? toTitleCase(breed) : "Unknown breed"}
                         </Title>
                     </Stack>
                     <Group justify="center" gap={0}>
@@ -121,7 +125,7 @@ export default function PetCard({
 
                 <Group gap={1} c={"dimmed"}>
                     <Title order={6}>
-                        {gender === "Male" ? "M" : "F"} / {age} years old
+                        {gender[0].toUpperCase()} / {years} years old
                     </Title>
                 </Group>
             </Card.Section>
@@ -135,7 +139,7 @@ export default function PetCard({
                     ></BackgroundImage>
                 ) : (
                     <Center mah={"200"} bg={"gray.0"} c={"gray.3"} mih={"300"}>
-                        {species === "CAT" ? (
+                        {species === "cat" ? (
                             <CatPlaceholder />
                         ) : (
                             <DogPlaceholder />

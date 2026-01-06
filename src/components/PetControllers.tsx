@@ -47,7 +47,7 @@ export default function PetControllers({
     const router = useRouter();
 
     const Species = () => {
-        return (["ALL", "DOG", "CAT"] as const).map((val, index) => {
+        return (["all", "dog", "cat"] as const).map((val, index) => {
             return (
                 <Menu.Item
                     closeMenuOnClick={false}
@@ -69,7 +69,7 @@ export default function PetControllers({
     };
 
     const Life = () => {
-        return (["ALL", "ALIVE", "DECEASED"] as const).map((val, index) => {
+        return (["all", "alive", "deceased"] as const).map((val, index) => {
             return (
                 <Menu.Item
                     closeMenuOnClick={false}
@@ -91,7 +91,7 @@ export default function PetControllers({
     };
 
     const Gender = () => {
-        return (["All", "Male", "Female"] as const).map((val, index) => {
+        return (["all", "male", "female"] as const).map((val, index) => {
             return (
                 <Menu.Item
                     closeMenuOnClick={false}

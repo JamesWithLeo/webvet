@@ -3,6 +3,7 @@ import {
     check,
     varchar,
     integer,
+    decimal,
     timestamp,
     serial,
     text,
@@ -13,7 +14,7 @@ import {
     jsonb,
 } from "drizzle-orm/pg-core";
 import { InferSelectModel, sql } from "drizzle-orm";
-import { users, userGender } from "./users";
+import { users } from "./users";
 
 export const reproductiveStatusEnum = pgEnum("reproductive_status", [
     "INTACT", // not spayed or neutered
@@ -35,6 +36,18 @@ export const ownershipStatusEnum = pgEnum("ownership_status", [
     OWNERSHIP_STATUS.RESCUED,
     OWNERSHIP_STATUS.UNKNOWN,
 ]);
+export const LIFE_STATUS = {
+    alived: "alive",
+    deceased: "deceased",
+    unknown: "unknown",
+} as const;
+
+export const lifeStatusEnum = pgEnum("life_enum", [
+    LIFE_STATUS.alived,
+    LIFE_STATUS.deceased,
+    LIFE_STATUS.unknown,
+]);
+export type LifeStatus = (typeof lifeStatusEnum.enumValues)[number];
 
 export const petGenderValueTuple = ["male", "female", "unknown"] as const;
 export const petGender = pgEnum("pet_gender", petGenderValueTuple);
@@ -62,20 +75,21 @@ export const pets = pgTable(
         breedId: integer("breed_id")
             .notNull()
             .references(() => breeds.id, { onDelete: "restrict" }),
-        breedSpecification: text("breed_specification"),
+        breedSpecification: text("breed_specification").notNull(),
         ownerId: uuid("owner_id").references(() => users.id, {
             onDelete: "set null",
         }),
         gender: petGender("gender").default("unknown").notNull(),
         color: text(),
         distinguishingMarks: jsonb().$type<string[]>().default([]),
-        yearOfBirth: integer("year_of_birth"),
         monthOfBirth: integer("month_of_birth"),
-        dayOfBirth: integer("day_of_birth"),
-        dateOfBirth: date("date_of_birth"),
+        dateOfBirth: date("date_of_birth").notNull(),
         createdAt: timestamp("created_at").defaultNow().notNull(),
         diet: jsonb().$type<string[]>().default([]),
         allergies: jsonb().$type<string[]>().default([]),
+        weight: decimal("weight", { precision: 5, scale: 2, mode: "number" }),
+        height: decimal("height", { precision: 5, scale: 2, mode: "number" }),
+        life: lifeStatusEnum().default("alive").notNull(),
 
         isEstimatedDOB: boolean().default(false),
         isVerified: boolean().default(false),
@@ -83,7 +97,6 @@ export const pets = pgTable(
         isMissing: boolean().default(false),
 
         photoUrl: varchar("photo_url", { length: 255 }),
-
         reproductiveStatus: reproductiveStatusEnum("reproductive_status")
             .notNull()
             .default("UNKNOWN"),
