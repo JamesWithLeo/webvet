@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { pets, species } from "@/db/schema/pets";
-import { and, ne, SQL } from "drizzle-orm";
+import { and, eq, ne, SQL } from "drizzle-orm";
 
 export const checkExistingPets = async ({
     name,
@@ -8,10 +8,16 @@ export const checkExistingPets = async ({
     ownerId,
 }: {
     name: string;
-    breedId: string;
-    ownerId: string;
+    breedId: number;
+    ownerId: string | undefined;
 }) => {
-    return await db.query;
+    let condition = [eq(pets.name, name), eq(pets.breedId, breedId)];
+    if (ownerId) condition.push(eq(pets.ownerId, ownerId));
+    return await db
+        .select({ photoUrl: pets.photoUrl, name: pets.name })
+        .from(pets)
+        .where(and(...condition))
+        .limit(1);
 };
 
 export const savePetsToDb = async (petsData: typeof pets.$inferInsert) => {

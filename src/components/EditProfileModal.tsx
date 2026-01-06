@@ -4,7 +4,6 @@ import editUser from "@/actions/updateUser";
 import { userGenderValue } from "@/db/schema/users";
 import { useUploadThing } from "@/lib/uploadThing";
 import {
-    Group,
     Stack,
     Text,
     ScrollArea,
@@ -14,11 +13,11 @@ import {
     TextInput,
     Button,
     NativeSelect,
-    Image,
     Paper,
 } from "@mantine/core";
+import Image from "next/image";
 import { DatePickerInput } from "@mantine/dates";
-import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
+import { FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
 import {
     IconCalendarDot,
@@ -31,6 +30,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
+import ProfileDropzone from "./ProfileDropzone";
 
 const PUBLIC_AVATAR = [
     "bunny",
@@ -58,7 +58,7 @@ type Props = {
     close: () => void;
 };
 export default function EditProfileModal({ opened, close }: Props) {
-    const { update, status, data: session } = useSession();
+    const { update, data: session } = useSession();
 
     const router = useRouter();
     const editUserWithId = editUser.bind(null, {
@@ -67,8 +67,8 @@ export default function EditProfileModal({ opened, close }: Props) {
     });
     const [formState, formAction, isPending] = useActionState(editUserWithId, {
         succesful: false,
+        user: undefined,
     });
-    const [isPendingTransition, startTransition] = useTransition();
 
     const [selectedGalleryImg, setSelectedGalleryImg] = useState<string | null>(
         null
@@ -84,37 +84,33 @@ export default function EditProfileModal({ opened, close }: Props) {
 
     const removePhoto = () => {
         setImportedFile(null);
+        setSelectedGalleryImg(null);
         setPreviewUrl(null);
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        if (isPending || isPendingTransition) return;
+    const [isPendingTransition, startTransition] = useTransition();
 
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (isPending || isPendingTransition || isUploading) return;
+
         const formData = new FormData(e.currentTarget);
 
-        startTransition(async () => {
-            if (isUploading) return;
+        let newPhotoUrl = selectedGalleryImg
+            ? `https://cap1-webvet.vercel.app${selectedGalleryImg}`
+            : null;
 
-            let newPhotoUrl = selectedGalleryImg
-                ? `https://cap1-webvet.vercel.app${selectedGalleryImg}`
-                : null;
+        if (importedFile) {
+            const uploadedFile = await startUpload([importedFile]);
+            newPhotoUrl = uploadedFile?.[0]?.ufsUrl || null;
+        }
 
-            if (importedFile || newPhotoUrl) {
-                if (importedFile) {
-                    // proceed to use the imported
-                    const uploadedFile = await startUpload([importedFile]);
-                    newPhotoUrl = uploadedFile?.length
-                        ? uploadedFile[0].ufsUrl
-                        : null;
-                }
+        if (newPhotoUrl) {
+            formData.set("photoUrl", newPhotoUrl);
+        }
 
-                if (newPhotoUrl) {
-                    formData.set("photoUrl", newPhotoUrl);
-                }
-            }
-            // Trigger the Server Action
-            //  Call the action returned by useActionState
+        startTransition(() => {
             formAction(formData);
         });
     };
@@ -165,8 +161,6 @@ export default function EditProfileModal({ opened, close }: Props) {
             // If a file was uploaded, create a Blob URL
             objectUrl = URL.createObjectURL(importedFile);
             setPreviewUrl(objectUrl);
-            setSelectedGalleryImg(null);
-            setImportedFile(null);
         } else if (selectedGalleryImg) {
             // If a gallery item was clicked, use that path
             setPreviewUrl(selectedGalleryImg);
@@ -192,7 +186,7 @@ export default function EditProfileModal({ opened, close }: Props) {
                     <div>
                         <Text>Profile Photo</Text>
                         {!previewUrl && (
-                            <Dropzone
+                            <ProfileDropzone
                                 onReject={(files) =>
                                     console.log("rejected files", files)
                                 }
@@ -200,54 +194,40 @@ export default function EditProfileModal({ opened, close }: Props) {
                                 accept={IMAGE_MIME_TYPE}
                                 onDrop={(files) => setImportedFile(files[0])}
                                 multiple={false}
-                            >
-                                <Group
-                                    justify="center"
-                                    gap="md"
-                                    mih={180}
-                                    style={{ pointerEvents: "none" }}
-                                >
-                                    <Dropzone.Accept>
-                                        <IconUpload
-                                            size={52}
-                                            color="var(--mantine-color-blue-6)"
-                                            stroke={1.5}
-                                        />
-                                    </Dropzone.Accept>
-                                    <Dropzone.Reject>
-                                        <IconX
-                                            size={52}
-                                            color="var(--mantine-color-red-6)"
-                                            stroke={1.5}
-                                        />
-                                    </Dropzone.Reject>
-                                    <Dropzone.Idle>
-                                        <IconUserSquareRounded
-                                            size={52}
-                                            color="var(--mantine-color-dimmed)"
-                                            stroke={1.5}
-                                        />
-                                    </Dropzone.Idle>
-
-                                    <div>
-                                        <Text size="xl" inline>
-                                            Drag the image here or <br />
-                                            click to select image,
-                                        </Text>
-                                        <Text
-                                            size="sm"
-                                            c="dimmed"
-                                            inline
-                                            mt={7}
-                                        >
-                                            file should not exceed 4mb.
-                                        </Text>
-                                    </div>
-                                </Group>
-                            </Dropzone>
+                                mih={180}
+                                gap={"md"}
+                                iconAccept={
+                                    <IconUpload
+                                        size={52}
+                                        color="var(--mantine-color-blue-6)"
+                                        stroke={1.5}
+                                    />
+                                }
+                                iconIdle={
+                                    <IconUserSquareRounded
+                                        size={52}
+                                        color="var(--mantine-color-dimmed)"
+                                        stroke={1.5}
+                                    />
+                                }
+                                iconReject={
+                                    <IconX
+                                        size={52}
+                                        color="var(--mantine-color-red-6)"
+                                        stroke={1.5}
+                                    />
+                                }
+                                label={
+                                    <>
+                                        Drag the image here or <br />
+                                        click to select image,
+                                    </>
+                                }
+                                description={<>file should not exceed 4mb. </>}
+                            />
                         )}
                         {previewUrl && (
-                            <div className="mx-auto  shadow relative w-max  rounded-full bg-gray-50 p-2">
+                            <div className="mx-auto  shadow relative w-max h-max rounded-full bg-gray-50 p-2">
                                 <ActionIcon
                                     onClick={removePhoto}
                                     style={{
@@ -262,13 +242,15 @@ export default function EditProfileModal({ opened, close }: Props) {
                                 >
                                     <IconTrashFilled size={16} stroke={1.5} />
                                 </ActionIcon>
-                                <Image
-                                    className="relative"
-                                    src={previewUrl}
-                                    w={150}
-                                    h={150}
-                                    alt="Main Preview"
-                                />
+                                <div className="overflow-hidden relative w-55 h-55 rounded-full">
+                                    <Image
+                                        className="h-full w-full object-cover relative "
+                                        src={previewUrl}
+                                        fill={true}
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        alt="Main Preview"
+                                    />
+                                </div>
                             </div>
                         )}
                         <ScrollArea
@@ -284,13 +266,12 @@ export default function EditProfileModal({ opened, close }: Props) {
                                         maw={"80"}
                                         miw={"50"}
                                         onClick={() => {
-                                            if (status !== "authenticated")
-                                                return;
                                             setSelectedGalleryImg(
                                                 `/avatar/${path}.png`
                                             );
                                         }}
                                         style={{
+                                            position: "relative",
                                             cursor: "pointer",
                                             borderColor:
                                                 selectedGalleryImg === path
@@ -298,11 +279,16 @@ export default function EditProfileModal({ opened, close }: Props) {
                                                     : "transparent",
                                         }}
                                     >
-                                        <Image
-                                            src={`/avatar/${path}.png`}
-                                            alt="Gallery option"
-                                            radius="sm"
-                                        />
+                                        <div className="h-16 w-16  overflow-hidden rounded-full  relative">
+                                            <Image
+                                                src={`/avatar/${path}.png`}
+                                                className="  object-cover"
+                                                fill={true}
+                                                alt="Gallery option"
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                // radius="sm"
+                                            />
+                                        </div>
                                     </Paper>
                                 ))}
                             </Flex>

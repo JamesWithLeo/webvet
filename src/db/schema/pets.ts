@@ -12,7 +12,7 @@ import {
     boolean,
     jsonb,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { InferSelectModel, sql } from "drizzle-orm";
 import { users, userGender } from "./users";
 
 export const reproductiveStatusEnum = pgEnum("reproductive_status", [
@@ -105,3 +105,5 @@ export const pets = pgTable(
         ),
     ]
 );
+
+export type PetTypeModel = InferSelectModel<typeof pets>;

@@ -43,7 +43,6 @@ export default async function editUser(
             ([_, value]) => value !== "" && value !== null
         )
     );
-    console.log(filteredData);
     const result = await saveSetupInDb(userId, filteredData);
 
     if (!Array.isArray(result) || !result.length) {

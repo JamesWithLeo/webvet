@@ -34,6 +34,7 @@ export default function ProfileDropzone({
 }: Props) {
     return (
         <Dropzone
+            className="h-full"
             onReject={onReject}
             maxSize={maxSize ?? 4 * 1024 ** 2}
             accept={accept}

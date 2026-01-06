@@ -70,33 +70,6 @@ export default async function ProfilePage() {
                         </SimpleGrid>
                     </Stack>
                 </Paper>
-                {/* <Paper
-                withBorder
-                p={"xl"}
-                w={"100%"}
-                className="relative max-w-3xl"
-            >
-                <Title order={5} c={"dimmed"}>
-                    Settings
-                </Title>
-                <Space h={"md"} />
-                <Stack>
-                    <Group w={"100%"} justify="space-between">
-                        <Text>Email Notification</Text>
-                        <Switch size="lg" onLabel="ON" offLabel="OFF" />
-                    </Group>
-                    <Group w={"100%"} justify="space-between">
-                        <Text>Play Loading Animation</Text>
-                        <Switch size="lg" onLabel="ON" offLabel="OFF" />
-                    </Group>
-                </Stack>
-            </Paper> */}
-                {/* <SimpleGrid w={"100%"} cols={2} className="max-w-3xl">
-                <Button maw={"100%"} variant="light" c={"primary.9"}>
-                    Forgot Password
-                </Button>
-                <LogoutButton color="red" label={"Logout"} />
-            </SimpleGrid> */}
             </div>
         </SessionProvider>
     );
