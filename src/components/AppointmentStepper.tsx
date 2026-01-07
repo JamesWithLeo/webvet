@@ -1,31 +1,35 @@
 "use client";
 
-import { Stepper, TextInput, Button, Modal, Box, Select } from "@mantine/core";
+import {
+    Stepper,
+    TextInput,
+    Button,
+    Modal,
+    Box,
+    NativeSelect,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useState } from "react";
-import AppoinmentComboBox from "./AppointmentCombobox";
 import SelectDateCal from "./calendars/SelectDateCal";
 import SelectTimeCal from "./calendars/SelectTimeCal";
-import { newAppointmentSchema } from "@/lib/validators/newAppointmentSchema";
+import {
+    AppointmentFormInput,
+    newAppointmentSchema,
+} from "@/lib/validators/newAppointmentSchema";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import z from "zod";
+import z, { map } from "zod";
 import { toTitleCase } from "@/lib/toTitleCase";
 import SuccessModal from "./SuccessModal";
 import { useDisclosure } from "@mantine/hooks";
+import { appointmentTypeValues } from "@/db/schema/appointments";
 
-const STEP_FIELDS: Record<
-    number,
-    ("title" | "type" | "selectedDate" | "selectedDateTime")[]
-> = {
-    0: ["title", "type"],
-    1: ["selectedDate"],
-    2: ["selectedDateTime"],
+type Props = {
+    pets: { id: string; name: string }[];
 };
 
-type IAppointmentFormValues = z.infer<typeof newAppointmentSchema>;
-export default function AppointmentStepper() {
+export default function AppointmentStepper({ pets = [] }: Props) {
     const [active, setActive] = useState(0);
     const router = useRouter();
     const [opened, { open, close }] = useDisclosure(false);
@@ -34,43 +38,43 @@ export default function AppointmentStepper() {
         { open: openConfirmDialog, close: closeConfirmDialog },
     ] = useDisclosure(false);
 
-    const form = useForm<IAppointmentFormValues>({
+    const form = useForm<AppointmentFormInput>({
         initialValues: {
             title: "",
             type: "",
+            pet: "",
             selectedDate: "",
             selectedDateTime: "",
         },
-
+        validateInputOnChange: true,
+        validateInputOnBlur: true,
         validate: zod4Resolver(newAppointmentSchema),
     });
+    const getStepFields = (step: number) => {
+        switch (step) {
+            case 0:
+                return ["title", "type", "pet"];
+            case 1:
+                return ["selectedDate"];
+            case 2:
+                return ["selectedDateTime"];
+            default:
+                return [];
+        }
+    };
 
     const nextStep = () => {
-        const fieldsToValidate =
-            STEP_FIELDS[active as keyof typeof STEP_FIELDS];
+        // 2. Validate all fields
+        const validation = form.validate();
 
-        if (fieldsToValidate) {
-            // 1. Initialize a flag to track validation success.
-            let allFieldsValid = true;
+        // 3. Check if the fields in the CURRENT step have errors
+        const currentStepFields = getStepFields(active);
+        const hasErrorsInCurrentStep = currentStepFields.some(
+            (field) => validation.errors[field]
+        );
 
-            // 2. Iterate over the fields for the current step.
-            for (const fieldKey of fieldsToValidate) {
-                const validationResult = form.validateField(fieldKey);
-
-                // If any field returns an error, set the flag to false.
-                if (validationResult.hasError) {
-                    allFieldsValid = false;
-                    // Break early if we find an error, no need to check the rest.
-                    break;
-                }
-            }
-
-            // 3. Proceed only if all fields passed validation.
-            if (allFieldsValid) {
-                setActive((current) => (current < 3 ? current + 1 : current));
-            }
-        } else if (active === 3) {
-            console.log("Form Completed and ready to submit:", form.values);
+        if (!hasErrorsInCurrentStep) {
+            setActive((current) => (current < 3 ? current + 1 : current));
         }
         console.log(form.values);
     };
@@ -114,23 +118,34 @@ export default function AppointmentStepper() {
                         <div className="w-full justify-center gap-8 flex h-full flex-col max-w-md">
                             <TextInput
                                 label="Title"
+                                withAsterisk
                                 name="title"
                                 placeholder="Ara's Gala"
                                 {...form.getInputProps("title")}
                             />
-                            <AppoinmentComboBox
+                            <NativeSelect
                                 label="Type"
-                                value={form.values.type}
                                 {...form.getInputProps("type")}
+                                withAsterisk
+                                data={[{ label: "", value: "" }].concat(
+                                    appointmentTypeValues.map((v) => ({
+                                        label: toTitleCase(v),
+                                        value: v,
+                                    }))
+                                )}
                             />
 
-                            <Select
+                            <NativeSelect
                                 label="Pet"
                                 name="pet"
-                                data={["Jin", "Ara", "Kirby"]}
-                                placeholder="Ara"
-                                searchable
-                                nothingFoundMessage="Nothing found..."
+                                withAsterisk
+                                {...form.getInputProps("pet")}
+                                data={[{ label: "", value: "" }].concat(
+                                    pets.map((v) => ({
+                                        label: toTitleCase(v.name),
+                                        value: v.id,
+                                    }))
+                                )}
                             />
                             <div className="w-full flex justify-end">
                                 <Button onClick={nextStep}>Next</Button>
@@ -138,10 +153,9 @@ export default function AppointmentStepper() {
                         </div>
                     </section>
                 )}
-                {active === 1 && form.values.type !== "" && (
+                {active === 1 && form.values.type && (
                     <section className="w-full h-full flex flex-col justify-between max-w-7xl">
                         <SelectDateCal
-                            value={form.values.selectedDate}
                             type={form.values.type}
                             {...form.getInputProps("selectedDate")}
                             onChange={(date: string) => {
@@ -256,7 +270,6 @@ export default function AppointmentStepper() {
                         </h1>
                     </span>
                     <span className="w-full flex justify-end gap-4">
-                        <Button onClick={open}>Confirm</Button>
                         <Button
                             variant="subtle"
                             color="gray"
@@ -264,6 +277,7 @@ export default function AppointmentStepper() {
                         >
                             Cancel
                         </Button>
+                        <Button onClick={open}>Confirm</Button>
                     </span>
                 </Box>
             </Modal>

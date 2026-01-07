@@ -20,15 +20,11 @@ const typePerSchedule: Record<
 };
 
 export default function SelectDateCal({
-    value,
     onChange,
-    onBlur,
     error,
     type,
 }: {
-    value: string | null;
     onChange: (value: string) => void;
-    onBlur?: () => void;
     error?: string;
     type: (typeof appointmentTypeValues)[number];
 }) {
