@@ -37,8 +37,9 @@ type Props = {
     heart: boolean | null;
     imageUrl: string | null;
     dateOfBirth: string;
-    species: "cat" | "dog";
+    species: string;
     life: LifeStatus;
+    breedSpecification: string;
 };
 export default function PetCard({
     name,
@@ -48,8 +49,10 @@ export default function PetCard({
     imageUrl,
     dateOfBirth,
     species,
+    breedSpecification,
 }: Props) {
     const { years } = calculatePetAge(dateOfBirth);
+
     return (
         <Card withBorder className="group w-96 h-125" radius={"md"}>
             <Card.Section withBorder p={"sm"}>
@@ -63,7 +66,9 @@ export default function PetCard({
                             {name ? toTitleCase(name) : "Unknown pet name"}
                         </Title>
                         <Title c={"dimmed"} order={6} className=" font-bold">
-                            {breed ? toTitleCase(breed) : "Unknown breed"}
+                            {breed
+                                ? toTitleCase(breed)
+                                : (breedSpecification ?? "Unknown breed")}
                         </Title>
                     </Stack>
                     <Group justify="center" gap={0}>

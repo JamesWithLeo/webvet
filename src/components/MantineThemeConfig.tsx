@@ -21,6 +21,14 @@ export const theme = createTheme({
     },
     primaryColor: "primary",
 
+    breakpoints: {
+        xs: "30rem",
+        sm: "40rem",
+        md: "48rem",
+        lg: "64rem",
+        xl: "80rem",
+        xxl: "96rem",
+    },
     // primaryShade: {
     //     light: 9,
     //     dark: 5,

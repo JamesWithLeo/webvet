@@ -28,6 +28,7 @@ import {
     SortStateType,
 } from "./PetWrapper";
 import { toTitleCase } from "@/lib/toTitleCase";
+import { useMediaQuery } from "@mantine/hooks";
 
 type Props = {
     filterState: FilterStateType;
@@ -45,6 +46,7 @@ export default function PetControllers({
     setSearch,
 }: Props) {
     const router = useRouter();
+    const isMobile = useMediaQuery("(max-width: 64rem)");
 
     const Species = () => {
         return (["all", "dog", "cat"] as const).map((val, index) => {
@@ -167,7 +169,10 @@ export default function PetControllers({
             <Grid.Col span={6} w={"100%"}>
                 <Group justify="flex-end">
                     <Button.Group>
-                        <Button.GroupSection variant="default">
+                        <Button.GroupSection
+                            size={isMobile ? "xs" : "sm"}
+                            variant="default"
+                        >
                             <Input
                                 variant="unstyled"
                                 id="searchInput"
@@ -189,6 +194,7 @@ export default function PetControllers({
                                 ).value;
                                 setSearch(search.trim());
                             }}
+                            size={isMobile ? "xs" : "sm"}
                             variant="default"
                             style={{
                                 borderTopLeftRadius: 0,
@@ -199,7 +205,7 @@ export default function PetControllers({
                         </Button>
                     </Button.Group>
                     <ActionIcon
-                        size={"input-sm"}
+                        size={isMobile ? "input-xs" : "input-sm"}
                         variant="default"
                         onClick={() => {
                             router.refresh();
@@ -209,6 +215,7 @@ export default function PetControllers({
                     </ActionIcon>
                     <Button.Group>
                         <Button
+                            size={isMobile ? "xs" : "sm"}
                             variant="default"
                             leftSection={<IconPlus size={20} stroke={1.5} />}
                             onClick={() => {
@@ -220,6 +227,7 @@ export default function PetControllers({
                         <Menu shadow="md" width={200} position="bottom-start">
                             <Menu.Target>
                                 <Button
+                                    size={isMobile ? "xs" : "sm"}
                                     leftSection={
                                         <IconAdjustmentsHorizontal
                                             stroke={1.5}
@@ -245,6 +253,7 @@ export default function PetControllers({
                         <Menu shadow="md" width={200} position="bottom-start">
                             <Menu.Target>
                                 <Button
+                                    size={isMobile ? "xs" : "sm"}
                                     variant="default"
                                     leftSection={
                                         <IconArrowsSort

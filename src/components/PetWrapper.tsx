@@ -79,8 +79,12 @@ function SortReducer(state: SortStateType, action: SortAction) {
             return sortInitialState;
     }
 }
+type petTypeWithSpecies = PetTypeModel & { species: string; breed: string };
+type Props = {
+    pets: petTypeWithSpecies[];
+};
 
-export default function PetWrapper({ pets }: { pets: PetTypeModel[] }) {
+export default function PetWrapper({ pets }: Props) {
     const [filterState, filterDispatch] = useReducer(
         filterReducer,
         filterInitialState
@@ -98,12 +102,11 @@ export default function PetWrapper({ pets }: { pets: PetTypeModel[] }) {
         }
 
         if (sortState.sortBy === "WEIGHT") {
-            return pets;
-            // return pets.toSorted((a, b) =>
-            //     sortState.order === "ASC"
-            //         ? b.weight - a.weight
-            //         : a.weight - b.weight
-            // );
+            return pets.toSorted((a, b) =>
+                sortState.order === "ASC"
+                    ? (b.weight ?? 0) - (a.weight ?? 0)
+                    : (a.weight ?? 0) - (b.weight ?? 0)
+            );
         } else if (sortState.sortBy === "AGE") {
             return pets.toSorted((a, b) => {
                 const petOneAge = calculatePetAge(a.dateOfBirth).years;
@@ -136,23 +139,22 @@ export default function PetWrapper({ pets }: { pets: PetTypeModel[] }) {
                         (filterState.life === "all" ||
                             filterState.life === p.life) &&
                         (filterState.gender === "all" ||
-                            filterState.gender === p.gender)
-                        // &&
-                        // (filterState.species === "all" ||
-                        //     filterState.species === p.species)
+                            filterState.gender === p.gender) &&
+                        (filterState.species === "all" ||
+                            filterState.species === p.species)
                     )
                         return (
                             <PetCard
                                 key={`${p.name}_${index}`}
                                 name={p.name}
                                 heart={p.isLike}
-                                breed={p.breedSpecification}
+                                breed={p.breed}
+                                breedSpecification={p.breedSpecification}
                                 gender={p.gender}
                                 imageUrl={p.photoUrl}
                                 dateOfBirth={p.dateOfBirth}
                                 life={p.life}
-                                species={"dog"}
-                                // species={p.species}
+                                species={p.species}
                             />
                         );
                 })}

@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { pets, species } from "@/db/schema/pets";
-import { and, eq, ne, SQL } from "drizzle-orm";
+import { breeds, pets, species } from "@/db/schema/pets";
+import { and, eq, getTableColumns, ne, SQL } from "drizzle-orm";
 
 export const checkExistingPets = async ({
     name,
@@ -41,7 +41,16 @@ export const getPetsSpeciesExcept = async (names: string[]) => {
 };
 
 export const getAllPets = async (id: string) => {
-    return await db.select().from(pets).where(eq(pets.ownerId, id));
+    return await db
+        .select({
+            ...getTableColumns(pets),
+            species: species.name,
+            breed: breeds.name,
+        })
+        .from(pets)
+        .where(eq(pets.ownerId, id))
+        .innerJoin(breeds, eq(pets.breedId, breeds.id))
+        .innerJoin(species, eq(breeds.petTypeId, species.id));
 };
 
 export const getAllAlivePets = async (id: string) => {
@@ -52,9 +61,6 @@ export const getAllAlivePets = async (id: string) => {
 };
 
 export const getAllPetsIdName = async (id: string) => {
-    // return await db.query.pets.findMany({
-    //     columns: { id: true, name: true },
-    // });
     return await db
         .select({ id: pets.id, name: pets.name })
         .from(pets)
