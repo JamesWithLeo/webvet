@@ -7,6 +7,7 @@ import {
     Modal,
     Box,
     NativeSelect,
+    em,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
@@ -22,7 +23,7 @@ import { useRouter } from "next/navigation";
 import z, { map } from "zod";
 import { toTitleCase } from "@/lib/toTitleCase";
 import SuccessModal from "./SuccessModal";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { appointmentTypeValues } from "@/db/schema/appointments";
 
 type Props = {
@@ -30,6 +31,7 @@ type Props = {
 };
 
 export default function AppointmentStepper({ pets = [] }: Props) {
+    const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
     const [active, setActive] = useState(0);
     const router = useRouter();
     const [opened, { open, close }] = useDisclosure(false);
@@ -94,7 +96,8 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                 <Stepper
                     active={active}
                     onStepClick={handleStepClick}
-                    size="lg"
+                    size={isMobile ? "md" : "lg"}
+                    orientation={isMobile ? "vertical" : "horizontal"}
                     className="h-min  w-full max-w-7xl "
                 >
                     <Stepper.Step label="Step 1" description="Set details" />

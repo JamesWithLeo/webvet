@@ -84,7 +84,6 @@ export default function CreatePetsWrapper({
     const [importedFile, setImportedFile] = useState<FileWithPath | null>(null);
     const uploadDataRef = useRef<{ url: string; key: string } | null>(null);
     const modalsStack = useModalsStack(["confirm-modal", "force-modal"]);
-    const [isPendingTransition, startTransition] = useTransition();
 
     const createPet = CreatePet.bind(null);
     const [formState, formAction, isPending] = useActionState(createPet, {
@@ -92,6 +91,8 @@ export default function CreatePetsWrapper({
     });
 
     const { startUpload, isUploading } = useUploadThing("petProfileUpload", {});
+
+    const [isPendingTransition, startTransition] = useTransition();
 
     const form = useForm<PetFormInput>({
         mode: "uncontrolled",
@@ -253,13 +254,14 @@ export default function CreatePetsWrapper({
         <>
             <form
                 onSubmit={form.onSubmit((data) => handleSubmit(data))}
-                className="
-h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
-        "
+                className="h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col"
             >
                 <div>
                     {!previewUrl ? (
                         <ProfileDropzone
+                            disabled={
+                                isPending || isPendingTransition || isUploading
+                            }
                             accept={IMAGE_MIME_TYPE}
                             iconAccept={
                                 <IconUpload
@@ -321,6 +323,11 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                                         bg={"red"}
                                         radius={"lg"}
                                         size={"md"}
+                                        disabled={
+                                            isPending ||
+                                            isPendingTransition ||
+                                            isUploading
+                                        }
                                         style={{
                                             position: "absolute",
                                             right: -12,
@@ -349,6 +356,9 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                         label="Pet name"
                         withAsterisk
                         name="name"
+                        disabled={
+                            isPending || isPendingTransition || isUploading
+                        }
                     />
                     <TextInput
                         // required
@@ -356,6 +366,9 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                         withAsterisk
                         name="color"
                         {...form.getInputProps("color")}
+                        disabled={
+                            isPending || isPendingTransition || isUploading
+                        }
                     />
                     <Stack align="end" gap={"xs"}>
                         <DateInput
@@ -367,12 +380,18 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                             name="dateOfBirth"
                             maxDate={new Date()}
                             {...form.getInputProps("dateOfBirth")}
+                            disabled={
+                                isPending || isPendingTransition || isUploading
+                            }
                         />
                         <Checkbox
                             label="I'm not sure"
                             name="isEstimatedDOB"
                             defaultValue={false}
                             {...form.getInputProps("isEstimatedDOB")}
+                            disabled={
+                                isPending || isPendingTransition || isUploading
+                            }
                         />
                     </Stack>
                     <NativeSelect
@@ -382,6 +401,9 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                         data={petGenderValues.map((v) => v)}
                         defaultValue={""}
                         {...form.getInputProps("gender")}
+                        disabled={
+                            isPending || isPendingTransition || isUploading
+                        }
                         // required
                     />
                     <NativeSelect
@@ -396,6 +418,9 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                         {...form.getInputProps("species")}
                         defaultValue={""}
                         withAsterisk
+                        disabled={
+                            isPending || isPendingTransition || isUploading
+                        }
                         // required
                     />
                     <BreedComboBox
@@ -403,6 +428,9 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                         ref={breedRef}
                         isLoading={isLoadingBreed}
                         options={breeds}
+                        disabled={
+                            isPending || isPendingTransition || isUploading
+                        }
                         {...form.getInputProps("breedSpecification")}
                     />
                     <Textarea
@@ -412,6 +440,9 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                         description="What food do they eat?"
                         name="diet"
                         {...form.getInputProps("diet")}
+                        disabled={
+                            isPending || isPendingTransition || isUploading
+                        }
                     />
                     <Textarea
                         // required
@@ -421,6 +452,9 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                         name="distinguishingMarks"
                         description="Description about the pet"
                         placeholder="Birthmark on the paw and spot on the left eye"
+                        disabled={
+                            isPending || isPendingTransition || isUploading
+                        }
                     />
                     <Textarea
                         // required
@@ -428,10 +462,14 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                         label="Allergies"
                         description="Does your pet have any known allergies?"
                         name="allergies"
+                        disabled={
+                            isPending || isPendingTransition || isUploading
+                        }
                     />
                 </Stack>
 
                 <Button
+                    disabled={!form.isValid()}
                     mt={"lg"}
                     onClick={() => {
                         const { hasErrors } = form.validate();
@@ -455,9 +493,9 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                     }}
                 >
                     <Stack>
-                        <div className="flex gap-8">
+                        <div className="flex items-center sm:items-start sm:flex-row flex-col gap-8">
                             {previewUrl && (
-                                <div className="relative h-55 w-55">
+                                <div className="  relative h-55 w-55">
                                     <Image
                                         className="h-full object-cover brelative w-full rounded overflow-hidden aspect-square"
                                         src={previewUrl}
@@ -582,7 +620,7 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                             </Text>{" "}
                             registered to this owner. Please review the details
                             below to ensure you aren't creating a double entry
-                            for the same patient.
+                            for the same pet.
                         </Text>
                         <div className="flex w-full items-center sm:flex-row sm:justify-evenly justify-between flex-col">
                             <div className="flex gap-2 items-center flex-col">
@@ -592,7 +630,7 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                                             src={formState.photoUrl}
                                             fill={true}
                                             priority={true}
-                                            sizes="100vw"
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             className="rounded-sm object-cover"
                                             alt={"Pet to create picture"}
                                         />
@@ -620,7 +658,7 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                                         <Image
                                             src={formState.existingPet.photoUrl}
                                             className="rounded-sm object-cover"
-                                            sizes="100vw"
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             objectFit="cover"
                                             fill={true}
                                             priority={true}
@@ -636,15 +674,10 @@ h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col
                                 variant="default"
                                 onClick={async () => {
                                     modalsStack.close("force-modal");
-                                    const deletedFIle = await DeleteUTFile(
-                                        formState.photoUrl!!
-                                    );
-                                    if (deletedFIle) {
-                                        router.replace("/v1/pets");
-                                    }
+                                    await DeleteUTFile(formState.photoUrl!!);
                                 }}
                             >
-                                Cancel Operation & Leave
+                                Cancel Operation
                             </Button>
                             <Button
                                 onClick={() => {

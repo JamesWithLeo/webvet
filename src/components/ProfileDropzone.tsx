@@ -17,6 +17,7 @@ type Props = {
     mih?: string | number | undefined;
     onDrop: (files: FileWithPath[]) => void;
     onReject?: ((files: FileRejection[]) => void) | undefined;
+    disabled?: boolean | undefined;
 };
 export default function ProfileDropzone({
     accept,
@@ -31,9 +32,11 @@ export default function ProfileDropzone({
     mih,
     onDrop,
     onReject,
+    disabled,
 }: Props) {
     return (
         <Dropzone
+            disabled={disabled}
             className="h-full"
             onReject={onReject}
             maxSize={maxSize ?? 4 * 1024 ** 2}

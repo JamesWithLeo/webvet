@@ -17,6 +17,7 @@ type ComboProps = {
     value?: string;
     onChange: (value: string) => void;
     error?: React.ReactNode;
+    disabled?: boolean;
 };
 export default function BreedComboBox({
     label,
@@ -26,6 +27,7 @@ export default function BreedComboBox({
     value,
     onChange,
     error,
+    disabled,
 }: ComboProps) {
     const combobox = useCombobox();
 
@@ -55,6 +57,7 @@ export default function BreedComboBox({
         >
             <Combobox.Target>
                 <TextInput
+                    disabled={disabled}
                     ref={ref}
                     withAsterisk
                     description={
