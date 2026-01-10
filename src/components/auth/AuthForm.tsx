@@ -1,7 +1,7 @@
 import { signIn } from "@/auth";
 import { Button, TextInput } from "@mantine/core";
 
-export default function SignupForm() {
+export default function AuthForm({ label }: { label: string }) {
     return (
         <>
             <form
@@ -17,7 +17,7 @@ export default function SignupForm() {
             >
                 <TextInput label="Email" name="email" required />
                 <Button type="submit" w={"100%"}>
-                    Sign up
+                    {label}
                 </Button>
             </form>
         </>

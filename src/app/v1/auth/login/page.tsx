@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import AuthForm from "@/components/auth/AuthForm";
 import GoogleButton from "@/components/GoogleButton";
 import Logo from "@/components/Logo";
 import { Box, Button, TextInput } from "@mantine/core";
@@ -20,11 +21,8 @@ export default async function LoginPage() {
                 </Box>
                 <div className="flex gap-3.5 w-sm flex-col ">
                     <h1 className="text-4xl font-bold mb-6">Welcome Back!</h1>
-                    <TextInput
-                        label="Email"
-                        placeholder="juantamad@gmail.com"
-                    />
-                    <Button className="w-full">Login</Button>
+
+                    <AuthForm label="Login" />
 
                     <GoogleButton />
 

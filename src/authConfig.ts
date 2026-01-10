@@ -8,11 +8,9 @@ import { AdapterUser, AdapterSession } from "next-auth/adapters";
 import { verificationTokens } from "./db/schema/verificationToken";
 import { users } from "./db/schema/users";
 import { accounts } from "./db/schema/accounts";
-// import Nodemailer from "next-auth/providers/nodemailer";
 import Resend from "next-auth/providers/resend";
 import { render } from "@react-email/render";
 import { MagicLinkEmail } from "./components/MagicLinkEmail";
-import { createTransport } from "nodemailer";
 import { getUserById } from "./lib/db/users";
 
 export const authConfig = {
@@ -69,7 +67,13 @@ export const authConfig = {
                         html: emailHtml,
                     }),
                 });
-                if (!response.ok) throw new Error("Failed to send magic link");
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("Resend API Error:", errorData); // This will show in your logs
+                    throw new Error(
+                        `Resend error: ${JSON.stringify(errorData)}`
+                    );
+                }
             },
         }),
     ],

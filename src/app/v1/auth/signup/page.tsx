@@ -4,7 +4,7 @@ import Link from "next/link";
 import { IconCalendarWeek, IconLogs, IconLeaf } from "@tabler/icons-react";
 import Logo from "@/components/Logo";
 import { redirect } from "next/navigation";
-import SignupForm from "@/components/auth/SignupForm";
+import AuthForm from "@/components/auth/AuthForm";
 import { auth } from "@/auth";
 
 const headlines = [
@@ -53,7 +53,7 @@ export default async function Signup() {
                     <h1 className="text-4xl font-bold mb-6">
                         Care for your pet, anytime, anywhere.
                     </h1>
-                    <SignupForm />
+                    <AuthForm label="Sign up" />
                     <GoogleButton />
 
                     <span className="w-full flex justify-center gap-4">
