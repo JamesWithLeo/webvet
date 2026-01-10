@@ -9,7 +9,7 @@ export default function SignupForm() {
                 action={async (formData) => {
                     "use server";
                     const email = formData.get("email");
-                    await signIn("nodemailer", {
+                    await signIn("resend", {
                         email,
                         redirectTo: "/dashboard",
                     });
