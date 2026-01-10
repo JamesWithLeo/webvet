@@ -39,7 +39,7 @@ export const MagicLinkEmail = ({
                 <Body className="bg-slate-50 font-sans">
                     <Container className="mx-auto py-8 mt-8 px-4 max-w-145">
                         <Img
-                            src="https://josephmary.me/logo.svg"
+                            src="https://www.josephmary.me/logo.png"
                             width="75"
                             height="75"
                             alt="Clinic Logo"
