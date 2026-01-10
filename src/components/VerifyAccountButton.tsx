@@ -32,7 +32,7 @@ export default function VerifyAccountButton({
             email: email,
         });
 
-        const finalUrl = `/api/auth/callback/${providerName}?${params.toString()}`;
+        const finalUrl = `/api/auth/callback/${providerName.toLowerCase()}?${params.toString()}`;
 
         window.location.href = finalUrl;
     };
