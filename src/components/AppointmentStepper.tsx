@@ -219,9 +219,14 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                 nextStep();
                             }}
                         />
-                        <h1 className="text-sm">
+                        <Alert
+                            variant="light"
+                            color="gray"
+                            title="Advisory Tip"
+                            icon={<IconInfoCircle />}
+                        >
                             Tip: Click on date to Select
-                        </h1>
+                        </Alert>
                     </section>
                 )}
                 {active === 2 && (
@@ -235,9 +240,14 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                 nextStep();
                             }}
                         />
-                        <h1 className="text-sm">
+                        <Alert
+                            variant="light"
+                            color="gray"
+                            title="Advisory Tip"
+                            icon={<IconInfoCircle />}
+                        >
                             Tip: Click on time to Select
-                        </h1>
+                        </Alert>
                     </section>
                 )}
                 {active === 3 && (

@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+import { IconX } from "@tabler/icons-react";
 
 interface Props {
     email: string;
@@ -22,7 +24,14 @@ export default function VerifyAccountButton({
     }) => {
         const baseUrl = "/v1/auth/setup";
         if (!token || !email) {
-            alert("Missing verification data.");
+            notifications.show({
+                title: "Error verification",
+                message: "Missing or insufficient required data",
+                color: "red",
+                withBorder: true,
+                icon: <IconX size={20} />,
+                autoClose: 4000,
+            });
             return;
         }
 
@@ -38,11 +47,12 @@ export default function VerifyAccountButton({
     };
     return (
         <Button
+            size="sm"
             onClick={async () => {
                 handleManualVerify({ token, email });
             }}
         >
-            verify
+            Verify
         </Button>
     );
 }

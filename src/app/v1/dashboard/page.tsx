@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import CalendarList from "@/components/CalendarList";
 import checkSetup from "@/lib/checkSetup";
+import { getAppointments } from "@/lib/db/appointments";
 import { ActionIcon, Button, Group, Paper, Stack, Title } from "@mantine/core";
 import {
     IconCalendarCancel,
@@ -13,17 +14,11 @@ export default async function dashboard() {
     const session = await auth();
     checkSetup(session);
     if (!session?.user) redirect("/");
+    const appointments = await getAppointments({ id: session.user.id });
     return (
         <div className="flex items-center w-full h-screen  flex-col   md:px-16 px-4">
             <Stack className=" border-x p-4 w-full h-full  min-h-full flex  gap-2  ">
-                {/* <section className=" h-min bg-linear-to-br  from-cyan-100 to-blue-500 p-8 rounded   w-full"> */}
-                <Group grow align="start">
-                    {/* <Paper withBorder p={"md"} px={"xl"}>
-                        <Group>
-                            <Avatar>JL</Avatar>
-                            <Title order={4}>Juan Miguel Lopez</Title>
-                        </Group>
-                    </Paper> */}
+                {/* <Group grow align="start">
                     <Paper
                         withBorder
                         p={"md"}
@@ -110,11 +105,10 @@ export default async function dashboard() {
                             <Title order={4}>Missed Appointment: 1</Title>
                         </Stack>
                     </Paper>
-                </Group>
-                {/* </section> */}
+                </Group> */}
 
-                <div className="w-full  min-h-full">
-                    <CalendarList />
+                <div className="w-full gap-4 flex-col h-ful min-h-min flex">
+                    <CalendarList appointments={appointments} />
                 </div>
             </Stack>
         </div>

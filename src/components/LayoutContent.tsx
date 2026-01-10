@@ -23,16 +23,19 @@ export default function LayoutContent({
                     <div className="w-full  hidden lg:flex justify-center">
                         <Link
                             href="/v1/dashboard"
-                            className=" hover:bg-gray-50 p-4"
+                            className="p-4 text-sm hover:bg-gray-50"
                         >
                             Home
                         </Link>
-                        <Link href="/v1/pets" className="p-4 hover:bg-gray-50">
+                        <Link
+                            href="/v1/pets"
+                            className=" hover:bg-gray-100 text-sm p-4"
+                        >
                             Pets
                         </Link>
                         <Link
                             href="/v1/appointments"
-                            className=" hover:bg-gray-50 p-4"
+                            className=" hover:bg-gray-100 text-sm p-4"
                         >
                             Appointments
                         </Link>

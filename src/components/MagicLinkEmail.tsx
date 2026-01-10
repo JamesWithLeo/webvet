@@ -34,7 +34,7 @@ export const MagicLinkEmail = ({
     return (
         <Html>
             <Head />
-            <Preview>Login link for Joseph and Mary Clinic</Preview>
+            <Preview>Login link for Joseph and Mary Veterinary Clinic</Preview>
             <Tailwind>
                 <Body className="bg-slate-50 font-sans">
                     <Container className="mx-auto py-8 mt-8 px-4 max-w-145">

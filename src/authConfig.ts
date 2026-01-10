@@ -71,7 +71,7 @@ export const authConfig = {
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error("Resend API Error:", errorData); // This will show in your logs
+                    console.error("Resend API Error:", errorData);
                     throw new Error(
                         `Resend error: ${JSON.stringify(errorData)}`
                     );
@@ -143,8 +143,6 @@ export const authConfig = {
     pages: {
         signIn: "/v1/auth/signup",
         verifyRequest: "/v1/auth/verify-request",
-        // todo:
-        //error:
         signOut: "/",
     },
 

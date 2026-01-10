@@ -1,5 +1,7 @@
 import { db } from "@/db";
 import { appointments, AppointmentType } from "@/db/schema/appointments";
+import { pets } from "@/db/schema/pets";
+import { eq, getTableColumns } from "drizzle-orm";
 
 export const saveAppointmentToDb = async ({
     title,
@@ -22,4 +24,21 @@ export const saveAppointmentToDb = async ({
         })
         .returning()
         .then((v) => v[0]);
+};
+
+export const getAppointments = async ({ id }: { id: string }) => {
+    return await db
+        .select({
+            breed: pets.breedSpecification,
+            event_datetime: appointments.event_datetime,
+            id: appointments.id,
+            name: pets.name,
+            petId: pets.id,
+            photoUrl: pets.photoUrl,
+            title: appointments.title,
+            type: appointments.type,
+        })
+        .from(appointments)
+        .innerJoin(pets, eq(appointments.petId, pets.id))
+        .where(eq(pets.ownerId, id));
 };
