@@ -5,9 +5,14 @@ import { Button } from "@mantine/core";
 interface Props {
     email: string;
     token: string;
+    providerName: string;
 }
 
-export default function VerifyAccountButton({ email, token }: Props) {
+export default function VerifyAccountButton({
+    email,
+    token,
+    providerName,
+}: Props) {
     const handleManualVerify = ({
         token,
         email,
@@ -27,7 +32,7 @@ export default function VerifyAccountButton({ email, token }: Props) {
             email: email,
         });
 
-        const finalUrl = `/api/auth/callback/nodemailer?${params.toString()}`;
+        const finalUrl = `/api/auth/callback/${providerName}?${params.toString()}`;
 
         window.location.href = finalUrl;
     };

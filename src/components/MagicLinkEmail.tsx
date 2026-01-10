@@ -18,15 +18,18 @@ export const MagicLinkEmail = ({
     baseUrl,
     identifier,
     token,
+    providerName,
 }: {
     baseUrl: string;
     identifier: string;
     token: string;
+    providerName: string;
 }) => {
     const params = new URLSearchParams({
         callbackUrl: baseUrl,
         email: identifier,
         token: token,
+        providerName: providerName,
     });
     return (
         <Html>

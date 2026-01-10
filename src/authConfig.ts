@@ -53,6 +53,7 @@ export const authConfig = {
                         baseUrl: host,
                         identifier: email,
                         token: token,
+                        providerName: provider.name,
                     })
                 );
                 const response = await fetch("https://api.resend.com/emails", {
