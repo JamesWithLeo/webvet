@@ -11,7 +11,7 @@ export default async function UserAvatar() {
             {session?.user.photoUrl ? (
                 <Link
                     href={"/v1/profile"}
-                    className="relative h-10 w-10 select-none cursor-pointer bg-gray-200 rounded-full shadow"
+                    className="relative lg:h-10 lg:w-10 min-h-8 min-w-8 select-none cursor-pointer bg-gray-200 rounded-full shadow"
                 >
                     <Image
                         fill={true}

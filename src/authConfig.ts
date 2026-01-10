@@ -8,7 +8,8 @@ import { AdapterUser, AdapterSession } from "next-auth/adapters";
 import { verificationTokens } from "./db/schema/verificationToken";
 import { users } from "./db/schema/users";
 import { accounts } from "./db/schema/accounts";
-import Nodemailer from "next-auth/providers/nodemailer";
+// import Nodemailer from "next-auth/providers/nodemailer";
+import Resend from "next-auth/providers/resend";
 import { render } from "@react-email/render";
 import { MagicLinkEmail } from "./components/MagicLinkEmail";
 import { createTransport } from "nodemailer";
@@ -36,40 +37,39 @@ export const authConfig = {
             allowDangerousEmailAccountLinking: true,
         }),
 
-        Nodemailer({
-            server: {
-                host: "smtp.gmail.com",
-                port: 587,
-                auth: {
-                    user: process.env.GMAIL_USER,
-                    pass: process.env.GMAIL_PASS, // The 16-character App Password
-                },
-            },
-            from: "Joseph and Mary Clinic <ocampojamesleo04@gmail.com>",
+        Resend({
+            apiKey: process.env.RESEND_API_KEY,
+            from: "Joseph and Mary Clinic <updates@josephmary.me>",
             sendVerificationRequest: async ({
-                provider,
-                url,
+                expires,
                 identifier: email,
+                request,
+                url,
+                provider,
+                theme,
                 token,
             }) => {
-                const transport = createTransport(provider.server);
-                const baseUrl = "https://cap1-webvet.vercel.app";
+                const { host } = new URL(url);
                 const emailHtml = await render(
-                    MagicLinkEmail({ baseUrl, identifier: email, token })
+                    MagicLinkEmail({
+                        baseUrl: host,
+                        identifier: email,
+                    })
                 );
-                const response = await transport.sendMail({
-                    to: email,
-                    from: provider.from,
-                    subject: "Sign in to Joseph and Mary Vet Clinic",
-
-                    text: `Sign in to your account: ${url}`,
-                    html: emailHtml,
+                const response = await fetch("https://api.resend.com/emails", {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        from: provider.from,
+                        to: email,
+                        subject: `Sign in to Joseph and Mary Vet Clinic`,
+                        html: emailHtml,
+                    }),
                 });
-                if (response.rejected.length > 0) {
-                    throw new Error(
-                        `Email(s) (${response.rejected.join(", ")}) were rejected`
-                    );
-                }
+                if (!response.ok) throw new Error("Failed to send magic link");
             },
         }),
     ],

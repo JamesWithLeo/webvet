@@ -21,6 +21,8 @@ export const appointmentType = pgEnum(
     appointmentTypeValues
 );
 
+export type AppointmentType = (typeof appointmentType.enumValues)[number];
+
 export const appointments = pgTable("appointments", {
     id: uuid("id").defaultRandom().primaryKey(),
     title: varchar("title", { length: 50 }),

@@ -7,7 +7,7 @@ import {
     userEditSchema,
 } from "@/lib/validators/usersZodSchema";
 
-export default async function editUser(
+export default async function updateUser(
     editProps: { userId: string | undefined; schema: "edit" | "setup" },
     prevState: any,
     formData: FormData

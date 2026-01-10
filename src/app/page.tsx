@@ -30,7 +30,6 @@ export default async function AppPage() {
             </section>
             <section className="z-10  w-full  bg-white ">
                 <TimeSection />
-                {/* <TransitionBlock /> */}
                 <ProcessSection />
             </section>
         </div>

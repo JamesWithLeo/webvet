@@ -252,10 +252,7 @@ export default function CreatePetsWrapper({
 
     return (
         <>
-            <form
-                onSubmit={form.onSubmit((data) => handleSubmit(data))}
-                className="h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col"
-            >
+            <form className="h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col">
                 <div>
                     {!previewUrl ? (
                         <ProfileDropzone

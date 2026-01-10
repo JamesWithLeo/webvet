@@ -8,23 +8,29 @@ import {
     Box,
     NativeSelect,
     em,
+    Text,
+    Stack,
+    Alert,
 } from "@mantine/core";
+
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { useState } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import SelectDateCal from "./calendars/SelectDateCal";
 import SelectTimeCal from "./calendars/SelectTimeCal";
 import {
     AppointmentFormInput,
     newAppointmentSchema,
 } from "@/lib/validators/newAppointmentSchema";
-import { IconChevronLeft } from "@tabler/icons-react";
+
+import { IconChevronLeft, IconInfoCircle, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import z, { map } from "zod";
 import { toTitleCase } from "@/lib/toTitleCase";
 import SuccessModal from "./SuccessModal";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { appointmentTypeValues } from "@/db/schema/appointments";
+import CreateAppointmentAction from "@/actions/createAppointment";
+import { notifications } from "@mantine/notifications";
 
 type Props = {
     pets: { id: string; name: string }[];
@@ -34,32 +40,47 @@ export default function AppointmentStepper({ pets = [] }: Props) {
     const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
     const [active, setActive] = useState(0);
     const router = useRouter();
-    const [opened, { open, close }] = useDisclosure(false);
+    const successTimeOut = 4000;
+
+    const [
+        isOpenedSuccessModal,
+        { open: openSuccessModal, close: closeSuccessModal },
+    ] = useDisclosure(false);
+
     const [
         isOpenConfirmDialog,
         { open: openConfirmDialog, close: closeConfirmDialog },
     ] = useDisclosure(false);
 
+    const createAppointment = CreateAppointmentAction.bind(null);
+
+    const [formState, formAction] = useActionState(createAppointment, {
+        succesful: false,
+    });
+
+    const [isPending, startTransition] = useTransition();
+
     const form = useForm<AppointmentFormInput>({
         initialValues: {
             title: "",
             type: "",
-            pet: "",
-            selectedDate: "",
-            selectedDateTime: "",
+            petId: "",
+            date: "",
+            event_datetime: "",
         },
         validateInputOnChange: true,
         validateInputOnBlur: true,
         validate: zod4Resolver(newAppointmentSchema),
     });
+
     const getStepFields = (step: number) => {
         switch (step) {
             case 0:
-                return ["title", "type", "pet"];
+                return ["title", "type", "petId"];
             case 1:
-                return ["selectedDate"];
+                return ["date"];
             case 2:
-                return ["selectedDateTime"];
+                return ["event_datetime"];
             default:
                 return [];
         }
@@ -85,6 +106,37 @@ export default function AppointmentStepper({ pets = [] }: Props) {
         if (index > active) return;
         setActive(index);
     };
+
+    const handleSubmit = async (value: AppointmentFormInput) => {
+        console.log("Value:", value);
+        if (isPending) return;
+
+        startTransition(() => {
+            formAction(value);
+        });
+    };
+
+    useEffect(() => {
+        if (formState?.succesful && formState.appointmentId) {
+            openSuccessModal();
+
+            setTimeout(() => {
+                router.replace(`/v1/appointments/${formState.appointmentId}`);
+            }, successTimeOut);
+        }
+
+        if (!formState.succesful && formState.debug) {
+            notifications.show({
+                title: `Error code: ${formState.debug.code}`,
+                message: `${formState.debug.message}`,
+                color: "red",
+                icon: <IconX size={20} />,
+                withBorder: true,
+                autoClose: 4000,
+            });
+        }
+    }, [formState]);
+
     return (
         <>
             <div>
@@ -92,6 +144,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                     <IconChevronLeft />
                 </Button>
             </div>
+
             <div className="w-full h-full flex items-center flex-col">
                 <Stepper
                     active={active}
@@ -115,7 +168,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                 </Stepper>
             </div>
 
-            <div className="w-full h-full flex items-center flex-col">
+            <form className="w-full h-full flex items-center flex-col">
                 {active === 0 && (
                     <section className=" w-full  flex items-center justify-center h-full flex-col">
                         <div className="w-full justify-center gap-8 flex h-full flex-col max-w-md">
@@ -142,7 +195,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                 label="Pet"
                                 name="pet"
                                 withAsterisk
-                                {...form.getInputProps("pet")}
+                                {...form.getInputProps("petId")}
                                 data={[{ label: "", value: "" }].concat(
                                     pets.map((v) => ({
                                         label: toTitleCase(v.name),
@@ -160,9 +213,9 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                     <section className="w-full h-full flex flex-col justify-between max-w-7xl">
                         <SelectDateCal
                             type={form.values.type}
-                            {...form.getInputProps("selectedDate")}
+                            {...form.getInputProps("date")}
                             onChange={(date: string) => {
-                                form.setFieldValue("selectedDate", date);
+                                form.setFieldValue("date", date);
                                 nextStep();
                             }}
                         />
@@ -174,11 +227,11 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                 {active === 2 && (
                     <section className="w-full h-full flex flex-col justify-between max-w-7xl">
                         <SelectTimeCal
-                            initialDate={form.values.selectedDate}
-                            value={form.values.selectedDateTime}
-                            {...form.getInputProps("selectedDateTime")}
+                            initialDate={form.values.date}
+                            value={form.values.event_datetime}
+                            {...form.getInputProps("event_datetime")}
                             onChange={(time: string) => {
-                                form.setFieldValue("selectedDateTime", time);
+                                form.setFieldValue("event_datetime", time);
                                 nextStep();
                             }}
                         />
@@ -190,48 +243,95 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                 {active === 3 && (
                     <section className=" w-full max-w-7xl  flex items-center justify-center h-full flex-col">
                         <div className="text-center w-full flex items-center justify-center flex-col gap-3 h-full row-start-2 col-start-2">
-                            <h1 className="text-xl">
-                                {toTitleCase(form.values.title)}
-                            </h1>
-                            <h1 className="text-lg">
-                                {toTitleCase(form.values.type)}
-                            </h1>
-                            <h1 className="text-lg">
-                                {new Date(
-                                    form.values.selectedDateTime
-                                ).toDateString()}{" "}
-                                {new Date(
-                                    form.values.selectedDateTime
-                                ).toLocaleTimeString()}
-                            </h1>
-                            <div className="flex justify-center gap-8  col-start-2 row-start-3">
-                                <Button onClick={openConfirmDialog}>
-                                    Save
-                                </Button>
+                            <div className="max-w-md w-full  border-b border-gray-200 items-start flex flex-col">
+                                <Text c={"dimmed"} size="xs">
+                                    Title
+                                </Text>
+                                <Text ml={"xs"}>
+                                    {toTitleCase(form.values.title)}
+                                </Text>
+                            </div>
+                            <div className="max-w-md w-full  border-b border-gray-200 items-start flex flex-col">
+                                <Text c={"dimmed"} size="xs">
+                                    Type
+                                </Text>
+                                <Text ml={"xs"}>
+                                    {toTitleCase(form.values.type)}
+                                </Text>
+                            </div>
+                            <div className="max-w-md w-full  border-b border-gray-200 items-start flex flex-col">
+                                <Text c={"dimmed"} size="xs">
+                                    Pet
+                                </Text>
+                                <Text ml={"xs"}>
+                                    {toTitleCase(
+                                        pets.find((v) => {
+                                            if (v.id === form.values.petId)
+                                                return true;
+                                            return false;
+                                        })?.name ?? ""
+                                    )}
+                                </Text>
+                            </div>
+                            <div className="max-w-md w-full  border-b border-gray-200 items-start flex flex-col">
+                                <Text c={"dimmed"} size="xs">
+                                    Date
+                                </Text>
+                                <Text ml={"xs"}>
+                                    {new Date(
+                                        form.values.event_datetime
+                                    ).toDateString()}{" "}
+                                    {new Date(
+                                        form.values.event_datetime
+                                    ).toLocaleTimeString()}
+                                </Text>
+                            </div>
+                            <div className="flex mt-2 justify-center gap-8  col-start-2 row-start-3">
+                                <div>
+                                    <Button
+                                        onClick={openConfirmDialog}
+                                        disabled={!form.isValid()}
+                                    >
+                                        Save
+                                    </Button>
+
+                                    <div className="flex   border-t text-sm  row-start-5 gap-1 items-center col-start-2">
+                                        <h1 className="">Your mind changes?</h1>
+                                        <button
+                                            className="text-red-500 cursor-pointer"
+                                            onClick={() => {
+                                                form.reset();
+                                                setActive(0);
+                                            }}
+                                        >
+                                            Reset
+                                        </button>
+                                    </div>
+                                </div>
                                 <SuccessModal
-                                    opened={opened}
-                                    onClose={close}
-                                    timeOut={2500}
+                                    opened={isOpenedSuccessModal}
+                                    onClose={closeSuccessModal}
+                                    timeOut={successTimeOut}
                                     title="Appointment Saved"
                                 />
                             </div>
                         </div>
-                        <div className="flex-1"></div>
-                        <div className="flex border-t text-sm  w-full row-start-5 gap-1 items-center col-start-2">
-                            <h1 className="">Your mind changes?</h1>
-                            <button
-                                className="text-red-500 cursor-pointer"
-                                onClick={() => {
-                                    form.reset();
-                                    setActive(0);
-                                }}
+                        <div className="max-w-xl flex-1 mt-2 ">
+                            <Alert
+                                variant="light"
+                                color="gray"
+                                title="Advisory Tip"
+                                icon={<IconInfoCircle />}
                             >
-                                Reset
-                            </button>
+                                Please verify your details before submitting.
+                                Once confirmed, this slot will be reserved for
+                                you. If everything looks good, click Confirm to
+                                finalize your appointment!
+                            </Alert>
                         </div>
                     </section>
                 )}
-            </div>
+            </form>
 
             <Modal
                 opened={isOpenConfirmDialog}
@@ -262,13 +362,13 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                         <h1 className="text-lg">Date:</h1>
                         <h1 className="text-lg ml-8">
                             {new Date(
-                                form.values.selectedDateTime
+                                form.values.event_datetime
                             ).toDateString()}{" "}
                         </h1>
                         <h1 className="text-lg">Time:</h1>
                         <h1 className="text-lg ml-8">
                             {new Date(
-                                form.values.selectedDateTime
+                                form.values.event_datetime
                             ).toLocaleTimeString()}
                         </h1>
                     </span>
@@ -280,7 +380,15 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                         >
                             Cancel
                         </Button>
-                        <Button onClick={open}>Confirm</Button>
+                        <Button
+                            onClick={() => {
+                                console.log("is valid:", form.errors);
+                                // hit the form action
+                                form.onSubmit((v) => handleSubmit(v))();
+                            }}
+                        >
+                            Confirm
+                        </Button>
                     </span>
                 </Box>
             </Modal>

@@ -1,6 +1,6 @@
 "use client";
 
-import editUser from "@/actions/updateUser";
+import updateUser from "@/actions/updateUser";
 import { userGenderValue } from "@/db/schema/users";
 import { useUploadThing } from "@/lib/uploadThing";
 import {
@@ -61,7 +61,7 @@ export default function EditProfileModal({ opened, close }: Props) {
     const { update, data: session } = useSession();
 
     const router = useRouter();
-    const editUserWithId = editUser.bind(null, {
+    const editUserWithId = updateUser.bind(null, {
         userId: session?.user.id,
         schema: "edit",
     });
@@ -170,6 +170,7 @@ export default function EditProfileModal({ opened, close }: Props) {
             if (objectUrl) URL.revokeObjectURL(objectUrl);
         };
     }, [importedFile, selectedGalleryImg]);
+
     return (
         <Modal
             opened={opened}

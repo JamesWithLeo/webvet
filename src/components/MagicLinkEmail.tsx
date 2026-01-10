@@ -17,15 +17,12 @@ import {
 export const MagicLinkEmail = ({
     baseUrl,
     identifier,
-    token,
 }: {
     baseUrl: string;
     identifier: string;
-    token: string;
 }) => {
     const params = new URLSearchParams({
         callbackUrl: baseUrl,
-        token: token,
         email: identifier,
     });
     return (

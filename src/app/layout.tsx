@@ -15,6 +15,7 @@ import { MantineProvider, mantineHtmlProps } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import RouterLoadingAnimation from "@/components/RouterLoadingAnimation";
 import { theme } from "@/components/MantineThemeConfig";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
                         {children}
                     </ThemeProvider>
                 </MantineProvider>
+                <Analytics />
             </body>
         </html>
     );

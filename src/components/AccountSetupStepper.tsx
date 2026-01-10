@@ -19,7 +19,7 @@ import {
     IconChevronRight,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import editUser from "@/actions/updateUser";
+import updateUser from "@/actions/updateUser";
 import SuccessModal from "./SuccessModal";
 import { useSession } from "next-auth/react";
 
@@ -56,7 +56,7 @@ export default function AccountStepper({
         form.append("lastName", lastName);
         form.append("sex", sex);
         form.append("dateOfBirth", dateOfBirth);
-        const updatedUser = await editUser(
+        const updatedUser = await updateUser(
             { userId: userId, schema: "setup" },
             null,
             form
