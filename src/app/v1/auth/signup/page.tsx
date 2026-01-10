@@ -54,6 +54,7 @@ export default async function Signup() {
                         Care for your pet, anytime, anywhere.
                     </h1>
                     <AuthForm label="Sign up" />
+
                     <GoogleButton />
 
                     <span className="w-full flex justify-center gap-4">
