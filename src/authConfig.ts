@@ -52,6 +52,7 @@ export const authConfig = {
                     MagicLinkEmail({
                         baseUrl: host,
                         identifier: email,
+                        token: token,
                     })
                 );
                 const response = await fetch("https://api.resend.com/emails", {

@@ -17,13 +17,16 @@ import {
 export const MagicLinkEmail = ({
     baseUrl,
     identifier,
+    token,
 }: {
     baseUrl: string;
     identifier: string;
+    token: string;
 }) => {
     const params = new URLSearchParams({
         callbackUrl: baseUrl,
         email: identifier,
+        token: token,
     });
     return (
         <Html>
@@ -33,7 +36,7 @@ export const MagicLinkEmail = ({
                 <Body className="bg-slate-50 font-sans">
                     <Container className="mx-auto py-8 mt-8 px-4 max-w-145">
                         <Img
-                            src="https://cap1-webvet.vercel.app/logo.svg"
+                            src="https://josephmary.me/logo.svg"
                             width="75"
                             height="75"
                             alt="Clinic Logo"
