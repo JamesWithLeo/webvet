@@ -1,5 +1,5 @@
-import AccountTable from "@/components/AccountTable";
-import UserPanel from "@/components/AdminGridPanels/UserPanel";
+import AccountTable from "@/components/admin/AccountTable";
+import UserPanel from "@/components/admin/UserPanel";
 import { Title, Stack } from "@mantine/core";
 
 export default function Users() {

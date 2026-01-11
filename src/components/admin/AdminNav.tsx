@@ -1,6 +1,6 @@
 "use client";
 
-import Logo from "@/components/Logo";
+import Logo from "../common/Logo";
 import {
     IconCalendarSearch,
     IconCat,
@@ -12,7 +12,7 @@ import {
 } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import LogoutButton from "./LogoutButton";
+import LogoutButton from "../common/LogoutButton";
 import { Indicator, UnstyledButton } from "@mantine/core";
 
 const data = [

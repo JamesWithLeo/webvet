@@ -1,6 +1,6 @@
-import BottomPattern from "@/components/BottomPattern";
-import LogoWithText from "@/components/LogoWithText";
-import VerifyAccountButton from "@/components/VerifyAccountButton";
+import BottomPattern from "@/components/common/BottomPattern";
+import LogoWithText from "@/components/common/LogoWithText";
+import VerifyAccountButton from "@/components/auth/VerifyAccountButton";
 import { Text, Title, Stack, Container, Center } from "@mantine/core";
 import Link from "next/link";
 

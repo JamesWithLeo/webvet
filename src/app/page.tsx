@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import ScrollVelocity from "@/components/ScrollVelocity";
-import HeroSection from "@/components/HeroSection";
+import ScrollVelocity from "@/components/common/ScrollVelocity";
+import HeroSection from "@/components/common/HeroSection";
 import TimeSection from "@/components/TimeSection";
 import ProcessSection from "@/components/ProcessSection";
 

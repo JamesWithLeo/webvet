@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import PetWrapper from "@/components/PetWrapper";
+import PetWrapper from "@/components/pet/PetWrapper";
 import { getAllPets } from "@/lib/db/pets";
 import { redirect } from "next/navigation";
 

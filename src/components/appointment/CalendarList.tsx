@@ -7,7 +7,7 @@ import { DatesSetArg, EventClickArg } from "@fullcalendar/core/index.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import NewAppointmentButton from "./NewAppointmentButton";
+import NewAppointmentButton from "../common/NewAppointmentButton";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { AppointmentPetMergeType } from "@/db/schema/appointments";

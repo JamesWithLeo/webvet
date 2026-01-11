@@ -1,5 +1,5 @@
-import AppointmentCard from "@/components/AppointmentCard";
-import NewAppointmentButton from "@/components/NewAppointmentButton";
+import AppointmentCard from "@/components/appointment/AppointmentCard";
+import AppointmentController from "@/components/appointment/AppointmentController";
 import { Group, Title } from "@mantine/core";
 
 export default async function AppointmentPage() {
@@ -7,10 +7,10 @@ export default async function AppointmentPage() {
         <>
             <div className="flex  items-center gap-8 w-full h-screen  flex-col   ">
                 <div className="min-h-screen w-full relative md:p-16 px-4 flex gap-8 flex-col">
-                    <Group align="center" justify="space-between">
-                        <Title c={"dimmed"}>2025</Title>
-                        <NewAppointmentButton />
-                    </Group>
+                    <AppointmentController />
+                    <Title c={"dimmed"}>
+                        {new Date().getFullYear().toString()}
+                    </Title>
                     <Group className="">
                         <AppointmentCard
                             name="Ara"
@@ -28,7 +28,7 @@ export default async function AppointmentPage() {
                             paid={true}
                         />
                     </Group>
-                    <Title c={"dimmed"}>2024</Title>
+                    <Title c={"dimmed"}>2025</Title>
                     <AppointmentCard
                         name="Kirby"
                         service="Check up"

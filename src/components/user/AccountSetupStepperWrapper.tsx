@@ -1,7 +1,7 @@
 "use client";
+
 import { SessionProvider } from "next-auth/react";
 import AccountStepper from "./AccountSetupStepper";
-AccountStepper;
 
 export default function AccountStepperWrapper({
     currentStep,

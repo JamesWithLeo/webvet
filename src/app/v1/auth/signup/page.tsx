@@ -1,4 +1,4 @@
-import GoogleButton from "@/components/GoogleButton";
+import GoogleButton from "@/components/common/GoogleButton";
 import { ActionIcon } from "@mantine/core";
 import Link from "next/link";
 import { IconCalendarWeek, IconLogs, IconLeaf } from "@tabler/icons-react";

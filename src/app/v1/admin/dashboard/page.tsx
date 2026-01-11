@@ -1,9 +1,9 @@
-import AdminGreet from "@/components/AdminGridPanels/AdminGreeting";
-import UsersPanels from "@/components/AdminGridPanels/UserPanel";
-import AppointmentPanels from "@/components/AdminGridPanels/AppointmentPanels";
-import PetPanels from "@/components/AdminGridPanels/PetPanel";
-import AdminServiceOpertations from "@/components/AdminGridPanels/AdminServiceOperations";
-import AdminNotificatons from "@/components/AdminNotifications";
+import AdminGreet from "@/components/admin/AdminGreeting";
+import UsersPanels from "@/components/admin/UserPanel";
+import AppointmentPanels from "@/components/admin/AppointmentPanels";
+import PetPanels from "@/components/admin/PetPanel";
+import AdminServiceOpertations from "@/components/admin/AdminServiceOperations";
+import AdminNotificatons from "@/components/admin/AdminNotifications";
 
 export const donutData = [
     { name: "USA", value: 400, color: "indigo.6" },

@@ -26,7 +26,7 @@ import {
     FilterStateType,
     SortAction,
     SortStateType,
-} from "./PetWrapper";
+} from "./pet/PetWrapper";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useMediaQuery } from "@mantine/hooks";
 

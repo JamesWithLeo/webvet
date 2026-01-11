@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import CalendarList from "@/components/CalendarList";
+import CalendarList from "@/components/appointment/CalendarList";
 import checkSetup from "@/lib/checkSetup";
 import { getAppointments } from "@/lib/db/appointments";
 import { ActionIcon, Button, Group, Paper, Stack, Title } from "@mantine/core";

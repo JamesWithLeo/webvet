@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import AccountStepperWrapper from "@/components/AccountSetupStepperWrapper";
 import Logo from "@/components/Logo";
-import LogoutButton from "@/components/LogoutButton";
+import LogoutButton from "@/components/common/LogoutButton";
 import { Box, Group } from "@mantine/core";
 import { IconLogout } from "@tabler/icons-react";
 import { redirect } from "next/navigation";

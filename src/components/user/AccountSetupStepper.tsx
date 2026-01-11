@@ -20,7 +20,7 @@ import {
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import updateUser from "@/actions/updateUser";
-import SuccessModal from "./SuccessModal";
+import SuccessModal from "../common/SuccessModal";
 import { useSession } from "next-auth/react";
 
 export default function AccountStepper({

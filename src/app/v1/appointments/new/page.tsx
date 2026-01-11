@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import AppointmentStepper from "@/components/AppointmentStepper";
+import AppointmentStepper from "@/components/appointment/AppointmentStepper";
 import { getAllPetsIdName } from "@/lib/db/pets";
 import { redirect } from "next/navigation";
 

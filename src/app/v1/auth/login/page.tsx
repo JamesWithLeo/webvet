@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import AuthForm from "@/components/auth/AuthForm";
-import GoogleButton from "@/components/GoogleButton";
+import GoogleButton from "@/components/common/GoogleButton";
 import Logo from "@/components/Logo";
 import { Box, Button, TextInput } from "@mantine/core";
 import Link from "next/link";

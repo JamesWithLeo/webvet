@@ -39,7 +39,7 @@ import {
 } from "react";
 import BreedComboBox from "./BreedComboBox";
 import { OWNERSHIP_STATUS, petGenderValues } from "@/db/schema/pets";
-import ProfileDropzone from "../ProfileDropzone";
+import ProfileDropzone from "../common/ProfileDropzone";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { petCreateSchema, PetFormInput } from "@/lib/validators/petsZodSchema";

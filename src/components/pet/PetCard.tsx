@@ -23,8 +23,8 @@ import {
     IconTrash,
 } from "@tabler/icons-react";
 
-import DogPlaceholder from "./DogPlaceholder";
-import CatPlaceholder from "./CatPlaceholder";
+import DogPlaceholder from "../common/DogPlaceholder";
+import CatPlaceholder from "../common/CatPlaceholder";
 import { LifeStatus, PetGender } from "@/db/schema/pets";
 import { toTitleCase } from "@/lib/toTitleCase";
 import calculatePetAge from "@/lib/calculatePetAge";

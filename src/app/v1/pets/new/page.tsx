@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import CreatePetsWrapper from "@/components/pets/CreatePetsWrapper";
+import CreatePetsWrapper from "@/components/pet/CreatePetsWrapper";
 import { getPetsSpeciesExcept } from "@/lib/db/pets";
 import { redirect } from "next/navigation";
 

@@ -30,7 +30,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
-import ProfileDropzone from "./ProfileDropzone";
+import ProfileDropzone from "../common/ProfileDropzone";
 
 const PUBLIC_AVATAR = [
     "bunny",

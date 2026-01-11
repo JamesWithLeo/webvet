@@ -16,8 +16,8 @@ import {
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useActionState, useEffect, useState, useTransition } from "react";
-import SelectDateCal from "./calendars/SelectDateCal";
-import SelectTimeCal from "./calendars/SelectTimeCal";
+import SelectDateCal from "../calendars/SelectDateCal";
+import SelectTimeCal from "../calendars/SelectTimeCal";
 import {
     AppointmentFormInput,
     newAppointmentSchema,
@@ -26,11 +26,13 @@ import {
 import { IconChevronLeft, IconInfoCircle, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { toTitleCase } from "@/lib/toTitleCase";
-import SuccessModal from "./SuccessModal";
+import SuccessModal from "../common/SuccessModal";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { appointmentTypeValues } from "@/db/schema/appointments";
 import CreateAppointmentAction from "@/actions/createAppointment";
 import { notifications } from "@mantine/notifications";
+import Tips from "../common/Tips";
+import { TIPS } from "@/lib/tips";
 
 type Props = {
     pets: { id: string; name: string }[];
@@ -170,8 +172,8 @@ export default function AppointmentStepper({ pets = [] }: Props) {
 
             <form className="w-full h-full flex items-center flex-col">
                 {active === 0 && (
-                    <section className=" w-full  flex items-center justify-center h-full flex-col">
-                        <div className="w-full justify-center gap-8 flex h-full flex-col max-w-md">
+                    <section className="w-full h-full items-center   flex flex-col justify-between max-w-7xl">
+                        <div className="w-full justify-center  gap-8 flex h-full flex-col max-w-md">
                             <TextInput
                                 label="Title"
                                 withAsterisk
@@ -207,6 +209,14 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                 <Button onClick={nextStep}>Next</Button>
                             </div>
                         </div>
+
+                        <Tips
+                            w={"100%"}
+                            variant="light"
+                            color="gray"
+                            title="Advisory Tip"
+                            message={TIPS.appointment.type}
+                        />
                     </section>
                 )}
                 {active === 1 && form.values.type && (
@@ -219,14 +229,12 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                 nextStep();
                             }}
                         />
-                        <Alert
+                        <Tips
                             variant="light"
                             color="gray"
                             title="Advisory Tip"
-                            icon={<IconInfoCircle />}
-                        >
-                            Tip: Click on date to Select
-                        </Alert>
+                            message={TIPS.appointment.date}
+                        />
                     </section>
                 )}
                 {active === 2 && (
@@ -240,14 +248,12 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                 nextStep();
                             }}
                         />
-                        <Alert
+                        <Tips
                             variant="light"
                             color="gray"
                             title="Advisory Tip"
-                            icon={<IconInfoCircle />}
-                        >
-                            Tip: Click on time to Select
-                        </Alert>
+                            message={TIPS.appointment.time}
+                        />
                     </section>
                 )}
                 {active === 3 && (

@@ -27,7 +27,7 @@ import {
     IconGenderFemale,
 } from "@tabler/icons-react";
 
-import EditProfileModal from "./EditProfileModal";
+import EditProfileModal from "./user/EditProfileModal";
 
 export default function ProfileCardGroup(user: {
     firstName?: string | null;

@@ -1,4 +1,4 @@
-import PetPanels from "@/components/AdminGridPanels/PetPanel";
+import PetPanels from "@/components/admin/PetPanel";
 import PetTable from "@/components/PetTable";
 import { Title, Stack, Button, Group } from "@mantine/core";
 
