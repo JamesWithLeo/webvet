@@ -2,7 +2,7 @@ import GoogleButton from "@/components/common/GoogleButton";
 import { ActionIcon } from "@mantine/core";
 import Link from "next/link";
 import { IconCalendarWeek, IconLogs, IconLeaf } from "@tabler/icons-react";
-import Logo from "@/components/Logo";
+import Logo from "@/components/common/Logo";
 import { redirect } from "next/navigation";
 import AuthForm from "@/components/auth/AuthForm";
 import { auth } from "@/auth";

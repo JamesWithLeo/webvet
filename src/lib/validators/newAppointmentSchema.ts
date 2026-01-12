@@ -16,15 +16,19 @@ export const newAppointmentSchema = z.object({
         .refine((value) => value !== "", {
             message: "Please select an appointment type",
         }),
-    petId: z
-        .string()
-        .nonempty("Missing pet")
-        .nonoptional()
-        .refine((value) => value !== "", {
-            message: "Please select pet to be seen",
-        }),
+    petIds: z
+        .array(
+            z
+                .string()
+                .nonempty("Missing pet")
+                .refine((val) => val !== "", "Please select pet to be seen")
+        )
+        .min(1, "Please select at least one pet") // Ensures the array isn't empty
+        .nonoptional(),
     date: z.string().nonempty({ message: "Please select a date" }),
     event_datetime: z.string().nonempty({ message: "Please select a time" }),
 });
 
 export type AppointmentFormInput = z.input<typeof newAppointmentSchema>;
+
+export type AppointmentFormOutput = z.output<typeof newAppointmentSchema>;

@@ -18,7 +18,12 @@ export default async function CreateAppointmentAction(
     if (!parsed.success) return { succesful: false };
 
     try {
-        const result = await saveAppointmentToDb(parsed.data);
+        const { petIds, ...appintmentData } = parsed.data;
+
+        const result = await saveAppointmentToDb({
+            petIds: petIds,
+            appointmentData: appintmentData,
+        });
         if (!result || !result.id) {
             return { succesful: false };
         }

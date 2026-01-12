@@ -38,15 +38,22 @@ export type AppointmentPetMergeType = {
 export const appointments = pgTable("appointments", {
     id: uuid("id").defaultRandom().primaryKey(),
     title: varchar("title", { length: 50 }),
-    petId: uuid("pet_id")
-        .notNull()
-        .references(() => pets.id, { onDelete: "cascade" }),
     event_datetime: timestamp("event_datetime", {
         withTimezone: true,
         mode: "string",
     }).notNull(),
     type: appointmentType("type").notNull(),
     created_at: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const appointmentsToPets = pgTable("appointments_to_pets", {
+    appointmentId: uuid("appointment_id")
+        .notNull()
+        .references(() => appointments.id),
+
+    petId: uuid("pet_id")
+        .notNull()
+        .references(() => pets.id),
 });
 
 export type AppointmentTypeModel = InferSelectModel<typeof appointments>;

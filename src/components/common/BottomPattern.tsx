@@ -1,7 +1,7 @@
 export default function BottomPattern() {
     return (
         <div
-            className="fixed inset-0 z-0"
+            className="fixed inset-0 -z-50"
             style={{
                 backgroundImage: `
         linear-gradient(to right, #e7e5e4 1px, transparent 1px),

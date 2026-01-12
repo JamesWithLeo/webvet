@@ -62,7 +62,12 @@ export const getAllAlivePets = async (id: string) => {
 
 export const getAllPetsIdName = async (id: string) => {
     return await db
-        .select({ id: pets.id, name: pets.name })
+        .select({
+            id: pets.id,
+            name: pets.name,
+            photoUrl: pets.photoUrl,
+            breed: pets.breedSpecification,
+        })
         .from(pets)
         .where(eq(pets.ownerId, id));
 };

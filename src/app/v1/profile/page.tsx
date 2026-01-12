@@ -8,7 +8,7 @@ import {
     IconPawFilled,
     IconPawOff,
 } from "@tabler/icons-react";
-import ProfileCardGroup from "@/components/ProfileCardGroup";
+import ProfileCardGroup from "@/components/common/ProfileCardGroup";
 import { auth } from "@/auth";
 import { SessionProvider } from "next-auth/react";
 

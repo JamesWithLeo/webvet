@@ -1,26 +1,14 @@
-"use client";
-import Logo from "@/components/Logo";
+import BottomPattern from "@/components/common/BottomPattern";
+import EmailAnimation from "@/components/common/EmailAnimation";
+import LogoWithText from "@/components/common/LogoWithText";
 import { Button, Card, Group, Text } from "@mantine/core";
-import Lottie, { LottieRefCurrentProps } from "lottie-react";
-import lottieData from "@/../public/lottie/Email.json";
-import { useRef } from "react";
-import { Alex_Brush } from "next/font/google";
-const alexBrush = Alex_Brush({
-    subsets: ["latin"],
-    display: "swap",
-    style: ["normal"],
-    weight: ["400"],
-});
 
 export default function Page() {
-    const lottieRef = useRef<LottieRefCurrentProps>(null);
     return (
-        <div className="flex bg-gray-50 min-h-dvh gap-8 flex-col items-center  p-16">
+        <div className="flex bg-gray-50 min-h-dvh justify-center gap-8 flex-col items-center p-8  lg:p-16">
+            <BottomPattern />
             <Group>
-                <Logo size="md" />
-                <h1 className={`${alexBrush.className} text-3xl`}>
-                    Joseph & Mary
-                </h1>
+                <LogoWithText />
             </Group>
             <Card withBorder>
                 <div className="py-12 px-8 flex  flex-col ">
@@ -31,19 +19,14 @@ export default function Page() {
                     </Text>
                     <div className="w-full flex flex-col items-center">
                         <div className="w-40   h-auto min-w-40  min-h-40">
-                            <Lottie
-                                animationData={lottieData}
-                                lottieRef={lottieRef}
-                                loop={false}
-                                height={75}
-                                width={75}
-                            />
+                            <EmailAnimation />
                         </div>
                     </div>
-                    {/* <Text mt={"md"} c={"dimmed"} size="sm">
+                    <Text mt={"md"} c={"dimmed"} size="sm">
                         Didn't receive the email? Check your spam folder. Still
                         can't find it?
-                    </Text> */}
+                    </Text>
+
                     <Button mt={"md"} variant="light">
                         Sign in
                     </Button>

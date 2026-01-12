@@ -13,7 +13,19 @@ import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { AppointmentPetMergeType } from "@/db/schema/appointments";
 import AppointmentDrawer from "./AppointmentDrawer";
 
-type Props = { appointments: AppointmentPetMergeType[] };
+type Props = {
+    appointments: {
+        id: string;
+        title: string | null;
+        event_datetime: string;
+        type: string;
+        pets: {
+            id: string;
+            name: string;
+            photoUrl: string | null;
+        }[];
+    }[];
+};
 export default function CalendarList({ appointments }: Props) {
     const calendarRef = useRef<FullCalendar>(null);
     const [currentTitle, setCurrentTitle] = useState("loading calendar..");
@@ -85,7 +97,7 @@ export default function CalendarList({ appointments }: Props) {
                 events={appointments.map((v) => ({
                     title:
                         v.title ??
-                        `${toTitleCase(v.type)} for ${toTitleCase(v.name)}`,
+                        `${toTitleCase(v.type)} for ${toTitleCase(v.pets.map((v) => v.name).join(", "))}`,
                     start: new Date(v.event_datetime).toISOString(),
                     end: new Date(v.event_datetime).toISOString(),
                     display: "block",

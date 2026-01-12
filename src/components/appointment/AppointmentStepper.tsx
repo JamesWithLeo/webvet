@@ -9,8 +9,10 @@ import {
     NativeSelect,
     em,
     Text,
-    Stack,
     Alert,
+    MultiSelect,
+    Group,
+    Avatar,
 } from "@mantine/core";
 
 import { useForm } from "@mantine/form";
@@ -34,11 +36,31 @@ import { notifications } from "@mantine/notifications";
 import Tips from "../common/Tips";
 import { TIPS } from "@/lib/tips";
 
+type Target = Record<
+    string,
+    { photoUrl: string | null; id: string; breed: string; name: string }
+>;
+
 type Props = {
-    pets: { id: string; name: string }[];
+    pets: {
+        id: string;
+        name: string;
+        photoUrl: string | null;
+        breed: string;
+    }[];
 };
 
 export default function AppointmentStepper({ pets = [] }: Props) {
+    const converted: Target = pets.reduce((acc, item) => {
+        acc[item.id] = {
+            id: item.id,
+            photoUrl: item.photoUrl ?? null,
+            breed: item.breed,
+            name: item.name,
+        };
+        return acc;
+    }, {} as Target);
+
     const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
     const [active, setActive] = useState(0);
     const router = useRouter();
@@ -66,7 +88,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
         initialValues: {
             title: "",
             type: "",
-            petId: "",
+            petIds: [],
             date: "",
             event_datetime: "",
         },
@@ -110,7 +132,6 @@ export default function AppointmentStepper({ pets = [] }: Props) {
     };
 
     const handleSubmit = async (value: AppointmentFormInput) => {
-        console.log("Value:", value);
         if (isPending) return;
 
         startTransition(() => {
@@ -119,11 +140,14 @@ export default function AppointmentStepper({ pets = [] }: Props) {
     };
 
     useEffect(() => {
-        if (formState?.succesful && formState.appointmentId) {
+        if (
+            formState?.succesful
+            // && formState.appointmentId
+        ) {
             openSuccessModal();
 
             setTimeout(() => {
-                router.replace(`/v1/appointments/${formState.appointmentId}`);
+                // router.replace(`/v1/appointments/${formState.appointmentId}`);
             }, successTimeOut);
         }
 
@@ -193,16 +217,40 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                 )}
                             />
 
-                            <NativeSelect
+                            <MultiSelect
                                 label="Pet"
                                 name="pet"
                                 withAsterisk
-                                {...form.getInputProps("petId")}
-                                data={[{ label: "", value: "" }].concat(
-                                    pets.map((v) => ({
-                                        label: toTitleCase(v.name),
-                                        value: v.id,
-                                    }))
+                                {...form.getInputProps("petIds")}
+                                data={pets.map((v) => ({
+                                    label: toTitleCase(v.name),
+                                    value: v.id,
+                                }))}
+                                searchable
+                                renderOption={({ option }) => (
+                                    <Group gap="sm">
+                                        <Avatar
+                                            src={
+                                                converted[option.value]
+                                                    ?.photoUrl ?? null
+                                            }
+                                            size={36}
+                                            radius="xl"
+                                        >
+                                            {option.label[0]}
+                                        </Avatar>
+                                        <div>
+                                            <Text size="sm">
+                                                {option.label}
+                                            </Text>
+                                            <Text size="xs" c={"dimmed"}>
+                                                {toTitleCase(
+                                                    converted[option.value]
+                                                        .breed
+                                                )}
+                                            </Text>
+                                        </div>
+                                    </Group>
                                 )}
                             />
                             <div className="w-full flex justify-end">
@@ -280,13 +328,13 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                     Pet
                                 </Text>
                                 <Text ml={"xs"}>
-                                    {toTitleCase(
-                                        pets.find((v) => {
-                                            if (v.id === form.values.petId)
-                                                return true;
-                                            return false;
-                                        })?.name ?? ""
-                                    )}
+                                    {form.values.petIds
+                                        .map((v) => {
+                                            return toTitleCase(
+                                                converted[v].name
+                                            );
+                                        })
+                                        .join(", ")}
                                 </Text>
                             </div>
                             <div className="max-w-md w-full  border-b border-gray-200 items-start flex flex-col">
@@ -332,7 +380,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                 />
                             </div>
                         </div>
-                        <div className="max-w-xl flex-1 mt-2 ">
+                        <div className="w-full flex-1 mt-2 ">
                             <Alert
                                 variant="light"
                                 color="gray"
@@ -411,3 +459,17 @@ export default function AppointmentStepper({ pets = [] }: Props) {
         </>
     );
 }
+
+// const renderMultiSelectOption: MultiSelectProps["renderOption"] = ({
+//     option,
+// }) => (
+//     <Group gap="sm">
+//         <Avatar src={usersData[option.value].image} size={36} radius="xl" />
+//         <div>
+//             <Text size="sm">{option.value}</Text>
+//             <Text size="xs" opacity={0.5}>
+//                 {usersData[option.value].email}
+//             </Text>
+//         </div>
+//     </Group>
+// );

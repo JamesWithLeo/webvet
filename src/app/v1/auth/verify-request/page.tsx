@@ -1,10 +1,10 @@
-"use client";
-import Logo from "@/components/Logo";
+import Logo from "@/components/common/Logo";
 import { Button, Card, Group, Text } from "@mantine/core";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import lottieData from "@/../public/lottie/Email.json";
 import { useRef } from "react";
 import { Baskervville_SC } from "next/font/google";
+
 const baskerville = Baskervville_SC({
     subsets: ["latin"],
     display: "swap",

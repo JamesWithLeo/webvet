@@ -15,6 +15,7 @@ export default async function dashboard() {
     checkSetup(session);
     if (!session?.user) redirect("/");
     const appointments = await getAppointments({ id: session.user.id });
+    console.log(appointments);
     return (
         <div className="flex items-center w-full h-screen  flex-col   md:px-16 px-4">
             <Stack className=" border-x p-4 w-full h-full  min-h-full flex  gap-2  ">
