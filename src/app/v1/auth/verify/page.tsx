@@ -3,6 +3,7 @@ import LogoWithText from "@/components/common/LogoWithText";
 import VerifyAccountButton from "@/components/auth/VerifyAccountButton";
 import { Text, Title, Stack, Container, Center } from "@mantine/core";
 import Link from "next/link";
+import CenterPattern from "@/components/common/CenterPattern";
 
 export default async function Page({
     searchParams,
@@ -17,55 +18,10 @@ export default async function Page({
 
     return (
         <div className="w-full min-h-dvh items-center flex flex-col justify-center">
-            <div
-                className="fixed -z-10 inset-0 "
-                style={{
-                    backgroundImage: `
-        linear-gradient(to right, #e7e5e4 1px, transparent 1px),
-        linear-gradient(to bottom, #e7e5e4 1px, transparent 1px)
-      `,
-                    backgroundSize: "20px 20px",
-                    backgroundPosition: "0 0, 0 0",
-                    maskImage: `
-       repeating-linear-gradient(
-              to right,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-            repeating-linear-gradient(
-              to bottom,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-          radial-gradient(ellipse 60% 60% at 50% 50%, #000 30%, transparent 70%)
-      `,
-                    WebkitMaskImage: `
- repeating-linear-gradient(
-              to right,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-            repeating-linear-gradient(
-              to bottom,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-          radial-gradient(ellipse 60% 60% at 50% 50%, #000 30%, transparent 70%)
-      `,
-                    maskComposite: "intersect",
-                    WebkitMaskComposite: "source-in",
-                }}
-            />
+            <CenterPattern />
             <div className="flex flex-col items-center gap-23">
                 <LogoWithText />
+
                 <Stack align="center" gap="xl">
                     <Stack align="center" gap="xs">
                         <Title order={3} fw={900} ta="center">
