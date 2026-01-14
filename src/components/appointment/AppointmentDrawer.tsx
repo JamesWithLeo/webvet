@@ -28,21 +28,22 @@ import Link from "next/link";
 type Props = {
     opened: boolean;
     close: () => void;
-    selectedAppointment: AppointmentPetMergeType;
+    selectedAppointment: {
+        id: string;
+        title: string | null;
+        event_datetime: string;
+        type: string;
+        pets: {
+            id: string;
+            name: string;
+            photoUrl: string | null;
+        }[];
+    };
 };
 export default function AppointmentDrawer({
     opened,
     close,
-    selectedAppointment: {
-        title,
-        type,
-        name,
-        id,
-        breed,
-        photoUrl,
-        petId,
-        event_datetime,
-    },
+    selectedAppointment: { title, type, id, event_datetime, pets },
 }: Props) {
     const isMobile = useMediaQuery("(max-width: 64rem)");
     return (
@@ -73,19 +74,25 @@ export default function AppointmentDrawer({
                         wrap="nowrap"
                     >
                         <div className="flex gap-4 w-full h-full ">
-                            <Avatar.Group>
-                                <Tooltip label={toTitleCase(name)} withArrow>
-                                    <Avatar
-                                        src={photoUrl}
-                                        size={"lg"}
-                                        radius="xl"
-                                        color="blue"
-                                        component={Link}
-                                        href={`/v1/pets/${petId}`}
+                            <Avatar.Group spacing={"xs"}>
+                                {pets.map((v) => (
+                                    <Tooltip
+                                        key={`${v.id}`}
+                                        label={toTitleCase(v.name)}
+                                        withArrow
                                     >
-                                        {name.charAt(0)}
-                                    </Avatar>
-                                </Tooltip>
+                                        <Avatar
+                                            src={v.photoUrl}
+                                            size={"lg"}
+                                            radius="xl"
+                                            color="blue"
+                                            component={Link}
+                                            href={`/v1/pets/${v.id}`}
+                                        >
+                                            {v.name.charAt(0)}
+                                        </Avatar>
+                                    </Tooltip>
+                                ))}
                             </Avatar.Group>
                             <Box>
                                 <Text size="xl" fw={700}>

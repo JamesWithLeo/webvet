@@ -30,15 +30,34 @@ export default function CalendarList({ appointments }: Props) {
     const calendarRef = useRef<FullCalendar>(null);
     const [currentTitle, setCurrentTitle] = useState("loading calendar..");
     const [opened, { open, close }] = useDisclosure(false);
-    const [selectedAppointment, setSelectedAppointment] =
-        useState<AppointmentPetMergeType>();
+    const [selectedAppointment, setSelectedAppointment] = useState<{
+        id: string;
+        title: string | null;
+        event_datetime: string;
+        type: string;
+        pets: {
+            id: string;
+            name: string;
+            photoUrl: string | null;
+        }[];
+    }>();
     const isMobile = useMediaQuery("(max-width: 64rem)");
 
     const onEventClick = useCallback((info: EventClickArg) => {
         console.log(info.event.extendedProps);
 
         setSelectedAppointment({
-            ...(info.event.extendedProps as AppointmentPetMergeType),
+            ...(info.event.extendedProps as {
+                id: string;
+                title: string | null;
+                event_datetime: string;
+                type: string;
+                pets: {
+                    id: string;
+                    name: string;
+                    photoUrl: string | null;
+                }[];
+            }),
         });
         // passed the pet & appointment data on drawer
         open(); // show modal
@@ -108,7 +127,6 @@ export default function CalendarList({ appointments }: Props) {
                 eventClick={onEventClick}
                 viewClassNames={"cursor-pointer"}
             />
-            {/* to do add loader */}
             {selectedAppointment && (
                 <AppointmentDrawer
                     opened={opened}

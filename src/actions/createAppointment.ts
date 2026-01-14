@@ -6,13 +6,14 @@ import {
     AppointmentFormInput,
     newAppointmentSchema,
 } from "@/lib/validators/newAppointmentSchema";
+import { unauthorized } from "next/navigation";
 
 export default async function CreateAppointmentAction(
     prevState: any,
     data: AppointmentFormInput
 ) {
     const session = await auth();
-    if (!session?.user?.id) throw new Error("Unauthorized");
+    if (!session?.user?.id) unauthorized();
 
     const parsed = newAppointmentSchema.safeParse(data);
     if (!parsed.success) return { succesful: false };
@@ -27,6 +28,8 @@ export default async function CreateAppointmentAction(
         if (!result || !result.id) {
             return { succesful: false };
         }
+
+        // might add email notification here .
 
         return { succesful: true, appointmentId: result.id };
     } catch (error: any) {

@@ -1,12 +1,56 @@
-import { db } from "@/db";
+import { db, dbTx } from "@/db";
 import {
     appointments,
     appointmentsToPets,
     AppointmentType,
-    AppointmentTypeModel,
 } from "@/db/schema/appointments";
 import { pets } from "@/db/schema/pets";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, gt, inArray, sql } from "drizzle-orm";
+import { PgTransaction } from "drizzle-orm/pg-core";
+import { toTitleCase } from "../toTitleCase";
+
+export class ExistingAppointmentConflictError extends Error {
+    public code: string;
+    public petIds: string[];
+
+    constructor(petIds: string[], type: AppointmentType) {
+        super(
+            `Pet/s [${toTitleCase(petIds.join(", "))}] already have ${toTitleCase(type)} appointment.`
+        );
+        this.name = "ExistingAppointmentConflictError";
+        this.code = "Existing Appointment";
+        this.petIds = petIds;
+    }
+}
+
+const validatePetsAvailability = async (
+    tx: PgTransaction<any, any, any>,
+    petIds: string[],
+    type: AppointmentType
+) => {
+    const existing = await tx
+        .select({
+            name: pets.name,
+        })
+        .from(appointmentsToPets)
+        .innerJoin(
+            appointments,
+            eq(appointments.id, appointmentsToPets.appointmentId)
+        )
+        .innerJoin(pets, eq(pets.id, appointmentsToPets.petId))
+        .where(
+            and(
+                inArray(appointmentsToPets.petId, petIds),
+                gt(appointments.event_datetime, new Date().toISOString()),
+                eq(appointments.type, type)
+            )
+        );
+
+    if (existing.length > 0) {
+        const busyPetIds = existing.map((row) => row.name);
+        throw new ExistingAppointmentConflictError(busyPetIds, type);
+    }
+};
 
 export const saveAppointmentToDb = async ({
     appointmentData,
@@ -19,7 +63,12 @@ export const saveAppointmentToDb = async ({
     };
     petIds: string[];
 }) => {
-    return await db.transaction(async (tx) => {
+    return await dbTx.transaction(async (tx) => {
+        // check existing appointment
+        if (petIds.length > 0) {
+            await validatePetsAvailability(tx, petIds, appointmentData.type);
+        }
+
         const [inserted] = await tx
             .insert(appointments)
             .values(appointmentData)
@@ -35,15 +84,6 @@ export const saveAppointmentToDb = async ({
         }
         return inserted;
     });
-    //     return await db
-    //         .insert(appointments)
-    //         .values({
-    //             title,
-    //             event_datetime: event_datetime,
-    //             type: type,
-    //         })
-    //         .returning()
-    //         .then((v) => v[0]);
 };
 
 export const getAppointments = async ({ id }: { id: string }) => {
@@ -71,19 +111,4 @@ export const getAppointments = async ({ id }: { id: string }) => {
         .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
         .where(eq(pets.ownerId, id))
         .groupBy(appointments.id);
-
-    // return await db
-    //     .select({
-    //         breed: pets.breedSpecification,
-    //         event_datetime: appointments.event_datetime,
-    //         id: appointments.id,
-    //         name: pets.name,
-    //         petId: pets.id,
-    //         photoUrl: pets.photoUrl,
-    //         title: appointments.title,
-    //         type: appointments.type,
-    //     })
-    //     .from(appointments)
-    //     .innerJoin(pets, eq(appointments.petId, pets.id))
-    //     .where(eq(pets.ownerId, id));
 };

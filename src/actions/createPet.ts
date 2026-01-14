@@ -5,6 +5,7 @@ import { PetTypeModel } from "@/db/schema/pets";
 import { checkExistingPets, savePetsToDb } from "@/lib/db/pets";
 import { DeleteUTFile } from "@/lib/uploadthing-util";
 import { petCreateSchema, PetFormInput } from "@/lib/validators/petsZodSchema";
+import { unauthorized } from "next/navigation";
 
 export type ActionResponse = {
     success: boolean;
@@ -26,7 +27,8 @@ export default async function CreatePet(
     }
 ): Promise<ActionResponse> {
     const session = await auth();
-    if (!session?.user?.id) throw new Error("Unauthorized");
+    if (!session?.user?.id) unauthorized();
+
     if (session.user.role === "client") {
         data.ownerId = session.user.id;
     } else {

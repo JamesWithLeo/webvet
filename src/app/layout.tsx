@@ -8,6 +8,7 @@ import "@mantine/notifications/styles.css";
 import "@mantine/charts/styles.css";
 import "mantine-datatable/styles.css";
 import "@mantine/dropzone/styles.css";
+import "@mantine/carousel/styles.css";
 import "./layout.css";
 import "./calendar.css";
 

@@ -140,14 +140,11 @@ export default function AppointmentStepper({ pets = [] }: Props) {
     };
 
     useEffect(() => {
-        if (
-            formState?.succesful
-            // && formState.appointmentId
-        ) {
+        if (formState?.succesful && formState.appointmentId) {
             openSuccessModal();
 
             setTimeout(() => {
-                // router.replace(`/v1/appointments/${formState.appointmentId}`);
+                router.replace(`/v1/appointments/${formState.appointmentId}`);
             }, successTimeOut);
         }
 
@@ -158,7 +155,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                 color: "red",
                 icon: <IconX size={20} />,
                 withBorder: true,
-                autoClose: 4000,
+                autoClose: false,
             });
         }
     }, [formState]);

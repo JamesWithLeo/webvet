@@ -6,6 +6,7 @@ import {
     userSetupSchema,
     userEditSchema,
 } from "@/lib/validators/usersZodSchema";
+import { unauthorized } from "next/navigation";
 
 export default async function updateUser(
     editProps: { userId: string | undefined; schema: "edit" | "setup" },
@@ -18,8 +19,7 @@ export default async function updateUser(
         return { succesful: false };
     }
     const session = await auth();
-    if (!session || session.user.id !== userId)
-        throw new Error("Not authenticated");
+    if (!session || session.user.id !== userId) unauthorized();
 
     const rawData = {
         firstName: formData.get("firstName")?.toString(),
