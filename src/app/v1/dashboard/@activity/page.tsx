@@ -2,8 +2,16 @@ import { Carousel, CarouselSlide } from "@mantine/carousel";
 import TodaysAppointment from "@/components/dashboard/TodaysAppointment";
 import DashboardOverview from "@/components/dashboard/DashboardOverview";
 import classes from "@/components/css/Carousel.module.css";
+import { getNearestAppointment } from "@/lib/db/appointments";
+import { unauthorized } from "next/navigation";
+import { auth } from "@/auth";
 
-export default function Page() {
+export default async function Page() {
+    const session = await auth();
+    if (!session) unauthorized();
+    const nearestAppointment = await getNearestAppointment({
+        id: session.user.id,
+    });
     return (
         <Carousel
             classNames={classes}
@@ -20,10 +28,10 @@ export default function Page() {
                 md: "50%",
                 xl: "33.33333333%",
             }}
-            slideGap={{ base: 0, sm: "md" }}
+            slideGap={{ base: "xs", sm: "md" }}
         >
             <CarouselSlide>
-                <TodaysAppointment />
+                <TodaysAppointment data={nearestAppointment} />
             </CarouselSlide>
             <CarouselSlide>
                 <DashboardOverview />
