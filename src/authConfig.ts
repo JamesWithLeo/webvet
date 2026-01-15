@@ -10,8 +10,9 @@ import { users } from "./db/schema/users";
 import { accounts } from "./db/schema/accounts";
 import Resend from "next-auth/providers/resend";
 import { render } from "@react-email/render";
-import { MagicLinkEmail } from "./components/MagicLinkEmail";
+import MagicLinkEmail from "./components/emails/MagicLinkEmail";
 import { getUserById } from "./lib/db/users";
+import { toTitleCase } from "./lib/toTitleCase";
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -50,6 +51,7 @@ export const authConfig = {
                 const { host } = new URL(url);
                 const emailHtml = await render(
                     MagicLinkEmail({
+                        name: email.split("@")[0],
                         baseUrl: host,
                         identifier: email,
                         token: token,

@@ -13,6 +13,8 @@ import {
     MultiSelect,
     Group,
     Avatar,
+    ComboboxOptionsProps,
+    ComboboxItem,
 } from "@mantine/core";
 
 import { useForm } from "@mantine/form";
@@ -264,6 +266,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                         />
                     </section>
                 )}
+
                 {active === 1 && form.values.type && (
                     <section className="w-full h-full flex flex-col justify-between max-w-7xl">
                         <SelectDateCal
@@ -301,6 +304,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                         />
                     </section>
                 )}
+
                 {active === 3 && (
                     <section className=" w-full max-w-7xl  flex items-center justify-center h-full flex-col">
                         <div className="text-center w-full flex items-center justify-center flex-col gap-3 h-full row-start-2 col-start-2">
@@ -456,17 +460,3 @@ export default function AppointmentStepper({ pets = [] }: Props) {
         </>
     );
 }
-
-// const renderMultiSelectOption: MultiSelectProps["renderOption"] = ({
-//     option,
-// }) => (
-//     <Group gap="sm">
-//         <Avatar src={usersData[option.value].image} size={36} radius="xl" />
-//         <div>
-//             <Text size="sm">{option.value}</Text>
-//             <Text size="xs" opacity={0.5}>
-//                 {usersData[option.value].email}
-//             </Text>
-//         </div>
-//     </Group>
-// );

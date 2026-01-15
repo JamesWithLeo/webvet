@@ -75,12 +75,15 @@ export const saveAppointmentToDb = async ({
             .returning();
 
         if (petIds.length > 0) {
-            await tx.insert(appointmentsToPets).values(
-                petIds.map((petId) => ({
-                    appointmentId: inserted.id,
-                    petId,
-                }))
-            );
+            await tx
+                .insert(appointmentsToPets)
+                .values(
+                    petIds.map((petId) => ({
+                        appointmentId: inserted.id,
+                        petId,
+                    }))
+                )
+                .returning();
         }
         return inserted;
     });

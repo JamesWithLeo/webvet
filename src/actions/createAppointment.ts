@@ -1,13 +1,26 @@
 "use server";
 
 import { auth } from "@/auth";
+import AppointmentSaved from "@/components/emails/AppointmentSaved";
 import { saveAppointmentToDb } from "@/lib/db/appointments";
+import { toTitleCase } from "@/lib/toTitleCase";
 import {
     AppointmentFormInput,
     newAppointmentSchema,
 } from "@/lib/validators/newAppointmentSchema";
 import { unauthorized } from "next/navigation";
+import { Resend } from "resend";
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+/**
+ *
+ *
+ * In this action we're inserting appointment to the db,
+ * existing appointment will not apply and
+ * email the user if succesful, email will
+ * only send if (eg. email provided, email notification enabled).
+ */
 export default async function CreateAppointmentAction(
     prevState: any,
     data: AppointmentFormInput
@@ -20,7 +33,6 @@ export default async function CreateAppointmentAction(
 
     try {
         const { petIds, ...appintmentData } = parsed.data;
-
         const result = await saveAppointmentToDb({
             petIds: petIds,
             appointmentData: appintmentData,
@@ -28,10 +40,34 @@ export default async function CreateAppointmentAction(
         if (!result || !result.id) {
             return { succesful: false };
         }
+        const email = session.user.email;
+        if (!email) return { succesful: true, emailed: false };
 
-        // might add email notification here .
+        // todo: fetch the name of the pets for email
+        const { error } = await resend.emails.send({
+            from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
+            to: [email],
+            subject: `${toTitleCase(result.type)} Appointment`,
+            react: AppointmentSaved({
+                id: result.id,
+                type: result.type,
+                name: toTitleCase(session.user.firstName),
+                pets: "(Todo : add pet)",
+            }),
+        });
+        if (error) {
+            return {
+                succesful: true,
+                appointmentId: result.id,
+                emailed: false,
+                debug: {
+                    code: error.name,
+                    message: error.message,
+                },
+            };
+        }
 
-        return { succesful: true, appointmentId: result.id };
+        return { succesful: true, appointmentId: result.id, emailed: true };
     } catch (error: any) {
         const errorCode = error.code || "UNKNOWN_DB_ERR";
         const technicalMessage = error.message;
