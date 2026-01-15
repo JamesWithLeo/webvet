@@ -41,6 +41,7 @@ export default async function CreateAppointmentAction(
             return { succesful: false };
         }
         const email = session.user.email;
+        const name = session.user.name;
         if (!email) return { succesful: true, emailed: false };
 
         // todo: fetch the name of the pets for email
@@ -51,7 +52,7 @@ export default async function CreateAppointmentAction(
             react: AppointmentSaved({
                 id: result.id,
                 type: result.type,
-                name: toTitleCase(session.user.firstName),
+                name: name ? toTitleCase(name) : null,
                 pets: "(Todo : add pet)",
             }),
         });

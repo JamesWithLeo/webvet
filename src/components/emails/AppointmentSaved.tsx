@@ -26,7 +26,7 @@ export default function AppointmentSaved({
     type,
 }: {
     id: string;
-    name?: string | null;
+    name: string | null;
     pets: string;
     type: string;
 }) {
