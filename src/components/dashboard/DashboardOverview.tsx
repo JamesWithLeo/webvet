@@ -12,7 +12,7 @@ import { IconCat, IconCalendarCheck, IconCalendarX } from "@tabler/icons-react";
 
 export default function DashboardOverview() {
     return (
-        <Card withBorder h={"100%"} bg={"gray.1"} p={0}>
+        <div className="h-full w-full relative">
             <BackgroundImage src="/overviewbg2.jpg" h={"100%"} p={"md"}>
                 <Stack h={"100%"} align="start" justify="start">
                     <h1 className="text-sm text-white">Overview</h1>
@@ -60,6 +60,6 @@ export default function DashboardOverview() {
                     </Group>
                 </Stack>
             </BackgroundImage>
-        </Card>
+        </div>
     );
 }

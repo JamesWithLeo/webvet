@@ -30,9 +30,11 @@ export default async function Page() {
             }}
             slideGap={{ base: "xs", sm: "md" }}
         >
-            <CarouselSlide>
-                <TodaysAppointment data={nearestAppointment} />
-            </CarouselSlide>
+            {nearestAppointment && (
+                <CarouselSlide>
+                    <TodaysAppointment data={nearestAppointment} />
+                </CarouselSlide>
+            )}
             <CarouselSlide>
                 <DashboardOverview />
             </CarouselSlide>

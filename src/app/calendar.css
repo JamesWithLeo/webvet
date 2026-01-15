@@ -112,3 +112,12 @@
 .fc .fc-daygrid-day.fc-day-low {
     background-color: #ffffcc !important; /* Light Yellow */
 }
+
+/* event theming */
+/* .fc-event-time, */
+/* .fc-sticky, */
+.fc-past-event {
+    background-color: #99a1af;
+    color: #4a5565;
+    border-color: transparent;
+}

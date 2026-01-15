@@ -21,7 +21,7 @@ type Props = {
         event_datetime: string;
         type: AppointmentType;
         pets: { id: string; name: string; photoUrl: string | null }[];
-    } | null;
+    };
 };
 
 export default function TodaysAppointment({ data }: Props) {

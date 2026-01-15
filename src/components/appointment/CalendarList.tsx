@@ -3,14 +3,17 @@
 import FullCalendar from "@fullcalendar/react";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import dayMonthPlugin from "@fullcalendar/daygrid";
-import { DatesSetArg, EventClickArg } from "@fullcalendar/core/index.js";
+import {
+    DatesSetArg,
+    EventClickArg,
+    EventContentArg,
+} from "@fullcalendar/core/index.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import NewAppointmentButton from "../common/NewAppointmentButton";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { AppointmentPetMergeType } from "@/db/schema/appointments";
 import AppointmentDrawer from "./AppointmentDrawer";
 
 type Props = {
@@ -70,6 +73,14 @@ export default function CalendarList({ appointments }: Props) {
             setCurrentTitle(title);
         }
     };
+
+    const getEventClassnames = (arg: EventContentArg) => {
+        const event_datetime = arg.event.start;
+        if (event_datetime && event_datetime < new Date())
+            return "fc-past-event";
+        return "";
+    };
+
     useEffect(() => {
         const calendar = calendarRef.current?.getApi();
         if (!calendar) return;
@@ -77,7 +88,7 @@ export default function CalendarList({ appointments }: Props) {
     }, []);
     return (
         <>
-            <div className="justify-between items-center flex">
+            <div className="justify-between items-center flex ">
                 <label className="lg:text-2xl text-lg font-bold">
                     {currentTitle}
                 </label>
@@ -126,6 +137,7 @@ export default function CalendarList({ appointments }: Props) {
                 }))}
                 eventClick={onEventClick}
                 viewClassNames={"cursor-pointer"}
+                eventClassNames={getEventClassnames}
             />
             {selectedAppointment && (
                 <AppointmentDrawer
