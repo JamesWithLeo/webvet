@@ -5,12 +5,15 @@ import { and, gte, lte, eq } from "drizzle-orm";
 
 export async function GET(request: Request) {
     const authHeader = request.headers.get("authorization");
-    console.log("1. Full Auth Header:", authHeader);
-    console.log("2. CRON_SECRET length:", process.env.CRON_SECRET?.length);
-    console.log(
-        "3. Expected start:",
-        `Bearer ${process.env.CRON_SECRET?.substring(0, 3)}...`
-    );
+    console.log("Header received:", authHeader);
+    console.log("Secret expected:", process.env.CRON_SECRET);
+    // 2. Get the secret and trim it
+    const cronSecret = (process.env.CRON_SECRET || "").trim();
+    const expectedHeader = `Bearer ${cronSecret}`;
+
+    // 3. Log the lengths to catch "invisible" characters
+    console.log(`Received length: ${authHeader?.length}`);
+    console.log(`Expected length: ${expectedHeader.length}`);
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         return new Response("Unauthorized", { status: 401 });
     }
