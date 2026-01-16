@@ -7,7 +7,10 @@ on:
 jobs:
     check-expired:
         runs-on: ubuntu-latest
+        env:
+            CRON_SECRET: ${{ secrets.CRON_SECRET }}
         steps:
             - name: Check Expired Appointment
               run: |
-                  curl -L -X GET "https://josephmary.me/api/cron/alert" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+                  curl -L -X GET "https://www.josephmary.me/api/cron/alert" \
+                  -H "Authorization: Bearer $CRON_SECRET"
