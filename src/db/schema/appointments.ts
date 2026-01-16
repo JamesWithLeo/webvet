@@ -44,6 +44,9 @@ export const appointments = pgTable("appointments", {
     }).notNull(),
     type: appointmentType("type").notNull(),
     created_at: timestamp("created_at").defaultNow().notNull(),
+
+    expiredNotication: boolean().default(false),
+    incomingNotification: boolean().default(false),
 });
 
 export const appointmentsToPets = pgTable("appointments_to_pets", {
@@ -55,7 +58,6 @@ export const appointmentsToPets = pgTable("appointments_to_pets", {
     petId: uuid("pet_id")
         .notNull()
         .references(() => pets.id, { onDelete: "cascade" }),
-    notified: boolean().default(false),
 });
 
 export type AppointmentTypeModel = InferSelectModel<typeof appointments>;

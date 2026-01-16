@@ -2,46 +2,48 @@ import { db } from "@/db";
 import { appointments, appointmentsToPets } from "@/db/schema/appointments";
 import { NextResponse } from "next/server";
 import { and, gte, lte, eq } from "drizzle-orm";
+import { pets } from "@/db/schema/pets";
+import { users } from "@/db/schema/users";
 
 export async function GET(request: Request) {
     const authHeader = request.headers.get("authorization");
-    console.log("Header received:", authHeader);
-    console.log("Secret expected:", process.env.CRON_SECRET);
-    // 2. Get the secret and trim it
-    const cronSecret = (process.env.CRON_SECRET || "").trim();
-    const expectedHeader = `Bearer ${cronSecret}`;
-
-    // 3. Log the lengths to catch "invisible" characters
-    console.log(`Received length: ${authHeader?.length}`);
-    console.log(`Expected length: ${expectedHeader.length}`);
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         return new Response("Unauthorized", { status: 401 });
     }
 
     try {
         const now = new Date();
-        const fiveMinutesLater = new Date(now.getTime() + 5 * 60000);
+        const isoNow = now.toISOString();
 
-        const startWindow = now.toISOString();
-        const endWindow = fiveMinutesLater.toISOString();
+        // Window for Incoming (Starts 30 mins from now)
+        const incomingTarget = new Date(
+            now.getTime() + 30 * 60000
+        ).toISOString();
+        const incomingBuffer = new Date(
+            now.getTime() + 32 * 60000
+        ).toISOString();
 
         const result = await db
             .select({
                 appointmentId: appointments.id,
                 title: appointments.title,
                 eventTime: appointments.event_datetime,
-                petId: appointmentsToPets.petId,
+                type: appointments.type,
             })
             .from(appointmentsToPets)
             .innerJoin(
                 appointments,
                 eq(appointmentsToPets.appointmentId, appointments.id)
             )
+            // Join the pets table to find out who the pet belongs to
+            .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            // Join the users table to get the owner's details
+            .innerJoin(users, eq(pets.ownerId, users.id))
             .where(
                 and(
-                    gte(appointments.event_datetime, startWindow),
-                    lte(appointments.event_datetime, endWindow),
-                    eq(appointmentsToPets.notified, false)
+                    gte(appointments.event_datetime, incomingTarget),
+                    lte(appointments.event_datetime, incomingBuffer),
+                    eq(appointments.expiredNotication, false)
                 )
             );
 
@@ -51,6 +53,7 @@ export async function GET(request: Request) {
                 message: "No pending notifications",
             });
         }
+        // todo: add push api here
 
         return NextResponse.json({
             success: true,
