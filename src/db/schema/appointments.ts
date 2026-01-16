@@ -1,4 +1,11 @@
-import { pgEnum, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+    pgEnum,
+    pgTable,
+    boolean,
+    timestamp,
+    uuid,
+    varchar,
+} from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
 
@@ -48,6 +55,7 @@ export const appointmentsToPets = pgTable("appointments_to_pets", {
     petId: uuid("pet_id")
         .notNull()
         .references(() => pets.id, { onDelete: "cascade" }),
+    notified: boolean().default(false),
 });
 
 export type AppointmentTypeModel = InferSelectModel<typeof appointments>;
