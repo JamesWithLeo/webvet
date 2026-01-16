@@ -10,5 +10,4 @@ jobs:
         steps:
             - name: Check Expired Appointment
               run: |
-                  curl -X GET "https://josephmary.me/api/cron/alert" \ 
-                  -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+                  curl -L -X GET "https://josephmary.me/api/cron/alert" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
