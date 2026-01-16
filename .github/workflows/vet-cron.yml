@@ -1,0 +1,14 @@
+name: Veterinary Appointment Cron
+on:
+    schedule:
+        - cron: "*/5 * * * *"
+    workflow_dispatch: # Allows you to run it manually for testing
+
+jobs:
+    check-expired:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Expired Appointment
+              run: |
+                  curl -X GET "https://josephmary.me/api/cron/alert" \ 
+                  -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

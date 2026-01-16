@@ -60,6 +60,7 @@
         "tailwind-merge": "^3.3.1",
         "uploadthing": "^7.7.4",
         "use-debounce": "^10.0.6",
+        "web-push": "^3.6.7",
         "ws": "^8.18.3",
         "xendit-node": "^7.0.0",
         "zod": "^4.1.12"
@@ -71,6 +72,7 @@
         "@types/nodemailer": "^7.0.4",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "@types/web-push": "^3.6.4",
         "@types/ws": "^8.18.1",
         "drizzle-kit": "^0.31.8",
         "eslint": "^9",

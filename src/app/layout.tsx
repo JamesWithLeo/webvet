@@ -41,7 +41,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" {...mantineHtmlProps} suppressHydrationWarning>
-            <head></head>
+            <head>
+                <meta name="apple-mobile-web-app-title" content="JMVC" />
+            </head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
