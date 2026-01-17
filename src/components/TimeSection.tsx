@@ -89,7 +89,7 @@ export default function TimeSection() {
     return (
         <section
             ref={timeSectionRef}
-            className="w-full flex bg-white justify-center py-10 items-center gap-4 "
+            className="w-full flex lg:flex-row flex-col bg-white justify-center py-10 items-center gap-4 "
         >
             <div
                 className="
@@ -105,7 +105,7 @@ export default function TimeSection() {
             "
             >
                 <div
-                    className=" w-96 rounded-md shadow-lg  dark:bg-[#262626] overflow-hidden  h-96"
+                    className="w-52 h-52 sm:h-72 sm:w-72 lg:w-96 rounded-md shadow-lg  dark:bg-[#262626] overflow-hidden  lg:h-96"
                     ref={imageContainer}
                 >
                     <Image
@@ -121,14 +121,14 @@ export default function TimeSection() {
                 </div>
             </div>
             <span className="text-nowrap">
-                <h1 className="text-5xl/tight mt-8 text-[#043343] font-bold">
+                <h1 className="lg:text-5xl/tight text-center sm:text-2xl lg:text-left mt-8 text-[#043343] font-bold">
                     We know your
-                    <i className="text-6xl text-blue-500">
+                    <i className="lg:text-6xl text-blue-500">
                         &apos;time is valuable&apos;
                     </i>
                     ,
                 </h1>
-                <h1 className="text-4xl/tight  text-[#043343] font-bold">
+                <h1 className="lg:text-4xl/tight  text-[#043343] sm:text-2xl font-bold">
                     and that scheduling pet care shouldn&apos;t be a chore.
                 </h1>
             </span>

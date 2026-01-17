@@ -49,6 +49,7 @@ export async function GET(request: Request) {
                 message: "No pending notifications",
             });
         }
+        // add enail here:
 
         return NextResponse.json({
             success: true,

@@ -28,6 +28,7 @@ import {
 } from "@tabler/icons-react";
 
 import EditProfileModal from "../user/EditProfileModal";
+import { signOut } from "next-auth/react";
 
 export default function ProfileCardGroup(user: {
     firstName?: string | null;
@@ -97,6 +98,9 @@ export default function ProfileCardGroup(user: {
                             <MenuItem
                                 c={"white"}
                                 bg={"red"}
+                                onClick={() => {
+                                    signOut({ callbackUrl: "/" });
+                                }}
                                 rightSection={
                                     <IconLogout size={16} stroke={1.5} />
                                 }
