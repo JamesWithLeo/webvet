@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Group, Button } from "@mantine/core";
 import { useGSAP } from "@gsap/react";
 import { useMediaQuery } from "@mantine/hooks";
+import { useRouter } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -50,6 +51,7 @@ export default function ProcessSection() {
     const transitionBlockRef = useRef<HTMLDivElement>(null);
     const mainProcessSectionRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery("(max-width: 64rem)");
+    const router = useRouter();
 
     const imageRefs = [imageRefOne, imageRefTwo, imageRefThree];
 
@@ -349,6 +351,7 @@ export default function ProcessSection() {
                             radius={"xl"}
                             color="white"
                             px={"xl"}
+                            onClick={() => router.push("/v1/pricing")}
                         >
                             Pricing
                         </Button>
