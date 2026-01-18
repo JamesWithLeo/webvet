@@ -360,6 +360,7 @@ export default function ProcessSection() {
                             radius={"xl"}
                             color="white"
                             px={"xl"}
+                            onClick={() => router.push("/v1/about")}
                         >
                             About
                         </Button>

@@ -20,31 +20,48 @@ export default async function LayoutContent({
             >
                 <div className="grid-cols-3 items-center grid w-full justify-between px-10 md:px-20 h-full">
                     <div className="w-full flex ">
-                        <LogoWithText />
+                        <LogoWithText
+                            href={session?.user ? "/v1/dashboard" : "/"}
+                        />
                     </div>
-                    {session?.user && (
+                    {session?.user ? (
                         <div className="w-full  hidden lg:flex justify-center">
                             <Link
                                 href="/v1/dashboard"
-                                className="p-4 text-sm hover:bg-gray-50"
+                                className=" hover:bg-gray-200 rounded text-sm p-4"
                             >
                                 Home
                             </Link>
                             <Link
                                 href="/v1/pets"
-                                className=" hover:bg-gray-100 text-sm p-4"
+                                className=" hover:bg-gray-200 rounded text-sm p-4"
                             >
                                 Pets
                             </Link>
                             <Link
                                 href="/v1/appointments"
-                                className=" hover:bg-gray-100 text-sm p-4"
+                                className=" hover:bg-gray-200 rounded text-sm p-4"
                             >
                                 Appointments
                             </Link>
                             <Link
-                                href="/v1/Pricing"
-                                className=" hover:bg-gray-100 text-sm p-4"
+                                href="/v1/pricing"
+                                className=" hover:bg-gray-200 rounded text-sm p-4"
+                            >
+                                Pricing
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="w-full  hidden lg:flex justify-center">
+                            <Link
+                                href="/v1/about"
+                                className=" hover:bg-gray-200 rounded text-sm p-4"
+                            >
+                                About
+                            </Link>
+                            <Link
+                                href="/v1/pricing"
+                                className=" hover:bg-gray-200 rounded text-sm p-4"
                             >
                                 Pricing
                             </Link>
@@ -53,17 +70,15 @@ export default async function LayoutContent({
 
                     <div
                         className={`justify-end col-span-2 
-                         ${session?.user ? " lg:col-span-1 " : ""}
+                         ${session?.user ? " lg:col-span-1 " : " lg:col-span-1"}
                             items-center gap-2 flex`}
                     >
-                        {session?.user && (
-                            <>
-                                <div className="lg:hidden h-full w-full flex justify-end gap-2">
-                                    <HeaderBurger />
-                                    <Divider orientation="vertical" />
-                                </div>
-                            </>
-                        )}
+                        <>
+                            <div className="lg:hidden h-full w-full flex justify-end gap-2">
+                                <HeaderBurger auth={Boolean(session?.user)} />
+                                <Divider orientation="vertical" />
+                            </div>
+                        </>
                         <UserAvatar photoUrl={session?.user.photoUrl} />
                     </div>
                 </div>

@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
         ],
         qualities: [50, 75, 100],
     },
+    experimental: {
+        authInterrupts: true,
+    },
 };
 
 export default nextConfig;
