@@ -45,8 +45,10 @@ declare module "next-auth/jwt" {
         gender: (typeof userGenderValue)[number];
         dateOfBirth?: string | null;
         photoUrl?: string | null;
-        accessToken?: string | null;
         image: string | null;
+        accessToken?: string | null;
+        refreshToken?: string | null;
+        expiresAt: number;
     }
 }
 

@@ -13,6 +13,7 @@ import {
 } from "@mantine/core";
 import { isPast } from "date-fns";
 import { useRouter } from "next/navigation";
+import { monthAbbreviations } from "@/db/schema/appointments";
 
 const DogSvg = () => {
     return (
@@ -65,20 +66,6 @@ const CatSvg = () => {
         </svg>
     );
 };
-const monthAbbreviations = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-];
 export default function AppointmentCard({
     name,
     service,

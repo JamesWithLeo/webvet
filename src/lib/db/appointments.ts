@@ -159,11 +159,45 @@ export const getNearestAppointment = async ({ id }: { id: string }) => {
         });
 };
 
-export const getAppointment = async (petId: string) => {
+export const getAppointmentsByPet = async (petId: string) => {
     return await db
         .select({ ...getTableColumns(appointments) })
         .from(appointments)
         .innerJoin(pets, eq(pets.id, petId))
         .orderBy(desc(appointments.event_datetime));
     // .groupBy(pets.id);
+};
+
+export const getAppointment = async ({
+    appointmentId,
+    ownerId,
+}: {
+    appointmentId: string;
+    ownerId: string;
+}) => {
+    return await db
+        .select({
+            ...getTableColumns(appointments),
+
+            pets: sql<{ id: string; name: string; photoUrl: string | null }[]>`
+      json_agg(
+        json_build_object(
+          'id', ${pets.id}, 
+          'name', ${pets.name}, 
+          'photoUrl', ${pets.photoUrl}
+        )
+      )`,
+        })
+        .from(appointments)
+        .innerJoin(
+            appointmentsToPets,
+            eq(appointmentsToPets.appointmentId, appointmentId)
+        )
+        .innerJoin(pets, eq(pets.ownerId, ownerId))
+        .where(
+            and(eq(appointments.id, appointmentId), eq(pets.ownerId, ownerId))
+        )
+        .groupBy(appointments.id)
+        .limit(1)
+        .then((v) => v[0]);
 };

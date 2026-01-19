@@ -12,7 +12,6 @@ import Resend from "next-auth/providers/resend";
 import { render } from "@react-email/render";
 import MagicLinkEmail from "./components/emails/MagicLinkEmail";
 import { getUserById } from "./lib/db/users";
-import { toTitleCase } from "./lib/toTitleCase";
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -30,6 +29,8 @@ export const authConfig = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
             authorization: {
                 params: {
+                    scope: "openid email profile https://www.googleapis.com/auth/calendar.events.owned",
+                    access_type: "offline", // Essential to get a refresh_token
                     prompt: "consent select_account",
                 },
             },
@@ -89,7 +90,7 @@ export const authConfig = {
             return baseUrl;
         },
 
-        async jwt({ token, user, trigger, session }) {
+        async jwt({ token, user, account, trigger, session }) {
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
@@ -101,6 +102,11 @@ export const authConfig = {
                 token.emailVerified = user.emailVerified;
                 token.photoUrl = user.photoUrl;
                 token.image = user.image;
+                token.accessToken = account?.access_token;
+                token.refreshToken = account?.refresh_token;
+                token.expiresAt =
+                    account?.expires_at ??
+                    Date.now() / 1000 + (account?.expires_in || 3600);
             }
             if (trigger === "update" && session) {
                 const [dbUser] = await getUserById(token.id);
@@ -114,7 +120,11 @@ export const authConfig = {
                 }
                 return token;
             }
-            return token;
+            if (Date.now() < (token.expiresAt as number) * 1000) {
+                return token;
+            }
+
+            return await refreshAccessToken(token);
         },
 
         async session({
@@ -137,6 +147,7 @@ export const authConfig = {
                 session.user.emailVerified = token.emailVerified;
                 session.user.photoUrl = token.photoUrl;
                 session.user.image = token.image;
+                session.user.accessToken = token.accessToken as string;
             }
             return session;
         },

@@ -25,7 +25,6 @@ type Props = {
 };
 
 export default function TodaysAppointment({ data }: Props) {
-    console.log(data);
     const router = useRouter();
     return (
         <div

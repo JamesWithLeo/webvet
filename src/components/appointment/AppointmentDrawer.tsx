@@ -11,7 +11,6 @@ import {
     Group,
     Stack,
     Text,
-    ThemeIcon,
     Tooltip,
 } from "@mantine/core";
 import {
@@ -23,8 +22,9 @@ import {
 } from "@tabler/icons-react";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useMediaQuery } from "@mantine/hooks";
-import { AppointmentPetMergeType } from "@/db/schema/appointments";
 import Link from "next/link";
+import DetailRow from "../common/DetailRow";
+
 type Props = {
     opened: boolean;
     close: () => void;
@@ -40,6 +40,7 @@ type Props = {
         }[];
     };
 };
+
 export default function AppointmentDrawer({
     opened,
     close,
@@ -96,9 +97,7 @@ export default function AppointmentDrawer({
                             </Avatar.Group>
                             <Box>
                                 <Text size="xl" fw={700}>
-                                    {toTitleCase(
-                                        title ?? `${type} for ${name}`
-                                    )}
+                                    {toTitleCase(title ?? `${type}`)}
                                 </Text>
                                 <Text size="xs" c={"dimmed"}>
                                     Appointment ID: <br />
@@ -153,18 +152,13 @@ export default function AppointmentDrawer({
                         <Divider w={"100%"} />
 
                         <Stack gap="lg">
-                            {/* <DetailRow
-                        icon={<IconTag size={18} />}
-                        label="Purpose / Title"
-                        value={title || "No title provided"}
-                    /> */}
                             <DetailRow
-                                icon={<IconCalendar size={18} />}
+                                icon={<IconTag size={18} />}
                                 label="Service Type"
                                 value={toTitleCase(type)}
                             />
                             <DetailRow
-                                icon={<IconClock size={18} />}
+                                icon={<IconCalendar size={18} />}
                                 label="Scheduled For"
                                 value={new Date(event_datetime).toString()}
                             />
@@ -197,31 +191,5 @@ export default function AppointmentDrawer({
                 </Drawer.Body>
             </Drawer.Content>
         </Drawer.Root>
-    );
-}
-
-function DetailRow({
-    icon,
-    label,
-    value,
-}: {
-    icon: React.ReactNode;
-    label: string;
-    value: string;
-}) {
-    return (
-        <Group wrap="nowrap" align="flex-start">
-            <ThemeIcon variant="light" color="gray" size="md">
-                {icon}
-            </ThemeIcon>
-            <Box>
-                <Text size="xs" c="dimmed" lh={1.2}>
-                    {label}
-                </Text>
-                <Text size="sm" fw={500}>
-                    {value}
-                </Text>
-            </Box>
-        </Group>
     );
 }

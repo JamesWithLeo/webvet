@@ -6,7 +6,7 @@ import {
     uuid,
     varchar,
 } from "drizzle-orm/pg-core";
-import { pets } from "./pets";
+import { pets, PetTypeModel } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
 
 export const appointmentTypeValues = [
@@ -34,6 +34,30 @@ export type AppointmentPetMergeType = {
     title: string | null;
     type: string;
 };
+export type JoinedAppointmentType = {
+    id: string;
+    title: string | null;
+    event_datetime: string;
+    type: AppointmentType;
+    created_at: Date;
+    expiredNotication: boolean;
+    incomingNotification: boolean;
+    pets: { id: string; name: string; photoUrl: string | null }[];
+};
+export const monthAbbreviations = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+];
 
 export const appointments = pgTable("appointments", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -45,8 +69,8 @@ export const appointments = pgTable("appointments", {
     type: appointmentType("type").notNull(),
     created_at: timestamp("created_at").defaultNow().notNull(),
 
-    expiredNotication: boolean().default(false),
-    incomingNotification: boolean().default(false),
+    expiredNotication: boolean().default(false).notNull(),
+    incomingNotification: boolean().default(false).notNull(),
 });
 
 export const appointmentsToPets = pgTable("appointments_to_pets", {
