@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import BottomPattern from "@/components/common/BottomPattern";
 import PetWrapper from "@/components/pet/PetWrapper";
 import { getAllPets } from "@/lib/db/pets";
 import { redirect } from "next/navigation";
@@ -12,6 +13,7 @@ export default async function Page() {
             <div className="min-h-screen w-full relative md:px-16 px-4 py-4 flex gap-8 flex-col">
                 <PetWrapper pets={pets} />
             </div>
+            <BottomPattern />
         </div>
     );
 }

@@ -7,7 +7,6 @@ import {
     Stack,
     Title,
     Group,
-    Checkbox,
     Text,
     Menu,
     Center,
@@ -28,6 +27,7 @@ import CatPlaceholder from "../common/CatPlaceholder";
 import { LifeStatus, PetGender } from "@/db/schema/pets";
 import { toTitleCase } from "@/lib/toTitleCase";
 import calculatePetAge from "@/lib/calculatePetAge";
+import { useRouter } from "next/navigation";
 
 type Props = {
     // Pet props
@@ -40,8 +40,10 @@ type Props = {
     species: string;
     life: LifeStatus;
     breedSpecification: string;
+    id: string;
 };
 export default function PetCard({
+    id,
     name,
     breed,
     heart,
@@ -52,6 +54,7 @@ export default function PetCard({
     breedSpecification,
 }: Props) {
     const { years } = calculatePetAge(dateOfBirth);
+    const router = useRouter();
 
     return (
         <Card withBorder className="group w-96 h-125" radius={"md"}>
@@ -94,6 +97,9 @@ export default function PetCard({
                                         leftSection={
                                             <IconCat size={20} stroke={1.5} />
                                         }
+                                        onClick={() => {
+                                            router.push(`/v1/pets/${id}`);
+                                        }}
                                     >
                                         Profile
                                     </Menu.Item>

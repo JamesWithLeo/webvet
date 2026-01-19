@@ -5,7 +5,16 @@ import {
     AppointmentType,
 } from "@/db/schema/appointments";
 import { pets } from "@/db/schema/pets";
-import { and, eq, gt, inArray, sql } from "drizzle-orm";
+import {
+    and,
+    asc,
+    desc,
+    eq,
+    getTableColumns,
+    gt,
+    inArray,
+    sql,
+} from "drizzle-orm";
 import { PgTransaction } from "drizzle-orm/pg-core";
 import { toTitleCase } from "../toTitleCase";
 
@@ -148,4 +157,13 @@ export const getNearestAppointment = async ({ id }: { id: string }) => {
             }
             return null;
         });
+};
+
+export const getAppointment = async (petId: string) => {
+    return await db
+        .select({ ...getTableColumns(appointments) })
+        .from(appointments)
+        .innerJoin(pets, eq(pets.id, petId))
+        .orderBy(desc(appointments.event_datetime));
+    // .groupBy(pets.id);
 };

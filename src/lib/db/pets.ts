@@ -71,3 +71,12 @@ export const getAllPetsIdName = async (id: string) => {
         .from(pets)
         .where(eq(pets.ownerId, id));
 };
+
+export const getPet = async (petId: string, ownerId: string) => {
+    return await db
+        .select()
+        .from(pets)
+        .where(and(eq(pets.id, petId), eq(pets.ownerId, ownerId)))
+        .limit(1)
+        .then((v) => v[0]);
+};

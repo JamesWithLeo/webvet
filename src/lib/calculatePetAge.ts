@@ -6,18 +6,25 @@ export default function calculatePetAge(dateOfBirth: Date | string) {
     let months = today.getMonth() - birthDate.getMonth();
     let days = today.getDate() - birthDate.getDate();
 
-    // Adjust months and years if the current day/month is before the birth day/month
+    // 1. Adjust for days
     if (days < 0) {
         months -= 1;
-        // Get the last day of the previous month
         const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
         days += lastMonth.getDate();
     }
 
+    // 2. Adjust for months
     if (months < 0) {
         years -= 1;
         months += 12;
     }
 
-    return { years, months, days };
+    // 3. Apply your conditional null logic
+    const result = {
+        years: years > 0 ? years : null,
+        months: years > 0 || months > 0 ? months : null,
+        days: days,
+    };
+
+    return result;
 }

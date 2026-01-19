@@ -109,11 +109,13 @@ export default function PetWrapper({ pets }: Props) {
             );
         } else if (sortState.sortBy === "AGE") {
             return pets.toSorted((a, b) => {
-                const petOneAge = calculatePetAge(a.dateOfBirth).years;
-                const petTwoAge = calculatePetAge(b.dateOfBirth).years;
+                const petOneAge = calculatePetAge(a.dateOfBirth);
+                const petTwoAge = calculatePetAge(b.dateOfBirth);
                 return sortState.order === "ASC"
-                    ? petTwoAge - petOneAge
-                    : petOneAge - petTwoAge;
+                    ? (petTwoAge.years ?? petTwoAge.months ?? 0) -
+                          (petOneAge.years ?? petOneAge.months ?? 0)
+                    : (petOneAge.years ?? petOneAge.months ?? 0) -
+                          (petTwoAge.years ?? petTwoAge.months ?? 0);
             });
         } else {
             return pets.toSorted((a, b) =>
@@ -155,6 +157,7 @@ export default function PetWrapper({ pets }: Props) {
                                 dateOfBirth={p.dateOfBirth}
                                 life={p.life}
                                 species={p.species}
+                                id={p.id}
                             />
                         );
                 })}

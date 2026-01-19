@@ -96,7 +96,7 @@ export const pets = pgTable(
         isLike: boolean().default(false),
         isMissing: boolean().default(false),
 
-        photoUrl: varchar("photo_url", { length: 255 }),
+        photoUrl: varchar("photo_url", { length: 255 }).notNull(),
         reproductiveStatus: reproductiveStatusEnum("reproductive_status")
             .notNull()
             .default("UNKNOWN"),
