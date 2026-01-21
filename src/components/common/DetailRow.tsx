@@ -15,10 +15,10 @@ export default function DetailRow({
                 {icon}
             </ThemeIcon>
             <Box>
-                <Text size="xs" c="dimmed" lh={1.2}>
+                <Text size="sm" c="dimmed" lh={1.2}>
                     {label}
                 </Text>
-                <Text size="sm" fw={500}>
+                <Text size="md" fw={500}>
                     {value}
                 </Text>
             </Box>

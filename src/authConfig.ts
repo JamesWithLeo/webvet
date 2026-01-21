@@ -12,6 +12,7 @@ import Resend from "next-auth/providers/resend";
 import { render } from "@react-email/render";
 import MagicLinkEmail from "./components/emails/MagicLinkEmail";
 import { getUserById } from "./lib/db/users";
+import { refreshAccessToken } from "./lib/refreshAccessToken";
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -120,6 +121,7 @@ export const authConfig = {
                 }
                 return token;
             }
+
             if (Date.now() < (token.expiresAt as number) * 1000) {
                 return token;
             }

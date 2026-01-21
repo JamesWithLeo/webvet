@@ -160,12 +160,16 @@ export const getNearestAppointment = async ({ id }: { id: string }) => {
 };
 
 export const getAppointmentsByPet = async (petId: string) => {
-    return await db
-        .select({ ...getTableColumns(appointments) })
-        .from(appointments)
-        .innerJoin(pets, eq(pets.id, petId))
-        .orderBy(desc(appointments.event_datetime));
-    // .groupBy(pets.id);
+    try {
+        return await db
+            .select({ ...getTableColumns(appointments) })
+            .from(appointments)
+            .innerJoin(pets, eq(pets.id, petId))
+            .orderBy(desc(appointments.event_datetime));
+        // .groupBy(pets.id);
+    } catch (error) {
+        return null;
+    }
 };
 
 export const getAppointment = async ({
@@ -175,29 +179,47 @@ export const getAppointment = async ({
     appointmentId: string;
     ownerId: string;
 }) => {
-    return await db
-        .select({
-            ...getTableColumns(appointments),
+    try {
+        return await db
+            .select({
+                ...getTableColumns(appointments),
 
-            pets: sql<{ id: string; name: string; photoUrl: string | null }[]>`
-      json_agg(
-        json_build_object(
-          'id', ${pets.id}, 
-          'name', ${pets.name}, 
-          'photoUrl', ${pets.photoUrl}
-        )
-      )`,
-        })
-        .from(appointments)
-        .innerJoin(
-            appointmentsToPets,
-            eq(appointmentsToPets.appointmentId, appointmentId)
-        )
-        .innerJoin(pets, eq(pets.ownerId, ownerId))
-        .where(
-            and(eq(appointments.id, appointmentId), eq(pets.ownerId, ownerId))
-        )
-        .groupBy(appointments.id)
-        .limit(1)
-        .then((v) => v[0]);
+                pets: sql<
+                    { id: string; name: string; photoUrl: string | null }[]
+                >`
+                    COALESCE(
+                        json_agg(
+                            json_build_object(
+                                'id', ${pets.id}, 
+                                'name', ${pets.name}, 
+                                'photoUrl', ${pets.photoUrl}
+                            )
+                        ) FILTER (WHERE ${pets.id} IS NOT NULL), 
+                        '[]'
+                    )`.as("pets"),
+            })
+            .from(appointments)
+            .innerJoin(
+                appointmentsToPets,
+                eq(appointments.id, appointmentsToPets.appointmentId)
+            )
+            .innerJoin(
+                pets,
+                and(
+                    eq(appointmentsToPets.petId, pets.id),
+                    eq(pets.ownerId, ownerId)
+                )
+            )
+            .where(
+                and(
+                    eq(appointments.id, appointmentId),
+                    eq(pets.ownerId, ownerId)
+                )
+            )
+            .groupBy(appointments.id)
+            .limit(1)
+            .then((v) => v[0]);
+    } catch (error) {
+        return null;
+    }
 };

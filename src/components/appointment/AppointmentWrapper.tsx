@@ -11,6 +11,7 @@ import {
     Avatar,
     AvatarGroup,
     Button,
+    Stack,
     Text,
     Title,
     Tooltip,
@@ -152,6 +153,25 @@ export default function AppointmentWrapper({
                     <Text c={"dimmed"} size="xs">
                         {id}
                     </Text>
+                </div>
+                <DetailRow
+                    label="Service Type"
+                    value={toTitleCase(type)}
+                    icon={<IconTag size={18} />}
+                />
+                <DetailRow
+                    icon={<IconCalendar size={18} />}
+                    label={expired ? "Expired on" : "Scheduled on"}
+                    value={new Date(event_datetime).toString()}
+                />
+                <DetailRow
+                    icon={<IconCurrencyPeso size={18} />}
+                    label="Amount"
+                    value={"1000.00"}
+                />
+
+                <div>
+                    <Text>Please bring your lovely pet(s): {name}</Text>
                     <AvatarGroup mt={"sm"}>
                         {pets.map((v) => (
                             <Tooltip
@@ -173,22 +193,6 @@ export default function AppointmentWrapper({
                         ))}
                     </AvatarGroup>
                 </div>
-                <DetailRow
-                    label="Service Type"
-                    value={toTitleCase(type)}
-                    icon={<IconTag size={18} />}
-                />
-                <DetailRow
-                    icon={<IconCalendar size={18} />}
-                    label={expired ? "Expired on" : "Scheduled on"}
-                    value={new Date(event_datetime).toString()}
-                />
-                <DetailRow
-                    icon={<IconCurrencyPeso size={18} />}
-                    label="Amount"
-                    value={"1000.00"}
-                />
-
                 <Text c={"red"} size="sm">
                     Note: Please arrived on time or 5 minutes early
                 </Text>

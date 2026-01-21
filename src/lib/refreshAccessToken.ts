@@ -1,4 +1,4 @@
-async function refreshAccessToken(token: any) {
+export async function refreshAccessToken(token: any) {
     try {
         const url = "https://oauth2.googleapis.com/token";
         const response = await fetch(url, {
