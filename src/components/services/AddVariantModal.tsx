@@ -2,7 +2,7 @@ import CreateService from "@/actions/createService";
 import { appointmentTypeValues } from "@/db/schema/appointments";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
-    serviceVariantInput,
+    serviceVariantFormInput,
     ServiceVariantFormOutput,
     serviceVariantSchema,
 } from "@/lib/validators/serviceVariantSchema";
@@ -33,7 +33,7 @@ export default function AddVariantModal({
     close: () => void;
 }) {
     const createVariant = CreateVariant.bind(null);
-    const formInitialValues: serviceVariantInput = {
+    const formInitialValues: serviceVariantFormInput = {
         variant: "",
         price: "",
         isAvailable: true,
@@ -43,7 +43,7 @@ export default function AddVariantModal({
         succesful: false,
     });
 
-    const form = useForm<serviceVariantInput>({
+    const form = useForm<serviceVariantFormInput>({
         mode: "uncontrolled",
         initialValues: formInitialValues,
         validate: zod4Resolver(serviceVariantSchema),
@@ -51,9 +51,9 @@ export default function AddVariantModal({
         validateInputOnChange: true,
     });
 
-    const handleSubmit = (value: serviceVariantInput) => {
+    const handleSubmit = (value: serviceVariantFormInput) => {
         startTransition(() => {
-            formAction({ ...value, serviceId: serviceId });
+            formAction({ serviceId: serviceId, variant: value });
         });
     };
     useEffect(() => {

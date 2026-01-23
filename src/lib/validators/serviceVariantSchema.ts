@@ -18,7 +18,7 @@ export const serviceVariantSchema = z.object({
     isAvailable: z.boolean().default(true),
 });
 
-export type serviceVariantInput = z.infer<typeof serviceVariantSchema>;
+export type serviceVariantFormInput = z.input<typeof serviceVariantSchema>;
 
 export const serviceVariantDbSchema = serviceVariantSchema.extend({
     serviceId: z.string().nonempty(),
