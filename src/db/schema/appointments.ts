@@ -6,7 +6,7 @@ import {
     uuid,
     varchar,
 } from "drizzle-orm/pg-core";
-import { pets, PetTypeModel } from "./pets";
+import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
 
 export const appointmentTypeValues = [

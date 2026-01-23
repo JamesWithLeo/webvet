@@ -1,7 +1,7 @@
 import { OWNERSHIP_STATUS, petGenderValues } from "@/db/schema/pets";
 import { z } from "zod/v4";
 
-export const petCreateSchema = z.object({
+export const createPetSchema = z.object({
     name: z
         .string()
         .regex(
@@ -57,8 +57,6 @@ export const petCreateSchema = z.object({
         ),
     allergies: z
         .string()
-        .regex(/^[a-zA-Z0-9\s,]*$/, "Only letters, numbers, and commas allowed")
-        // .array()
         .max(200, "Allergies description is too long.")
         .toLowerCase()
         .transform(
@@ -77,9 +75,9 @@ export const petCreateSchema = z.object({
 });
 
 // Use this for your React Hook Form / UI State
-export type PetFormInput = z.input<typeof petCreateSchema>;
+export type PetFormInput = z.input<typeof createPetSchema>;
 // Result: { name: string; diet: string; }
 
 // Use this for your Server Action / Drizzle Insert
-export type PetFormOutput = z.output<typeof petCreateSchema>;
+export type PetFormOutput = z.output<typeof createPetSchema>;
 // Result: { name: string; diet: string[]; }

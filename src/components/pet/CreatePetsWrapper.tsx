@@ -42,7 +42,7 @@ import { OWNERSHIP_STATUS, petGenderValues } from "@/db/schema/pets";
 import ProfileDropzone from "../common/ProfileDropzone";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { petCreateSchema, PetFormInput } from "@/lib/validators/petsZodSchema";
+import { createPetSchema, PetFormInput } from "@/lib/validators/petsZodSchema";
 import { useUploadThing } from "@/lib/uploadThing";
 import { notifications } from "@mantine/notifications";
 import { toTitleCase } from "@/lib/toTitleCase";
@@ -97,7 +97,7 @@ export default function CreatePetsWrapper({
     const form = useForm<PetFormInput>({
         mode: "uncontrolled",
         initialValues: formInitialValues,
-        validate: zod4Resolver(petCreateSchema),
+        validate: zod4Resolver(createPetSchema),
         validateInputOnBlur: true,
         validateInputOnChange: true,
     });

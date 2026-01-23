@@ -50,6 +50,14 @@ export default async function LayoutContent({
                             >
                                 Pricing
                             </Link>
+                            {session.user.role === "admin" && (
+                                <Link
+                                    href="/v1/admin"
+                                    className=" hover:bg-gray-200 rounded text-sm p-4"
+                                >
+                                    Admin
+                                </Link>
+                            )}
                         </div>
                     ) : (
                         <div className="w-full  hidden lg:flex justify-center">

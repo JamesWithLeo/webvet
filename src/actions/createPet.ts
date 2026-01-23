@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { PetTypeModel } from "@/db/schema/pets";
 import { checkExistingPets, savePetsToDb } from "@/lib/db/pets";
 import { DeleteUTFile } from "@/lib/uploadthing-util";
-import { petCreateSchema, PetFormInput } from "@/lib/validators/petsZodSchema";
+import { createPetSchema, PetFormInput } from "@/lib/validators/petsZodSchema";
 import { unauthorized } from "next/navigation";
 
 export type ActionResponse = {
@@ -35,7 +35,7 @@ export default async function CreatePet(
         data.ownerId = undefined;
     }
 
-    const parsed = petCreateSchema.safeParse(data);
+    const parsed = createPetSchema.safeParse(data);
 
     if (!parsed.success) {
         await DeleteUTFile(data.photoUrlKey);

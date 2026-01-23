@@ -9,11 +9,21 @@ import {
     IconUser,
     IconChevronLeft,
     IconListSearch,
+    IconCategory2,
 } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "../common/LogoutButton";
 import { Indicator, UnstyledButton } from "@mantine/core";
+import { Baskervville_SC } from "next/font/google";
+import { LogoSvg } from "../common/LogoSvg";
+
+const baskerville = Baskervville_SC({
+    subsets: ["latin"],
+    display: "swap",
+    style: ["normal"],
+    weight: ["500"],
+});
 
 const data = [
     {
@@ -37,6 +47,11 @@ const data = [
         icon: <IconUser stroke={1.5} />,
     },
     { link: "/v1/admin/pets", label: "Pets", icon: <IconCat stroke={1.5} /> },
+    {
+        link: "/v1/admin/services",
+        label: "Services",
+        icon: <IconCategory2 stroke={1.5} />,
+    },
 ];
 const NavLink = ({
     isActive,
@@ -149,18 +164,19 @@ export default function AdminNav() {
     return (
         <nav
             className={`
-                flex flex-col border-r     border-gray-200 h-screen relative 
+                flex flex-col border-r  z-10 bg-white    border-gray-200 h-screen relative 
                 ${isCollapsed ? " w-20 p-2 " : " min-w-sm p-4 "}
                 transition-all duration-300 ease-in-out
             `}
         >
             <div
-                className={`w-full flex items-center justify-start  gap-6 border-b   ${isCollapsed ? " p-4 " : " p-4 "}`}
+                className={`
+                    flex gap-2 md:gap-4  text-[#14678f] text-xl lg:text-2xl w-full  items-center justify-start  border-b   ${isCollapsed ? " p-4 " : " p-4 "}`}
             >
-                <Logo size="md" />
+                <LogoSvg className="text-xl fill-current lg:max-h-8 h-full max-w-7 max-h-7 lg:max-w-8 w-full  min-w-10" />
                 {!isCollapsed && (
-                    <h1 className="font-bold text-2xl text-[#14678f] dark:text-[#50bce9]">
-                        JOSEPH & MARY
+                    <h1 className={`${baskerville.className} text-nowrap `}>
+                        Joseph & Mary
                     </h1>
                 )}
             </div>
