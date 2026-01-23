@@ -1,5 +1,12 @@
 "use client";
 
+import {
+    prices,
+    ServiceMergePriceType,
+    ServicePriceTypeModel,
+    servicePriceVariant,
+    ServiceTypeModel,
+} from "@/db/schema/services";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { Carousel, CarouselSlide } from "@mantine/carousel";
 import {
@@ -11,20 +18,29 @@ import {
     Title,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
 
-type carouselDataType = {
-    title: string;
-    reminder: string;
-    price?: number;
-    priceLabel: string;
-    inclusion: string[];
-    description: string;
-    pricesBySize?: {
-        small: number;
-        medium: number;
-        large: number;
-    };
+const getPriceDisplay = (prices: ServicePriceTypeModel[]) => {
+    if (prices.length === 0) return "Inquire for pricing";
+
+    // Check if it's a Flat Rate
+    const flatPrice = prices.find((p) => p.variant === "FLAT");
+    if (flatPrice) {
+        return `₱${flatPrice.price}`;
+    }
+
+    // Handle tiered pricing (Small/Medium/Large)
+    const numericPrices = prices.map((p) => parseFloat(p.price));
+    const min = Math.min(...numericPrices);
+    const max = Math.max(...numericPrices);
+
+    return `₱${min} - ₱${max}`;
+};
+const isFLat = (prices: ServicePriceTypeModel[]) => {
+    const flatPrice = prices.find((p) => p.variant === "FLAT");
+    if (flatPrice) return true;
+    else false;
 };
 
 export default function PricingCarousel({
@@ -33,9 +49,10 @@ export default function PricingCarousel({
     icon,
 }: {
     title: string;
-    carouselData: carouselDataType[];
+    carouselData: ServiceMergePriceType[];
     icon: ReactNode;
 }) {
+    const router = useRouter();
     const isMobile = useMediaQuery("(max-width: 64rem)");
     return (
         <div className="flex flex-col  gap-4 md:gap-8">
@@ -78,29 +95,27 @@ export default function PricingCarousel({
                                 {toTitleCase(v.title)}
                             </Text>
                             <Text
-                                mb={v.pricesBySize ?? "md"}
+                                mb={v.prices.length > 0 ? "md" : undefined}
                                 fz={isMobile ? "h5" : "h4"}
                                 fw={500}
                                 style={{ userSelect: "none" }}
                             >
-                                {v.priceLabel}
+                                {getPriceDisplay(v.prices)}
                             </Text>
-                            {v.pricesBySize && (
+                            {!isFLat(v.prices) && v.prices.length > 0 && (
                                 <NativeSelect
                                     mb="md"
                                     size="sm"
                                     maw={"150px"}
                                     radius={"xl"}
-                                    data={Object.entries(v.pricesBySize).map(
-                                        (p) => ({
-                                            label: `${toTitleCase(p[0])}-${p[1]}`,
-                                            value: [1].toString(),
-                                        })
-                                    )}
+                                    data={v.prices.map((p) => ({
+                                        label: `${toTitleCase(p.variant)}-${p.price}`,
+                                        value: p.id,
+                                    }))}
                                 />
                             )}
-                            {v.inclusion
-                                ? v.inclusion.map((i, inclusionIndex) => (
+                            {v.inclusions
+                                ? v.inclusions.map((i, inclusionIndex) => (
                                       <div
                                           key={`${i}-${inclusionIndex}`}
                                           className="items-center flex gap-1.5"
@@ -122,12 +137,16 @@ export default function PricingCarousel({
                                 <Text c={"dimmed"} size="xs">
                                     {v.reminder}
                                 </Text>
-                                <Button size="sm" variant="light" radius={"md"}>
+                                <Button
+                                    size="sm"
+                                    variant="light"
+                                    radius={"md"}
+                                    onClick={() => {
+                                        router.push("/v1/appointments/new");
+                                    }}
+                                >
                                     Book appointment
                                 </Button>
-                                {/* <Button variant="light" size="sm" radius={"md"}>
-                                More info
-                            </Button> */}
                             </div>
                         </Card>
                     </CarouselSlide>

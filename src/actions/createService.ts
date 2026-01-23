@@ -5,6 +5,7 @@ import { saveServiceToDb } from "@/lib/db/services";
 import {
     createServiceSchema,
     ServiceFormInput,
+    ServiceFormOutput,
 } from "@/lib/validators/serviceZodSchema";
 import { unauthorized } from "next/navigation";
 
@@ -12,14 +13,24 @@ export default async function CreateService(
     prevState: any,
     data: ServiceFormInput
 ) {
-    const session = await auth();
-    if (!session?.user.id || session.user.role !== "admin") unauthorized();
-
     const parsed = createServiceSchema.safeParse(data);
     if (!parsed.success) return { succesful: false };
 
+    const session = await auth();
+    if (!session?.user.id || session.user.role !== "admin") unauthorized();
+
     try {
-        const result = await saveServiceToDb(parsed.data);
+        const { isFlat, flat, small, medium, large, ...rest } = parsed.data;
+        const result = await saveServiceToDb({
+            serviceData: rest,
+            initailPrice: {
+                isFlat: isFlat,
+                flat: flat,
+                small: small,
+                medium: medium,
+                large: large,
+            },
+        });
         if (!result || !result.id) {
             return { succesful: false };
         }

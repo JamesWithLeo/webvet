@@ -2,9 +2,7 @@ import { servicePriceVariant } from "@/db/schema/services";
 import { z } from "zod/v4";
 
 export const serviceVariantSchema = z.object({
-    variant: z
-        .enum([""].concat(servicePriceVariant)) // Add your other enum values here
-        .default("FLAT"),
+    variant: z.enum([""].concat(servicePriceVariant)).default("FLAT"),
 
     price: z.union([z.string(), z.number()]).transform((val) => {
         const num = typeof val === "string" ? parseFloat(val) : val;

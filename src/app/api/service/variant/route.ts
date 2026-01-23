@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { servicePrices } from "@/db/schema/services";
+import { prices } from "@/db/schema/services";
 
 export const GET = auth(async function GET(req) {
     if (!req.auth) {
@@ -21,8 +21,8 @@ export const GET = auth(async function GET(req) {
     try {
         const variant = await db
             .select()
-            .from(servicePrices)
-            .where(eq(servicePrices.serviceId, id));
+            .from(prices)
+            .where(eq(prices.serviceId, id));
 
         return NextResponse.json(variant);
     } catch (error) {

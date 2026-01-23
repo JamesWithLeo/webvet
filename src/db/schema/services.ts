@@ -14,8 +14,8 @@ export const services = pgTable("services", {
     id: uuid("id").defaultRandom().primaryKey(),
     title: varchar("title", { length: 50 }).notNull(),
     type: appointmentType().notNull(),
-    description: text(),
-    reminder: text(),
+    description: text().notNull(),
+    reminder: text().notNull(),
     inclusions: text("inclusions").array().notNull().default([]),
 });
 
@@ -25,12 +25,14 @@ export const servicePriceVariant = [
     "LARGE",
     "FLAT",
 ] as const;
+
 export const servicePricesType = pgEnum(
     "servicePricesType",
     servicePriceVariant
 );
+export type ServicePriceType = (typeof servicePricesType.enumValues)[number];
 
-export const servicePrices = pgTable("service_prices", {
+export const prices = pgTable("service_prices", {
     id: uuid("id").defaultRandom().primaryKey(),
     serviceId: uuid("service_id")
         .notNull()
@@ -40,4 +42,10 @@ export const servicePrices = pgTable("service_prices", {
     isAvailable: boolean().default(true).notNull(),
 });
 
+export type ServicePriceTypeModel = InferSelectModel<typeof prices>;
+
 export type ServiceTypeModel = InferSelectModel<typeof services>;
+
+export type ServiceMergePriceType = ServiceTypeModel & {
+    prices: ServicePriceTypeModel[] | [];
+};

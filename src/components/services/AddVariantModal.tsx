@@ -92,8 +92,10 @@ export default function AddVariantModal({
                     <TextInput
                         label="Price"
                         withAsterisk
+                        description="Actual price (e.g: 400.00, 650)."
                         {...form.getInputProps("price")}
                     />
+
                     <Group justify="end" mt={"md"}>
                         <Button
                             type="submit"

@@ -1,4 +1,5 @@
 import PricingCarousel from "@/components/pricing/PricingCarousel";
+import { getServiceByType } from "@/lib/db/services";
 import {
     IconHeartCheck,
     IconShieldCheckFilled,
@@ -112,7 +113,7 @@ const groomingPrices = [
         },
         serviceType: "grooming",
         reminder: "At least 6 months old; strictly by appointment.",
-        status: "large_unavailable", // UX Note: Disable 'Large' selection in UI
+        status: "large_unavailable",
     },
     {
         title: "Dog Styled Cut (Puppy/Summer Cut)",
@@ -163,23 +164,25 @@ const wellnessPrices = [
             "If the pet is found to have a fever, lethargy, or diarrhea, vaccination will be postponed for the pet's safety.",
     },
 ];
-
-export default function Page() {
+export default async function Page() {
+    const checkups = await getServiceByType("CHECK_UP");
+    const grooming = await getServiceByType("GROOMING");
+    const vaccines = await getServiceByType("VACCINATION");
     return (
         <div className="h-full  flex-col min-h-dvh md:px-16 px-8 py-8 pb-16 gap-16 w-full flex">
             <PricingCarousel
                 title="Check up"
-                carouselData={wellnessPrices}
+                carouselData={checkups}
                 icon={<IconZoomCheckFilled stroke={1.5} size={20} />}
             />
             <PricingCarousel
                 title="Vaccines"
-                carouselData={vaccinePrices}
+                carouselData={vaccines}
                 icon={<IconShieldCheckFilled stroke={1.5} size={20} />}
             />
             <PricingCarousel
                 title="Grooming"
-                carouselData={groomingPrices}
+                carouselData={grooming}
                 icon={<IconHeartCheck stroke={1.5} size={20} />}
             />
         </div>
