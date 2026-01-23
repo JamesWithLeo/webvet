@@ -87,7 +87,10 @@ export default async function LayoutContent({
                                 <Divider orientation="vertical" />
                             </div>
                         </>
-                        <UserAvatar photoUrl={session?.user.photoUrl} />
+                        <UserAvatar
+                            photoUrl={session?.user.photoUrl}
+                            auth={Boolean(session?.user)}
+                        />
                     </div>
                 </div>
             </Paper>

@@ -5,14 +5,16 @@ import { Avatar } from "@mantine/core";
 
 export default async function UserAvatar({
     photoUrl,
+    auth,
 }: {
     photoUrl?: string | null;
+    auth: boolean;
 }) {
     return (
         <>
             {photoUrl ? (
                 <Link
-                    href={"/v1/profile"}
+                    href={auth ? "/v1/profile" : "/v1/auth/signup"}
                     className="relative lg:h-10 lg:w-10 min-h-8 min-w-8 select-none cursor-pointer bg-gray-200 rounded-full shadow"
                 >
                     <Image
@@ -23,7 +25,7 @@ export default async function UserAvatar({
                     />
                 </Link>
             ) : (
-                <Link href={"/v1/auth/signup"}>
+                <Link href={auth ? "/v1/profile" : "/v1/auth/signup"}>
                     <Avatar radius={"xl"} />
                 </Link>
             )}
