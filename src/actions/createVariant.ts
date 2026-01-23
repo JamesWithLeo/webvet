@@ -6,10 +6,6 @@ import {
     serviceVariantDbSchema,
     ServiceVariantFormOutput,
 } from "@/lib/validators/serviceVariantSchema";
-import {
-    createServiceSchema,
-    ServiceFormInput,
-} from "@/lib/validators/serviceZodSchema";
 import { unauthorized } from "next/navigation";
 
 export default async function CreateVariant(
