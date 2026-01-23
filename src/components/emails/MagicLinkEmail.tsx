@@ -68,14 +68,13 @@ const MagicLinkEmail = ({
                                     please ignore it.
                                 </Text>
 
-                                <Section className="mt-6 mb-8">
-                                    <Link
-                                        href={`${baseUrl}/v1/auth/verify?${params}`}
-                                        className="bg-[#47a3d8] text-white text-sm font-semibold py-3 px-4 rounded-md no-underline"
-                                    >
-                                        Sign In to Dashboard
-                                    </Link>
-                                </Section>
+                                <Link
+                                    href={`${baseUrl}/v1/auth/verify?${params}`}
+                                    style={{ display: "inline-block" }} // Force the clickable area to match the visual box
+                                    className="bg-[#47a3d8] text-white text-sm font-semibold py-3 px-4 rounded-md no-underline text-center"
+                                >
+                                    Sign In to Dashboard
+                                </Link>
                             </Section>
                         </Section>
 
