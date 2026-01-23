@@ -19,7 +19,7 @@ import {
     IconChevronRight,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import updateUser from "@/actions/updateUser";
+import { createUser } from "@/actions/updateUser";
 import SuccessModal from "../common/SuccessModal";
 import { useSession } from "next-auth/react";
 
@@ -56,7 +56,7 @@ export default function AccountStepper({
         form.append("lastName", lastName);
         form.append("sex", sex);
         form.append("dateOfBirth", dateOfBirth);
-        const updatedUser = await updateUser(
+        const updatedUser = await createUser(
             { userId: userId, schema: "setup" },
             null,
             form
@@ -172,7 +172,7 @@ export default function AccountStepper({
                         <h1>Completed!, Whats your next Step?</h1>
                         <Box className="mx-4 gap-2 flex flex-col">
                             <NavLink
-                                href="/v1/pet/"
+                                href="/v1/pets/new"
                                 label="Add a pet"
                                 leftSection={<IconPaw stroke={1.5} />}
                                 rightSection={<IconChevronRight />}
@@ -180,7 +180,7 @@ export default function AccountStepper({
                                 active
                             />
                             <NavLink
-                                href="/v1/appointment/"
+                                href="/v1/appointments/"
                                 label="Set an Appointment"
                                 leftSection={<IconCalendarPlus stroke={1.5} />}
                                 rightSection={<IconChevronRight />}

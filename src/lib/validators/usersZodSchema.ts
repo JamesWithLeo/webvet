@@ -11,7 +11,6 @@ export const userSetupSchema = z.object({
         .refine((date) => !isNaN(Date.parse(date)), {
             message: "Invalid date format",
         }),
-    photoUrl: z.string(),
 });
 
 export const userEditSchema = z.object({

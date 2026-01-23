@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
                 hostname: "7p6b2m8uq7.ufs.sh",
                 pathname: "/f/*",
             },
+            { hostname: "cap1-webvet.vercel.app" },
         ],
         qualities: [50, 75, 100],
     },

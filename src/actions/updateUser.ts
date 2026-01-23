@@ -28,10 +28,46 @@ export default async function updateUser(
         dateOfBirth: formData.get("dateOfBirth")?.toString(),
         photoUrl: formData.get("photoUrl")?.toString() ?? undefined,
     };
-    const parsed =
-        schema === "setup"
-            ? userSetupSchema.safeParse(rawData)
-            : userEditSchema.safeParse(rawData);
+    const parsed = userEditSchema.safeParse(rawData);
+
+    if (!parsed.success) {
+        console.error(`${parsed.error.name}: ${parsed.error.message}`);
+        return { succesful: false };
+    }
+    // Filter out empty strings or nulls so they don't overwrite DB defaults
+    const filteredData = Object.fromEntries(
+        Object.entries(parsed.data).filter(
+            ([_, value]) => value !== "" && value !== null
+        )
+    );
+    const result = await saveSetupInDb(userId, filteredData);
+
+    if (!Array.isArray(result) || !result.length) {
+        return { succesful: false };
+    }
+    return { succesful: true, user: result[0] ? result[0] : undefined };
+}
+
+export async function createUser(
+    editProps: { userId: string | undefined; schema: "edit" | "setup" },
+    prevState: any,
+    formData: FormData
+) {
+    const { userId, schema } = editProps;
+    if (!userId) {
+        console.error("Missing user ID");
+        return { succesful: false };
+    }
+    const session = await auth();
+    if (!session || session.user.id !== userId) unauthorized();
+
+    const rawData = {
+        firstName: formData.get("firstName")?.toString(),
+        lastName: formData.get("lastName")?.toString(),
+        sex: formData.get("sex")?.toString(),
+        dateOfBirth: formData.get("dateOfBirth")?.toString(),
+    };
+    const parsed = userSetupSchema.safeParse(rawData);
 
     if (!parsed.success) {
         console.error(`${parsed.error.name}: ${parsed.error.message}`);

@@ -13,75 +13,51 @@ import {
 } from "@mantine/core";
 import { isPast } from "date-fns";
 import { useRouter } from "next/navigation";
-import { monthAbbreviations } from "@/db/schema/appointments";
+import {
+    JoinedAppointmentType,
+    monthAbbreviations,
+} from "@/db/schema/appointments";
 
-const DogSvg = () => {
+const PawSvg = () => {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width="120"
             height="120"
             viewBox="0 0 24 24"
+            // fill="currentColor"
+            // stroke="none"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="icon icon-tabler icons-tabler-outline icon-tabler-dog"
+            className="icon icon-tabler icons-tabler-filled icon-tabler-paw"
         >
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M11 5h2" />
-            <path d="M19 12c-.667 5.333 -2.333 8 -5 8h-4c-2.667 0 -4.333 -2.667 -5 -8" />
-            <path d="M11 16c0 .667 .333 1 1 1s1 -.333 1 -1h-2z" />
-            <path d="M12 18v2" />
-            <path d="M10 11v.01" />
-            <path d="M14 11v.01" />
-            <path d="M5 4l6 .97l-6.238 6.688a1.021 1.021 0 0 1 -1.41 .111a.953 .953 0 0 1 -.327 -.954l1.975 -6.815z" />
-            <path d="M19 4l-6 .97l6.238 6.688c.358 .408 .989 .458 1.41 .111a.953 .953 0 0 0 .327 -.954l-1.975 -6.815z" />
-        </svg>
-    );
-};
-
-const CatSvg = () => {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={120}
-            height={120}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="icon icon-tabler icons-tabler-outline icon-tabler-cat"
-        >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M20 3v10a8 8 0 1 1 -16 0v-10l3.432 3.432a7.963 7.963 0 0 1 4.568 -1.432c1.769 0 3.403 .574 4.728 1.546l3.272 -3.546z" />
-            <path d="M2 16h5l-4 4" />
-            <path d="M22 16h-5l4 4" />
-            <path d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-            <path d="M9 11v.01" />
-            <path d="M15 11v.01" />
+            <path d="M12 10c-1.32 0 -1.983 .421 -2.931 1.924l-.244 .398l-.395 .688a50.89 50.89 0 0 0 -.141 .254c-.24 .434 -.571 .753 -1.139 1.142l-.55 .365c-.94 .627 -1.432 1.118 -1.707 1.955c-.124 .338 -.196 .853 -.193 1.28c0 1.687 1.198 2.994 2.8 2.994l.242 -.006c.119 -.006 .234 -.017 .354 -.034l.248 -.043l.132 -.028l.291 -.073l.162 -.045l.57 -.17l.763 -.243l.455 -.136c.53 -.15 .94 -.222 1.283 -.222c.344 0 .753 .073 1.283 .222l.455 .136l.764 .242l.569 .171l.312 .084c.097 .024 .187 .045 .273 .062l.248 .043c.12 .017 .235 .028 .354 .034l.242 .006c1.602 0 2.8 -1.307 2.8 -3c0 -.427 -.073 -.939 -.207 -1.306c-.236 -.724 -.677 -1.223 -1.48 -1.83l-.257 -.19l-.528 -.38c-.642 -.47 -1.003 -.826 -1.253 -1.278l-.27 -.485l-.252 -.432c-1.011 -1.696 -1.618 -2.099 -3.053 -2.099z" />
+            <path d="M19.78 7h-.03c-1.219 .02 -2.35 1.066 -2.908 2.504c-.69 1.775 -.348 3.72 1.075 4.333c.256 .109 .527 .163 .801 .163c1.231 0 2.38 -1.053 2.943 -2.504c.686 -1.774 .34 -3.72 -1.076 -4.332a2.05 2.05 0 0 0 -.804 -.164z" />
+            <path d="M9.025 3c-.112 0 -.185 .002 -.27 .015l-.093 .016c-1.532 .206 -2.397 1.989 -2.108 3.855c.272 1.725 1.462 3.114 2.92 3.114l.187 -.005a1.26 1.26 0 0 0 .084 -.01l.092 -.016c1.533 -.206 2.397 -1.989 2.108 -3.855c-.27 -1.727 -1.46 -3.114 -2.92 -3.114z" />
+            <path d="M14.972 3c-1.459 0 -2.647 1.388 -2.916 3.113c-.29 1.867 .574 3.65 2.174 3.867c.103 .013 .2 .02 .296 .02c1.39 0 2.543 -1.265 2.877 -2.883l.041 -.23c.29 -1.867 -.574 -3.65 -2.174 -3.867a2.154 2.154 0 0 0 -.298 -.02z" />
+            <path d="M4.217 7c-.274 0 -.544 .054 -.797 .161c-1.426 .615 -1.767 2.562 -1.078 4.335c.563 1.451 1.71 2.504 2.941 2.504c.274 0 .544 -.054 .797 -.161c1.426 -.615 1.767 -2.562 1.078 -4.335c-.563 -1.451 -1.71 -2.504 -2.941 -2.504z" />
         </svg>
     );
 };
 export default function AppointmentCard({
-    name,
-    service,
-    species,
-    paid,
-    doctor,
-    date,
-}: {
-    name: string;
-    service: string;
-    species: "DOG" | "CAT";
-    doctor: string;
-    paid?: boolean;
-    date: Date;
-}) {
-    const passed = isPast(date);
+    title,
+    type,
+    pets,
+    id,
+    created_at,
+    expiredNotication,
+    incomingNotification,
+    // species,
+    // paid,
+    // doctor,
+    event_datetime,
+}: JoinedAppointmentType) {
+    const passed = isPast(event_datetime);
+    const date = new Date(event_datetime);
     const router = useRouter();
     const handleInvoiceClick = async () => {
         router.push("/v1/invoice");
@@ -113,10 +89,11 @@ export default function AppointmentCard({
                 p={"md"}
                 className="group"
                 component="a"
-                href={`/v1/appointments/${name}`}
+                href={`/v1/appointments/${id}`}
             >
                 <div className="absolute group-hover:scale-[1.05] -right-7 text-gray-200 -rotate-12 -top-5">
-                    {species === "DOG" ? <DogSvg /> : <CatSvg />}
+                    <PawSvg />
+                    {/* {species === "DOG" ? <DogSvg /> : <CatSvg />} */}
                 </div>
                 <Group>
                     <Group>
@@ -136,10 +113,13 @@ export default function AppointmentCard({
                     <Group>
                         <Stack justify="flex-end" gap={0}>
                             <Title c={"primary"} order={4} fw={"bold"}>
-                                {name}&apos;s {service}
+                                {title ? title : type}
                             </Title>
-                            <Text c={"dimmed"}>Thur 10:30 AM</Text>
-                            <Text c={"dimmed"}>{doctor}</Text>
+                            <Text c={"dimmed"}>
+                                {date.toLocaleTimeString()}
+                            </Text>
+                            {/* <Text c={"dimmed"}>{doctor}</Text> */}
+                            <Text c={"dimmed"}>Dr. Ace Ventura</Text>
                         </Stack>
                     </Group>
                 </Group>
@@ -155,7 +135,7 @@ export default function AppointmentCard({
                             suffix=".00"
                         />
                     </Text>
-                    {!paid ? (
+                    {true ? (
                         <Button variant="default" onClick={handleInvoiceClick}>
                             Invoice
                         </Button>

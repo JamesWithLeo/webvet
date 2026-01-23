@@ -101,10 +101,7 @@ export const saveAppointmentToDb = async ({
 export const getAppointments = async ({ id }: { id: string }) => {
     return await db
         .select({
-            id: appointments.id,
-            title: appointments.title,
-            event_datetime: appointments.event_datetime,
-            type: appointments.type,
+            ...getTableColumns(appointments),
             // Squash the pet data into a single JSON array column
             pets: sql<{ id: string; name: string; photoUrl: string | null }[]>`
       json_agg(
@@ -122,7 +119,17 @@ export const getAppointments = async ({ id }: { id: string }) => {
         )
         .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
         .where(eq(pets.ownerId, id))
-        .groupBy(appointments.id);
+        .groupBy(
+            appointments.id,
+            appointments.title,
+            appointments.event_datetime,
+            appointments.type,
+            appointments.created_at,
+            appointments.expiredNotication,
+            appointments.incomingNotification,
+            appointments.invoiceId
+        )
+        .orderBy(desc(appointments.event_datetime));
 };
 
 export const getNearestAppointment = async ({ id }: { id: string }) => {
@@ -132,15 +139,14 @@ export const getNearestAppointment = async ({ id }: { id: string }) => {
             title: appointments.title,
             event_datetime: appointments.event_datetime,
             type: appointments.type,
-            // Squash the pet data into a single JSON array column
             pets: sql<{ id: string; name: string; photoUrl: string | null }[]>`
-      json_agg(
-        json_build_object(
-          'id', ${pets.id}, 
-          'name', ${pets.name}, 
-          'photoUrl', ${pets.photoUrl}
-        )
-      )`,
+                json_agg(
+                    json_build_object(
+                        'id', ${pets.id}, 
+                        'name', ${pets.name}, 
+                        'photoUrl', ${pets.photoUrl}
+                    )
+                )`,
         })
         .from(appointmentsToPets)
         .innerJoin(
@@ -148,15 +154,16 @@ export const getNearestAppointment = async ({ id }: { id: string }) => {
             eq(appointments.id, appointmentsToPets.appointmentId)
         )
         .innerJoin(pets, eq(pets.id, appointmentsToPets.petId))
-        .where(gt(appointments.event_datetime, new Date().toISOString()))
+        .where(
+            and(
+                eq(pets.ownerId, id),
+                gt(appointments.event_datetime, new Date().toISOString())
+            )
+        )
         .groupBy(appointments.id)
+        .orderBy(asc(appointments.event_datetime))
         .limit(1)
-        .then((v) => {
-            if (v.length) {
-                return v[0];
-            }
-            return null;
-        });
+        .then((v) => v[0] ?? null);
 };
 
 export const getAppointmentsByPet = async (petId: string) => {

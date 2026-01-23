@@ -5,9 +5,11 @@ import {
     timestamp,
     uuid,
     varchar,
+    integer,
 } from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
+import { invoices } from "./invoice";
 
 export const appointmentTypeValues = [
     "CHECK_UP",
@@ -71,6 +73,12 @@ export const appointments = pgTable("appointments", {
 
     expiredNotication: boolean().default(false).notNull(),
     incomingNotification: boolean().default(false).notNull(),
+
+    // payment
+    // priceAtBooking: integer("price_at_booking"),
+    invoiceId: uuid("invoice_id").references(() => invoices.id, {
+        onDelete: "set null",
+    }),
 });
 
 export const appointmentsToPets = pgTable("appointments_to_pets", {
