@@ -50,7 +50,7 @@ const MagicLinkEmail = ({
                                 colorScheme: "light",
                             }}
                         />
-                        <Section className="bg-white border border-slate-200 rounded-lg   mt-4 ">
+                        <Section className="bg-white border border-slate-200 rounded-lg   mt-4  ">
                             <Section className="ml-8">
                                 <Heading className="text-xl  text-slate-800 mt-8">
                                     Login to the{" "}
@@ -63,7 +63,7 @@ const MagicLinkEmail = ({
                                 </Text>
                                 <Text className="text-slate-600 text-sm leading-6 mt-4">
                                     We received a request to log in to your{" "}
-                                    account, Please click the button to <br />{" "}
+                                    account, Please click the link to <br />{" "}
                                     continue. If you did not request this email,
                                     please ignore it.
                                 </Text>
@@ -71,7 +71,7 @@ const MagicLinkEmail = ({
                                 <Link
                                     href={`${baseUrl}/v1/auth/verify?${params}`}
                                     style={{ display: "inline-block" }} // Force the clickable area to match the visual box
-                                    className="bg-[#47a3d8] text-white text-sm font-semibold py-3 px-4 rounded-md no-underline text-center"
+                                    className=" text-sm underline mb-8 "
                                 >
                                     Sign In to Dashboard
                                 </Link>

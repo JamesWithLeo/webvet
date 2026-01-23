@@ -31,8 +31,7 @@ export default async function Page({
                         <Text c="dimmed" fz="md" ta="center" maw={400}>
                             To finish setting up your account and get started,
                             please confirm the email address associated with
-                            your
-                            {providerName ? ` ${providerName}` : ""} profile.
+                            your profile.
                         </Text>
                     </Stack>
 
