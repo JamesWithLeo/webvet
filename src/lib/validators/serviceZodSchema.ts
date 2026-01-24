@@ -42,17 +42,19 @@ export const createServiceSchema = z
                 });
             }
         } else {
-            // If not flat, all three sizes must be filled
-            ["small", "medium", "large"].forEach((size) => {
+            const sizes = ["small", "medium", "large"];
+            const hasAtLeastOne = sizes.some((size) => {
                 const val = data[size as keyof typeof data];
-                if (!val || parseFloat(val as string) <= 0) {
-                    ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
-                        message: `${size} rate is required`,
-                        path: [size],
-                    });
-                }
+                return val && parseFloat(val as string) > 0;
             });
+
+            if (!hasAtLeastOne) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "At least one size rate is required",
+                    path: ["small"], // Point to the first one
+                });
+            }
         }
     });
 

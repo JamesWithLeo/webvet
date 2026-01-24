@@ -3,13 +3,15 @@ import AppointmentCard from "@/components/appointment/AppointmentCard";
 import AppointmentController from "@/components/appointment/AppointmentController";
 import { JoinedAppointmentType } from "@/db/schema/appointments";
 import { getAppointments } from "@/lib/db/appointments";
-import { Group, Stack, Title } from "@mantine/core";
+import { Group, Stack, Text, ThemeIcon, Title } from "@mantine/core";
+import { IconMoodSad } from "@tabler/icons-react";
 import { unauthorized } from "next/navigation";
 
 export default async function AppointmentPage() {
     const session = await auth();
     if (!session?.user.id) unauthorized();
     const appointments = await getAppointments({ id: session.user.id });
+
     const groupedAppointments = appointments.reduce<
         Record<number, JoinedAppointmentType[]>
     >((acc, appt) => {
@@ -30,28 +32,32 @@ export default async function AppointmentPage() {
             <div className="flex  items-center gap-8 w-full h-screen  flex-col   ">
                 <div className="min-h-screen w-full relative md:p-16 px-4 flex gap-8 flex-col">
                     <AppointmentController />
-                    {sortedYears.map((year) => (
-                        <Stack key={year}>
-                            <Title c={"dimmed"}>{year}</Title>
-                            <Group>
-                                {groupedAppointments[Number(year)].map((v) => (
-                                    <AppointmentCard key={v.id} {...v} />
-                                ))}
-                            </Group>
-                        </Stack>
-                    ))}
-                    {/* {appointments.map((v) => (
-                            <AppointmentCard
-                                title={v.title}
-                                id={v.id}
-                                pets={v.pets}
-                                type={v.type}
-                                created_at={v.created_at}
-                                expiredNotication={v.expiredNotication}
-                                incomingNotification={v.incomingNotification}
-                                event_datetime={v.event_datetime}
-                            />
-                        ))} */}
+                    {sortedYears.length > 1 ? (
+                        <>
+                            {sortedYears.map((year) => (
+                                <Stack key={year}>
+                                    <Title c={"dimmed"}>{year}</Title>
+                                    <Group>
+                                        {groupedAppointments[Number(year)].map(
+                                            (v) => (
+                                                <AppointmentCard
+                                                    key={v.id}
+                                                    {...v}
+                                                />
+                                            )
+                                        )}
+                                    </Group>
+                                </Stack>
+                            ))}
+                        </>
+                    ) : (
+                        <>
+                            <Stack align="center" h={"100%"} justify="center">
+                                <IconMoodSad size={100} color="gray" />
+                                <Text>No appointment yet</Text>
+                            </Stack>
+                        </>
+                    )}
                 </div>
             </div>
         </>

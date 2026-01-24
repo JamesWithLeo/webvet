@@ -6,11 +6,22 @@ import {
     uuid,
     varchar,
     integer,
+    text,
 } from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
 import { invoices } from "./invoice";
 
+export const appointmentStatusValues = [
+    "SCHEDULED",
+    "CANCELLED",
+    "COMPLETED",
+    "NO_SHOW",
+] as const;
+export const appointmentStatusType = pgEnum(
+    "appointment_status",
+    appointmentStatusValues
+);
 export const appointmentTypeValues = [
     "CHECK_UP",
     "GROOMING",
@@ -42,7 +53,7 @@ export type JoinedAppointmentType = {
     event_datetime: string;
     type: AppointmentType;
     created_at: Date;
-    expiredNotication: boolean;
+    expiredNotification: boolean;
     incomingNotification: boolean;
     pets: { id: string; name: string; photoUrl: string | null }[];
 };
@@ -79,6 +90,11 @@ export const appointments = pgTable("appointments", {
     invoiceId: uuid("invoice_id").references(() => invoices.id, {
         onDelete: "set null",
     }),
+
+    // todo
+    // status: appointmentStatusType().default("SCHEDULED").notNull(),
+    // cancelledAt: timestamp("cancelled_at"),
+    // cancellationReason: text("cancellation_reason"),
 });
 
 export const appointmentsToPets = pgTable("appointments_to_pets", {

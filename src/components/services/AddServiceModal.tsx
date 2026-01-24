@@ -19,6 +19,7 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
+import { check } from "prettier";
 import { useActionState, startTransition, useEffect, useState } from "react";
 
 export default function AddServiceModal({
@@ -124,12 +125,17 @@ export default function AddServiceModal({
                         onChange={(e) => {
                             const checked = e.currentTarget.checked;
                             setIsFlat(checked);
+                            form.setFieldValue("isFlat", checked);
                             if (checked) {
                                 form.setFieldValue("small", "");
                                 form.setFieldValue("medium", "");
                                 form.setFieldValue("large", "");
+                                form.clearFieldError("small");
+                                form.clearFieldError("medium");
+                                form.clearFieldError("large");
                             } else {
                                 form.setFieldValue("flat", "");
+                                form.clearFieldError("flat");
                             }
                         }}
                     />

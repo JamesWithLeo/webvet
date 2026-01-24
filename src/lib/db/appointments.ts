@@ -101,7 +101,17 @@ export const saveAppointmentToDb = async ({
 export const getAppointments = async ({ id }: { id: string }) => {
     return await db
         .select({
-            ...getTableColumns(appointments),
+            id: appointments.id,
+            title: appointments.title,
+            event_datetime: appointments.event_datetime,
+            type: appointments.type,
+            created_at: appointments.created_at,
+            expiredNotification: appointments.expiredNotication,
+            incomingNotification: appointments.incomingNotification,
+            invoiceId: appointments.invoiceId,
+            // status: appointments.status,
+            // cancelledAt: appointments.cancelledAt,
+            // cancellationReason: appointments.cancellationReason,
             // Squash the pet data into a single JSON array column
             pets: sql<{ id: string; name: string; photoUrl: string | null }[]>`
       json_agg(

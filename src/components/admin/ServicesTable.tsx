@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
+    IconCheck,
     IconDatabaseOff,
     IconEdit,
     IconPlus,
@@ -21,9 +22,13 @@ import {
 import { DataTable, useDataTableColumns } from "mantine-datatable";
 import AddServiceModal from "../services/AddServiceModal";
 import useServiceVariant from "@/lib/hooks/useServiceVariant";
-import { useState, useTransition } from "react";
+import { startTransition, useState, useTransition } from "react";
 import AddVariantModal from "../services/AddVariantModal";
 import { DeleteVariant } from "@/actions/deleteVariant";
+import { DeleteService } from "@/actions/deleteService";
+import ConfirmationModal from "../common/ConfirmationModal";
+import { startOfDecade } from "date-fns";
+import { notifications } from "@mantine/notifications";
 
 type Props = {
     records: ServiceTypeModel[];
@@ -37,88 +42,122 @@ function VariantTable({
     openModal: () => void;
 }) {
     const { isPending, variants } = useServiceVariant({ id: serviceId });
+    const [selectedVariantId, setSelectedVariantId] = useState<string>("");
+    const [
+        openedVariantDeleteModal,
+        { open: openVariantDeleteModal, close: closeVariantDeleteModal },
+    ] = useDisclosure(false);
 
+    const [isPendingDeleteVariant, startDeleteVariantTransition] =
+        useTransition();
+
+    const handleDeleteVariant = () => {
+        startDeleteVariantTransition(async () => {
+            const result = await DeleteVariant(selectedVariantId);
+            setSelectedVariantId("");
+            if (result.succesful && result.data) {
+                notifications.show({
+                    title: "Variant deleted!",
+                    message: `The variant with ${result.data?.id} ID is now deleted.`,
+                    color: "teal",
+                    icon: <IconCheck size={20} />,
+                });
+                closeVariantDeleteModal();
+            }
+        });
+    };
     return (
-        <div className="ml-16 w-auto">
-            <DataTable
-                withColumnBorders
-                withTableBorder
-                withRowBorders
-                pinLastColumn
-                columns={[
-                    {
-                        accessor: "id",
-                        title: "id",
-                        noWrap: false,
-                        visibleMediaQuery: aboveSm,
-                        render: (rowData) => (
-                            <p className="line-clamp-2">{rowData.id}</p>
-                        ),
-                    },
-                    {
-                        accessor: "variant",
-                        title: "variant",
-                    },
-                    {
-                        accessor: "price",
-                        title: "price",
-                    },
-                    {
-                        accessor: "action",
-                        title: "actions",
-                        width: "100%",
-                        render: (rowData) => (
-                            <Group wrap="nowrap" gap={"xs"}>
-                                <Tooltip
-                                    label="Edit Variant"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        // todo
-                                    }}
-                                >
-                                    <ActionIcon
-                                        variant="transparent"
-                                        size={"sm"}
+        <>
+            <div className="ml-16 w-auto">
+                <DataTable
+                    withColumnBorders
+                    withTableBorder
+                    withRowBorders
+                    pinLastColumn
+                    columns={[
+                        {
+                            accessor: "id",
+                            title: "id",
+                            noWrap: false,
+                            visibleMediaQuery: aboveSm,
+                            render: (rowData) => (
+                                <p className="line-clamp-2">{rowData.id}</p>
+                            ),
+                        },
+                        {
+                            accessor: "variant",
+                            title: "variant",
+                        },
+                        {
+                            accessor: "price",
+                            title: "price",
+                        },
+                        {
+                            accessor: "action",
+                            title: "actions",
+                            width: "100%",
+                            render: (rowData) => (
+                                <Group wrap="nowrap" gap={"xs"}>
+                                    <Tooltip
+                                        label="Edit Variant"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            // todo
+                                        }}
                                     >
-                                        <IconEdit size={16} stroke={1.5} />
-                                    </ActionIcon>
-                                </Tooltip>
-                                <Tooltip
-                                    label="Delete Variant"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        DeleteVariant(rowData.id);
-                                    }}
-                                >
-                                    <ActionIcon
-                                        variant="transparent"
-                                        size={"sm"}
-                                        c={"red"}
+                                        <ActionIcon
+                                            variant="transparent"
+                                            size={"sm"}
+                                        >
+                                            <IconEdit size={16} stroke={1.5} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                    <Tooltip
+                                        label="Delete Variant"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedVariantId(rowData.id);
+                                            openVariantDeleteModal();
+                                        }}
                                     >
-                                        <IconTrash size={16} stroke={1.5} />
-                                    </ActionIcon>
-                                </Tooltip>
-                            </Group>
-                        ),
-                    },
-                ]}
-                records={variants}
-                fetching={isPending}
-                minHeight={150}
-                loaderBackgroundBlur={1}
-                // minHeight={variants.length > 0 ? "1rem" : 150}
-                emptyState={
-                    <Stack align="center" gap="xs">
-                        <ThemeIcon radius={"xl"} size={"xl"} bg={"gray"}>
-                            <IconDatabaseOff />
-                        </ThemeIcon>
-                        <Text c="dimmed" size="sm">
-                            No variants available for this service
-                        </Text>
-                    </Stack>
-                }
+                                        <ActionIcon
+                                            variant="transparent"
+                                            size={"sm"}
+                                            c={"red"}
+                                        >
+                                            <IconTrash size={16} stroke={1.5} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                </Group>
+                            ),
+                        },
+                    ]}
+                    records={variants}
+                    fetching={isPending}
+                    minHeight={150}
+                    loaderBackgroundBlur={1}
+                    // minHeight={variants.length > 0 ? "1rem" : 150}
+                    emptyState={
+                        <Stack align="center" gap="xs">
+                            <ThemeIcon radius={"xl"} size={"xl"} bg={"gray"}>
+                                <IconDatabaseOff />
+                            </ThemeIcon>
+                            <Text c="dimmed" size="sm">
+                                No variants available for this service
+                            </Text>
+                        </Stack>
+                    }
+                />
+            </div>
+            <ConfirmationModal
+                title="Delete variant"
+                message="Are you sure to delete the selected variant?"
+                isPending={isPendingDeleteVariant}
+                opened={openedVariantDeleteModal}
+                close={closeVariantDeleteModal}
+                onConfirm={handleDeleteVariant}
             />
-        </div>
+        </>
     );
 }
 const aboveSm = (theme: MantineTheme) => `(min-width: ${theme.breakpoints.sm})`;
@@ -130,7 +169,38 @@ export default function ServicesTable({ records }: Props) {
         { open: openVariantModal, close: closeVariantModal },
     ] = useDisclosure(false);
 
+    const [
+        openedDeleteService,
+        { open: openDeleteService, close: closeDeleteService },
+    ] = useDisclosure(false);
+
+    const [isPendingDelete, startDeleteTransition] = useTransition();
+
     const [selectedService, setSelectedService] = useState<string>("");
+
+    const handleDelete = () => {
+        startDeleteTransition(async () => {
+            const result = await DeleteService(selectedService);
+            if (result.succesful && result.data) {
+                closeDeleteService();
+                notifications.show({
+                    title: "Service deleted!",
+                    message: `The service with ${result.data.id} ID is now deleted.`,
+                    color: "teal",
+                    icon: <IconCheck size={20} />,
+                });
+            }
+
+            if (!result.succesful) {
+                notifications.show({
+                    title: "Service failed to deleted!",
+                    message: result.error,
+                    color: "teal",
+                    icon: <IconCheck size={20} />,
+                });
+            }
+        });
+    };
 
     const key = "draggable-example";
     const { effectiveColumns } = useDataTableColumns<ServiceTypeModel>({
@@ -197,8 +267,8 @@ export default function ServicesTable({ records }: Props) {
                             label="Add variant"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                openVariantModal();
                                 setSelectedService(service.id);
+                                openVariantModal();
                             }}
                         >
                             <ActionIcon
@@ -224,7 +294,8 @@ export default function ServicesTable({ records }: Props) {
                             label="Delete service"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                // todo
+                                setSelectedService(service.id);
+                                openDeleteService();
                             }}
                         >
                             <ActionIcon
@@ -291,6 +362,14 @@ export default function ServicesTable({ records }: Props) {
                 />
             </Stack>
             <AddServiceModal opened={opened} close={close} />
+            <ConfirmationModal
+                isPending={isPendingDelete}
+                onConfirm={handleDelete}
+                title="Delete service"
+                message="Are you sure to delete the selected service?"
+                opened={openedDeleteService}
+                close={closeDeleteService}
+            />
             <AddVariantModal
                 opened={openedVariantModal}
                 close={closeVariantModal}

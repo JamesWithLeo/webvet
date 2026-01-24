@@ -2,7 +2,7 @@
 
 import { Button } from "@mantine/core";
 
-export default function ModalConfirmation({
+export default function AppointmentConfirmationModal({
     date,
     time,
     onCancel,
