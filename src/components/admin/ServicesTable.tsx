@@ -19,15 +19,18 @@ import {
     IconRefresh,
     IconTrash,
 } from "@tabler/icons-react";
-import { DataTable, useDataTableColumns } from "mantine-datatable";
+import {
+    DataTable,
+    DataTableColumn,
+    useDataTableColumns,
+} from "mantine-datatable";
 import AddServiceModal from "../services/AddServiceModal";
 import useServiceVariant from "@/lib/hooks/useServiceVariant";
-import { startTransition, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import AddVariantModal from "../services/AddVariantModal";
 import { DeleteVariant } from "@/actions/deleteVariant";
 import { DeleteService } from "@/actions/deleteService";
 import ConfirmationModal from "../common/ConfirmationModal";
-import { startOfDecade } from "date-fns";
 import { notifications } from "@mantine/notifications";
 
 type Props = {
@@ -202,10 +205,8 @@ export default function ServicesTable({ records }: Props) {
         });
     };
 
-    const key = "draggable-example";
-    const { effectiveColumns } = useDataTableColumns<ServiceTypeModel>({
-        key,
-        columns: [
+    const columns = useMemo<DataTableColumn<ServiceTypeModel>[]>(
+        () => [
             {
                 accessor: "id",
                 title: "id",
@@ -261,13 +262,13 @@ export default function ServicesTable({ records }: Props) {
                 accessor: "actions",
                 title: "Actions",
                 textAlign: "right",
-                render: (service) => (
+                render: (rowData) => (
                     <Group wrap="nowrap" gap={"xs"}>
                         <Tooltip
                             label="Add variant"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                setSelectedService(service.id);
+                                setSelectedService(rowData.id);
                                 openVariantModal();
                             }}
                         >
@@ -294,7 +295,7 @@ export default function ServicesTable({ records }: Props) {
                             label="Delete service"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                setSelectedService(service.id);
+                                setSelectedService(rowData.id);
                                 openDeleteService();
                             }}
                         >
@@ -310,6 +311,12 @@ export default function ServicesTable({ records }: Props) {
                 ),
             },
         ],
+        []
+    );
+    const key = "draggable-example";
+    const { effectiveColumns } = useDataTableColumns<ServiceTypeModel>({
+        key,
+        columns: columns,
     });
     return (
         <>

@@ -106,7 +106,7 @@ export const getAppointments = async ({ id }: { id: string }) => {
             event_datetime: appointments.event_datetime,
             type: appointments.type,
             created_at: appointments.created_at,
-            expiredNotification: appointments.expiredNotication,
+            expiredNotification: appointments.expiredNotification,
             incomingNotification: appointments.incomingNotification,
             invoiceId: appointments.invoiceId,
             // status: appointments.status,
@@ -135,7 +135,7 @@ export const getAppointments = async ({ id }: { id: string }) => {
             appointments.event_datetime,
             appointments.type,
             appointments.created_at,
-            appointments.expiredNotication,
+            appointments.expiredNotification,
             appointments.incomingNotification,
             appointments.invoiceId
         )
