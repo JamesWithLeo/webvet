@@ -49,7 +49,7 @@ export default function AppointmentCard({
     pets,
     id,
     created_at,
-    expiredNotication,
+    expiredNotification,
     incomingNotification,
     // species,
     // paid,
