@@ -99,47 +99,50 @@ export const saveAppointmentToDb = async ({
 };
 
 export const getAppointments = async ({ id }: { id: string }) => {
-    return await db
-        .select({
-            id: appointments.id,
-            title: appointments.title,
-            event_datetime: appointments.event_datetime,
-            type: appointments.type,
-            created_at: appointments.created_at,
-            expiredNotification: appointments.expiredNotification,
-            incomingNotification: appointments.incomingNotification,
-            invoiceId: appointments.invoiceId,
-            // status: appointments.status,
-            // cancelledAt: appointments.cancelledAt,
-            // cancellationReason: appointments.cancellationReason,
-            // Squash the pet data into a single JSON array column
-            pets: sql<{ id: string; name: string; photoUrl: string | null }[]>`
-      json_agg(
-        json_build_object(
-          'id', ${pets.id}, 
-          'name', ${pets.name}, 
-          'photoUrl', ${pets.photoUrl}
-        )
-      )`,
-        })
-        .from(appointments)
-        .innerJoin(
-            appointmentsToPets,
-            eq(appointments.id, appointmentsToPets.appointmentId)
-        )
-        .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
-        .where(eq(pets.ownerId, id))
-        .groupBy(
-            appointments.id,
-            appointments.title,
-            appointments.event_datetime,
-            appointments.type,
-            appointments.created_at,
-            appointments.expiredNotification,
-            appointments.incomingNotification,
-            appointments.invoiceId
-        )
-        .orderBy(desc(appointments.event_datetime));
+    try {
+        const response = await db
+            .select({
+                ...getTableColumns(appointments),
+                // Squash the pet data into a single JSON array column
+                pets: sql<
+                    { id: string; name: string; photoUrl: string | null }[]
+                >`
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'id', ${pets.id}, 
+                            'name', ${pets.name}, 
+                            'photoUrl', ${pets.photoUrl}
+                        )
+                    ) FILTER (WHERE ${pets.id} IS NOT NULL), 
+                     '[]'
+                )`.as("pets"),
+            })
+            .from(appointments)
+            .innerJoin(
+                appointmentsToPets,
+                eq(appointments.id, appointmentsToPets.appointmentId)
+            )
+            .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            .where(eq(pets.ownerId, id))
+            .groupBy(
+                appointments.id,
+                appointments.title,
+                appointments.event_datetime,
+                appointments.type,
+                appointments.created_at,
+                appointments.expiredNotification,
+                appointments.incomingNotification,
+                appointments.invoiceId
+            )
+            .orderBy(desc(appointments.event_datetime));
+        return { data: response, error: null };
+    } catch (error) {
+        return {
+            data: null,
+            error: "We're having trouble loading your appointments. Please try again later.",
+        };
+    }
 };
 
 export const getNearestAppointment = async ({ id }: { id: string }) => {

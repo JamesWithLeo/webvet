@@ -82,8 +82,12 @@ export const appointments = pgTable("appointments", {
     type: appointmentType("type").notNull(),
     created_at: timestamp("created_at").defaultNow().notNull(),
 
-    expiredNotification: boolean().default(false).notNull(),
-    incomingNotification: boolean().default(false).notNull(),
+    expiredNotification: boolean("expired_notification")
+        .default(false)
+        .notNull(),
+    incomingNotification: boolean("incoming_notification")
+        .default(false)
+        .notNull(),
 
     // payment
     // priceAtBooking: integer("price_at_booking"),

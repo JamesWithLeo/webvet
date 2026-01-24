@@ -7,29 +7,30 @@ import {
     DatesSetArg,
     EventClickArg,
     EventContentArg,
+    EventSourceInput,
 } from "@fullcalendar/core/index.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@mantine/core";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import {
+    IconAlertTriangleFilled,
+    IconChevronLeft,
+    IconChevronRight,
+    IconFaceIdError,
+} from "@tabler/icons-react";
 import NewAppointmentButton from "../common/NewAppointmentButton";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import AppointmentDrawer from "./AppointmentDrawer";
+import { JoinedAppointmentType } from "@/db/schema/appointments";
+import { notifications } from "@mantine/notifications";
 
-type Props = {
-    appointments: {
-        id: string;
-        title: string | null;
-        event_datetime: string;
-        type: string;
-        pets: {
-            id: string;
-            name: string;
-            photoUrl: string | null;
-        }[];
-    }[];
-};
-export default function CalendarList({ appointments }: Props) {
+export default function CalendarList({
+    appointments,
+    error,
+}: {
+    appointments: JoinedAppointmentType[] | null;
+    error: string | null;
+}) {
     const calendarRef = useRef<FullCalendar>(null);
     const [currentTitle, setCurrentTitle] = useState("loading calendar..");
     const [opened, { open, close }] = useDisclosure(false);
@@ -45,10 +46,11 @@ export default function CalendarList({ appointments }: Props) {
         }[];
     }>();
     const isMobile = useMediaQuery("(max-width: 64rem)");
+    const [now, setNow] = useState(new Date());
 
     const onEventClick = useCallback((info: EventClickArg) => {
-        console.log(info.event.extendedProps);
-
+        // passed the pet & appointment data on drawer
+        // then show modal
         setSelectedAppointment({
             ...(info.event.extendedProps as {
                 id: string;
@@ -62,8 +64,7 @@ export default function CalendarList({ appointments }: Props) {
                 }[];
             }),
         });
-        // passed the pet & appointment data on drawer
-        open(); // show modal
+        open();
     }, []);
 
     const handleDatesSet = (dateInfo: DatesSetArg) => {
@@ -74,18 +75,54 @@ export default function CalendarList({ appointments }: Props) {
         }
     };
 
-    const getEventClassnames = (arg: EventContentArg) => {
-        const event_datetime = arg.event.start;
-        if (event_datetime && event_datetime < new Date())
-            return "fc-past-event";
+    const getEventClassnames = useCallback((arg: string) => {
+        const event_datetime = new Date(arg);
+        if (event_datetime && event_datetime < now) return "fc-past-event";
         return "";
+    }, []);
+
+    const getEvent = () => {
+        const events =
+            appointments && appointments.length > 0
+                ? appointments.map((v) => ({
+                      title:
+                          v.title ??
+                          `${toTitleCase(v.type)} for ${toTitleCase(v.pets.map((v) => v.name).join(", "))}`,
+                      start: new Date(v.event_datetime).toISOString(),
+                      end: new Date(v.event_datetime).toISOString(),
+                      display: "block",
+                      extendedProps: {
+                          ...v,
+                      },
+
+                      className: getEventClassnames(v.event_datetime),
+                  }))
+                : undefined;
+        return events;
     };
 
     useEffect(() => {
+        // ensure the calendar rendered then assigned the title (e.g January 2026)
         const calendar = calendarRef.current?.getApi();
-        if (!calendar) return;
+        const timer = setInterval(() => setNow(new Date()), 60000);
+
+        if (!calendar) return () => clearInterval(timer);
         setCurrentTitle(calendar.view.title);
+
+        return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+        if (error) {
+            notifications.show({
+                message: error,
+                icon: <IconAlertTriangleFilled size={20} />,
+                color: "red",
+                autoClose: 6000,
+            });
+        }
+    }, [error]);
+
     return (
         <>
             <div className="justify-between items-center flex ">
@@ -124,20 +161,9 @@ export default function CalendarList({ appointments }: Props) {
                 multiMonthMaxColumns={1}
                 headerToolbar={false}
                 footerToolbar={false}
-                events={appointments.map((v) => ({
-                    title:
-                        v.title ??
-                        `${toTitleCase(v.type)} for ${toTitleCase(v.pets.map((v) => v.name).join(", "))}`,
-                    start: new Date(v.event_datetime).toISOString(),
-                    end: new Date(v.event_datetime).toISOString(),
-                    display: "block",
-                    extendedProps: {
-                        ...v,
-                    },
-                }))}
+                events={getEvent()}
                 eventClick={onEventClick}
                 viewClassNames={"cursor-pointer"}
-                eventClassNames={getEventClassnames}
             />
             {selectedAppointment && (
                 <AppointmentDrawer

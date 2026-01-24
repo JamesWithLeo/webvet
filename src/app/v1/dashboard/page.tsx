@@ -8,10 +8,10 @@ export default async function dashboard() {
     const session = await auth();
     checkSetup(session);
     if (!session?.user) redirect("/");
-    const appointments = await getAppointments({ id: session.user.id });
+    const { data, error } = await getAppointments({ id: session.user.id });
     return (
         <div className="w-full gap-4 flex-col h-ful min-h-min flex">
-            <CalendarList appointments={appointments} />
+            <CalendarList appointments={data} error={error} />
         </div>
     );
 }
