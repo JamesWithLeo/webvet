@@ -43,7 +43,7 @@ export async function GET(request: Request) {
                 and(
                     gte(appointments.event_datetime, incomingTarget),
                     lte(appointments.event_datetime, incomingBuffer),
-                    eq(appointments.expiredNotication, false)
+                    eq(appointments.expiredNotification, false)
                 )
             );
 

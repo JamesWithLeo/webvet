@@ -210,9 +210,10 @@ export default function ServicesTable({ records }: Props) {
             {
                 accessor: "id",
                 title: "id",
-                noWrap: false,
                 draggable: true,
+                width: "10%",
                 visibleMediaQuery: aboveSm,
+                resizable: true,
                 render: (rowData) => (
                     <p className="line-clamp-2">{rowData.id}</p>
                 ),
@@ -221,20 +222,31 @@ export default function ServicesTable({ records }: Props) {
                 accessor: "title",
                 title: "title",
                 draggable: true,
-                width: 10,
+                ellipsis: true,
+                width: "20%",
+                resizable: true,
+                render: (rowData) => (
+                    <p className="line-clamp-2">{rowData.id}</p>
+                ),
             },
             {
                 accessor: "type",
                 title: "type",
                 draggable: true,
-                width: 10,
+                ellipsis: true,
+                width: "20%",
+                resizable: true,
+                render: (rowData) => (
+                    <p className="line-clamp-2">{rowData.id}</p>
+                ),
             },
             {
                 accessor: "description",
                 title: "description",
                 draggable: true,
-                width: 10,
+                width: "10%",
                 visibleMediaQuery: aboveSm,
+                resizable: true,
                 render: (rowData) => (
                     <p className="line-clamp-2">{rowData.description}</p>
                 ),
@@ -243,6 +255,8 @@ export default function ServicesTable({ records }: Props) {
                 accessor: "reminder",
                 title: "reminder",
                 draggable: true,
+                width: "10%",
+                resizable: true,
                 visibleMediaQuery: aboveSm,
                 render: (rowData) => (
                     <p className="line-clamp-2">{rowData.reminder}</p>
@@ -252,6 +266,7 @@ export default function ServicesTable({ records }: Props) {
                 accessor: "inclusions",
                 title: "inclusions",
                 draggable: true,
+                width: "10%",
                 visibleMediaQuery: aboveSm,
                 render: (rowData) => (
                     <p className="line-clamp-2">{rowData.inclusions}</p>
@@ -348,7 +363,7 @@ export default function ServicesTable({ records }: Props) {
                     verticalSpacing="xs"
                     borderRadius="sm"
                     withRowBorders
-                    columns={effectiveColumns}
+                    columns={columns}
                     records={records}
                     totalRecords={1500}
                     storeColumnsKey={key}
