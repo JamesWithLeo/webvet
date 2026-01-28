@@ -95,6 +95,7 @@ export const saveSetupInDb = async (
         .set(userData)
         .where(eq(users.id, id))
         .returning({
+            id: users.id,
             firstName: users.firstName,
             lastName: users.lastName,
             sex: users.gender,

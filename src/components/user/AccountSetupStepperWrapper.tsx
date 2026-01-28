@@ -5,14 +5,12 @@ import AccountStepper from "./AccountSetupStepper";
 
 export default function AccountStepperWrapper({
     currentStep,
-    userId,
 }: {
     currentStep: number;
-    userId: string;
 }) {
     return (
         <SessionProvider>
-            <AccountStepper currentStep={currentStep} userId={userId} />
+            <AccountStepper currentStep={currentStep} />
         </SessionProvider>
     );
 }

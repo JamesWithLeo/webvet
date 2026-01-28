@@ -31,4 +31,5 @@ export const users = pgTable("users", {
     email: text("email").unique(),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
+    contactNumber: varchar("contact_number", { length: 20 }),
 });

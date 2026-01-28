@@ -1,6 +1,6 @@
 "use client";
 
-import updateUser from "@/actions/updateUser";
+import updateUser from "@/actions/user";
 import { userGenderValue } from "@/db/schema/users";
 import { useUploadThing } from "@/lib/uploadThing";
 import {

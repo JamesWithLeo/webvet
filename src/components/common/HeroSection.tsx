@@ -100,8 +100,13 @@ export default function HeroSection() {
                         </h1>
                     </div>
                     <div className="w-full flex items-center flex-col">
-                        <Button className="w-min mt-4 " color="#043343">
-                            <Link href={"/v1/auth/signup"}>Get started</Link>
+                        <Button
+                            className="w-min mt-4 "
+                            color="#043343"
+                            component={Link}
+                            href={"/v1/auth/signup"}
+                        >
+                            Get started
                         </Button>
                     </div>
                 </div>

@@ -13,6 +13,7 @@ const myColor: MantineColorsTuple = [
     "#398ec0",
     "#2d7fac",
     "#14678f",
+    "#043343",
 ];
 
 export const theme = createTheme({

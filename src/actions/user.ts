@@ -5,6 +5,7 @@ import { saveSetupInDb } from "@/lib/db/users";
 import {
     userSetupSchema,
     userEditSchema,
+    userSetupFormInput,
 } from "@/lib/validators/usersZodSchema";
 import { unauthorized } from "next/navigation";
 
@@ -13,7 +14,7 @@ export default async function updateUser(
     prevState: any,
     formData: FormData
 ) {
-    const { userId, schema } = editProps;
+    const { userId } = editProps;
     if (!userId) {
         console.error("Missing user ID");
         return { succesful: false };
@@ -42,47 +43,26 @@ export default async function updateUser(
     );
     const result = await saveSetupInDb(userId, filteredData);
 
-    if (!Array.isArray(result) || !result.length) {
+    if (!Array.isArray(result) || result.length > 0) {
         return { succesful: false };
     }
     return { succesful: true, user: result[0] ? result[0] : undefined };
 }
 
-export async function createUser(
-    editProps: { userId: string | undefined; schema: "edit" | "setup" },
-    prevState: any,
-    formData: FormData
-) {
-    const { userId, schema } = editProps;
-    if (!userId) {
-        console.error("Missing user ID");
-        return { succesful: false };
-    }
+export async function CreateUser(prevState: any, data: userSetupFormInput) {
     const session = await auth();
-    if (!session || session.user.id !== userId) unauthorized();
+    if (!session || !session.user.id) unauthorized();
 
-    const rawData = {
-        firstName: formData.get("firstName")?.toString(),
-        lastName: formData.get("lastName")?.toString(),
-        sex: formData.get("sex")?.toString(),
-        dateOfBirth: formData.get("dateOfBirth")?.toString(),
-    };
-    const parsed = userSetupSchema.safeParse(rawData);
+    const parsed = userSetupSchema.safeParse(data);
 
     if (!parsed.success) {
         console.error(`${parsed.error.name}: ${parsed.error.message}`);
-        return { succesful: false };
+        return { succesful: false, user: undefined };
     }
-    // Filter out empty strings or nulls so they don't overwrite DB defaults
-    const filteredData = Object.fromEntries(
-        Object.entries(parsed.data).filter(
-            ([_, value]) => value !== "" && value !== null
-        )
-    );
-    const result = await saveSetupInDb(userId, filteredData);
+    const result = await saveSetupInDb(session.user.id, parsed.data);
 
-    if (!Array.isArray(result) || !result.length) {
-        return { succesful: false };
+    if (!Array.isArray(result) || result.length <= 0) {
+        return { succesful: false, user: undefined };
     }
     return { succesful: true, user: result[0] ? result[0] : undefined };
 }

@@ -8,153 +8,183 @@ import {
     Stepper,
     NativeSelect,
     NavLink,
-    Image,
     Modal,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-import { useState, useRef } from "react";
+import {
+    useState,
+    useRef,
+    useActionState,
+    useEffect,
+    startTransition,
+} from "react";
 import {
     IconPaw,
-    IconCalendarPlus,
     IconChevronRight,
+    IconCalendar,
+    IconX,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import { createUser } from "@/actions/updateUser";
+import { CreateUser } from "@/actions/user";
 import SuccessModal from "../common/SuccessModal";
 import { useSession } from "next-auth/react";
+import { useForm } from "@mantine/form";
+import {
+    userSetupFormInput,
+    userSetupSchema,
+} from "@/lib/validators/usersZodSchema";
+import { zod4Resolver } from "mantine-form-zod-resolver";
+import { notifications } from "@mantine/notifications";
 
 export default function AccountStepper({
     currentStep,
-    userId,
 }: {
     currentStep: number;
-    userId: string;
 }) {
     const { update, data: session } = useSession();
 
     const [active, setActive] = useState<number>(currentStep);
     const [isSuccesful, setIsSuccesful] = useState(false);
-    const [dateOfBirth, setDateOfBirth] = useState<string | null>(null);
-    const [firstName, setFirstName] = useState<string>("");
-    const [lastName, setLastName] = useState<string>("");
-    const [sex, setSex] = useState<(typeof userGenderValue)[number]>("other");
 
     const [isOpenModal, { open, close }] = useDisclosure();
+
     const onSave = () => {
         open();
     };
 
     const stepperRef = useRef<HTMLDivElement>(null);
 
-    const onConfirm = async () => {
-        // todo error
-        if (!sex || !dateOfBirth || !userId) {
-            return;
-        }
-        const form = new FormData();
-        form.append("firstName", firstName);
-        form.append("lastName", lastName);
-        form.append("sex", sex);
-        form.append("dateOfBirth", dateOfBirth);
-        const updatedUser = await createUser(
-            { userId: userId, schema: "setup" },
-            null,
-            form
-        );
+    const form = useForm<userSetupFormInput>({
+        mode: "uncontrolled",
+        validate: zod4Resolver(userSetupSchema),
+        validateInputOnBlur: true,
+        validateInputOnChange: true,
+    });
 
-        if (updatedUser.succesful && updatedUser.user) {
-            await update({
-                ...updatedUser.user,
-            }).then(() => {
-                close();
-                setIsSuccesful(true);
-            });
-        }
+    const createUser = CreateUser.bind(null);
+
+    const [formState, formAction, isPending] = useActionState(createUser, {
+        succesful: false,
+        user: undefined,
+    });
+
+    const handleSubmit = async (data: userSetupFormInput) => {
+        startTransition(() => {
+            formAction(data);
+        });
     };
+    useEffect(() => {
+        if (formState.succesful && Boolean(formState.user)) {
+            update({ ...formState.user })
+                .then(() => {
+                    close();
+                    setIsSuccesful(true);
+                })
+                .catch(() => {
+                    notifications.show({
+                        title: "Sorry, Server update failed",
+                        message: "Please contact the customer service",
+                        icon: <IconX size={20} />,
+                        color: "red",
+                    });
+                });
+        }
+    }, [formState]);
 
     return (
         <>
-            <Stepper
-                ref={stepperRef}
-                active={active}
-                className="w-full items-center  "
-                allowNextStepsSelect={false}
-                size="xl"
-            >
-                <Stepper.Step
-                    icon={
-                        <Image
-                            src="https://picsum.photos/200"
-                            alt="Pet icon"
-                            radius="xl"
-                            width={32}
-                            height={32}
-                        />
-                    }
-                    label="Set up Account"
-                    description={session?.user.email}
-                    className=""
+            <form className="w-full items-center  ">
+                <Stepper
+                    ref={stepperRef}
+                    active={active}
+                    allowNextStepsSelect={false}
+                    size="md"
                 >
-                    <form>
+                    <Stepper.Step
+                        label="Set up Account"
+                        description={session?.user.email}
+                        className=""
+                    >
                         <Box className="flex mt-8 gap-4 flex-col">
                             <TextInput
                                 name="firstName"
                                 withAsterisk
                                 label={"First name"}
                                 size="md"
+                                {...form.getInputProps("firstName")}
                                 maxLength={25}
-                                placeholder="Juan Carlo"
                                 variant="filled"
-                                onChange={(event) =>
-                                    setFirstName(event.currentTarget.value)
-                                }
                             />
                             <TextInput
                                 name="lastName"
                                 label={"Last name"}
                                 size="md"
-                                placeholder="Legazpi"
+                                {...form.getInputProps("lastName")}
                                 maxLength={25}
                                 variant="filled"
-                                onChange={(event) =>
-                                    setLastName(event.currentTarget.value)
-                                }
                                 withAsterisk
                             />
-                            <div className="w-full flex gap-6">
-                                <NativeSelect
-                                    name="sex"
-                                    className="w-full"
-                                    size="md"
-                                    data={userGenderValue}
-                                    value={sex}
-                                    multiple={false}
-                                    label="Gender"
-                                    variant="filled"
-                                    withAsterisk
-                                    onChange={(e) =>
-                                        setSex(
-                                            e.currentTarget.value as
-                                                | "male"
-                                                | "female"
-                                                | "other"
-                                        )
-                                    }
-                                />
-
-                                <DatePickerInput
-                                    name="dateOfBirth"
-                                    size="md"
-                                    onChange={setDateOfBirth}
-                                    maxDate={new Date()}
-                                    className="w-full"
-                                    label="Date of Birth"
-                                    placeholder="November 04, 1999"
-                                    variant="filled"
-                                    withAsterisk
-                                />
-                            </div>
                             <div className="flex w-full mt-10 justify-end gap-4">
+                                <Button
+                                    size="md"
+                                    onClick={() => {
+                                        const result =
+                                            form.validateField("firstName");
+                                        const result2 =
+                                            form.validateField("lastName");
+                                        if (
+                                            !result.hasError &&
+                                            !result2.hasError
+                                        )
+                                            setActive((prev) => prev + 1);
+                                    }}
+                                    variant="light"
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </Box>
+                    </Stepper.Step>
+                    <Stepper.Step>
+                        <Box className="flex mt-8 gap-4 flex-col">
+                            <NativeSelect
+                                className="w-full"
+                                size="md"
+                                data={[""].concat(userGenderValue)}
+                                multiple={false}
+                                label="Gender"
+                                variant="filled"
+                                withAsterisk
+                                {...form.getInputProps("gender")}
+                            />
+
+                            <DatePickerInput
+                                name="dateOfBirth"
+                                size="md"
+                                {...form.getInputProps("dateOfBirth")}
+                                maxDate={new Date()}
+                                className="w-full"
+                                label="Date of Birth"
+                                variant="filled"
+                                withAsterisk
+                            />
+                            <TextInput
+                                {...form.getInputProps("contactNumber")}
+                                label="Contact number"
+                                className="w-full"
+                                variant="filled"
+                                withAsterisk
+                            />
+                            <div className="flex w-full mt-10 justify-end gap-4">
+                                <Button
+                                    size="md"
+                                    onClick={() => {
+                                        setActive((prev) => prev - 1);
+                                    }}
+                                    variant="light"
+                                >
+                                    Prev
+                                </Button>
                                 <Button
                                     size="md"
                                     onClick={onSave}
@@ -164,33 +194,33 @@ export default function AccountStepper({
                                 </Button>
                             </div>
                         </Box>
-                    </form>
-                </Stepper.Step>
+                    </Stepper.Step>
 
-                <Stepper.Completed>
-                    <Box className="flex gap-4 flex-col">
-                        <h1>Completed!, Whats your next Step?</h1>
-                        <Box className="mx-4 gap-2 flex flex-col">
-                            <NavLink
-                                href="/v1/pets/new"
-                                label="Add a pet"
-                                leftSection={<IconPaw stroke={1.5} />}
-                                rightSection={<IconChevronRight />}
-                                variant="subtle"
-                                active
-                            />
-                            <NavLink
-                                href="/v1/appointments/"
-                                label="Set an Appointment"
-                                leftSection={<IconCalendarPlus stroke={1.5} />}
-                                rightSection={<IconChevronRight />}
-                                variant="subtle"
-                                active
-                            />
+                    <Stepper.Completed>
+                        <Box className="flex gap-4 flex-col">
+                            <h1>Completed!, Whats your next Step?</h1>
+                            <Box className="mx-4 gap-2 flex flex-col">
+                                <NavLink
+                                    href="/v1/pets/new"
+                                    label="Add a pet"
+                                    leftSection={<IconPaw stroke={1.5} />}
+                                    rightSection={<IconChevronRight />}
+                                    variant="subtle"
+                                    active
+                                />
+                                <NavLink
+                                    href="/v1/appointments/"
+                                    label="View service schedules"
+                                    leftSection={<IconCalendar stroke={1.5} />}
+                                    rightSection={<IconChevronRight />}
+                                    variant="subtle"
+                                    active
+                                />
+                            </Box>
                         </Box>
-                    </Box>
-                </Stepper.Completed>
-            </Stepper>
+                    </Stepper.Completed>
+                </Stepper>
+            </form>
 
             <Modal
                 opened={isOpenModal}
@@ -210,7 +240,15 @@ export default function AccountStepper({
                         </h1>
                     </span>
                     <span className="w-full flex justify-end gap-4">
-                        <Button onClick={onConfirm}>Confirm</Button>
+                        <Button
+                            disabled={isPending}
+                            loading={isPending}
+                            onClick={() => {
+                                form.onSubmit((e) => handleSubmit(e))();
+                            }}
+                        >
+                            Confirm
+                        </Button>
                         <Button variant="subtle" color="gray" onClick={close}>
                             Cancel
                         </Button>
@@ -223,8 +261,9 @@ export default function AccountStepper({
                     opened={isSuccesful}
                     timeOut={3000}
                     onClose={() => {
+                        close();
                         setIsSuccesful(false);
-                        setActive((prev) => prev + 1);
+                        setActive(2);
                     }}
                     title="Profile Updated"
                     body="Your personal information has been saved successfully."
