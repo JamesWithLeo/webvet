@@ -21,8 +21,8 @@ import {
 import {
     IconPaw,
     IconChevronRight,
-    IconCalendar,
     IconX,
+    IconCurrencyPeso,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { CreateUser } from "@/actions/user";
@@ -209,9 +209,11 @@ export default function AccountStepper({
                                     active
                                 />
                                 <NavLink
-                                    href="/v1/appointments/"
-                                    label="View service schedules"
-                                    leftSection={<IconCalendar stroke={1.5} />}
+                                    href="/v1/pricing"
+                                    label="View service pricing"
+                                    leftSection={
+                                        <IconCurrencyPeso stroke={1.5} />
+                                    }
                                     rightSection={<IconChevronRight />}
                                     variant="subtle"
                                     active
