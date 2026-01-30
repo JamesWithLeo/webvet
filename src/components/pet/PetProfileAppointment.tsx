@@ -39,9 +39,6 @@ export default function PetProfileAppointment({ data }: Props) {
                 case "CHECK_UP":
                     bulletIcon = <IconStethoscope size={20} stroke={2} />;
                     break;
-                case "CONSULTATION":
-                    bulletIcon = <IconStethoscope size={20} stroke={2} />;
-                    break;
                 case "DEWORMING":
                     bulletIcon = <IconPillFilled size={20} stroke={2} />;
                     break;
