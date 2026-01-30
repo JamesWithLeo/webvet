@@ -45,6 +45,7 @@ import { notifications } from "@mantine/notifications";
 import Tips from "../common/Tips";
 import { TIPS } from "@/lib/tips";
 import Link from "next/link";
+import PopoverViewSchedule from "../common/PopoverViewSchedule";
 
 type Target = Record<
     string,
@@ -310,7 +311,13 @@ export default function AppointmentStepper({ pets = [], schedules }: Props) {
                                     form.setFieldValue("date", date);
                                     nextStep();
                                 }}
-                            />
+                            >
+                                <PopoverViewSchedule
+                                    isMobile={isMobile}
+                                    schedules={schedules}
+                                    position="bottom-end"
+                                />
+                            </SelectDateCal>
                             <Tips
                                 variant="light"
                                 color="gray"

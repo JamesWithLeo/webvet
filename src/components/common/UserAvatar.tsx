@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import Link from "next/link";
 import Image from "next/image";
 import { Avatar } from "@mantine/core";
@@ -21,6 +20,7 @@ export default async function UserAvatar({
                         fill={true}
                         src={photoUrl}
                         className="rounded-full p-0.5 relative object-cover aspect-square"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         alt="Avatar"
                     />
                 </Link>

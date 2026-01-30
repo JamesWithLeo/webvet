@@ -312,7 +312,7 @@ export default function CreatePetsWrapper({
                                         className="h-full object-cover relative w-full rounded overflow-hidden     aspect-square"
                                         src={previewUrl}
                                         fill={true}
-                                        sizes="100vw"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                         alt="pet profile preview"
                                     />
                                     <ActionIcon

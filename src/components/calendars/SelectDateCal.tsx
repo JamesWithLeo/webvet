@@ -11,25 +11,28 @@ import {
     appointmentTypeValues,
 } from "@/db/schema/appointments";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@mantine/core";
+import { Button, em, Group, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import PopoverViewSchedule from "../common/PopoverViewSchedule";
 
-type Props = {
+interface Props {
+    children: React.ReactNode;
     onChange: (value: string) => void;
     error?: string;
     type: (typeof appointmentTypeValues)[number];
     schedules: AppointmentSchedulesTypeModel[];
-};
+}
 
 export default function SelectDateCal({
+    children,
     onChange,
     error,
     type,
     schedules,
 }: Props) {
     const calendarRef = useRef<FullCalendar>(null);
-    const isMobile = useMediaQuery("(max-width: 64rem)");
+    const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
     const [currentTitle, setCurrentTitle] = useState("loading...");
     const [now, setNow] = useState(new Date());
 
@@ -44,6 +47,7 @@ export default function SelectDateCal({
     const isDayMatchToType = (day: number) => {
         return typePerSchedule[type].includes(day);
     };
+
     const onDateClick = (dateArg: DateClickArg) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -131,6 +135,7 @@ export default function SelectDateCal({
 
         return "future-date-cell";
     };
+
     useEffect(() => {
         // ensure the calendar rendered then assigned the title (e.g January 2026)
         const calendar = calendarRef.current?.getApi();
@@ -145,10 +150,13 @@ export default function SelectDateCal({
     return (
         <>
             <div className="justify-between items-center flex ">
-                <label className="lg:text-2xl text-lg font-bold">
-                    {currentTitle}
-                </label>
                 <div className="flex gap-2">
+                    <label className="lg:text-2xl text-lg font-bold">
+                        {currentTitle}
+                    </label>
+                </div>
+                <div className="flex gap-2">
+                    {children}
                     <Button.Group>
                         <Button
                             onClick={() => calendarRef.current?.getApi().prev()}
@@ -191,7 +199,7 @@ export default function SelectDateCal({
                 //     right: "prev,next today",
                 // }}
                 footerToolbar={false}
-                aspectRatio={2}
+                aspectRatio={isMobile ? 1 : 2}
                 dateClick={onDateClick}
                 businessHours={{
                     daysOfWeek: [1, 2, 3, 4, 5, 6],
@@ -202,7 +210,10 @@ export default function SelectDateCal({
                 slotMaxTime="17:00:00"
                 dayCellClassNames={getDayClassNames}
             />
-            {error && <h1 className="text-red-500">{error}</h1>}
+
+            <Group justify="space-between">
+                {error && <h1 className="text-red-500">{error}</h1>}
+            </Group>
         </>
     );
 }
