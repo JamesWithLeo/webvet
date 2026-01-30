@@ -114,9 +114,7 @@ export const appointmentsToPets = pgTable("appointments_to_pets", {
 
 export const appointmentSchedules = pgTable("appointment_schedules", {
     id: serial("id").primaryKey(),
-    appointmentType: varchar("appointment_type", { length: 50 })
-        .notNull()
-        .unique(),
+    appointmentType: appointmentType().notNull().unique(),
     availableDays: integer("available_days").array().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

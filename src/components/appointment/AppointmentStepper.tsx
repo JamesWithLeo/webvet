@@ -30,14 +30,16 @@ import {
 import {
     IconChevronLeft,
     IconInfoCircle,
-    IconInfoCircleFilled,
     IconInfoTriangle,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { toTitleCase } from "@/lib/toTitleCase";
 import SuccessModal from "../common/SuccessModal";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { appointmentTypeValues } from "@/db/schema/appointments";
+import {
+    AppointmentSchedulesTypeModel,
+    appointmentTypeValues,
+} from "@/db/schema/appointments";
 import CreateAppointmentAction from "@/actions/createAppointment";
 import { notifications } from "@mantine/notifications";
 import Tips from "../common/Tips";
@@ -56,9 +58,10 @@ type Props = {
         photoUrl: string | null;
         breed: string;
     }[];
+    schedules: AppointmentSchedulesTypeModel[] | null;
 };
 
-export default function AppointmentStepper({ pets = [] }: Props) {
+export default function AppointmentStepper({ pets = [], schedules }: Props) {
     const converted: Target = pets.reduce((acc, item) => {
         acc[item.id] = {
             id: item.id,
@@ -294,24 +297,28 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                     </section>
                 )}
 
-                {active === 1 && form.values.type && (
-                    <section className="w-full h-full flex flex-col justify-between max-w-7xl">
-                        <SelectDateCal
-                            type={form.values.type}
-                            {...form.getInputProps("date")}
-                            onChange={(date: string) => {
-                                form.setFieldValue("date", date);
-                                nextStep();
-                            }}
-                        />
-                        <Tips
-                            variant="light"
-                            color="gray"
-                            title="Advisory Tip"
-                            message={TIPS.appointment.date}
-                        />
-                    </section>
-                )}
+                {active === 1 &&
+                    form.values.type &&
+                    schedules &&
+                    schedules.length && (
+                        <section className="w-full h-full gap-4 flex flex-col  justify-between max-w-7xl">
+                            <SelectDateCal
+                                schedules={schedules}
+                                type={form.values.type}
+                                {...form.getInputProps("date")}
+                                onChange={(date: string) => {
+                                    form.setFieldValue("date", date);
+                                    nextStep();
+                                }}
+                            />
+                            <Tips
+                                variant="light"
+                                color="gray"
+                                title="Advisory Tip"
+                                message={TIPS.appointment.date}
+                            />
+                        </section>
+                    )}
 
                 {active === 2 && (
                     <section className="w-full h-full flex flex-col justify-between max-w-7xl">

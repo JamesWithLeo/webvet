@@ -4,29 +4,43 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import monthGridPlugin from "@fullcalendar/multimonth";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
-import { DayCellContentArg } from "@fullcalendar/core/index.js";
+import { DatesSetArg, DayCellContentArg } from "@fullcalendar/core/index.js";
 import { notifications } from "@mantine/notifications";
-import { appointmentTypeValues } from "@/db/schema/appointments";
+import {
+    AppointmentSchedulesTypeModel,
+    appointmentTypeValues,
+} from "@/db/schema/appointments";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
-const typePerSchedule: Record<
-    (typeof appointmentTypeValues)[number],
-    number[]
-> = {
-    CHECK_UP: [2, 3, 5, 6],
-    GROOMING: [1, 3, 4, 5, 6],
-    VACCINATION: [2, 3, 5, 6],
-    DEWORMING: [2, 3, 5, 6],
+type Props = {
+    onChange: (value: string) => void;
+    error?: string;
+    type: (typeof appointmentTypeValues)[number];
+    schedules: AppointmentSchedulesTypeModel[];
 };
 
 export default function SelectDateCal({
     onChange,
     error,
     type,
-}: {
-    onChange: (value: string) => void;
-    error?: string;
-    type: (typeof appointmentTypeValues)[number];
-}) {
+    schedules,
+}: Props) {
+    const calendarRef = useRef<FullCalendar>(null);
+    const isMobile = useMediaQuery("(max-width: 64rem)");
+    const [currentTitle, setCurrentTitle] = useState("loading...");
+    const [now, setNow] = useState(new Date());
+
+    const handleDatesSet = (dateInfo: DatesSetArg) => {
+        const calendarApi = calendarRef.current?.getApi();
+        if (calendarApi) {
+            const title = calendarApi.view.title;
+            setCurrentTitle(title);
+        }
+    };
+
     const isDayMatchToType = (day: number) => {
         return typePerSchedule[type].includes(day);
     };
@@ -76,6 +90,19 @@ export default function SelectDateCal({
         }
     };
 
+    const typePerSchedule = useMemo(() => {
+        return schedules.reduce(
+            (acc, item) => {
+                acc[item.appointmentType] = item.availableDays;
+                return acc;
+            },
+            {} as Record<
+                AppointmentSchedulesTypeModel["appointmentType"],
+                number[]
+            >
+        );
+    }, [schedules]);
+
     const getDayClassNames = (arg: DayCellContentArg) => {
         const date = arg.date;
         const dayOfWeek = date.getDay();
@@ -96,7 +123,7 @@ export default function SelectDateCal({
             return "past-date-cell";
         }
 
-        const availSchedule = typePerSchedule[type];
+        const availSchedule = typePerSchedule[type] ?? [];
 
         if (!availSchedule || !availSchedule.includes(dayOfWeek)) {
             return "past-date-cell";
@@ -104,23 +131,66 @@ export default function SelectDateCal({
 
         return "future-date-cell";
     };
+    useEffect(() => {
+        // ensure the calendar rendered then assigned the title (e.g January 2026)
+        const calendar = calendarRef.current?.getApi();
+        const timer = setInterval(() => setNow(new Date()), 60000);
+
+        if (!calendar) return () => clearInterval(timer);
+        setCurrentTitle(calendar.view.title);
+
+        return () => clearInterval(timer);
+    }, []);
 
     return (
         <>
+            <div className="justify-between items-center flex ">
+                <label className="lg:text-2xl text-lg font-bold">
+                    {currentTitle}
+                </label>
+                <div className="flex gap-2">
+                    <Button.Group>
+                        <Button
+                            onClick={() => calendarRef.current?.getApi().prev()}
+                            size={isMobile ? "xs" : "sm"}
+                            variant="default"
+                            c="gray.7"
+                        >
+                            <IconChevronLeft size={20} />
+                        </Button>
+                        <Button
+                            onClick={() => calendarRef.current?.getApi().next()}
+                            size={isMobile ? "xs" : "sm"}
+                            variant="default"
+                            c="gray.7"
+                        >
+                            <IconChevronRight size={20} />
+                        </Button>
+                    </Button.Group>
+
+                    <Button
+                        variant="default"
+                        c="gray.7"
+                        size={isMobile ? "xs" : "sm"}
+                        onClick={() => calendarRef.current?.getApi().today()}
+                    >
+                        Today
+                    </Button>
+                </div>
+            </div>
             <FullCalendar
+                ref={calendarRef}
+                datesSet={handleDatesSet}
                 plugins={[dayGridPlugin, monthGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
                 multiMonthMaxColumns={1}
-                headerToolbar={{
-                    left: "title",
-                    center: "",
-                    right: "prev,next today",
-                }}
-                footerToolbar={{
-                    left: "",
-                    center: "",
-                    right: "",
-                }}
+                headerToolbar={false}
+                // headerToolbar={{
+                //     left: "title",
+                //     center: "",
+                //     right: "prev,next today",
+                // }}
+                footerToolbar={false}
                 aspectRatio={2}
                 dateClick={onDateClick}
                 businessHours={{

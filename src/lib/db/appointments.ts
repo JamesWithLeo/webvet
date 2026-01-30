@@ -262,7 +262,7 @@ export const getAppointmentSchedules = async (): Promise<
  * @param days - Array of numbers [1, 2, 3...] where 1 is Sunday
  */
 export const upsertAppointmentSchedule = async (
-    type: string,
+    type: AppointmentType,
     days: number[]
 ) => {
     return await db

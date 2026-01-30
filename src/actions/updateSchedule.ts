@@ -1,7 +1,10 @@
 "use server";
 
 import { db } from "@/db";
-import { appointmentSchedules } from "@/db/schema/appointments";
+import {
+    appointmentSchedules,
+    AppointmentType,
+} from "@/db/schema/appointments";
 import {
     ServiceScheduleInput,
     updateServiceScheduleSchema,
@@ -22,7 +25,7 @@ export default async function UpdateSchedule(
     }
 
     const updateData = Object.entries(parsed.data).map(([type, days]) => ({
-        appointmentType: type,
+        appointmentType: type as AppointmentType,
         availableDays: days,
     }));
 
