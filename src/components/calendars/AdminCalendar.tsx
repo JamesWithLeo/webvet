@@ -14,7 +14,11 @@ import { Box, Button, Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState, useRef, useEffect } from "react";
 import { differenceInDays } from "date-fns";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import {
+    IconAlertTriangle,
+    IconChevronLeft,
+    IconChevronRight,
+} from "@tabler/icons-react";
 
 type DateCounts = Record<string, number>;
 
@@ -112,9 +116,33 @@ export default function AdminCalendar() {
 
     return (
         <>
-            <div className="justify-between mb-3 flex">
+            <div className="justify-between mb-3  flex ">
                 <label className="text-2xl ">{currentTitle}</label>
                 <div className="flex gap-2">
+                    <Button
+                        hidden={!isSelectionPending}
+                        className="fc-ignore-unselect w-min"
+                        disabled={!isSelectionPending}
+                        onClick={handleBlockButtonClick}
+                        size="sm"
+                        variant="light"
+                    >
+                        Enabled Selected Date
+                    </Button>
+                    <Button
+                        hidden={!isSelectionPending}
+                        className="fc-ignore-unselect w-min"
+                        disabled={!isSelectionPending}
+                        onClick={handleBlockButtonClick}
+                        size="sm"
+                        variant="light"
+                        color="red"
+                        leftSection={
+                            <IconAlertTriangle size={20} stroke={1.5} />
+                        }
+                    >
+                        Block Selected Date
+                    </Button>
                     <Button
                         onClick={() =>
                             calendarRef.current?.getApi().view.type ===
@@ -152,7 +180,7 @@ export default function AdminCalendar() {
                     </Button.Group>
                 </div>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 bg-white ">
                 <FullCalendar
                     ref={calendarRef}
                     defaultAllDay={false}
@@ -163,7 +191,7 @@ export default function AdminCalendar() {
                         timeGridPlugin,
                     ]}
                     initialView="multiMonthYear"
-                    aspectRatio={2}
+                    aspectRatio={1.8}
                     multiMonthMaxColumns={2}
                     datesSet={handleDatesSet}
                     businessHours={{
@@ -181,25 +209,6 @@ export default function AdminCalendar() {
                     slotMaxTime="17:00:00"
                     dayCellDidMount={onDayCellMount}
                 />
-            </div>
-            <div className="justify-end gap-2  flex">
-                <Button
-                    className="fc-ignore-unselect w-min"
-                    disabled={!isSelectionPending}
-                    onClick={handleBlockButtonClick}
-                    size="sm"
-                >
-                    Enabled Selected Date
-                </Button>
-                <Button
-                    className="fc-ignore-unselect w-min"
-                    disabled={!isSelectionPending}
-                    onClick={handleBlockButtonClick}
-                    size="sm"
-                    color="red"
-                >
-                    Block Selected Date
-                </Button>
             </div>
 
             <Modal

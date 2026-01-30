@@ -7,6 +7,7 @@ import {
     varchar,
     integer,
     text,
+    serial,
 } from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
@@ -26,7 +27,6 @@ export const appointmentTypeValues = [
     "CHECK_UP",
     "GROOMING",
     "VACCINATION",
-    "CONSULTATION",
     "DEWORMING",
 ] as const;
 
@@ -111,5 +111,18 @@ export const appointmentsToPets = pgTable("appointments_to_pets", {
         .notNull()
         .references(() => pets.id, { onDelete: "cascade" }),
 });
+
+export const appointmentSchedules = pgTable("appointment_schedules", {
+    id: serial("id").primaryKey(),
+    appointmentType: varchar("appointment_type", { length: 50 })
+        .notNull()
+        .unique(),
+    availableDays: integer("available_days").array().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type AppointmentSchedulesTypeModel = InferSelectModel<
+    typeof appointmentSchedules
+>;
 
 export type AppointmentTypeModel = InferSelectModel<typeof appointments>;

@@ -1,6 +1,8 @@
 import { db, dbTx } from "@/db";
 import {
     appointments,
+    appointmentSchedules,
+    AppointmentSchedulesTypeModel,
     appointmentsToPets,
     AppointmentType,
 } from "@/db/schema/appointments";
@@ -242,4 +244,39 @@ export const getAppointment = async ({
     } catch (error) {
         return null;
     }
+};
+
+export const getAppointmentSchedules = async (): Promise<
+    AppointmentSchedulesTypeModel[] | null
+> => {
+    try {
+        return await db.select().from(appointmentSchedules);
+    } catch (error: any) {
+        return null;
+    }
+};
+
+/**
+ * Upserts an appointment schedule.
+ * @param type - The appointment type (e.g., 'CHECK_UP')
+ * @param days - Array of numbers [1, 2, 3...] where 1 is Sunday
+ */
+export const upsertAppointmentSchedule = async (
+    type: string,
+    days: number[]
+) => {
+    return await db
+        .insert(appointmentSchedules)
+        .values({
+            appointmentType: type,
+            availableDays: days,
+        })
+        .onConflictDoUpdate({
+            target: appointmentSchedules.appointmentType,
+            set: {
+                availableDays: days,
+                updatedAt: new Date(),
+            },
+        })
+        .returning();
 };

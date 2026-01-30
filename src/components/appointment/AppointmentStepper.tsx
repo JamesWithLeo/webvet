@@ -13,8 +13,8 @@ import {
     MultiSelect,
     Group,
     Avatar,
-    ComboboxOptionsProps,
-    ComboboxItem,
+    Title,
+    Stack,
 } from "@mantine/core";
 
 import { useForm } from "@mantine/form";
@@ -27,7 +27,12 @@ import {
     newAppointmentSchema,
 } from "@/lib/validators/newAppointmentSchema";
 
-import { IconChevronLeft, IconInfoCircle, IconX } from "@tabler/icons-react";
+import {
+    IconChevronLeft,
+    IconInfoCircle,
+    IconInfoCircleFilled,
+    IconInfoTriangle,
+} from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { toTitleCase } from "@/lib/toTitleCase";
 import SuccessModal from "../common/SuccessModal";
@@ -37,6 +42,7 @@ import CreateAppointmentAction from "@/actions/createAppointment";
 import { notifications } from "@mantine/notifications";
 import Tips from "../common/Tips";
 import { TIPS } from "@/lib/tips";
+import Link from "next/link";
 
 type Target = Record<
     string,
@@ -78,6 +84,11 @@ export default function AppointmentStepper({ pets = [] }: Props) {
         { open: openConfirmDialog, close: closeConfirmDialog },
     ] = useDisclosure(false);
 
+    const [
+        openedNoPetsAlert,
+        { open: openNoPetsAlert, close: closeNoPetsAlert },
+    ] = useDisclosure(pets.length <= 0);
+
     const createAppointment = CreateAppointmentAction.bind(null);
 
     const [formState, formAction] = useActionState(createAppointment, {
@@ -102,7 +113,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
     const getStepFields = (step: number) => {
         switch (step) {
             case 0:
-                return ["title", "type", "petId"];
+                return ["title", "type", "petIds"];
             case 1:
                 return ["date"];
             case 2:
@@ -141,6 +152,11 @@ export default function AppointmentStepper({ pets = [] }: Props) {
         });
     };
 
+    const checkPets = () => {
+        if (pets.length <= 0) openNoPetsAlert();
+        else closeNoPetsAlert();
+    };
+
     useEffect(() => {
         if (formState?.succesful && formState.appointmentId) {
             openSuccessModal();
@@ -154,13 +170,17 @@ export default function AppointmentStepper({ pets = [] }: Props) {
             notifications.show({
                 title: `Error code: ${formState.debug.code}`,
                 message: `${formState.debug.message}`,
-                color: "red",
-                icon: <IconX size={20} />,
+                color: "orange",
+                icon: <IconInfoTriangle size={24} />,
                 withBorder: true,
                 autoClose: false,
             });
         }
     }, [formState]);
+
+    useEffect(() => {
+        checkPets();
+    }, [pets]);
 
     return (
         <>
@@ -253,7 +273,14 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                                 )}
                             />
                             <div className="w-full flex justify-end">
-                                <Button onClick={nextStep}>Next</Button>
+                                <Button
+                                    onClick={() => {
+                                        checkPets();
+                                        nextStep();
+                                    }}
+                                >
+                                    Next
+                                </Button>
                             </div>
                         </div>
 
@@ -285,6 +312,7 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                         />
                     </section>
                 )}
+
                 {active === 2 && (
                     <section className="w-full h-full flex flex-col justify-between max-w-7xl">
                         <SelectTimeCal
@@ -455,6 +483,32 @@ export default function AppointmentStepper({ pets = [] }: Props) {
                             Confirm
                         </Button>
                     </span>
+                </Box>
+            </Modal>
+
+            <Modal
+                onClose={closeNoPetsAlert}
+                opened={openedNoPetsAlert}
+                centered
+                withCloseButton={false}
+                size={"lg"}
+            >
+                <Box className="flex flex-col gap-6 p-4">
+                    <Box>
+                        <Title order={2}>No pets found</Title>
+                        <Text>
+                            A pet profile is required to schedule an
+                            appointment. Would you like to add one now?
+                        </Text>
+                    </Box>
+                    <Group justify="right">
+                        <Button variant="default" onClick={closeNoPetsAlert}>
+                            Not now
+                        </Button>
+                        <Button component={Link} href={"/v1/pets/new"}>
+                            Add a pet
+                        </Button>
+                    </Group>
                 </Box>
             </Modal>
         </>

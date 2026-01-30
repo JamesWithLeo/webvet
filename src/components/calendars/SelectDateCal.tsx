@@ -15,7 +15,6 @@ const typePerSchedule: Record<
     CHECK_UP: [2, 3, 5, 6],
     GROOMING: [1, 3, 4, 5, 6],
     VACCINATION: [2, 3, 5, 6],
-    CONSULTATION: [2, 3, 5, 6],
     DEWORMING: [2, 3, 5, 6],
 };
 

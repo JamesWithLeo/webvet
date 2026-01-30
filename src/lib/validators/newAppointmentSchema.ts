@@ -23,7 +23,7 @@ export const newAppointmentSchema = z.object({
                 .nonempty("Missing pet")
                 .refine((val) => val !== "", "Please select pet to be seen")
         )
-        .min(1, "Please select at least one pet") // Ensures the array isn't empty
+        .min(1, "Please select at least one pet")
         .nonoptional(),
     date: z.string().nonempty({ message: "Please select a date" }),
     event_datetime: z.string().nonempty({ message: "Please select a time" }),
