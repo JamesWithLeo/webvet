@@ -65,14 +65,13 @@ export default function IncomingAppointmentEmail({
                                 <strong>{eventDateTime}</strong>
                             </Text>
                             <Text className="text-slate-600 text-sm leading-4 mt-4 mr-8 ml-8">
-                                Please arrive 5 minutes early. If you need to
-                                reschedule, please click the link below to view
-                                your dashboard.
+                                Please arrive 5 minutes early. please click the
+                                link below to view your dashboard.
                             </Text>
 
                             <Section className="mt-4 mb-4">
                                 <Link
-                                    href={`https://www.josephmary.me/v1/appointment/${id}`}
+                                    href={`https://www.josephmary.me/v1/appointments/${id}`}
                                     className=" ml-8 text-sm underline "
                                 >
                                     View Appointment Details

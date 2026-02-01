@@ -69,7 +69,7 @@ export default function AppointmentSaved({
 
                             <Section className="mt-4 mb-4">
                                 <Link
-                                    href={`https://www.josephmary.me/v1/appointment/${id}`}
+                                    href={`https://www.josephmary.me/v1/appointments/${id}`}
                                     className=" ml-8 text-sm underline "
                                 >
                                     View Appointment Details
