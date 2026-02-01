@@ -24,11 +24,13 @@ export default function IncomingAppointmentEmail({
     name,
     pets,
     type,
+    eventDateTime,
 }: {
     id: string;
     name: string;
     pets: string;
     type: string;
+    eventDateTime: string;
 }) {
     return (
         <Html>
@@ -51,7 +53,7 @@ export default function IncomingAppointmentEmail({
                         />
                         <Section className="bg-white border text-left border-slate-200 rounded-lg p-4  mt-4  ">
                             <Heading className="text-xl  text-slate-800 mt-4 ml-8">
-                                Appointment Confirmed!
+                                Incoming appointment!
                             </Heading>
                             <Text className="text-slate-600 text-sm leading-6 mt-6 ml-8">
                                 Hi {name},
@@ -59,7 +61,8 @@ export default function IncomingAppointmentEmail({
                             <Text className="text-slate-600 text-sm leading-6 mt-4 ml-8 mr-8">
                                 We are excited to see <strong>{pets}</strong>{" "}
                                 for their
-                                <strong> {type}</strong>.
+                                <strong> {type}</strong> on{" "}
+                                <strong>{eventDateTime}</strong>
                             </Text>
                             <Text className="text-slate-600 text-sm leading-4 mt-4 mr-8 ml-8">
                                 Please arrive 5 minutes early. If you need to

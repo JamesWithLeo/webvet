@@ -16,8 +16,7 @@ import { resend } from "@/lib/resend";
  *
  * In this action we're inserting appointment to the db,
  * existing appointment will not apply and
- * email the user if succesful, email will
- * only send if (eg. email provided, email notification enabled).
+ * email the user if succesful,
  */
 export default async function CreateAppointmentAction(
     prevState: any,
@@ -42,7 +41,6 @@ export default async function CreateAppointmentAction(
         const name = session.user.name;
         if (!email) return { succesful: true, emailed: false };
 
-        // todo: fetch the name of the pets for email
         const { error } = await resend.emails.send({
             from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
             to: [email],
@@ -50,8 +48,8 @@ export default async function CreateAppointmentAction(
             react: AppointmentSaved({
                 id: result.id,
                 type: result.type,
-                name: name ? toTitleCase(name) : null,
-                pets: "(Todo : add pet)",
+                name: name ? toTitleCase(name) : "lovely fur parent.",
+                pets: result.petNames.join(", "),
             }),
         });
         if (error) {

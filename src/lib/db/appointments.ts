@@ -33,7 +33,15 @@ export class ExistingAppointmentConflictError extends Error {
         this.petIds = petIds;
     }
 }
-
+/**
+ * Check whether pets already have appointment to the given type
+ *
+ * @param tx drizzle websocket instance
+ * @param petIds id to validate
+ * @param type appointment type
+ *
+ * @throws ExistingAppintmentConflictError if not unavailable
+ */
 const validatePetsAvailability = async (
     tx: PgTransaction<any, any, any>,
     petIds: string[],
@@ -63,6 +71,12 @@ const validatePetsAvailability = async (
     }
 };
 
+/**
+ *
+ * @param appointmentData
+ * @param petId
+ * @returns
+ */
 export const saveAppointmentToDb = async ({
     appointmentData,
     petIds,
@@ -85,18 +99,31 @@ export const saveAppointmentToDb = async ({
             .values(appointmentData)
             .returning();
 
+        let petNames: string[] = [];
+
         if (petIds.length > 0) {
-            await tx
-                .insert(appointmentsToPets)
-                .values(
-                    petIds.map((petId) => ({
-                        appointmentId: inserted.id,
-                        petId,
-                    }))
-                )
-                .returning();
+            // 1. Perform the link
+            await tx.insert(appointmentsToPets).values(
+                petIds.map((petId) => ({
+                    appointmentId: inserted.id,
+                    petId,
+                }))
+            );
+
+            // 2. Fetch the names of the pets we just linked
+            const selectedPets = await tx
+                .select({ name: pets.name })
+                .from(pets)
+                .where(inArray(pets.id, petIds));
+
+            petNames = selectedPets.map((p) => p.name);
         }
-        return inserted;
+
+        // Return the appointment data + the pet names
+        return {
+            ...inserted,
+            petNames,
+        };
     });
 };
 

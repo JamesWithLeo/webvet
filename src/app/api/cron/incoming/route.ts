@@ -26,10 +26,8 @@ export async function GET(request: Request) {
                 firstName: users.firstName,
                 type: appointments.type,
                 userEmail: users.email,
-                eventTime: appointments.event_datetime,
-                pets: sql<
-                    { id: string; name: string; photoUrl: string | null }[]
-                >`
+                eventDateTime: appointments.event_datetime,
+                pets: sql<{ name: string }[]>`id: string;
                 COALESCE(
                     json_agg(
                         json_build_object(
@@ -46,13 +44,13 @@ export async function GET(request: Request) {
             )
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
             .innerJoin(users, eq(pets.ownerId, users.id))
-            // .where(
-            //     and(
-            //         gte(appointments.event_datetime, startWindow),
-            //         lte(appointments.event_datetime, endWindow),
-            //         eq(appointments.incomingNotification, false)
-            //     )
-            // )
+            .where(
+                and(
+                    gte(appointments.event_datetime, startWindow),
+                    lte(appointments.event_datetime, endWindow),
+                    eq(appointments.incomingNotification, false)
+                )
+            )
             .groupBy(appointments.id, users.email, appointments.event_datetime);
 
         if (result.length === 0) {
@@ -62,18 +60,38 @@ export async function GET(request: Request) {
             });
         }
         await qstash.batchJSON(
-            result.map((item) => ({
-                url: `https://www.josephmary.me/api/jobs/send-email`,
-                body: {
-                    email: item.userEmail,
-                    pets: item.pets.join(", "),
-                    type: item.type,
-                    eventDateTime: item.eventTime,
-                    name: item.firstName,
-                },
-                // Optional: delay them it doesn't hit email rate limits
-                delay: 5,
-            }))
+            result.map((item) => {
+                const petFormatter = new Intl.ListFormat("en", {
+                    style: "long",
+                    type: "conjunction",
+                });
+                const formattedPets = petFormatter.format(
+                    item.pets.map((p) => p.name)
+                );
+
+                const formattedDate = new Date(
+                    item.eventDateTime
+                ).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                });
+
+                return {
+                    url: `https://www.josephmary.me/api/jobs/send-email`,
+                    body: {
+                        email: item.userEmail,
+                        pets: formattedPets,
+                        type: item.type,
+                        eventDateTime: formattedDate,
+                        name: item.firstName,
+                    },
+                    // Optional: delay them it doesn't hit email rate limits
+                    delay: 5,
+                };
+            })
         );
 
         return NextResponse.json({

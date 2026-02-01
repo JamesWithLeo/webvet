@@ -14,7 +14,6 @@ import {
     Group,
     Avatar,
     Title,
-    Stack,
 } from "@mantine/core";
 
 import { useForm } from "@mantine/form";

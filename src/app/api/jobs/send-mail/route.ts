@@ -5,7 +5,8 @@ import { toTitleCase } from "@/lib/toTitleCase";
 import IncomingAppointmentEmail from "@/components/emails/IncomingAppointmentEmail";
 
 async function handler(req: Request) {
-    const { email, pets, type, firstName, id } = await req.json();
+    const { email, pets, type, firstName, id, eventDateTime } =
+        await req.json();
 
     try {
         // YOUR EMAIL LOGIC HERE (Resend, Nodemailer, etc.)
@@ -20,6 +21,7 @@ async function handler(req: Request) {
                 id: id,
                 name: toTitleCase(firstName!),
                 pets: pets,
+                eventDateTime: eventDateTime,
             }),
         });
         return NextResponse.json({ delivered: true });
