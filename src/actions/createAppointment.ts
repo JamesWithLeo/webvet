@@ -9,9 +9,7 @@ import {
     newAppointmentSchema,
 } from "@/lib/validators/newAppointmentSchema";
 import { unauthorized } from "next/navigation";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { resend } from "@/lib/resend";
 
 /**
  *

@@ -1,7 +1,14 @@
+"use client";
 import AppointmentSaved from "@/components/emails/AppointmentSaved";
 import MagicLinkEmail from "@/components/emails/MagicLinkEmail";
+import { Button } from "@mantine/core";
 
 export default function Page() {
+    const testIncoming = async () => {
+        const response = await fetch("/api/cron/incoming");
+        console.log(await response.json());
+    };
+
     return (
         <>
             <AppointmentSaved
@@ -18,6 +25,14 @@ export default function Page() {
                 name={"james123@gmail.com".split("@")[0]}
                 providerName="Google"
             />
+
+            <Button
+                onClick={() => {
+                    testIncoming();
+                }}
+            >
+                Test incoming
+            </Button>
         </>
     );
 }

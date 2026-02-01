@@ -1,9 +1,10 @@
 import { db } from "@/db";
 import { appointments, appointmentsToPets } from "@/db/schema/appointments";
 import { NextResponse } from "next/server";
-import { and, gte, lte, eq } from "drizzle-orm";
+import { and, gte, lte, eq, sql } from "drizzle-orm";
 import { pets } from "@/db/schema/pets";
 import { users } from "@/db/schema/users";
+import { qstash } from "@/lib/qtash";
 
 export async function GET(request: Request) {
     const authHeader = request.headers.get("authorization");
@@ -22,11 +23,21 @@ export async function GET(request: Request) {
 
         const result = await db
             .select({
-                userId: users.id,
+                firstName: users.firstName,
+                type: appointments.type,
                 userEmail: users.email,
-                appointmentId: appointments.id,
-                petName: pets.name,
                 eventTime: appointments.event_datetime,
+                pets: sql<
+                    { id: string; name: string; photoUrl: string | null }[]
+                >`
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'name', ${pets.name}, 
+                        )
+                    ) FILTER (WHERE ${pets.id} IS NOT NULL), 
+                     '[]'
+                )`.as("pets"),
             })
             .from(appointmentsToPets)
             .innerJoin(
@@ -37,11 +48,12 @@ export async function GET(request: Request) {
             .innerJoin(users, eq(pets.ownerId, users.id))
             .where(
                 and(
-                    gte(appointments.event_datetime, startWindow), // From this second...
-                    lte(appointments.event_datetime, endWindow), // ...up to 35 mins away
-                    eq(appointments.incomingNotification, false) // But ONLY if not already sent
+                    gte(appointments.event_datetime, startWindow),
+                    lte(appointments.event_datetime, endWindow),
+                    eq(appointments.incomingNotification, false)
                 )
-            );
+            )
+            .groupBy(appointments.id, users.email, appointments.event_datetime);
 
         if (result.length === 0) {
             return NextResponse.json({
@@ -49,12 +61,24 @@ export async function GET(request: Request) {
                 message: "No pending notifications",
             });
         }
-        // add enail here:
+        await qstash.batchJSON(
+            result.map((item) => ({
+                url: `https://www.josephmary.me/api/jobs/send-email`,
+                body: {
+                    email: item.userEmail,
+                    pets: item.pets.join(", "),
+                    type: item.type,
+                    eventDateTime: item.eventTime,
+                    name: item.firstName,
+                },
+                // Optional: delay them it doesn't hit email rate limits
+                delay: 5,
+            }))
+        );
 
         return NextResponse.json({
             success: true,
-            count: result.length,
-            data: result,
+            queued: result.length,
         });
     } catch (error) {
         console.error("Cron Error:", error);
