@@ -46,13 +46,13 @@ export async function GET(request: Request) {
             )
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
             .innerJoin(users, eq(pets.ownerId, users.id))
-            .where(
-                and(
-                    gte(appointments.event_datetime, startWindow),
-                    lte(appointments.event_datetime, endWindow),
-                    eq(appointments.incomingNotification, false)
-                )
-            )
+            // .where(
+            //     and(
+            //         gte(appointments.event_datetime, startWindow),
+            //         lte(appointments.event_datetime, endWindow),
+            //         eq(appointments.incomingNotification, false)
+            //     )
+            // )
             .groupBy(appointments.id, users.email, appointments.event_datetime);
 
         if (result.length === 0) {
