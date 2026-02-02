@@ -18,14 +18,8 @@ export const createServiceSchema = z
             .union([z.literal(""), AllowedType])
             .refine((val) => val !== "", "Please select a service type"),
         inclusions: z
-            .string()
-            .max(200)
-            .transform((val) =>
-                val
-                    .split(".")
-                    .map((i) => i.trim())
-                    .filter(Boolean)
-            ),
+            .array(z.string())
+            .min(1, "At least one inclusion is required"),
         isFlat: z.boolean(),
         flat: z.string().optional(),
         small: z.string().optional(),
@@ -61,3 +55,19 @@ export const createServiceSchema = z
 export type ServiceFormInput = z.input<typeof createServiceSchema>;
 
 export type ServiceFormOutput = z.output<typeof createServiceSchema>;
+
+export const editServiceSchema = z.object({
+    id: z.string().nonempty("Missing id"),
+    title: z.string().trim().nonempty("Missing title").toLowerCase(),
+    description: z
+        .string()
+        .trim()
+        .nonempty("Missing description")
+        .toLowerCase(),
+    reminder: z.string().trim().nonempty("Missing reminder").toLowerCase(),
+    gapInDays: z.coerce.number().nullable(),
+    annualInterval: z.coerce.number().nullable(),
+    inclusions: z.array(z.string()),
+});
+
+export type ServiceFormEditOuput = z.output<typeof editServiceSchema>;

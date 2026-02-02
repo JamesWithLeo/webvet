@@ -5,10 +5,15 @@ import {
     ServicePriceTypeModel,
     servicePriceVariant,
     services,
+    ServiceTypeModel,
 } from "@/db/schema/services";
-import { ServiceFormOutput } from "../validators/serviceZodSchema";
+import {
+    ServiceFormEditOuput,
+    ServiceFormOutput,
+} from "../validators/serviceZodSchema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 import { AppointmentType } from "@/db/schema/appointments";
+import { ServiceVariantFormOutput } from "../validators/serviceVariantSchema";
 
 export async function saveServiceToDb({
     serviceData,
@@ -79,6 +84,17 @@ export async function saveServiceToDb({
     } catch (error: any) {}
 }
 
+export async function updateServiceToDB(
+    serviceData: Partial<ServiceTypeModel>
+) {
+    return await db
+        .update(services)
+        .set(serviceData)
+        .where(eq(services.id, serviceData.id!))
+        .returning()
+        .then((v) => v[0]);
+}
+
 export async function getServices() {
     try {
         return await db.select().from(services);
@@ -87,12 +103,7 @@ export async function getServices() {
     }
 }
 
-export async function saveVariantToDB(variantData: {
-    variant: (typeof servicePriceVariant)[number];
-    serviceId: string;
-    isAvailable: boolean;
-    price: string;
-}) {
+export async function saveVariantToDB(variantData: ServiceVariantFormOutput) {
     return await db
         .insert(prices)
         .values(variantData)

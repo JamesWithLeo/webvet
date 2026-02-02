@@ -1,12 +1,8 @@
-import CreateService from "@/actions/createService";
-import { appointmentTypeValues } from "@/db/schema/appointments";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
     serviceVariantFormInput,
-    ServiceVariantFormOutput,
     serviceVariantSchema,
 } from "@/lib/validators/serviceVariantSchema";
-import { ServiceFormInput } from "@/lib/validators/serviceZodSchema";
 import {
     Button,
     Group,
@@ -17,10 +13,10 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import { IconCheck } from "@tabler/icons-react";
+import { IconCheck, IconX } from "@tabler/icons-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useActionState, startTransition, useEffect } from "react";
-import { servicePriceVariant, servicePricesType } from "@/db/schema/services";
+import { servicePriceVariant } from "@/db/schema/services";
 import CreateVariant from "@/actions/createVariant";
 
 export default function AddVariantModal({
@@ -28,13 +24,14 @@ export default function AddVariantModal({
     opened,
     close,
 }: {
-    serviceId: string;
+    serviceId: string | null;
     opened: boolean;
     close: () => void;
 }) {
     const createVariant = CreateVariant.bind(null);
     const formInitialValues: serviceVariantFormInput = {
         variant: "",
+        serviceId: "",
         price: "",
         isAvailable: true,
     };
@@ -53,9 +50,14 @@ export default function AddVariantModal({
 
     const handleSubmit = (value: serviceVariantFormInput) => {
         startTransition(() => {
-            formAction({ serviceId: serviceId, variant: value });
+            console.log(value);
+            formAction({ ...value });
         });
     };
+    useEffect(() => {
+        if (serviceId) form.setFieldValue("serviceId", serviceId);
+    }, [serviceId]);
+
     useEffect(() => {
         if (formState.succesful && formState.data) {
             notifications.show({
@@ -63,6 +65,15 @@ export default function AddVariantModal({
                 message: "The service is now active and visible to clients.",
                 color: "teal",
                 icon: <IconCheck size={20} />,
+            });
+            close();
+        }
+        if (!formState.succesful && formState.error) {
+            notifications.show({
+                title: `Variant not saved!`,
+                message: formState.error,
+                color: "Red",
+                icon: <IconX size={20} />,
             });
             close();
         }
@@ -91,6 +102,7 @@ export default function AddVariantModal({
                     />
                     <TextInput
                         label="Price"
+                        type="number"
                         withAsterisk
                         description="Actual price (e.g: 400.00, 650)."
                         {...form.getInputProps("price")}
@@ -98,7 +110,9 @@ export default function AddVariantModal({
 
                     <Group justify="end" mt={"md"}>
                         <Button
-                            type="submit"
+                            onClick={() => {
+                                form.onSubmit((data) => handleSubmit(data))();
+                            }}
                             loading={isPending}
                             disabled={isPending || !form.isValid()}
                         >

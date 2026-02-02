@@ -1,4 +1,4 @@
-import CreateService from "@/actions/createService";
+import { CreateService } from "@/actions/Service";
 import { appointmentTypeValues } from "@/db/schema/appointments";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
@@ -12,6 +12,7 @@ import {
     NativeSelect,
     Stack,
     Switch,
+    TagsInput,
     Textarea,
     TextInput,
 } from "@mantine/core";
@@ -43,7 +44,7 @@ export default function AddServiceModal({
             description: "",
             type: "",
             reminder: "",
-            inclusions: "",
+            inclusions: [],
             flat: "",
             small: "",
             medium: "",
@@ -116,12 +117,9 @@ export default function AddServiceModal({
                         withAsterisk
                         {...form.getInputProps("reminder")}
                     />
-                    <Textarea
+                    <TagsInput
                         label="Inclusion"
                         withAsterisk
-                        maxRows={3}
-                        minRows={2}
-                        rows={2}
                         description="Multiple inclusions must be seperated by period(.) ."
                         {...form.getInputProps("inclusions")}
                     />

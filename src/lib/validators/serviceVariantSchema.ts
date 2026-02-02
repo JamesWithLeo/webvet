@@ -6,6 +6,7 @@ const AllowedType = z.enum(servicePriceVariant, {
 });
 
 export const serviceVariantSchema = z.object({
+    serviceId: z.string().nonempty(),
     variant: z
         .union([z.literal(""), AllowedType])
         .refine((val) => val !== "", "Please select a service type"),

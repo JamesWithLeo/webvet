@@ -32,6 +32,8 @@ import { DeleteVariant } from "@/actions/deleteVariant";
 import { DeleteService } from "@/actions/deleteService";
 import ConfirmationModal from "../common/ConfirmationModal";
 import { notifications } from "@mantine/notifications";
+import EditServiceModal from "../services/EditServiceModal";
+import { ServiceFormEditOuput } from "@/lib/validators/serviceZodSchema";
 
 type Props = {
     records: ServiceTypeModel[];
@@ -177,11 +179,20 @@ export default function ServicesTable({ records }: Props) {
         { open: openDeleteService, close: closeDeleteService },
     ] = useDisclosure(false);
 
+    const [
+        openedEditService,
+        { open: openEditService, close: closeEditService },
+    ] = useDisclosure(false);
+
     const [isPendingDelete, startDeleteTransition] = useTransition();
 
-    const [selectedService, setSelectedService] = useState<string>("");
+    const [selectedService, setSelectedService] = useState<string | null>(null);
+    const [selectedEditService, setSelectedEditService] =
+        useState<ServiceFormEditOuput | null>(null);
 
     const handleDelete = () => {
+        if (!selectedService) return;
+
         startDeleteTransition(async () => {
             const result = await DeleteService(selectedService);
             if (result.succesful && result.data) {
@@ -226,7 +237,7 @@ export default function ServicesTable({ records }: Props) {
                 width: "20%",
                 resizable: true,
                 render: (rowData) => (
-                    <p className="line-clamp-2">{rowData.id}</p>
+                    <p className="line-clamp-2">{rowData.title}</p>
                 ),
             },
             {
@@ -237,9 +248,14 @@ export default function ServicesTable({ records }: Props) {
                 width: "20%",
                 resizable: true,
                 render: (rowData) => (
-                    <p className="line-clamp-2">{rowData.id}</p>
+                    <p className="line-clamp-2">{rowData.type}</p>
                 ),
             },
+            {
+                accessor: "gapInDays",
+                title: "Gap in days",
+            },
+            { accessor: "annualInterval", title: "Annual Interval" },
             {
                 accessor: "description",
                 title: "description",
@@ -299,6 +315,16 @@ export default function ServicesTable({ records }: Props) {
                             label="Edit service"
                             onClick={(e) => {
                                 e.stopPropagation();
+                                setSelectedEditService({
+                                    title: rowData.title,
+                                    description: rowData.description,
+                                    reminder: rowData.reminder,
+                                    annualInterval: rowData.annualInterval,
+                                    gapInDays: rowData.gapInDays,
+                                    inclusions: rowData.inclusions,
+                                    id: rowData.id,
+                                });
+                                openEditService();
                                 // todo
                             }}
                         >
@@ -396,6 +422,12 @@ export default function ServicesTable({ records }: Props) {
                 opened={openedVariantModal}
                 close={closeVariantModal}
                 serviceId={selectedService}
+            />
+
+            <EditServiceModal
+                opened={openedEditService}
+                close={closeEditService}
+                initialData={selectedEditService}
             />
         </>
     );

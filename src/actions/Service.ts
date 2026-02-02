@@ -1,18 +1,17 @@
 "use server";
 
 import { auth } from "@/auth";
-import { saveServiceToDb } from "@/lib/db/services";
+import { saveServiceToDb, updateServiceToDB } from "@/lib/db/services";
 import {
     createServiceSchema,
+    editServiceSchema,
+    ServiceFormEditOuput,
     ServiceFormInput,
-    ServiceFormOutput,
 } from "@/lib/validators/serviceZodSchema";
 import { unauthorized } from "next/navigation";
+import { parse } from "path";
 
-export default async function CreateService(
-    prevState: any,
-    data: ServiceFormInput
-) {
+export async function CreateService(prevState: any, data: ServiceFormInput) {
     const parsed = createServiceSchema.safeParse(data);
     if (!parsed.success) return { succesful: false };
 
@@ -31,6 +30,42 @@ export default async function CreateService(
                 large: large,
             },
         });
+        if (!result || !result.id) {
+            return { succesful: false };
+        }
+
+        return { succesful: true, data: result };
+    } catch (error: any) {
+        const errorCode = error.code || "UNKNOWN_DB_ERR";
+        const technicalMessage = error.message;
+
+        return {
+            succesful: false,
+            error: "An unexpected database error occurred.",
+            debug: {
+                code: errorCode,
+                message: technicalMessage,
+            },
+        };
+    }
+}
+
+export async function UpdateService(
+    prevState: any,
+    data: ServiceFormEditOuput
+) {
+    const parsed = editServiceSchema.safeParse(data);
+    if (!parsed.success)
+        return {
+            succesful: false,
+            error: "Service Data failed the validation.",
+        };
+
+    const session = await auth();
+    if (!session?.user.id || session.user.role !== "admin") unauthorized();
+
+    try {
+        const result = await updateServiceToDB(parsed.data);
         if (!result || !result.id) {
             return { succesful: false };
         }
