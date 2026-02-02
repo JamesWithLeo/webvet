@@ -99,6 +99,13 @@ export default function AddServiceModal({
                             }))
                         )}
                     />
+                    <TextInput
+                        label="Gap in days"
+                        withAsterisk
+                        // {...form.getInputProps("description")}
+                    />
+                    <TextInput label="Annual Interval" withAsterisk />
+
                     <Textarea
                         label="Description"
                         withAsterisk

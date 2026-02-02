@@ -1,6 +1,7 @@
 import {
     boolean,
     decimal,
+    integer,
     pgEnum,
     pgTable,
     text,
@@ -14,6 +15,8 @@ export const services = pgTable("services", {
     id: uuid("id").defaultRandom().primaryKey(),
     title: varchar("title", { length: 50 }).notNull(),
     type: appointmentType().notNull(),
+    gapInDays: integer().default(0),
+    annualInterval: integer().default(0),
     description: text().notNull(),
     reminder: text().notNull(),
     inclusions: text("inclusions").array().notNull().default([]),

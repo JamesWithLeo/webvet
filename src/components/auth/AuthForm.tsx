@@ -15,7 +15,7 @@ export default function AuthForm({ label }: { label: string }) {
                     });
                 }}
             >
-                <TextInput label="Email" name="email" required />
+                <TextInput label="Email" name="email" type="email" required />
                 <Button type="submit" w={"100%"}>
                     {label}
                 </Button>

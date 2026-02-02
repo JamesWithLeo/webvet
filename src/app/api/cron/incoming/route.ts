@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { appointments, appointmentsToPets } from "@/db/schema/appointments";
 import { NextResponse } from "next/server";
-import { and, gte, lte, eq, sql } from "drizzle-orm";
+import { and, gte, lte, eq, sql, inArray } from "drizzle-orm";
 import { pets } from "@/db/schema/pets";
 import { users } from "@/db/schema/users";
 import { qstash } from "@/lib/qtash";
@@ -23,6 +23,7 @@ export async function GET(request: Request) {
 
         const result = await db
             .select({
+                id: appointments.id,
                 firstName: users.firstName,
                 type: appointments.type,
                 userEmail: users.email,
@@ -86,13 +87,19 @@ export async function GET(request: Request) {
                         pets: formattedPets,
                         type: item.type,
                         eventDateTime: formattedDate,
-                        name: item.firstName,
+                        firstName: item.firstName,
+                        id: item.id,
                     },
                     // Optional: delay them it doesn't hit email rate limits
                     delay: 5,
                 };
             })
         );
+        const processedIds = result.map((item) => item.id);
+        await db
+            .update(appointments)
+            .set({ incomingNotification: true })
+            .where(inArray(appointments.id, processedIds));
 
         return NextResponse.json({
             success: true,

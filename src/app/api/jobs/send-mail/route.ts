@@ -9,7 +9,6 @@ async function handler(req: Request) {
         await req.json();
 
     try {
-        // YOUR EMAIL LOGIC HERE (Resend, Nodemailer, etc.)
         console.log(`Sending email to ${email} for ${pets}`);
 
         const { error } = await resend.emails.send({
@@ -26,7 +25,6 @@ async function handler(req: Request) {
         });
         return NextResponse.json({ delivered: true });
     } catch (error) {
-        // If you return 500, QStash will automatically retry with backoff!
         return NextResponse.json({ error: "Failed" }, { status: 500 });
     }
 }
