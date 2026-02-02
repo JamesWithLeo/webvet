@@ -16,7 +16,7 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { useEffect, useTransition } from "react";
+import { useEffect, startTransition } from "react";
 
 type Props = {
     opened: boolean;
@@ -28,9 +28,8 @@ export default function EditServiceModal({
     close,
     initialData,
 }: Props) {
-    const { mutate: updateService } = useUpdateService();
+    const { mutate: updateService, isPending } = useUpdateService();
 
-    const [isPending, startTransition] = useTransition();
     const form = useForm<ServiceFormEditOuput>({
         initialValues: {
             id: "",

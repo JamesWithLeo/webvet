@@ -21,8 +21,7 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { check } from "prettier";
-import { useActionState, startTransition, useEffect, useState } from "react";
+import { startTransition, useState } from "react";
 
 export default function AddServiceModal({
     opened,
@@ -73,9 +72,9 @@ export default function AddServiceModal({
                 reminder: reminder,
                 type: type,
                 inclusions: inclusions,
+                isFlat: isFlat,
             },
             initailPrice: {
-                isFlat: isFlat,
                 flat: flat,
                 small: small,
                 medium: medium,

@@ -7,7 +7,7 @@ export function useCreateService() {
 
     return useMutation({
         mutationFn: async (payload: {
-            serviceData: any;
+            serviceData: ServiceFormInput;
             initailPrice: any;
         }) => {
             const res = await fetch("/api/service", {

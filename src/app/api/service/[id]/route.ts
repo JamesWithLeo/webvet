@@ -3,33 +3,6 @@ import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { services } from "@/db/schema/services";
 
-// export async function POST(request: Request) {
-//     try {
-//         const body = await request.json();
-
-//         const newService = await db
-//             .insert(services)
-//             .values({
-//                 title: body.title,
-//                 type: body.type,
-//                 gapInDays: body.gapInDays,
-//                 annualInterval: body.annualInterval,
-//                 description: body.description,
-//                 reminder: body.reminder,
-//                 inclusions: body.inclusions,
-//             })
-//             .returning();
-
-//         return NextResponse.json(newService[0]);
-//     } catch (error) {
-//         console.error("Create Error:", error);
-//         return NextResponse.json(
-//             { error: "Failed to create service" },
-//             { status: 500 }
-//         );
-//     }
-// }
-
 export async function PATCH(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
