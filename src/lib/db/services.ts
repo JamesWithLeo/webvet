@@ -110,6 +110,16 @@ export async function saveVariantToDB(variantData: ServiceVariantFormOutput) {
         .returning()
         .then((v) => v[0]);
 }
+export async function updateVariantToDB(
+    variantData: Partial<ServicePriceTypeModel>
+) {
+    return await db
+        .update(prices)
+        .set(variantData)
+        .where(eq(prices.id, variantData.id!))
+        .returning()
+        .then((v) => v[0]);
+}
 
 export async function getServiceByType(type: AppointmentType) {
     try {

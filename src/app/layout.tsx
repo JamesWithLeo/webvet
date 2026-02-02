@@ -17,6 +17,7 @@ import { MantineProvider, mantineHtmlProps } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import RouterLoadingAnimation from "@/components/RouterLoadingAnimation";
 import { theme } from "@/components/MantineThemeConfig";
+import { ModalsProvider } from "@mantine/modals";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -47,11 +48,13 @@ export default function RootLayout({
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <MantineProvider theme={theme} defaultColorScheme="light">
-                    <ThemeProvider attribute={"class"}>
-                        <Notifications position="bottom-right" limit={3} />
-                        <RouterLoadingAnimation />
-                        {children}
-                    </ThemeProvider>
+                    <ModalsProvider>
+                        <ThemeProvider attribute={"class"}>
+                            <Notifications position="bottom-right" limit={3} />
+                            <RouterLoadingAnimation />
+                            {children}
+                        </ThemeProvider>
+                    </ModalsProvider>
                 </MantineProvider>
             </body>
         </html>

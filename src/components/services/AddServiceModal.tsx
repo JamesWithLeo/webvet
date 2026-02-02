@@ -1,5 +1,6 @@
 import { CreateService } from "@/actions/Service";
 import { appointmentTypeValues } from "@/db/schema/appointments";
+import { useCreateService } from "@/lib/hooks/useService";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
     createServiceSchema,
@@ -18,7 +19,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import { IconCheck } from "@tabler/icons-react";
+import { IconCheck, IconX } from "@tabler/icons-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { check } from "prettier";
 import { useActionState, startTransition, useEffect, useState } from "react";
@@ -30,12 +31,8 @@ export default function AddServiceModal({
     opened: boolean;
     close: () => void;
 }) {
-    const createService = CreateService.bind(null);
     const [isFlat, setIsFlat] = useState<boolean>(true);
-
-    const [formState, formAction, isPending] = useActionState(createService, {
-        succesful: false,
-    });
+    const { mutate: createService, isPending } = useCreateService();
 
     const form = useForm<ServiceFormInput>({
         mode: "uncontrolled",
@@ -57,22 +54,58 @@ export default function AddServiceModal({
     });
 
     const handleSubmit = (value: ServiceFormInput) => {
-        console.log("val:", value);
+        const {
+            title,
+            description,
+            reminder,
+            type,
+            inclusions,
+            isFlat,
+            flat,
+            small,
+            medium,
+            large,
+        } = value;
+        const payload = {
+            serviceData: {
+                title: title,
+                description: description,
+                reminder: reminder,
+                type: type,
+                inclusions: inclusions,
+            },
+            initailPrice: {
+                isFlat: isFlat,
+                flat: flat,
+                small: small,
+                medium: medium,
+                large: large,
+            },
+        };
         startTransition(() => {
-            formAction(value);
+            createService(payload, {
+                onSuccess: () => {
+                    notifications.show({
+                        title: `Service Saved!`,
+                        message:
+                            "The service is now active and visible to clients.",
+                        color: "teal",
+                        icon: <IconCheck size={20} />,
+                    });
+                    close();
+                },
+                onError: (error) => {
+                    notifications.show({
+                        title: `Service not saved`,
+                        message: error.message,
+                        color: "red",
+                        icon: <IconX size={20} />,
+                    });
+                    close();
+                },
+            });
         });
     };
-    useEffect(() => {
-        if (formState.succesful && formState.data) {
-            notifications.show({
-                title: `${toTitleCase(formState.data.title)} Service Saved!`,
-                message: "The service is now active and visible to clients.",
-                color: "teal",
-                icon: <IconCheck size={20} />,
-            });
-            close();
-        }
-    }, [formState]);
 
     return (
         <Modal

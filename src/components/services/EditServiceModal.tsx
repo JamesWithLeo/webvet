@@ -1,4 +1,4 @@
-import { UpdateService } from "@/actions/Service";
+import { useUpdateService } from "@/lib/hooks/useService";
 import {
     editServiceSchema,
     ServiceFormEditOuput,
@@ -16,7 +16,7 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { startTransition, useActionState, useEffect } from "react";
+import { useEffect, useTransition } from "react";
 
 type Props = {
     opened: boolean;
@@ -28,10 +28,9 @@ export default function EditServiceModal({
     close,
     initialData,
 }: Props) {
-    const updateService = UpdateService.bind(null);
-    const [formState, formAction, isPending] = useActionState(updateService, {
-        succesful: false,
-    });
+    const { mutate: updateService } = useUpdateService();
+
+    const [isPending, startTransition] = useTransition();
     const form = useForm<ServiceFormEditOuput>({
         initialValues: {
             id: "",
@@ -49,7 +48,26 @@ export default function EditServiceModal({
 
     const handleSubmit = (data: ServiceFormEditOuput) => {
         startTransition(() => {
-            formAction(data);
+            updateService(data, {
+                onSuccess: () => {
+                    close();
+                    notifications.show({
+                        title: `Service updated!`,
+                        message:
+                            "The service is now up to date and visible to clients.",
+                        color: "teal",
+                        icon: <IconCheck size={20} />,
+                    });
+                },
+                onError: (error) => {
+                    notifications.show({
+                        title: `Service update failed!`,
+                        message: error.message,
+                        color: "teal",
+                        icon: <IconCheck size={20} />,
+                    });
+                },
+            });
         });
     };
 
@@ -61,27 +79,6 @@ export default function EditServiceModal({
         }
     }, [initialData, opened]);
 
-    useEffect(() => {
-        if (formState.succesful && formState.data) {
-            notifications.show({
-                title: `Service updated!`,
-                message:
-                    "The service is now up to date and visible to clients.",
-                color: "teal",
-                icon: <IconCheck size={20} />,
-            });
-            close();
-        }
-        if (!formState.succesful && formState.error) {
-            notifications.show({
-                title: `Service update failed!`,
-                message: formState.error,
-                color: "teal",
-                icon: <IconCheck size={20} />,
-            });
-            close();
-        }
-    }, [formState]);
     return (
         <Modal
             opened={opened}

@@ -16,13 +16,14 @@ export const serviceVariantSchema = z.object({
         return num.toFixed(2); // This returns the string Drizzle expects
     }),
 
-    isAvailable: z.boolean().default(true),
+    isAvailable: z.boolean(),
 });
 
 export type serviceVariantFormInput = z.input<typeof serviceVariantSchema>;
 
-export const serviceVariantDbSchema = serviceVariantSchema.extend({
-    serviceId: z.string().nonempty(),
-});
+export type ServiceVariantFormOutput = z.output<typeof serviceVariantSchema>;
 
-export type ServiceVariantFormOutput = z.output<typeof serviceVariantDbSchema>;
+export const serviceVariantDbSchema = serviceVariantSchema.extend({
+    id: z.string().nonempty(),
+});
+export type ServiceVariantEditInput = z.input<typeof serviceVariantDbSchema>;

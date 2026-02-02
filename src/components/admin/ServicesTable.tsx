@@ -1,6 +1,7 @@
 "use client";
 
-import { ServiceTypeModel } from "@/db/schema/services";
+import { modals } from "@mantine/modals";
+import { ServicePriceTypeModel, ServiceTypeModel } from "@/db/schema/services";
 import {
     ActionIcon,
     Group,
@@ -18,6 +19,7 @@ import {
     IconPlus,
     IconRefresh,
     IconTrash,
+    IconX,
 } from "@tabler/icons-react";
 import {
     DataTable,
@@ -28,12 +30,14 @@ import AddServiceModal from "../services/AddServiceModal";
 import useServiceVariant from "@/lib/hooks/useServiceVariant";
 import { useMemo, useState, useTransition } from "react";
 import AddVariantModal from "../services/AddVariantModal";
-import { DeleteVariant } from "@/actions/deleteVariant";
-import { DeleteService } from "@/actions/deleteService";
+import { DeleteVariant } from "@/actions/variant";
 import ConfirmationModal from "../common/ConfirmationModal";
 import { notifications } from "@mantine/notifications";
 import EditServiceModal from "../services/EditServiceModal";
 import { ServiceFormEditOuput } from "@/lib/validators/serviceZodSchema";
+import EditVariantModal from "../services/EditVariantModal";
+import { useQuery } from "@tanstack/react-query";
+import { useDeleteService } from "@/lib/hooks/useService";
 
 type Props = {
     records: ServiceTypeModel[];
@@ -55,6 +59,13 @@ function VariantTable({
 
     const [isPendingDeleteVariant, startDeleteVariantTransition] =
         useTransition();
+
+    const [selectedEditVariant, setSelectedEditVariant] =
+        useState<ServicePriceTypeModel | null>(null);
+    const [
+        openedVariantEditModal,
+        { open: openVariantEditModal, close: closeVariantEditModal },
+    ] = useDisclosure(false);
 
     const handleDeleteVariant = () => {
         startDeleteVariantTransition(async () => {
@@ -98,6 +109,16 @@ function VariantTable({
                             title: "price",
                         },
                         {
+                            accessor: "isAvailable",
+                            title: "Available",
+                            render: (rowData) =>
+                                rowData.isAvailable ? (
+                                    <IconCheck size={16} stroke={1.5} />
+                                ) : (
+                                    <IconX size={16} stroke={1.5} />
+                                ),
+                        },
+                        {
                             accessor: "action",
                             title: "actions",
                             width: "100%",
@@ -107,6 +128,8 @@ function VariantTable({
                                         label="Edit Variant"
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            setSelectedEditVariant(rowData);
+                                            openVariantEditModal();
                                             // todo
                                         }}
                                     >
@@ -162,21 +185,34 @@ function VariantTable({
                 close={closeVariantDeleteModal}
                 onConfirm={handleDeleteVariant}
             />
+
+            <EditVariantModal
+                initialData={selectedEditVariant}
+                close={closeVariantEditModal}
+                opened={openedVariantEditModal}
+            />
         </>
     );
 }
 const aboveSm = (theme: MantineTheme) => `(min-width: ${theme.breakpoints.sm})`;
 
-export default function ServicesTable({ records }: Props) {
+export default function ServicesTable() {
+    const { data } = useQuery({
+        queryKey: ["services"],
+        queryFn: async (): Promise<ServiceTypeModel[]> => {
+            const res = await fetch("/api/service");
+            return res.json();
+        },
+    });
+
+    const { mutate: DeleteService, isPending: isPendingDelete } =
+        useDeleteService();
+
     const [opened, { open, close }] = useDisclosure(false);
+
     const [
         openedVariantModal,
         { open: openVariantModal, close: closeVariantModal },
-    ] = useDisclosure(false);
-
-    const [
-        openedDeleteService,
-        { open: openDeleteService, close: closeDeleteService },
     ] = useDisclosure(false);
 
     const [
@@ -184,37 +220,28 @@ export default function ServicesTable({ records }: Props) {
         { open: openEditService, close: closeEditService },
     ] = useDisclosure(false);
 
-    const [isPendingDelete, startDeleteTransition] = useTransition();
-
     const [selectedService, setSelectedService] = useState<string | null>(null);
+
     const [selectedEditService, setSelectedEditService] =
         useState<ServiceFormEditOuput | null>(null);
 
-    const handleDelete = () => {
-        if (!selectedService) return;
-
-        startDeleteTransition(async () => {
-            const result = await DeleteService(selectedService);
-            if (result.succesful && result.data) {
-                closeDeleteService();
-                notifications.show({
-                    title: "Service deleted!",
-                    message: `The service with ${result.data.id} ID is now deleted.`,
-                    color: "teal",
-                    icon: <IconCheck size={20} />,
-                });
-            }
-
-            if (!result.succesful) {
-                notifications.show({
-                    title: "Service failed to deleted!",
-                    message: result.error,
-                    color: "teal",
-                    icon: <IconCheck size={20} />,
-                });
-            }
+    const openDeleteModal = (id: string) =>
+        modals.openConfirmModal({
+            title: "Delete Service",
+            centered: true,
+            children: (
+                <Text size="sm">
+                    Are you sure you want to delete this service? This action is
+                    unreversable.
+                </Text>
+            ),
+            labels: { confirm: "Delete service", cancel: "No don't delete it" },
+            confirmProps: { color: "red" },
+            onCancel: () => console.log("Cancel"),
+            onConfirm: () => {
+                DeleteService(id);
+            },
         });
-    };
 
     const columns = useMemo<DataTableColumn<ServiceTypeModel>[]>(
         () => [
@@ -254,8 +281,15 @@ export default function ServicesTable({ records }: Props) {
             {
                 accessor: "gapInDays",
                 title: "Gap in days",
+                draggable: true,
+                visibleMediaQuery: aboveSm,
             },
-            { accessor: "annualInterval", title: "Annual Interval" },
+            {
+                accessor: "annualInterval",
+                title: "Annual Interval",
+                draggable: true,
+                visibleMediaQuery: aboveSm,
+            },
             {
                 accessor: "description",
                 title: "description",
@@ -325,7 +359,6 @@ export default function ServicesTable({ records }: Props) {
                                     id: rowData.id,
                                 });
                                 openEditService();
-                                // todo
                             }}
                         >
                             <ActionIcon variant="transparent" size={"sm"}>
@@ -336,8 +369,7 @@ export default function ServicesTable({ records }: Props) {
                             label="Delete service"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                setSelectedService(rowData.id);
-                                openDeleteService();
+                                openDeleteModal(rowData.id);
                             }}
                         >
                             <ActionIcon
@@ -381,7 +413,7 @@ export default function ServicesTable({ records }: Props) {
                     </ActionIcon>
                 </Group>
                 <DataTable
-                    minHeight={records.length > 0 ? 100 : 200}
+                    // minHeight={records.length > 0 ? 100 : 200}
                     scrollAreaProps={{ type: "never" }}
                     withColumnBorders
                     pinLastColumn
@@ -389,8 +421,8 @@ export default function ServicesTable({ records }: Props) {
                     verticalSpacing="xs"
                     borderRadius="sm"
                     withRowBorders
-                    columns={columns}
-                    records={records}
+                    columns={effectiveColumns}
+                    records={data}
                     totalRecords={1500}
                     storeColumnsKey={key}
                     page={1}
@@ -410,14 +442,7 @@ export default function ServicesTable({ records }: Props) {
                 />
             </Stack>
             <AddServiceModal opened={opened} close={close} />
-            <ConfirmationModal
-                isPending={isPendingDelete}
-                onConfirm={handleDelete}
-                title="Delete service"
-                message="Are you sure to delete the selected service?"
-                opened={openedDeleteService}
-                close={closeDeleteService}
-            />
+
             <AddVariantModal
                 opened={openedVariantModal}
                 close={closeVariantModal}

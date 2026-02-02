@@ -1,5 +1,6 @@
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
+    ServiceVariantEditInput,
     serviceVariantFormInput,
     serviceVariantSchema,
 } from "@/lib/validators/serviceVariantSchema";
@@ -17,23 +18,27 @@ import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useActionState, startTransition, useEffect } from "react";
-import { servicePriceVariant } from "@/db/schema/services";
-import { CreateVariant } from "@/actions/variant";
+import {
+    ServicePriceTypeModel,
+    servicePriceVariant,
+} from "@/db/schema/services";
+import { CreateVariant, EditVariant } from "@/actions/variant";
 
-export default function AddVariantModal({
-    serviceId,
+export default function EditVariantModal({
     opened,
     close,
+    initialData,
 }: {
-    serviceId: string | null;
     opened: boolean;
+    initialData: ServicePriceTypeModel | null;
     close: () => void;
 }) {
-    const createVariant = CreateVariant.bind(null);
-    const formInitialValues: serviceVariantFormInput = {
+    const createVariant = EditVariant.bind(null);
+    const formInitialValues: ServiceVariantEditInput = {
         variant: "",
         serviceId: "",
         price: "",
+        id: "",
         isAvailable: false,
     };
 
@@ -41,7 +46,7 @@ export default function AddVariantModal({
         succesful: false,
     });
 
-    const form = useForm<serviceVariantFormInput>({
+    const form = useForm<ServiceVariantEditInput>({
         mode: "uncontrolled",
         initialValues: formInitialValues,
         validate: zod4Resolver(serviceVariantSchema),
@@ -49,21 +54,25 @@ export default function AddVariantModal({
         validateInputOnChange: true,
     });
 
-    const handleSubmit = (value: serviceVariantFormInput) => {
+    const handleSubmit = (value: ServiceVariantEditInput) => {
         startTransition(() => {
-            console.log(value);
             formAction({ ...value });
         });
     };
     useEffect(() => {
-        if (serviceId) form.setFieldValue("serviceId", serviceId);
-    }, [serviceId]);
+        if (initialData) {
+            form.setValues(initialData);
+        } else {
+            form.reset();
+        }
+    }, [initialData, opened]);
 
     useEffect(() => {
         if (formState.succesful && formState.data) {
             notifications.show({
-                title: `New variant is added Saved!`,
-                message: "The service is now active and visible to clients.",
+                title: `Variant updated!`,
+                message:
+                    "The variant is now up to date and visible to clients.",
                 color: "teal",
                 icon: <IconCheck size={20} />,
             });
@@ -84,7 +93,7 @@ export default function AddVariantModal({
         <Modal
             opened={opened}
             onClose={close}
-            title="New variant"
+            title="Edit variant"
             withOverlay
             withCloseButton
         >
