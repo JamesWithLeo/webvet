@@ -28,7 +28,7 @@ export async function GET(request: Request) {
                 type: appointments.type,
                 userEmail: users.email,
                 eventDateTime: appointments.event_datetime,
-                pets: sql<{ name: string }[]>`id: string;
+                pets: sql<{ name: string }[]>`;
                 COALESCE(
                     json_agg(
                         json_build_object(
