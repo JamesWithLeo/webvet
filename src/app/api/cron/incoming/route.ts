@@ -5,6 +5,7 @@ import { and, gte, lte, eq, sql, inArray } from "drizzle-orm";
 import { pets } from "@/db/schema/pets";
 import { users } from "@/db/schema/users";
 import { qstash } from "@/lib/qtash";
+import { toTitleCase } from "@/lib/toTitleCase";
 
 export async function GET(request: Request) {
     const authHeader = request.headers.get("authorization");
@@ -16,7 +17,6 @@ export async function GET(request: Request) {
         const now = new Date();
         // Lower Bound: Right now (don't notify for past events here)
         const startWindow = now.toISOString();
-
         // Upper Bound: 60 minutes from now
         // This ensures that even if the 5-minute cron is late, we catch the appointment
         const endWindow = new Date(now.getTime() + 60 * 60000).toISOString();
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
             .where(
                 and(
                     gte(appointments.event_datetime, startWindow),
-                    // lte(appointments.event_datetime, endWindow),
+                    lte(appointments.event_datetime, endWindow),
                     eq(appointments.incomingNotification, false)
                 )
             )
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
                     body: {
                         email: item.userEmail,
                         pets: formattedPets,
-                        type: item.type,
+                        type: toTitleCase(item.type),
                         eventDateTime: formattedDate,
                         firstName: item.firstName,
                         id: item.id,

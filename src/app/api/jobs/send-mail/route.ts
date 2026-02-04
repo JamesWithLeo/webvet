@@ -24,7 +24,7 @@ async function handler(req: Request) {
         const { error } = await resend.emails.send({
             from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
             to: [email],
-            subject: `Incoming ${toTitleCase(type)} Appointment`,
+            subject: `Incoming ${type} Appointment`,
             react: IncomingAppointmentEmail({
                 type: type,
                 id: id,
