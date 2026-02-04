@@ -52,7 +52,13 @@ export async function GET(request: Request) {
                     eq(appointments.incomingNotification, false)
                 )
             )
-            .groupBy(appointments.id, users.email, appointments.event_datetime);
+            .groupBy(
+                appointments.id,
+                users.email,
+                users.firstName,
+                appointments.type,
+                appointments.event_datetime
+            );
 
         if (result.length === 0) {
             return NextResponse.json({
