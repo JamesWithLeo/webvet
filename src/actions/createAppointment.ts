@@ -38,7 +38,7 @@ export default async function CreateAppointmentAction(
             return { succesful: false };
         }
         const email = session.user.email;
-        const name = session.user.name;
+        const firstName = session.user.firstName;
         if (!email) return { succesful: true, emailed: false };
 
         const { error } = await resend.emails.send({
@@ -47,8 +47,8 @@ export default async function CreateAppointmentAction(
             subject: `${toTitleCase(result.type)} Appointment`,
             react: AppointmentSaved({
                 id: result.id,
-                type: result.type,
-                name: name ? toTitleCase(name) : "lovely fur parent.",
+                type: result.type.toLowerCase(),
+                name: firstName ? toTitleCase(firstName) : "lovely fur parent",
                 pets: result.petNames.join(", "),
             }),
         });

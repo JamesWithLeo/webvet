@@ -17,9 +17,9 @@ export async function GET(request: Request) {
         // Lower Bound: Right now (don't notify for past events here)
         const startWindow = now.toISOString();
 
-        // Upper Bound: 35 minutes from now
+        // Upper Bound: 60 minutes from now
         // This ensures that even if the 5-minute cron is late, we catch the appointment
-        const endWindow = new Date(now.getTime() + 35 * 60000).toISOString();
+        const endWindow = new Date(now.getTime() + 60 * 60000).toISOString();
 
         const result = await db
             .select({
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
             .where(
                 and(
                     gte(appointments.event_datetime, startWindow),
-                    lte(appointments.event_datetime, endWindow),
+                    // lte(appointments.event_datetime, endWindow),
                     eq(appointments.incomingNotification, false)
                 )
             )
