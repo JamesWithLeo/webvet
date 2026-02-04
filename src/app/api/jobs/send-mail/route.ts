@@ -57,11 +57,4 @@ async function handler(req: Request) {
         );
     }
 }
-export async function GET() {
-    return new Response(
-        "If you see this, something is forcing a GET request!",
-        { status: 200 }
-    );
-}
-
 export const POST = verifySignatureAppRouter(handler);
