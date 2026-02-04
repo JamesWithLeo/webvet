@@ -87,8 +87,8 @@ export async function GET(request: Request) {
                 });
 
                 return {
-                    url: `https://www.josephmary.me/api/jobs/send-email`,
-                    method: "POST",
+                    url: "https://www.josephmary.me/api/jobs/send-email/",
+                    method: "POST" as const,
                     headers: {
                         "Content-Type": "application/json",
                     },
