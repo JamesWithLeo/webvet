@@ -8,15 +8,18 @@ import { appointments } from "@/db/schema/appointments";
 import { eq } from "drizzle-orm";
 
 async function handler(req: Request) {
-    const { email, pets, type, firstName, id, eventDateTime } =
-        await req.json();
-    if (!email || !pets || !type || !firstName || !id || !eventDateTime)
-        return NextResponse.json({
-            error: "Missing one or more send-mail data",
-        });
+    const body = await req.json();
+    const { email, pets, type, firstName, id, eventDateTime } = body;
+
+    if (!email || !pets || !type || !firstName || !id || !eventDateTime) {
+        return NextResponse.json(
+            { error: "Missing required fields" },
+            { status: 400 }
+        );
+    }
 
     try {
-        console.log(`Sending email to ${email} for ${pets}`);
+        console.log(`Attempting email for Appointment ${id} to ${email}`);
 
         const { error } = await resend.emails.send({
             from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
@@ -31,7 +34,10 @@ async function handler(req: Request) {
             }),
         });
 
-        if (error) throw new Error("Email provider failed");
+        if (error) {
+            console.error("Resend Error Details:", error);
+            throw new Error(error.message);
+        }
         await db
             .update(appointments)
             .set({ incomingNotification: true })
@@ -39,9 +45,17 @@ async function handler(req: Request) {
 
         return NextResponse.json({ delivered: true });
     } catch (error) {
-        return NextResponse.json({ error: "Failed" }, { status: 500 });
+        console.error("Handler Exception:", error);
+        return NextResponse.json(
+            {
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Internal Server Error",
+            },
+            { status: 500 }
+        );
     }
 }
 
-// Wrap the handler to verify it's actually from Upstash
 export const POST = verifySignatureAppRouter(handler);
