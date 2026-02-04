@@ -28,11 +28,11 @@ export async function GET(request: Request) {
                 type: appointments.type,
                 userEmail: users.email,
                 eventDateTime: appointments.event_datetime,
-                pets: sql<{ name: string }[]>`;
+                pets: sql<{ name: string }[]>`
                 COALESCE(
                     json_agg(
                         json_build_object(
-                            'name', ${pets.name}, 
+                            'name', ${pets.name} 
                         )
                     ) FILTER (WHERE ${pets.id} IS NOT NULL), 
                      '[]'
@@ -101,11 +101,6 @@ export async function GET(request: Request) {
                 };
             })
         );
-        const processedIds = result.map((item) => item.id);
-        await db
-            .update(appointments)
-            .set({ incomingNotification: true })
-            .where(inArray(appointments.id, processedIds));
 
         return NextResponse.json({
             success: true,
