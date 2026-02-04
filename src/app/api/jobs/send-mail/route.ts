@@ -57,15 +57,4 @@ async function handler(req: Request) {
         );
     }
 }
-export async function GET(req: Request) {
-    return NextResponse.json(
-        {
-            status: "You reached the GET handler",
-            message:
-                "If you see this, QStash is definitely sending a GET request despite your code settings.",
-            headers: Object.fromEntries(req.headers.entries()),
-        },
-        { status: 200 }
-    );
-}
 export const POST = verifySignatureAppRouter(handler);
