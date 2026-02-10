@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { appointments, appointmentsToPets } from "@/db/schema/appointments";
 import { NextResponse } from "next/server";
-import { and, gte, lte, eq, sql, inArray } from "drizzle-orm";
+import { and, gte, lte, eq, sql } from "drizzle-orm";
 import { pets } from "@/db/schema/pets";
 import { users } from "@/db/schema/users";
 import { qstash } from "@/lib/qtash";
@@ -84,6 +84,7 @@ export async function GET(request: Request) {
                     day: "numeric",
                     hour: "numeric",
                     minute: "2-digit",
+                    timeZone: "UTC",
                 });
 
                 return {

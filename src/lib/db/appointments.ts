@@ -5,6 +5,8 @@ import {
     AppointmentSchedulesTypeModel,
     appointmentsToPets,
     AppointmentType,
+    BlockDatesTypeModel,
+    blockedDates,
 } from "@/db/schema/appointments";
 import { pets } from "@/db/schema/pets";
 import {
@@ -306,4 +308,14 @@ export const upsertAppointmentSchedule = async (
             },
         })
         .returning();
+};
+
+export const getBlockDates = async (): Promise<
+    BlockDatesTypeModel[] | null
+> => {
+    try {
+        return await db.select().from(blockedDates);
+    } catch (error: any) {
+        return [];
+    }
 };

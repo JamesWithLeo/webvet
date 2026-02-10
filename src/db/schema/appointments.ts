@@ -6,12 +6,13 @@ import {
     uuid,
     varchar,
     integer,
-    text,
     serial,
+    date,
 } from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
 import { invoices } from "./invoice";
+import { users } from "./users";
 
 export const appointmentStatusValues = [
     "SCHEDULED",
@@ -124,3 +125,22 @@ export type AppointmentSchedulesTypeModel = InferSelectModel<
 >;
 
 export type AppointmentTypeModel = InferSelectModel<typeof appointments>;
+
+export const blockedDates = pgTable("blocked_dates", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    date: date("date").notNull(),
+    startTime: timestamp("start_time", {
+        withTimezone: true,
+        mode: "string",
+    }).notNull(),
+    endTime: timestamp("end_time", {
+        withTimezone: true,
+        mode: "string",
+    }).notNull(),
+    reason: varchar("reason", { length: 255 }).notNull(),
+    blockedBy: uuid("blocked_by").references(() => users.id, {
+        onDelete: "set null",
+    }),
+});
+
+export type BlockDatesTypeModel = InferSelectModel<typeof blockedDates>;

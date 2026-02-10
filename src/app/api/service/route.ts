@@ -1,4 +1,3 @@
-// src/app/api/services/route.ts
 import { NextResponse } from "next/server";
 import { getServices, saveServiceToDb } from "@/lib/db/services";
 

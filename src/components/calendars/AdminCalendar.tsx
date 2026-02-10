@@ -10,38 +10,69 @@ import {
     DatesSetArg,
     DayCellContentArg,
 } from "@fullcalendar/core/index.js";
-import { Box, Button, Modal } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import {
+    Button,
+    Group,
+    Modal,
+    Radio,
+    Stack,
+    Text,
+    Textarea,
+    useModalsStack,
+} from "@mantine/core";
 import { useState, useRef, useEffect } from "react";
-import { differenceInDays } from "date-fns";
 import {
     IconAlertTriangle,
+    IconCheck,
     IconChevronLeft,
     IconChevronRight,
+    IconX,
 } from "@tabler/icons-react";
+import { eachDayOfInterval, subDays, format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { BlockType } from "@/lib/generateBlockPayload";
+import { BlockDatesTypeModel } from "@/db/schema/appointments";
+import {
+    useAddBlockDates,
+    useUpdateBlockDates,
+} from "@/lib/hooks/useBlockDates";
+import { notifications } from "@mantine/notifications";
 
 type DateCounts = Record<string, number>;
 
 const eventCounts: DateCounts = {
-    "2025-11-30": 2,
-    "2025-12-01": 5,
-    "2025-12-02": 10,
-    "2025-12-03": 28,
+    "2026-11-30": 2,
+    "2026-12-01": 5,
+    "2026-12-02": 10,
+    "2026-12-03": 28,
 };
 
 export default function AdminCalendar() {
-    const [opened, { open, close }] = useDisclosure(false);
+    const stack = useModalsStack(["block-dates", "enabled-dates"]);
 
-    const [dateStart, setDateStart] = useState<string | null>(null);
-    const [dateEnd, setDateEnd] = useState<string | null>(null);
+    const [selectedDates, setSelectedDates] = useState<string[]>([]);
+    const [blockType, setBlockType] = useState<BlockType>("all-day");
     const [currentTitle, setCurrentTitle] = useState<string>(
         "Loading Calendar..."
     );
-
     const [isSelectionPending, setIsSelectionPending] =
         useState<boolean>(false);
-
     const calendarRef = useRef<FullCalendar>(null);
+
+    const { data } = useQuery({
+        queryKey: ["blockedDates"],
+        queryFn: async (): Promise<BlockDatesTypeModel[]> => {
+            const res = await fetch("/api/blockdates");
+            return res.json();
+        },
+    });
+
+    const { mutateAsync: addBlockDates, isPending: isPendingAddBlockDates } =
+        useAddBlockDates();
+    const {
+        mutateAsync: updateBlockDates,
+        isPending: isPendingUpdateBlockDates,
+    } = useUpdateBlockDates();
 
     const handleDatesSet = (dateInfo: DatesSetArg) => {
         const calendarApi = calendarRef.current?.getApi();
@@ -71,26 +102,67 @@ export default function AdminCalendar() {
     };
 
     const onDateSelect = (dateArg: DateSelectArg) => {
-        setDateStart(dateArg.startStr);
-        setDateEnd(dateArg.endStr);
+        const actualDays = eachDayOfInterval({
+            start: new Date(dateArg.startStr),
+            end: subDays(new Date(dateArg.endStr), 1),
+        });
+
+        const datesToInsert = actualDays.map((d) => format(d, "yyyy-MM-dd"));
+        setSelectedDates(datesToInsert);
 
         setIsSelectionPending(true);
     };
 
     const onDateUnselect = () => {
+        if (stack.state["block-dates"] || stack.state["enabled-dates"]) {
+            return;
+        }
         setIsSelectionPending(false);
-        setDateStart(null);
-        setDateEnd(null);
+        setSelectedDates([]);
     };
 
     const handleBlockButtonClick = () => {
         if (isSelectionPending) {
-            open();
+            stack.open("block-dates");
+        }
+    };
+    const handleEnableButtonClick = () => {
+        if (isSelectionPending) {
+            stack.open("enabled-dates");
         }
     };
 
+    const handleConfirmEnable = () => {
+        updateBlockDates(
+            {
+                dates: selectedDates,
+            },
+            {
+                onSuccess: () => {
+                    notifications.show({
+                        title: `Dates enabled!`,
+                        message:
+                            "The dates are full available from the client.",
+                        color: "teal",
+                        icon: <IconCheck size={20} />,
+                    });
+                    handleCancelBlock();
+                },
+                onError: (error) => {
+                    notifications.show({
+                        title: `Enabled dates failed`,
+                        message: error.message,
+                        color: "red",
+                        icon: <IconX size={20} />,
+                    });
+                    handleCancelBlock();
+                },
+            }
+        );
+    };
+
     const handleCancelBlock = () => {
-        close();
+        stack.closeAll();
 
         const calendarApi = calendarRef.current?.getApi();
         if (calendarApi) {
@@ -98,14 +170,40 @@ export default function AdminCalendar() {
         }
 
         setIsSelectionPending(false);
-        setDateStart(null);
-        setDateEnd(null);
+        setSelectedDates([]);
     };
 
     const handleConfirmBlock = () => {
-        console.log(`CONFIRMED BLOCK: ${dateStart} to ${dateEnd}`);
+        const reason = (document.getElementById("reason") as HTMLInputElement)
+            .value;
 
-        handleCancelBlock();
+        addBlockDates(
+            {
+                dates: selectedDates,
+                type: blockType,
+                reason: reason,
+            },
+            {
+                onSuccess: () => {
+                    notifications.show({
+                        title: `Blocked dates!`,
+                        message: "The dates are full blocked from the client.",
+                        color: "teal",
+                        icon: <IconCheck size={20} />,
+                    });
+                    handleCancelBlock();
+                },
+                onError: (error) => {
+                    notifications.show({
+                        title: `Blocked dates failed`,
+                        message: error.message,
+                        color: "red",
+                        icon: <IconX size={20} />,
+                    });
+                    handleCancelBlock();
+                },
+            }
+        );
     };
 
     useEffect(() => {
@@ -113,6 +211,9 @@ export default function AdminCalendar() {
         if (!calendar) return;
         setCurrentTitle(calendar.view.title);
     }, []);
+    useEffect(() => {
+        console.log(data);
+    }, [data]);
 
     return (
         <>
@@ -123,7 +224,7 @@ export default function AdminCalendar() {
                         hidden={!isSelectionPending}
                         className="fc-ignore-unselect w-min"
                         disabled={!isSelectionPending}
-                        onClick={handleBlockButtonClick}
+                        onClick={handleEnableButtonClick}
                         size="sm"
                         variant="light"
                     >
@@ -191,6 +292,15 @@ export default function AdminCalendar() {
                         timeGridPlugin,
                     ]}
                     initialView="multiMonthYear"
+                    events={data?.map((v) => {
+                        return {
+                            title: v.reason || "Blocked",
+                            start: v.startTime.replace(" ", "T"),
+                            end: v.endTime.replace(" ", "T"),
+                            display: "block",
+                            color: "gray",
+                        };
+                    })}
                     aspectRatio={1.8}
                     multiMonthMaxColumns={2}
                     datesSet={handleDatesSet}
@@ -210,58 +320,143 @@ export default function AdminCalendar() {
                     dayCellDidMount={onDayCellMount}
                 />
             </div>
+            <Stack align="flex-start">
+                <Text>Legends:</Text>
+                <Group ml={"md"}>
+                    <Text size="sm">Block or disabled dates:</Text>
+                    <div className="h-4 w-4 bg-gray-700"></div>
+                </Group>
+                <Group ml={"md"}>
+                    <Text size="sm">Today:</Text>
+                    <div className="h-4 w-4 bg-blue-600"></div>
+                </Group>
+            </Stack>
 
-            <Modal
-                opened={opened}
-                onClose={handleCancelBlock}
-                centered
-                withCloseButton={false}
-                size={"lg"}
-            >
-                <Box className="flex flex-col gap-6 p-4">
-                    <span>
-                        <h1 className="text-3xl font-semibold">
-                            Blocklist a Date
-                        </h1>
-                        <h1 className="text-gray-800 mt-2">
-                            Blocklisting a date removes all availability for
-                            that entire day. No user will be able to schedule,
-                            book, or reserve an appointment on the selected
-                            date.
-                        </h1>
-                    </span>
-                    <span className="grid grid-cols-[1fr_9fr] ">
-                        <h1 className="text-xl col-span-2">
-                            Date start: {dateStart ?? "N/A"}
-                        </h1>
-                        <h1 className="text-xl col-span-2">
-                            Date End: {dateEnd ?? "N/A"}
-                        </h1>
-                        <h1 className="text-xl col-span-2">
-                            Days selected:{" "}
-                            {dateStart && dateEnd
-                                ? differenceInDays(
-                                      new Date(dateEnd),
-                                      new Date(dateStart)
-                                  )
-                                : 0}
-                        </h1>
-                    </span>
-
-                    <span className="w-full flex justify-end gap-4">
-                        <Button onClick={handleConfirmBlock} color="#c92a2a">
-                            Confirm
-                        </Button>
-                        <Button
-                            variant="subtle"
-                            color="gray"
-                            onClick={handleCancelBlock}
+            <Modal.Stack>
+                <Modal
+                    {...stack.register("block-dates")}
+                    className=".fc-ignore-unselect"
+                    onClose={handleCancelBlock}
+                    centered
+                    withCloseButton={false}
+                    size={"lg"}
+                >
+                    <Stack p={"lg"}>
+                        <Stack mb={"md"} gap={"0"}>
+                            <h1 className="text-3xl font-semibold">
+                                Blocklist a Date
+                            </h1>
+                            <h1 className="text-gray-800 mt-2">
+                                Blocklisting a date removes all availability for
+                                that entire day. No user will be able to
+                                schedule, book, or reserve an appointment on the
+                                selected date.
+                            </h1>
+                        </Stack>
+                        <Stack gap={0}>
+                            <h1 className="text-xl col-span-2">
+                                Date start: {selectedDates[0] ?? "N/A"}
+                            </h1>
+                            <h1 className="text-xl col-span-2">
+                                Date End:{" "}
+                                {selectedDates[selectedDates.length - 1] ??
+                                    "N/A"}
+                            </h1>
+                            <h1 className="text-xl col-span-2">
+                                Days selected: {selectedDates.length}
+                            </h1>
+                        </Stack>
+                        <Radio.Group
+                            label="Select block duration"
+                            description="Choose how much of the day to block"
+                            withAsterisk
+                            mb={"md"}
+                            value={blockType}
+                            onChange={(value) => {
+                                setBlockType(value as BlockType);
+                            }}
                         >
-                            Cancel
-                        </Button>
-                    </span>
-                </Box>
-            </Modal>
+                            <Group mt="xs">
+                                <Radio label="All day" value={"all-day"} />
+                                <Radio label="Morning only" value={"morning"} />
+                                <Radio
+                                    label="Afternoon only"
+                                    value={"afternoon"}
+                                />
+                            </Group>
+                        </Radio.Group>
+
+                        <Textarea
+                            maxLength={255}
+                            label="Reason"
+                            withAsterisk
+                            id="reason"
+                            description="This shows to users why the dates are being blocked"
+                            placeholder="e.g. Staff Training, Public Holiday"
+                        />
+
+                        <span className="w-full flex justify-end gap-4">
+                            <Button
+                                variant="default"
+                                color="gray"
+                                onClick={handleCancelBlock}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={handleConfirmBlock}
+                                bg={"red"}
+                                disabled={
+                                    !selectedDates.length ||
+                                    isPendingAddBlockDates
+                                }
+                                loading={isPendingAddBlockDates}
+                            >
+                                Confirm
+                            </Button>
+                        </span>
+                    </Stack>
+                </Modal>
+                <Modal
+                    {...stack.register("enabled-dates")}
+                    className=".fc-ignore-unselect"
+                    centered
+                    withCloseButton={false}
+                    size={"lg"}
+                >
+                    <Stack p={"lg"}>
+                        <Stack mb={"md"} gap={"0"}>
+                            <h1 className="text-3xl font-semibold">
+                                Enabled Blocklisted Date
+                            </h1>
+                            <h1 className="text-gray-800 mt-2">
+                                Enabling blocklisted dates will make the dates
+                                available to the user.
+                            </h1>
+                        </Stack>
+                        <span className="w-full flex justify-end gap-4">
+                            <Button
+                                variant="default"
+                                color="gray"
+                                onClick={handleCancelBlock}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={handleConfirmEnable}
+                                bg={"red"}
+                                disabled={
+                                    !selectedDates.length ||
+                                    isPendingUpdateBlockDates
+                                }
+                                loading={isPendingUpdateBlockDates}
+                            >
+                                Confirm
+                            </Button>
+                        </span>
+                    </Stack>
+                </Modal>
+            </Modal.Stack>
         </>
     );
 }
