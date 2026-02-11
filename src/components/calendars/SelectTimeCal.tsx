@@ -6,9 +6,18 @@ import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
 import { useEffect, useMemo, useState } from "react";
 import "@mantine/notifications/styles.css";
 import { notifications } from "@mantine/notifications";
+import { useQuery } from "@tanstack/react-query";
+import { BlockDatesTypeModel } from "@/db/schema/appointments";
 
 // Define the slot duration in minutes (FullCalendar default is 30)
 const SLOT_DURATION_MINUTES = 30;
+type Props = {
+    value: string | null;
+    onChange: (value: string) => void;
+    onBlur?: () => void;
+    error?: string;
+    initialDate: string;
+};
 
 export default function SelectTimeCal({
     value,
@@ -16,14 +25,16 @@ export default function SelectTimeCal({
     onBlur,
     error,
     initialDate,
-}: {
-    value: string | null;
-    onChange: (value: string) => void;
-    onBlur?: () => void;
-    error?: string;
-    initialDate: string;
-}) {
+}: Props) {
     const [currentTime, setCurrentTime] = useState(new Date());
+
+    const { data } = useQuery({
+        queryKey: ["blockedDates"],
+        queryFn: async (): Promise<BlockDatesTypeModel[]> => {
+            const res = await fetch("/api/blockdates");
+            return res.json();
+        },
+    });
     // update the time per minute
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -146,6 +157,15 @@ export default function SelectTimeCal({
                 slotMaxTime="17:00:00"
                 allDaySlot={false}
                 slotLaneDidMount={handleSlotRender}
+                events={data?.map((v) => ({
+                    title: v.reason || "Blocked",
+                    id: v.id,
+                    date: v.date,
+                    start: v.startTime,
+                    end: v.endTime,
+                    display: "block",
+                    color: "#4a5565",
+                }))}
             />
             {error && <h1 className="text-red-500">{error}</h1>}
         </>

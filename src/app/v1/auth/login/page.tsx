@@ -8,7 +8,9 @@ import { redirect } from "next/navigation";
 
 export default async function LoginPage() {
     const session = await auth();
-    if (session?.user.id) redirect("/");
+    if (session?.user?.id && !session.error) {
+        redirect("/");
+    }
 
     return (
         <div className="items-center  grid grid-cols-[1fr]  bg-[url('/bgPattern.svg')] grid-rows-1 min-h-dvh px-42 ">

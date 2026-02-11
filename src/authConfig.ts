@@ -33,6 +33,7 @@ export const authConfig = {
                     scope: "openid email profile https://www.googleapis.com/auth/calendar.events.owned",
                     access_type: "offline", // Essential to get a refresh_token
                     prompt: "consent select_account",
+                    response_type: "code",
                 },
             },
             allowDangerousEmailAccountLinking: true,
@@ -150,6 +151,7 @@ export const authConfig = {
                 session.user.photoUrl = token.photoUrl;
                 session.user.image = token.image;
                 session.user.accessToken = token.accessToken as string;
+                session.error = token.error;
             }
             return session;
         },

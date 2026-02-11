@@ -9,12 +9,13 @@ import { notifications } from "@mantine/notifications";
 import {
     AppointmentSchedulesTypeModel,
     appointmentTypeValues,
+    BlockDatesTypeModel,
 } from "@/db/schema/appointments";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, em, Group, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import PopoverViewSchedule from "../common/PopoverViewSchedule";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
     children: React.ReactNode;
@@ -49,6 +50,22 @@ export default function SelectDateCal({
     };
 
     const onDateClick = (dateArg: DateClickArg) => {
+        // check blocked date first
+        const eventsOnDate = calendarRef.current
+            ?.getApi()
+            .getEvents()
+            .filter((event) => {
+                return event.startStr === dateArg.dateStr && event.allDay;
+            });
+        if (!eventsOnDate || eventsOnDate.length > 0) {
+            notifications.show({
+                title: "Date blocked",
+                message: "The clinic is not open for specific reason.",
+                color: "red",
+            });
+            return;
+        }
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -93,6 +110,14 @@ export default function SelectDateCal({
             return;
         }
     };
+
+    const { data } = useQuery({
+        queryKey: ["blockedDates"],
+        queryFn: async (): Promise<BlockDatesTypeModel[]> => {
+            const res = await fetch("/api/blockdates");
+            return res.json();
+        },
+    });
 
     const typePerSchedule = useMemo(() => {
         return schedules.reduce(
@@ -206,6 +231,18 @@ export default function SelectDateCal({
                     startTime: "08:00",
                     endTime: "17:00",
                 }}
+                events={data?.map((v) => ({
+                    title: v.reason || "Blocked",
+                    id: v.id,
+                    date: v.date,
+                    start: v.startTime,
+                    end: v.endTime,
+                    display: "block",
+                    // start: v.startTime.replace(" ", "T"),
+                    // end: v.endTime.replace(" ", "T"),
+
+                    color: "#4a5565",
+                }))}
                 slotMinTime="08:00:00"
                 slotMaxTime="17:00:00"
                 dayCellClassNames={getDayClassNames}

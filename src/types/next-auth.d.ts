@@ -18,6 +18,7 @@ declare module "next-auth" {
     }
 
     interface Session {
+        error?: "RefreshAccessTokenError";
         user: {
             id: string;
             email?: string | null;
@@ -48,6 +49,7 @@ declare module "next-auth/jwt" {
         image: string | null;
         accessToken?: string | null;
         refreshToken?: string | null;
+        error?: "RefreshAccessTokenError";
         expiresAt: number;
     }
 }

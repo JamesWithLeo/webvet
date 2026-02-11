@@ -14,7 +14,7 @@ import {
     Group,
     Avatar,
     Title,
-    Input,
+    useModalsStack,
 } from "@mantine/core";
 
 import { useForm } from "@mantine/form";
@@ -77,21 +77,12 @@ export default function AppointmentStepper({ pets = [], schedules }: Props) {
     const [active, setActive] = useState(0);
     const router = useRouter();
     const successTimeOut = 4000;
+    const stack = useModalsStack(["confirm-modal", "no-pets-alert-modal"]);
 
     const [
         isOpenedSuccessModal,
         { open: openSuccessModal, close: closeSuccessModal },
     ] = useDisclosure(false);
-
-    const [
-        isOpenConfirmDialog,
-        { open: openConfirmDialog, close: closeConfirmDialog },
-    ] = useDisclosure(false);
-
-    const [
-        openedNoPetsAlert,
-        { open: openNoPetsAlert, close: closeNoPetsAlert },
-    ] = useDisclosure(pets.length <= 0);
 
     const createAppointment = CreateAppointmentAction.bind(null);
 
@@ -157,12 +148,13 @@ export default function AppointmentStepper({ pets = [], schedules }: Props) {
     };
 
     const checkPets = () => {
-        if (pets.length <= 0) openNoPetsAlert();
-        else closeNoPetsAlert();
+        if (pets.length <= 0) stack.open("no-pets-alert-modal");
+        else stack.close("no-pets-alert-modal");
     };
 
     useEffect(() => {
         if (formState?.succesful && formState.appointmentId) {
+            stack.close("confirm-modal");
             openSuccessModal();
 
             setTimeout(() => {
@@ -171,6 +163,7 @@ export default function AppointmentStepper({ pets = [], schedules }: Props) {
         }
 
         if (!formState.succesful && formState.debug) {
+            stack.close("confirm-modal");
             notifications.show({
                 title: `Error code: ${formState.debug.code}`,
                 message: `${formState.debug.message}`,
@@ -396,7 +389,9 @@ export default function AppointmentStepper({ pets = [], schedules }: Props) {
                             <div className="flex mt-2 justify-center gap-8  col-start-2 row-start-3">
                                 <div>
                                     <Button
-                                        onClick={openConfirmDialog}
+                                        onClick={() => {
+                                            stack.open("confirm-modal");
+                                        }}
                                         disabled={!form.isValid()}
                                     >
                                         Save
@@ -415,12 +410,6 @@ export default function AppointmentStepper({ pets = [], schedules }: Props) {
                                         </button>
                                     </div>
                                 </div>
-                                <SuccessModal
-                                    opened={isOpenedSuccessModal}
-                                    onClose={closeSuccessModal}
-                                    timeOut={successTimeOut}
-                                    title="Appointment Saved"
-                                />
                             </div>
                         </div>
                         <div className="w-full flex-1 mt-2 ">
@@ -440,91 +429,104 @@ export default function AppointmentStepper({ pets = [], schedules }: Props) {
                 )}
             </form>
 
-            <Modal
-                opened={isOpenConfirmDialog}
-                centered
-                onClose={closeConfirmDialog}
-                withCloseButton={false}
-                size={"lg"}
-            >
-                <Box className="flex flex-col gap-6 p-4">
-                    <span>
-                        <h1 className="text-3xl">
-                            Confirm Your Appointment Details?
-                        </h1>
-                        <h1>
-                            Please carefully review the following details before
-                            you confirm.
-                        </h1>
-                    </span>
-                    <span className="grid grid-cols-[1fr_9fr]  ">
-                        <h1 className="text-xl col-span-2">
-                            {toTitleCase(form.values.title)}
-                        </h1>
-                        <h1 className="text-lg">Service:</h1>
-                        <h1 className="text-lg ml-8">
-                            {toTitleCase(form.values.type)}
-                        </h1>
+            <SuccessModal
+                opened={isOpenedSuccessModal}
+                onClose={closeSuccessModal}
+                timeOut={successTimeOut}
+                title="Appointment Saved"
+            />
+            <Modal.Stack>
+                <Modal
+                    {...stack.register("confirm-modal")}
+                    centered
+                    withCloseButton={false}
+                    size={"lg"}
+                >
+                    <Box className="flex flex-col gap-6 p-4">
+                        <span>
+                            <h1 className="text-3xl">
+                                Confirm Your Appointment Details?
+                            </h1>
+                            <h1>
+                                Please carefully review the following details
+                                before you confirm.
+                            </h1>
+                        </span>
+                        <span className="grid grid-cols-[1fr_9fr]  ">
+                            <h1 className="text-xl col-span-2">
+                                {toTitleCase(form.values.title)}
+                            </h1>
+                            <h1 className="text-lg">Service:</h1>
+                            <h1 className="text-lg ml-8">
+                                {toTitleCase(form.values.type)}
+                            </h1>
 
-                        <h1 className="text-lg">Date:</h1>
-                        <h1 className="text-lg ml-8">
-                            {new Date(
-                                form.values.event_datetime
-                            ).toDateString()}{" "}
-                        </h1>
-                        <h1 className="text-lg">Time:</h1>
-                        <h1 className="text-lg ml-8">
-                            {new Date(
-                                form.values.event_datetime
-                            ).toLocaleTimeString()}
-                        </h1>
-                    </span>
-                    <span className="w-full flex justify-end gap-4">
-                        <Button
-                            variant="subtle"
-                            color="gray"
-                            onClick={closeConfirmDialog}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                console.log("is valid:", form.errors);
-                                // hit the form action
-                                form.onSubmit((v) => handleSubmit(v))();
-                            }}
-                        >
-                            Confirm
-                        </Button>
-                    </span>
-                </Box>
-            </Modal>
-
-            <Modal
-                onClose={closeNoPetsAlert}
-                opened={openedNoPetsAlert}
-                centered
-                withCloseButton={false}
-                size={"lg"}
-            >
-                <Box className="flex flex-col gap-6 p-4">
-                    <Box>
-                        <Title order={2}>No pets found</Title>
-                        <Text>
-                            A pet profile is required to schedule an
-                            appointment. Would you like to add one now?
-                        </Text>
+                            <h1 className="text-lg">Date:</h1>
+                            <h1 className="text-lg ml-8">
+                                {new Date(
+                                    form.values.event_datetime
+                                ).toDateString()}{" "}
+                            </h1>
+                            <h1 className="text-lg">Time:</h1>
+                            <h1 className="text-lg ml-8">
+                                {new Date(
+                                    form.values.event_datetime
+                                ).toLocaleTimeString()}
+                            </h1>
+                        </span>
+                        <span className="w-full flex justify-end gap-4">
+                            <Button
+                                variant="subtle"
+                                color="gray"
+                                onClick={() => {
+                                    stack.close("confirm-modal");
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    console.log("is valid:", form.errors);
+                                    // hit the form action
+                                    form.onSubmit((v) => handleSubmit(v))();
+                                }}
+                            >
+                                Confirm
+                            </Button>
+                        </span>
                     </Box>
-                    <Group justify="right">
-                        <Button variant="default" onClick={closeNoPetsAlert}>
-                            Not now
-                        </Button>
-                        <Button component={Link} href={"/v1/pets/new"}>
-                            Add a pet
-                        </Button>
-                    </Group>
-                </Box>
-            </Modal>
+                </Modal>
+
+                <Modal
+                    {...stack.register("no-pets-alert-modal")}
+                    centered
+                    withCloseButton={false}
+                    size={"lg"}
+                >
+                    <Box className="flex flex-col gap-6 p-4">
+                        <Box>
+                            <Title order={2}>No pets found</Title>
+                            <Text>
+                                A pet profile is required to schedule an
+                                appointment. Would you like to add one now?
+                            </Text>
+                        </Box>
+                        <Group justify="right">
+                            <Button
+                                variant="default"
+                                onClick={() => {
+                                    stack.close("no-pets-alert-modal");
+                                }}
+                            >
+                                Not now
+                            </Button>
+                            <Button component={Link} href={"/v1/pets/new"}>
+                                Add a pet
+                            </Button>
+                        </Group>
+                    </Box>
+                </Modal>
+            </Modal.Stack>
         </>
     );
 }

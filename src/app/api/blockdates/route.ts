@@ -21,6 +21,7 @@ export const POST = auth(async function POST(request) {
     }
 
     const body = await request.json();
+
     const { dates, type, reason } = body;
     if (!dates || !Array.isArray(dates) || dates.length === 0) {
         return NextResponse.json(

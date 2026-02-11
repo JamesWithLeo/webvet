@@ -7,7 +7,7 @@ import ProcessSection from "@/components/ProcessSection";
 
 export default async function AppPage() {
     const session = await auth();
-    if (session?.user.id) {
+    if (session?.user.id && !session.error) {
         redirect("/v1");
     }
 

@@ -298,7 +298,7 @@ export default function AdminCalendar() {
                             start: v.startTime.replace(" ", "T"),
                             end: v.endTime.replace(" ", "T"),
                             display: "block",
-                            color: "gray",
+                            color: "#4a5565",
                         };
                     })}
                     aspectRatio={1.8}
@@ -324,11 +324,11 @@ export default function AdminCalendar() {
                 <Text>Legends:</Text>
                 <Group ml={"md"}>
                     <Text size="sm">Block or disabled dates:</Text>
-                    <div className="h-4 w-4 bg-gray-700"></div>
+                    <div className="h-4 w-4 bg-gray-600"></div>
                 </Group>
                 <Group ml={"md"}>
                     <Text size="sm">Today:</Text>
-                    <div className="h-4 w-4 bg-blue-600"></div>
+                    <div className="h-4 w-4 bg-[#228be6]"></div>
                 </Group>
             </Stack>
 

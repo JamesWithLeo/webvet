@@ -42,7 +42,9 @@ const headlines = [
 
 export default async function Signup() {
     const session = await auth();
-    if (session?.user.id) redirect("/");
+    if (session?.user?.id && !session.error) {
+        redirect("/");
+    }
     return (
         <div className="items-centers gap-0 grid grid-cols-1 xl:grid-cols-[1fr_1fr] grid-rows-[auto_.5fr] bg-[url('/bgPattern.svg')] xl:grid-rows-1 min-h-dvh xl:px-42 ">
             <section className=" flex flex-col h-screen  items-center justify-center  bg-white">

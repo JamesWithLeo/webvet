@@ -21,8 +21,8 @@ export default function generateBlockPayload(dateStr: string, type: BlockType) {
         case "afternoon":
             return {
                 date: dateStr,
-                // Assuming afternoon is 1 PM to 5 PM
-                startTime: `${dateStr}T13:00:00Z`,
+                // Assuming afternoon is 12 PM to 5 PM
+                startTime: `${dateStr}T12:00:00Z`,
                 endTime: `${dateStr}T17:00:00Z`,
             };
     }

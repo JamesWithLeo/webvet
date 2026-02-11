@@ -1,9 +1,10 @@
-import { Paper, Divider, Button } from "@mantine/core";
+import { Paper, Divider } from "@mantine/core";
 import LogoWithText from "./LogoWithText";
 import Link from "next/link";
 import HeaderBurger from "./HeaderBurger";
 import UserAvatar from "./UserAvatar";
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 export default async function LayoutContent({
     children,
@@ -11,6 +12,9 @@ export default async function LayoutContent({
     children: React.ReactNode;
 }) {
     const session = await auth();
+    if (session?.error === "RefreshAccessTokenError") {
+        redirect("/");
+    }
     return (
         <main>
             <Paper

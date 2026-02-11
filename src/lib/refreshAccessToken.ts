@@ -26,7 +26,7 @@ export async function refreshAccessToken(token: any) {
             refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
         };
     } catch (error) {
-        console.error("Error refreshing access token", error);
+        // console.error("Error refreshing access token", error);
         return { ...token, error: "RefreshAccessTokenError" };
     }
 }
