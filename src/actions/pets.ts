@@ -2,10 +2,16 @@
 
 import { auth } from "@/auth";
 import { PetTypeModel } from "@/db/schema/pets";
-import { checkExistingPets, savePetsToDb } from "@/lib/db/pets";
+import {
+    archivePet,
+    checkExistingPets,
+    savePetsToDb,
+    unarchivePet,
+} from "@/lib/db/pets";
 import { DeleteUTFile } from "@/lib/uploadthing-util";
 import { createPetSchema, PetFormInput } from "@/lib/validators/petsZodSchema";
 import { unauthorized } from "next/navigation";
+import { success } from "zod";
 
 export type ActionResponse = {
     success: boolean;
@@ -19,7 +25,7 @@ export type ActionResponse = {
     };
 };
 
-export default async function CreatePet(
+export async function CreatePet(
     prevState: any,
     data: PetFormInput & {
         photoUrlKey: string;
@@ -28,12 +34,6 @@ export default async function CreatePet(
 ): Promise<ActionResponse> {
     const session = await auth();
     if (!session?.user?.id) unauthorized();
-
-    if (session.user.role === "client") {
-        data.ownerId = session.user.id;
-    } else {
-        data.ownerId = undefined;
-    }
 
     const parsed = createPetSchema.safeParse(data);
 
@@ -64,13 +64,15 @@ export default async function CreatePet(
                 };
             }
         }
-        await savePetsToDb(parsed.data);
+        console.log(parsedData);
+        await savePetsToDb(parsedData);
         return {
             success: true,
             name: parsedData.name,
             photoUrl: parsedData.photoUrl,
         };
     } catch (error: any) {
+        console.error(error);
         const errorCode = error.code || "UNKNOWN_DB_ERR";
         const technicalMessage = error.message;
 

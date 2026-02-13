@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { breeds, pets, species } from "@/db/schema/pets";
-import { and, eq, getTableColumns, ne, SQL } from "drizzle-orm";
+import { breeds, pets, PetTypeModel } from "@/db/schema/pets";
+import { and, eq, getTableColumns, isNotNull, isNull } from "drizzle-orm";
 
 export const checkExistingPets = async ({
     name,
@@ -28,29 +28,40 @@ export const savePetsToDb = async (petsData: typeof pets.$inferInsert) => {
         .then((val) => val[0]);
 };
 
-export const getPetsSpeciesExcept = async (names: string[]) => {
-    let condition: SQL[] = [];
-    names.forEach((element) => {
-        condition.push(ne(species.name, element));
-    });
-
+export const archivePet = async (id: string) => {
     return await db
-        .select()
-        .from(species)
-        .where(and(...condition));
+        .update(pets)
+        .set({ archivedAt: new Date() })
+        .where(eq(pets.id, id))
+        .returning();
+};
+export const unarchivePet = async (id: string) => {
+    return await db
+        .update(pets)
+        .set({ archivedAt: null })
+        .where(eq(pets.id, id))
+        .returning();
 };
 
 export const getAllPets = async (id: string) => {
     return await db
         .select({
             ...getTableColumns(pets),
-            species: species.name,
             breed: breeds.name,
         })
         .from(pets)
-        .where(eq(pets.ownerId, id))
-        .innerJoin(breeds, eq(pets.breedId, breeds.id))
-        .innerJoin(species, eq(breeds.petTypeId, species.id));
+        .where(and(eq(pets.ownerId, id), isNull(pets.archivedAt)))
+        .innerJoin(breeds, eq(pets.breedId, breeds.id));
+};
+export const getAllArchivedPets = async (id: string) => {
+    return await db
+        .select({
+            ...getTableColumns(pets),
+            breed: breeds.name,
+        })
+        .from(pets)
+        .where(and(eq(pets.ownerId, id), isNotNull(pets.archivedAt)))
+        .innerJoin(breeds, eq(pets.breedId, breeds.id));
 };
 
 export const getAllAlivePets = async (id: string) => {
@@ -67,6 +78,7 @@ export const getAllPetsIdName = async (id: string) => {
             name: pets.name,
             photoUrl: pets.photoUrl,
             breed: pets.breedSpecification,
+            weight: pets.weight,
         })
         .from(pets)
         .where(eq(pets.ownerId, id));

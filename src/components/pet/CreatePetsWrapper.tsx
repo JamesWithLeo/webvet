@@ -1,6 +1,6 @@
 "use client";
 
-import CreatePet from "@/actions/createPet";
+import { CreatePet } from "@/actions/pets";
 import Image from "next/image";
 import {
     ActionIcon,
@@ -38,7 +38,11 @@ import {
     useTransition,
 } from "react";
 import BreedComboBox from "./BreedComboBox";
-import { OWNERSHIP_STATUS, petGenderValues } from "@/db/schema/pets";
+import {
+    OWNERSHIP_STATUS,
+    petGenderValues,
+    speciesConst,
+} from "@/db/schema/pets";
 import ProfileDropzone from "../common/ProfileDropzone";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
@@ -49,7 +53,7 @@ import { toTitleCase } from "@/lib/toTitleCase";
 import { useRouter } from "next/navigation";
 import { DeleteUTFile } from "@/lib/uploadthing-util";
 
-const formInitialValues = {
+const formInitialValues: PetFormInput = {
     name: "",
     breedId: 0,
     color: "",
@@ -65,16 +69,7 @@ const formInitialValues = {
     species: "",
 };
 
-export default function CreatePetsWrapper({
-    species,
-    id,
-}: {
-    species: {
-        id: number;
-        name: string;
-    }[];
-    id: string;
-}) {
+export default function CreatePetsWrapper({ id }: { id: string }) {
     const [isLoadingBreed, setIsLoadingBreed] = useState<boolean>(false);
     const [isForced, setIsForced] = useState(false);
     const [breeds, setBreeds] = useState<{ id: string; name: string }[]>([]);
@@ -112,7 +107,7 @@ export default function CreatePetsWrapper({
 
     const fetchBreeds = async (species: string) => {
         setIsLoadingBreed(true);
-        const response = await fetch(`/api/pets?species=${species}`);
+        const response = await fetch(`/api/pets/breeds?species=${species}`);
 
         if (response.ok) {
             const data = await response.json();
@@ -149,7 +144,6 @@ export default function CreatePetsWrapper({
                 photoUrl: url,
                 photoUrlKey: key,
                 isForce: force,
-                userId: id,
                 ownerId: id,
                 ownershipStatus: OWNERSHIP_STATUS.OWNED,
             };
@@ -407,9 +401,9 @@ export default function CreatePetsWrapper({
                         name="species"
                         label="Species"
                         data={[{ label: "", value: "" }].concat(
-                            species.map((s) => ({
-                                label: s.name,
-                                value: String(s.id),
+                            speciesConst.map((v) => ({
+                                label: toTitleCase(v),
+                                value: v,
                             }))
                         )}
                         {...form.getInputProps("species")}
@@ -513,13 +507,7 @@ export default function CreatePetsWrapper({
                                     {toTitleCase(form.getValues().gender)}
                                     <br />
                                     Species:{" "}
-                                    {toTitleCase(
-                                        species.find(
-                                            (v) =>
-                                                String(v.id) ===
-                                                form.getValues().species
-                                        )?.name ?? ""
-                                    )}
+                                    {toTitleCase(form.getValues().species)}
                                     <br />
                                     Breed:{" "}
                                     {breedRef.current?.value || "Unknown Breed"}

@@ -1,5 +1,6 @@
 import { CreateService } from "@/actions/Service";
 import { appointmentTypeValues } from "@/db/schema/appointments";
+import { speciesConst } from "@/db/schema/pets";
 import { useCreateService } from "@/lib/hooks/useService";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
@@ -37,6 +38,7 @@ export default function AddServiceModal({
         mode: "uncontrolled",
         initialValues: {
             title: "",
+            species: "",
             description: "",
             type: "",
             reminder: "",
@@ -55,6 +57,7 @@ export default function AddServiceModal({
     const handleSubmit = (value: ServiceFormInput) => {
         const {
             title,
+            species,
             description,
             reminder,
             type,
@@ -72,6 +75,7 @@ export default function AddServiceModal({
                 reminder: reminder,
                 type: type,
                 inclusions: inclusions,
+                species: species,
                 isFlat: isFlat,
             },
             initailPrice: {
@@ -121,6 +125,18 @@ export default function AddServiceModal({
                         withAsterisk
                         {...form.getInputProps("title")}
                     />
+                    <NativeSelect
+                        label="Species"
+                        withAsterisk
+                        {...form.getInputProps("")}
+                        data={[{ label: "", value: "" }].concat(
+                            speciesConst.map((v) => ({
+                                label: toTitleCase(v),
+                                value: v,
+                            }))
+                        )}
+                    />
+
                     <NativeSelect
                         label="Type"
                         withAsterisk

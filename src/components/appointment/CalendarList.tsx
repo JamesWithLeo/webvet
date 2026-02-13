@@ -3,19 +3,13 @@
 import FullCalendar from "@fullcalendar/react";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import dayMonthPlugin from "@fullcalendar/daygrid";
-import {
-    DatesSetArg,
-    EventClickArg,
-    EventContentArg,
-    EventSourceInput,
-} from "@fullcalendar/core/index.js";
+import { DatesSetArg, EventClickArg } from "@fullcalendar/core/index.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@mantine/core";
 import {
     IconAlertTriangleFilled,
     IconChevronLeft,
     IconChevronRight,
-    IconFaceIdError,
 } from "@tabler/icons-react";
 import NewAppointmentButton from "../common/NewAppointmentButton";
 import { toTitleCase } from "@/lib/toTitleCase";
@@ -23,12 +17,16 @@ import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import AppointmentDrawer from "./AppointmentDrawer";
 import { JoinedAppointmentType } from "@/db/schema/appointments";
 import { notifications } from "@mantine/notifications";
+import { PetTypeModel } from "@/db/schema/pets";
+import AddNewPetButton from "../common/AddNewPetButton";
 
 export default function CalendarList({
     appointments,
+    pets,
     error,
 }: {
     appointments: JoinedAppointmentType[] | null;
+    pets: PetTypeModel[];
     error: string | null;
 }) {
     const calendarRef = useRef<FullCalendar>(null);
@@ -130,6 +128,7 @@ export default function CalendarList({
                     {currentTitle}
                 </label>
                 <div className="flex gap-2">
+                    <AddNewPetButton size={isMobile ? "xs" : "sm"} />
                     <NewAppointmentButton size={isMobile ? "xs" : "sm"} />
                     <Button.Group>
                         <Button

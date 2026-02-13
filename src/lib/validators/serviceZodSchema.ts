@@ -1,5 +1,6 @@
 import { z } from "zod/v4";
 import { appointmentTypeValues } from "@/db/schema/appointments";
+import { speciesConst } from "@/db/schema/pets";
 
 const AllowedType = z.enum(appointmentTypeValues, {
     message: "Value must be a valid service type.",
@@ -8,6 +9,9 @@ const AllowedType = z.enum(appointmentTypeValues, {
 export const createServiceSchema = z
     .object({
         title: z.string().trim().nonempty("Missing title").toLowerCase(),
+        species: z
+            .union([z.literal(""), z.enum(speciesConst)])
+            .refine((val) => val !== "", "Please select a service type"),
         description: z
             .string()
             .trim()

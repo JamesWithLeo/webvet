@@ -1,4 +1,9 @@
-import { OWNERSHIP_STATUS, petGenderValues } from "@/db/schema/pets";
+import {
+    OWNERSHIP_STATUS,
+    petGenderValues,
+    speciesConst,
+    speciesEnum,
+} from "@/db/schema/pets";
 import { z } from "zod/v4";
 
 export const createPetSchema = z.object({
@@ -71,7 +76,10 @@ export const createPetSchema = z.object({
 
     ownerId: z.string().trim().optional(),
     ownershipStatus: z.enum(OWNERSHIP_STATUS).nonoptional(),
-    species: z.string().nonempty("Missing pet species"),
+    species: z
+        .union([z.literal(""), z.enum(speciesConst)])
+        .refine((val) => val !== "", "Please select a species")
+        .nonoptional(),
 });
 
 // Use this for your React Hook Form / UI State

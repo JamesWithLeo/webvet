@@ -1,6 +1,7 @@
 import { db, dbTx } from "@/db";
 import {
     prices,
+    ServiceMergePriceType,
     ServicePriceType,
     ServicePriceTypeModel,
     servicePriceVariant,
@@ -95,7 +96,7 @@ export async function updateServiceToDB(
         .then((v) => v[0]);
 }
 
-export async function getServices() {
+export async function getServices(): Promise<ServiceTypeModel[]> {
     try {
         return await db.select().from(services);
     } catch (error: any) {
@@ -126,7 +127,7 @@ export async function getServiceByType(type: AppointmentType) {
         return await db
             .select({
                 ...getTableColumns(services),
-                prices: sql<ServicePriceTypeModel[]>`
+                variants: sql<ServicePriceTypeModel[]>`
                     COALESCE(
                         json_agg(
                             json_build_object(
@@ -136,7 +137,7 @@ export async function getServiceByType(type: AppointmentType) {
                             )
                         ) FILTER (WHERE ${prices.id} IS NOT NULL), 
                         '[]'
-                    )`.as("prices"),
+                    )`.as("variants"),
             })
             .from(services)
             .leftJoin(prices, eq(prices.serviceId, services.id))
@@ -147,3 +148,39 @@ export async function getServiceByType(type: AppointmentType) {
         return [];
     }
 }
+
+export const getServicesGrouped = async (): Promise<
+    ServiceMergePriceType[]
+> => {
+    const rows = await db
+        .select({
+            service: services,
+            price: prices,
+        })
+        .from(services)
+        .leftJoin(prices, eq(services.id, prices.serviceId))
+        .where(eq(prices.isAvailable, true));
+
+    // Transform flat rows into grouped objects
+    const grouped = rows.reduce(
+        (acc, row) => {
+            const serviceId = row.service.id;
+
+            if (!acc[serviceId]) {
+                acc[serviceId] = {
+                    ...row.service,
+                    variants: [],
+                };
+            }
+
+            if (row.price) {
+                acc[serviceId].variants.push(row.price);
+            }
+
+            return acc;
+        },
+        {} as Record<string, any>
+    );
+
+    return Object.values(grouped);
+};

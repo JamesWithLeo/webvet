@@ -8,6 +8,7 @@ import {
     Group,
     Input,
     Menu,
+    SegmentedControl,
 } from "@mantine/core";
 import {
     IconAdjustmentsHorizontal,
@@ -165,7 +166,22 @@ export default function PetControllers({
 
     return (
         <Grid w={"100%"} justify="space-between" grow>
-            <Grid.Col span={3}></Grid.Col>
+            <Grid.Col span={3}>
+                <SegmentedControl
+                    size={isMobile ? "xs" : "sm"}
+                    defaultValue="all"
+                    data={[
+                        { label: "All pets", value: "all" },
+                        { label: "Archived", value: "archived" },
+                    ]}
+                    onChange={(v) => {
+                        filterDispatch({
+                            type: "UPDATE_SCOPE",
+                            scope: v as "all" | "archived",
+                        });
+                    }}
+                />
+            </Grid.Col>
             <Grid.Col span={6} w={"100%"}>
                 <Group justify="flex-end">
                     <Button.Group>

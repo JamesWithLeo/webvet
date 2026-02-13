@@ -15,6 +15,7 @@ import {
     Avatar,
     Title,
     useModalsStack,
+    Accordion,
 } from "@mantine/core";
 
 import { useForm } from "@mantine/form";
@@ -46,10 +47,18 @@ import Tips from "../common/Tips";
 import { TIPS } from "@/lib/tips";
 import Link from "next/link";
 import PopoverViewSchedule from "../common/PopoverViewSchedule";
+import { ServiceMergePriceType } from "@/db/schema/services";
+import PetAccordionItem from "./PetAccordionItem";
 
 type Target = Record<
     string,
-    { photoUrl: string | null; id: string; breed: string; name: string }
+    {
+        photoUrl: string | null;
+        id: string;
+        breed: string;
+        name: string;
+        weight: number | null;
+    }
 >;
 
 type Props = {
@@ -58,17 +67,24 @@ type Props = {
         name: string;
         photoUrl: string | null;
         breed: string;
+        weight: number | null;
     }[];
     schedules: AppointmentSchedulesTypeModel[] | null;
+    services: ServiceMergePriceType[];
 };
 
-export default function AppointmentStepper({ pets = [], schedules }: Props) {
+export default function AppointmentStepper({
+    pets = [],
+    schedules,
+    services,
+}: Props) {
     const converted: Target = pets.reduce((acc, item) => {
         acc[item.id] = {
             id: item.id,
             photoUrl: item.photoUrl ?? null,
             breed: item.breed,
             name: item.name,
+            weight: item.weight,
         };
         return acc;
     }, {} as Target);
@@ -269,6 +285,18 @@ export default function AppointmentStepper({ pets = [], schedules }: Props) {
                                     </Group>
                                 )}
                             />
+                            <Accordion
+                                className="gap-2 flex  flex-col"
+                                multiple={true}
+                            >
+                                {pets.map((pet) => (
+                                    <PetAccordionItem
+                                        key={pet.id}
+                                        pet={pet}
+                                        services={services}
+                                    />
+                                ))}
+                            </Accordion>
                             <div className="w-full flex justify-end">
                                 <Button
                                     onClick={() => {

@@ -54,17 +54,13 @@ export const petGender = pgEnum("pet_gender", petGenderValueTuple);
 export type PetGender = (typeof petGender.enumValues)[number];
 export const petGenderValues = petGender.enumValues;
 
-export const species = pgTable("pet_types", {
-    id: serial("id").primaryKey(),
-    name: text("name").notNull().unique(),
-});
+export const speciesConst = ["dog", "cat"] as const;
+export const speciesEnum = pgEnum("species", speciesConst);
 
 export const breeds = pgTable("breeds", {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
-    petTypeId: integer("pet_type_id")
-        .notNull()
-        .references(() => species.id, { onDelete: "cascade" }),
+    species: speciesEnum("species").notNull(),
 });
 
 export const pets = pgTable(
@@ -79,6 +75,7 @@ export const pets = pgTable(
         ownerId: uuid("owner_id").references(() => users.id, {
             onDelete: "set null",
         }),
+        species: speciesEnum("species").notNull(),
         gender: petGender("gender").default("unknown").notNull(),
         color: text(),
         distinguishingMarks: jsonb().$type<string[]>().default([]),
@@ -87,7 +84,11 @@ export const pets = pgTable(
         createdAt: timestamp("created_at").defaultNow().notNull(),
         diet: jsonb().$type<string[]>().default([]),
         allergies: jsonb().$type<string[]>().default([]),
-        weight: decimal("weight", { precision: 5, scale: 2, mode: "number" }),
+        weight: decimal("weight", {
+            precision: 5,
+            scale: 2,
+            mode: "number",
+        }).default(0),
         height: decimal("height", { precision: 5, scale: 2, mode: "number" }),
         life: lifeStatusEnum().default("alive").notNull(),
 
@@ -103,6 +104,7 @@ export const pets = pgTable(
         ownershipStatus: ownershipStatusEnum("ownership_status")
             .default("UNKNOWN")
             .notNull(),
+        archivedAt: timestamp("archived_at"),
     },
     (table) => [
         check(
@@ -120,3 +122,5 @@ export const pets = pgTable(
 );
 
 export type PetTypeModel = InferSelectModel<typeof pets>;
+
+export type PetTypeModelWithBreed = PetTypeModel & { breed: string };

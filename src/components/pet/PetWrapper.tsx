@@ -5,23 +5,26 @@ import { useMemo, useReducer, useState } from "react";
 import PetCard from "./PetCard";
 import NewPetCard from "./NewPetCard";
 import { useDebounce } from "use-debounce";
-import { PetTypeModel } from "@/db/schema/pets";
 import calculatePetAge from "@/lib/calculatePetAge";
+import usePets from "@/lib/hooks/usePets";
 
 export type FilterStateType = {
     species: "all" | "dog" | "cat";
     life: "all" | "alive" | "deceased";
     gender: "all" | "male" | "female";
+    scope: "all" | "archived";
 };
 export type FilterAction =
     | { type: "UPDATE_SPECIES"; species: "all" | "dog" | "cat" }
     | { type: "UPDATE_LIFE"; life: "all" | "alive" | "deceased" }
-    | { type: "UPDATE_GENDER"; gender: "all" | "male" | "female" };
+    | { type: "UPDATE_GENDER"; gender: "all" | "male" | "female" }
+    | { type: "UPDATE_SCOPE"; scope: "all" | "archived" };
 
 const filterInitialState: FilterStateType = {
     species: "all",
     life: "all",
     gender: "all",
+    scope: "all",
 };
 
 function filterReducer(state: FilterStateType, action: FilterAction) {
@@ -39,6 +42,11 @@ function filterReducer(state: FilterStateType, action: FilterAction) {
         return {
             ...state,
             gender: action.gender,
+        } as FilterStateType;
+    } else if (action.type === "UPDATE_SCOPE") {
+        return {
+            ...state,
+            scope: action.scope,
         } as FilterStateType;
     } else {
         return filterInitialState;
@@ -79,22 +87,27 @@ function SortReducer(state: SortStateType, action: SortAction) {
             return sortInitialState;
     }
 }
-type petTypeWithSpecies = PetTypeModel & { species: string; breed: string };
+
 type Props = {
-    pets: petTypeWithSpecies[];
+    id: string;
 };
 
-export default function PetWrapper({ pets }: Props) {
+export default function PetWrapper({ id }: Props) {
     const [filterState, filterDispatch] = useReducer(
         filterReducer,
         filterInitialState
     );
+    const { data: pets, isPending } = usePets(id, filterState.scope);
+
     const [sortState, sortDispatch] = useReducer(SortReducer, sortInitialState);
 
     const [searchTerm, setSearchTerm] = useState<string | null>(null);
     const [search] = useDebounce(searchTerm, 2000);
 
     const sortedPet = useMemo(() => {
+        if (!pets) return [];
+
+        console.log("Memo recalculating. Pets count:", pets?.length);
         if (search) {
             return pets.filter((v) =>
                 v.name.toLowerCase().includes(search.toLowerCase())
@@ -124,7 +137,7 @@ export default function PetWrapper({ pets }: Props) {
                     : b.createdAt.getTime() - a.createdAt.getTime()
             );
         }
-    }, [pets, sortState, search]);
+    }, [pets, search, sortState.order, sortState.sortBy, isPending]);
 
     return (
         <>
@@ -145,21 +158,7 @@ export default function PetWrapper({ pets }: Props) {
                         (filterState.species === "all" ||
                             filterState.species === p.species)
                     )
-                        return (
-                            <PetCard
-                                key={`${p.name}_${index}`}
-                                name={p.name}
-                                heart={p.isLike}
-                                breed={p.breed}
-                                breedSpecification={p.breedSpecification}
-                                gender={p.gender}
-                                imageUrl={p.photoUrl}
-                                dateOfBirth={p.dateOfBirth}
-                                life={p.life}
-                                species={p.species}
-                                id={p.id}
-                            />
-                        );
+                        return <PetCard key={`${p.name}_${index}`} pet={p} />;
                 })}
                 <NewPetCard />
             </section>

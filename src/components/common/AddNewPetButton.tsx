@@ -2,25 +2,23 @@
 
 import { Button, MantineBreakpoint } from "@mantine/core";
 import { useRouter } from "next/navigation";
-import { IconCalendarPlus } from "@tabler/icons-react";
+import { IconDog } from "@tabler/icons-react";
 
-export default function NewAppointmentButton({
-    size,
-}: {
+type Props = {
     size: MantineBreakpoint;
-}) {
+};
+export default function AddNewPetButton({ size }: Props) {
     const router = useRouter();
-
     return (
         <Button
             size={size}
             variant="default"
             onClick={() => {
-                router.push("/v1/appointments/new");
+                router.push("/v1/pets/new");
             }}
-            leftSection={<IconCalendarPlus size={20} stroke={1.5} />}
+            leftSection={<IconDog size={20} stroke={1.5} />}
         >
-            Add new appointment
+            Add new Pet
         </Button>
     );
 }

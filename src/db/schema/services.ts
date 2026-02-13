@@ -10,6 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { InferSelectModel } from "drizzle-orm";
 import { appointmentType } from "./appointments";
+import { speciesEnum } from "./pets";
 
 export const services = pgTable("services", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -20,6 +21,7 @@ export const services = pgTable("services", {
     description: text().notNull(),
     reminder: text().notNull(),
     inclusions: text("inclusions").array().notNull().default([]),
+    species: speciesEnum().notNull(),
 });
 
 export const servicePriceVariant = [
@@ -50,5 +52,5 @@ export type ServicePriceTypeModel = InferSelectModel<typeof prices>;
 export type ServiceTypeModel = InferSelectModel<typeof services>;
 
 export type ServiceMergePriceType = ServiceTypeModel & {
-    prices: ServicePriceTypeModel[] | [];
+    variants: ServicePriceTypeModel[] | [];
 };

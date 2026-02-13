@@ -95,20 +95,20 @@ export default function PricingCarousel({
                                 {toTitleCase(v.title)}
                             </Text>
                             <Text
-                                mb={v.prices.length > 0 ? "md" : undefined}
+                                mb={v.variants.length > 0 ? "md" : undefined}
                                 fz={isMobile ? "h5" : "h4"}
                                 fw={500}
                                 style={{ userSelect: "none" }}
                             >
-                                {getPriceDisplay(v.prices)}
+                                {getPriceDisplay(v.variants)}
                             </Text>
-                            {!isFLat(v.prices) && v.prices.length > 0 && (
+                            {!isFLat(v.variants) && v.variants.length > 0 && (
                                 <NativeSelect
                                     mb="md"
                                     size="sm"
                                     maw={"150px"}
                                     radius={"xl"}
-                                    data={v.prices.map((p) => ({
+                                    data={v.variants.map((p) => ({
                                         label: `${toTitleCase(p.variant)}-${p.price}`,
                                         value: p.id,
                                     }))}

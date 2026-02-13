@@ -13,49 +13,89 @@ import {
 } from "@mantine/core";
 
 import {
+    IconArchive,
+    IconArchiveOff,
     IconCat,
     IconDotsVertical,
     IconHeart,
     IconHeartFilled,
-    IconLogs,
     IconPlus,
-    IconTrash,
 } from "@tabler/icons-react";
 
 import DogPlaceholder from "../common/DogPlaceholder";
 import CatPlaceholder from "../common/CatPlaceholder";
-import { LifeStatus, PetGender } from "@/db/schema/pets";
+import { PetTypeModelWithBreed } from "@/db/schema/pets";
 import { toTitleCase } from "@/lib/toTitleCase";
 import calculatePetAge from "@/lib/calculatePetAge";
 import { useRouter } from "next/navigation";
+import { modals } from "@mantine/modals";
+import { useUpdatePetArchive } from "@/lib/hooks/usePets";
 
 type Props = {
-    // Pet props
-    name: string;
-    breed: string;
-    gender: PetGender;
-    heart: boolean | null;
-    imageUrl: string | null;
-    dateOfBirth: string;
-    species: string;
-    life: LifeStatus;
-    breedSpecification: string;
-    id: string;
+    pet: PetTypeModelWithBreed;
 };
-export default function PetCard({
-    id,
-    name,
-    breed,
-    heart,
-    gender,
-    imageUrl,
-    dateOfBirth,
-    species,
-    breedSpecification,
-}: Props) {
+export default function PetCard({ pet }: Props) {
+    const {
+        dateOfBirth,
+        name,
+        id,
+        breed,
+        species,
+        breedSpecification,
+        gender,
+        photoUrl: imageUrl,
+        isLike: heart,
+        archivedAt,
+    } = pet;
+
     const { years } = calculatePetAge(dateOfBirth);
     const router = useRouter();
 
+    const { mutateAsync: updateArchive, isPending } = useUpdatePetArchive();
+
+    const handleArchieve = () => {
+        modals.openConfirmModal({
+            title: `Archive ${name}?`,
+            children: (
+                <Text size="sm">
+                    Are you sure you want to archive this pet? It will no longer
+                    appear in your active list.
+                </Text>
+            ),
+            labels: { confirm: "Archive", cancel: "Cancel" },
+            confirmProps: {
+                color: "orange",
+                loading: isPending,
+            },
+            size: "lg",
+            centered: true,
+            onConfirm: async () => {
+                if (isPending) return;
+                updateArchive({ id, isArchived: !archivedAt });
+            },
+        });
+    };
+    const handleUnarchive = () => {
+        modals.openConfirmModal({
+            title: `Unarchive ${name}?`,
+            children: (
+                <Text size="sm">
+                    Are you sure you want to unarchive this pet?
+                </Text>
+            ),
+            labels: { confirm: "confirm", cancel: "Cancel" },
+            confirmProps: {
+                color: "orange",
+                loading: isPending,
+            },
+            size: "lg",
+            centered: true,
+            onConfirm: async () => {
+                if (isPending) return;
+                updateArchive({ id, isArchived: !archivedAt });
+            },
+        });
+    };
     return (
         <Card withBorder className="group w-96 h-125" radius={"md"}>
             <Card.Section withBorder p={"sm"}>
@@ -103,13 +143,6 @@ export default function PetCard({
                                     >
                                         Profile
                                     </Menu.Item>
-                                    <Menu.Item
-                                        leftSection={
-                                            <IconLogs size={20} stroke={1.5} />
-                                        }
-                                    >
-                                        History
-                                    </Menu.Item>
                                     <Menu.Divider />
                                     <Menu.Label>Action</Menu.Label>
                                     <Menu.Item
@@ -120,14 +153,33 @@ export default function PetCard({
                                     >
                                         New Appointment
                                     </Menu.Item>
-                                    <Menu.Item
-                                        color="red"
-                                        leftSection={
-                                            <IconTrash size={20} stroke={1.5} />
-                                        }
-                                    >
-                                        Delete
-                                    </Menu.Item>
+                                    {!archivedAt ? (
+                                        <Menu.Item
+                                            color="orange"
+                                            leftSection={
+                                                <IconArchive
+                                                    size={20}
+                                                    stroke={1.5}
+                                                />
+                                            }
+                                            onClick={handleArchieve}
+                                        >
+                                            Archieve
+                                        </Menu.Item>
+                                    ) : (
+                                        <Menu.Item
+                                            color="orange"
+                                            leftSection={
+                                                <IconArchiveOff
+                                                    size={20}
+                                                    stroke={1.5}
+                                                />
+                                            }
+                                            onClick={handleUnarchive}
+                                        >
+                                            Unarchive
+                                        </Menu.Item>
+                                    )}
                                 </Menu.Dropdown>
                             </Menu>
                         </ActionIcon>

@@ -1,8 +1,6 @@
-import { db } from "@/db";
-import { breeds } from "@/db/schema/pets";
-import { asc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { getAllArchivedPets, getAllPets } from "@/lib/db/pets";
 
 export const GET = auth(async function GET(req) {
     if (!req.auth) {
@@ -10,25 +8,33 @@ export const GET = auth(async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const speciesTerm = searchParams.get("species");
+    const ownerId = searchParams.get("id");
+    const scope = searchParams.get("scope");
 
-    // Validation: Ensure species exists and is numeric
-    if (!speciesTerm || !/^\d+$/.test(speciesTerm)) {
-        return NextResponse.json({ breed: [] });
+    if (!ownerId || !scope || !["all", "archived"].includes(scope)) {
+        return NextResponse.json(
+            {
+                error: "Missing or invalid parameters",
+                details:
+                    "ownerId is required and scope must be 'all' or 'archived'.",
+            },
+            { status: 400 }
+        );
     }
 
     try {
-        const breedList = await db
-            .select({ id: breeds.id, name: breeds.name })
-            .from(breeds)
-            .where(eq(breeds.petTypeId, parseInt(speciesTerm)))
-            .orderBy(asc(breeds.id));
-
-        return NextResponse.json({ breed: breedList });
+        switch (scope) {
+            case "all":
+                const all = await getAllPets(ownerId);
+                return NextResponse.json(all);
+            case "archived":
+                const archived = await getAllArchivedPets(ownerId);
+                return NextResponse.json(archived);
+        }
     } catch (error) {
         console.error("Database Error:", error);
         return NextResponse.json(
-            { message: "Internal Server Error" },
+            { error: "Failed to fetch pets" },
             { status: 500 }
         );
     }
