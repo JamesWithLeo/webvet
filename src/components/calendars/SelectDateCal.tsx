@@ -8,9 +8,9 @@ import { DatesSetArg, DayCellContentArg } from "@fullcalendar/core/index.js";
 import { notifications } from "@mantine/notifications";
 import {
     AppointmentSchedulesTypeModel,
-    appointmentTypeValues,
     BlockDatesTypeModel,
 } from "@/db/schema/appointments";
+import { appointmentTypeValues } from "@/db/schema/enums";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, em, Group, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
