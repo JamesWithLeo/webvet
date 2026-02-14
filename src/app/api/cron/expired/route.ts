@@ -28,7 +28,7 @@ export async function GET(request: Request) {
                 appointmentId: appointments.id,
                 title: appointments.title,
                 eventTime: appointments.event_datetime,
-                type: appointments.type,
+                // type: appointments.type,
             })
             .from(appointmentsToPets)
             .innerJoin(

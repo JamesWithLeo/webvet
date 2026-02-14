@@ -15,5 +15,5 @@ jobs:
                   curl -L -X GET "https://www.josephmary.me/api/cron/incoming" \
                   -H "Authorization: Bearer $MY_SECRET_VALUE"
 
-                  curl -f -L -X GET "https://www.josephmary.me/api/cron/expired" \
-                  -H "Authorization: Bearer $MY_SECRET_VALUE"
+              #   curl -f -L -X GET "https://www.josephmary.me/api/cron/expired" \
+              #   -H "Authorization: Bearer $MY_SECRET_VALUE"
