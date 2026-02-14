@@ -45,7 +45,6 @@ const PawSvg = () => {
 };
 export default function AppointmentCard({
     title,
-    type,
     pets,
     id,
     created_at,
@@ -113,7 +112,7 @@ export default function AppointmentCard({
                     <Group>
                         <Stack justify="flex-end" gap={0}>
                             <Title c={"primary"} order={4} fw={"bold"}>
-                                {title ? title : type}
+                                {title}
                             </Title>
                             <Text c={"dimmed"}>
                                 {date.toLocaleTimeString()}
