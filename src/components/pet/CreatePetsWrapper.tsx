@@ -139,7 +139,7 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
 
             const finalValue = {
                 ...value,
-                breedId: isBreedExist ? Number(isBreedExist.id) : 0,
+                breedId: isBreedExist ? Number(isBreedExist.id) : null,
                 breedSpecification: breed,
                 photoUrl: url,
                 photoUrlKey: key,
@@ -192,6 +192,7 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
             });
         }
         if (formState.debug) {
+            console.log(formState.debug.message);
             notifications.show({
                 title: `Error code: ${formState.debug.code}`,
                 message: `${formState.debug.message}`,
@@ -395,7 +396,7 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                         disabled={
                             isPending || isPendingTransition || isUploading
                         }
-                        // required
+                        // required`
                     />
                     <NativeSelect
                         name="species"

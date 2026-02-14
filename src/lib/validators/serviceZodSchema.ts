@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { appointmentTypeValues } from "@/db/schema/appointments";
+import { appointmentTypeValues } from "@/db/schema/enums";
 import { speciesConst } from "@/db/schema/pets";
 
 const AllowedType = z.enum(appointmentTypeValues, {
@@ -10,8 +10,11 @@ export const createServiceSchema = z
     .object({
         title: z.string().trim().nonempty("Missing title").toLowerCase(),
         species: z
-            .union([z.literal(""), z.enum(speciesConst)])
-            .refine((val) => val !== "", "Please select a service type"),
+            .string()
+            .optional()
+            .nullable()
+            .transform((val) => (val === "" || val === undefined ? null : val))
+            .pipe(z.enum(speciesConst).nullable()),
         description: z
             .string()
             .trim()
@@ -21,6 +24,8 @@ export const createServiceSchema = z
         type: z
             .union([z.literal(""), AllowedType])
             .refine((val) => val !== "", "Please select a service type"),
+        gapInDays: z.coerce.number().int().min(0),
+        annualInterval: z.coerce.number().int().min(0),
         inclusions: z
             .array(z.string())
             .min(1, "At least one inclusion is required"),

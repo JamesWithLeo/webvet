@@ -16,6 +16,7 @@ import {
     Title,
     useModalsStack,
     Accordion,
+    Stack,
 } from "@mantine/core";
 
 import { useForm } from "@mantine/form";
@@ -37,10 +38,8 @@ import { useRouter } from "next/navigation";
 import { toTitleCase } from "@/lib/toTitleCase";
 import SuccessModal from "../common/SuccessModal";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import {
-    AppointmentSchedulesTypeModel,
-    appointmentTypeValues,
-} from "@/db/schema/appointments";
+import { AppointmentSchedulesTypeModel } from "@/db/schema/appointments";
+import { appointmentTypeValues } from "@/db/schema/enums";
 import CreateAppointmentAction from "@/actions/createAppointment";
 import { notifications } from "@mantine/notifications";
 import Tips from "../common/Tips";
@@ -48,7 +47,15 @@ import { TIPS } from "@/lib/tips";
 import Link from "next/link";
 import PopoverViewSchedule from "../common/PopoverViewSchedule";
 import { ServiceMergePriceType } from "@/db/schema/services";
-import PetAccordionItem from "./PetAccordionItem";
+
+const getVariantFromWeight = (
+    weight: number | null
+): "SMALL" | "MEDIUM" | "LARGE" | "FLAT" => {
+    if (!weight) return "FLAT"; // Default if no weight
+    if (weight <= 10) return "SMALL";
+    if (weight <= 25) return "MEDIUM";
+    return "LARGE";
+};
 
 type Target = Record<
     string,
@@ -65,6 +72,7 @@ type Props = {
     pets: {
         id: string;
         name: string;
+        species: "dog" | "cat";
         photoUrl: string | null;
         breed: string;
         weight: number | null;
@@ -111,6 +119,8 @@ export default function AppointmentStepper({
     const form = useForm<AppointmentFormInput>({
         initialValues: {
             title: "",
+            // items: [],
+            serviceId: "",
             type: "",
             petIds: [],
             date: "",
@@ -121,10 +131,31 @@ export default function AppointmentStepper({
         validate: zod4Resolver(newAppointmentSchema),
     });
 
+    const selectedService = services.find(
+        (s) => s.id === form.values.serviceId
+    );
+
+    const filteredPetsData = pets
+        .filter((pet) => {
+            // 1. If no service is selected yet, show no pets (or all pets, depending on your preference)
+            if (!selectedService) return false;
+
+            // 2. If service species is null or "all", show all pets
+            // 3. Otherwise, only show pets that match the specific species (dog/cat)
+            return (
+                selectedService.species === null ||
+                pet.species === selectedService.species
+            );
+        })
+        .map((v) => ({
+            label: toTitleCase(v.name),
+            value: v.id,
+        }));
+
     const getStepFields = (step: number) => {
         switch (step) {
             case 0:
-                return ["title", "type", "petIds"];
+                return ["title", "serviceId", "petIds"];
             case 1:
                 return ["date"];
             case 2:
@@ -231,22 +262,56 @@ export default function AppointmentStepper({
                     <section className="w-full h-full items-center   flex flex-col justify-between max-w-7xl">
                         <div className="w-full justify-center  gap-8 flex h-full flex-col max-w-md">
                             <TextInput
-                                label="Title"
+                                label="Title / Reason:"
                                 withAsterisk
                                 name="title"
-                                placeholder="Ara's Gala"
                                 {...form.getInputProps("title")}
                             />
                             <NativeSelect
-                                label="Type"
-                                {...form.getInputProps("type")}
-                                withAsterisk
+                                label="Service"
+                                {...form.getInputProps("serviceId")}
+                                onChange={(event) => {
+                                    const selectedId =
+                                        event.currentTarget.value;
+
+                                    // 1. Find the service object that matches the selected ID
+                                    const selectedService = services.find(
+                                        (s) => s.id === selectedId
+                                    );
+
+                                    if (selectedService) {
+                                        // 2. Update multiple form fields at once
+                                        form.setFieldValue("serviceId", "");
+                                        form.setFieldValue("petIds", []);
+                                        form.setValues({
+                                            serviceId: selectedId,
+                                            type: selectedService.type, // or whatever property holds "vaccination"
+                                        });
+                                    } else {
+                                        form.setFieldValue("serviceId", "");
+                                        form.setFieldValue("petIds", []);
+                                    }
+                                }}
                                 data={[{ label: "", value: "" }].concat(
-                                    appointmentTypeValues.map((v) => ({
-                                        label: toTitleCase(v),
-                                        value: v,
-                                    }))
+                                    services.map((v) => {
+                                        const prices = v.variants.map((p) =>
+                                            parseFloat(p.price)
+                                        );
+                                        const minPrice = Math.min(...prices);
+                                        const maxPrice = Math.max(...prices);
+
+                                        const priceLabel =
+                                            prices.length > 1
+                                                ? `(₱${minPrice} - ₱${maxPrice})`
+                                                : `(₱${minPrice})`;
+
+                                        return {
+                                            label: `${toTitleCase(v.title)} ${priceLabel}`,
+                                            value: v.id,
+                                        };
+                                    })
                                 )}
+                                withAsterisk
                             />
 
                             <MultiSelect
@@ -254,11 +319,9 @@ export default function AppointmentStepper({
                                 name="pet"
                                 withAsterisk
                                 {...form.getInputProps("petIds")}
-                                data={pets.map((v) => ({
-                                    label: toTitleCase(v.name),
-                                    value: v.id,
-                                }))}
                                 searchable
+                                disabled={!form.values.serviceId}
+                                data={filteredPetsData}
                                 renderOption={({ option }) => (
                                     <Group gap="sm">
                                         <Avatar
@@ -285,7 +348,7 @@ export default function AppointmentStepper({
                                     </Group>
                                 )}
                             />
-                            <Accordion
+                            {/* <Accordion
                                 className="gap-2 flex  flex-col"
                                 multiple={true}
                             >
@@ -296,7 +359,7 @@ export default function AppointmentStepper({
                                         services={services}
                                     />
                                 ))}
-                            </Accordion>
+                            </Accordion> */}
                             <div className="w-full flex justify-end">
                                 <Button
                                     onClick={() => {
@@ -467,44 +530,16 @@ export default function AppointmentStepper({
                 <Modal
                     {...stack.register("confirm-modal")}
                     centered
-                    withCloseButton={false}
+                    title="Appointment confirmation"
                     size={"lg"}
                 >
                     <Box className="flex flex-col gap-6 p-4">
-                        <span>
-                            <h1 className="text-3xl">
-                                Confirm Your Appointment Details?
-                            </h1>
-                            <h1>
-                                Please carefully review the following details
-                                before you confirm.
-                            </h1>
-                        </span>
-                        <span className="grid grid-cols-[1fr_9fr]  ">
-                            <h1 className="text-xl col-span-2">
-                                {toTitleCase(form.values.title)}
-                            </h1>
-                            <h1 className="text-lg">Service:</h1>
-                            <h1 className="text-lg ml-8">
-                                {toTitleCase(form.values.type)}
-                            </h1>
-
-                            <h1 className="text-lg">Date:</h1>
-                            <h1 className="text-lg ml-8">
-                                {new Date(
-                                    form.values.event_datetime
-                                ).toDateString()}{" "}
-                            </h1>
-                            <h1 className="text-lg">Time:</h1>
-                            <h1 className="text-lg ml-8">
-                                {new Date(
-                                    form.values.event_datetime
-                                ).toLocaleTimeString()}
-                            </h1>
-                        </span>
+                        <Text size="sm">
+                            Are you really sure about this appointment?
+                        </Text>
                         <span className="w-full flex justify-end gap-4">
                             <Button
-                                variant="subtle"
+                                variant="default"
                                 color="gray"
                                 onClick={() => {
                                     stack.close("confirm-modal");
@@ -514,10 +549,9 @@ export default function AppointmentStepper({
                             </Button>
                             <Button
                                 onClick={() => {
-                                    console.log("is valid:", form.errors);
-                                    // hit the form action
                                     form.onSubmit((v) => handleSubmit(v))();
                                 }}
+                                loading={isPending}
                             >
                                 Confirm
                             </Button>

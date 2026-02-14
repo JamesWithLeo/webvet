@@ -64,12 +64,24 @@ const googleCalendarIcon = () => (
         <path fill="#1565c0" d="M9,42h5v-8H6v5C6,40.657,7.343,42,9,42z"></path>
     </svg>
 );
+type Props = {
+    data: {
+        id: string;
+        title: string;
+        event_datetime: string;
+        serviceType: "CHECK_UP" | "GROOMING" | "VACCINATION" | "DEWORMING";
+        serviceName: string | null;
+        pets: {
+            id: string;
+            name: string;
+            photoUrl: string | null;
+        }[];
+    };
+};
 
 export default function AppointmentWrapper({
-    data: { pets, title, event_datetime, id, type },
-}: {
-    data: JoinedAppointmentType;
-}) {
+    data: { pets, title, event_datetime, id, serviceName, serviceType },
+}: Props) {
     const router = useRouter();
     const name = pets.map((c) => toTitleCase(c.name)).join(", ");
     const expired = new Date() > new Date(event_datetime);
@@ -82,10 +94,10 @@ export default function AppointmentWrapper({
         setLoading(true);
         const result = await addAppointmentToCalendar({
             id: id,
-            title: title ?? `${toTitleCase(type)} for ${name}`,
+            title: title,
             start: new Date(event_datetime),
             end: new Date(event_datetime),
-            description: `${toTitleCase(type)} for ${name} in Joseph & Mary Veterinary Clinic. This event is created via Web: https://www.josephmary.me`,
+            description: `${toTitleCase(serviceType)} for ${name} in Joseph & Mary Veterinary Clinic. This event is created via Web: https://www.josephmary.me`,
         });
 
         setLoading(false);
@@ -156,7 +168,7 @@ export default function AppointmentWrapper({
                 </div>
                 <DetailRow
                     label="Service Type"
-                    value={toTitleCase(type)}
+                    value={toTitleCase(serviceType)}
                     icon={<IconTag size={18} />}
                 />
                 <DetailRow

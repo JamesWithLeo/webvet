@@ -1,5 +1,4 @@
-import { CreateService } from "@/actions/Service";
-import { appointmentTypeValues } from "@/db/schema/appointments";
+import { appointmentTypeValues } from "@/db/schema/enums";
 import { speciesConst } from "@/db/schema/pets";
 import { useCreateService } from "@/lib/hooks/useService";
 import { toTitleCase } from "@/lib/toTitleCase";
@@ -38,8 +37,10 @@ export default function AddServiceModal({
         mode: "uncontrolled",
         initialValues: {
             title: "",
-            species: "",
+            species: null,
             description: "",
+            gapInDays: 0,
+            annualInterval: 0,
             type: "",
             reminder: "",
             inclusions: [],
@@ -65,6 +66,8 @@ export default function AddServiceModal({
             isFlat,
             flat,
             small,
+            gapInDays,
+            annualInterval,
             medium,
             large,
         } = value;
@@ -75,10 +78,12 @@ export default function AddServiceModal({
                 reminder: reminder,
                 type: type,
                 inclusions: inclusions,
-                species: species,
+                species: species === "" || !species ? null : species,
+                gapInDays: gapInDays,
+                annualInterval: annualInterval,
                 isFlat: isFlat,
             },
-            initailPrice: {
+            initialPrice: {
                 flat: flat,
                 small: small,
                 medium: medium,
@@ -86,6 +91,7 @@ export default function AddServiceModal({
             },
         };
         startTransition(() => {
+            console.log("payload", payload);
             createService(payload, {
                 onSuccess: () => {
                     notifications.show({
@@ -125,17 +131,6 @@ export default function AddServiceModal({
                         withAsterisk
                         {...form.getInputProps("title")}
                     />
-                    <NativeSelect
-                        label="Species"
-                        withAsterisk
-                        {...form.getInputProps("")}
-                        data={[{ label: "", value: "" }].concat(
-                            speciesConst.map((v) => ({
-                                label: toTitleCase(v),
-                                value: v,
-                            }))
-                        )}
-                    />
 
                     <NativeSelect
                         label="Type"
@@ -151,9 +146,14 @@ export default function AddServiceModal({
                     <TextInput
                         label="Gap in days"
                         withAsterisk
-                        // {...form.getInputProps("description")}
+                        {...form.getInputProps("gapInDays")}
                     />
-                    <TextInput label="Annual Interval" withAsterisk />
+                    <TextInput
+                        label="Annual Interval"
+                        withAsterisk
+                        type="number"
+                        {...form.getInputProps("annualInterval")}
+                    />
 
                     <Textarea
                         label="Description"
@@ -217,6 +217,17 @@ export default function AddServiceModal({
                             />
                         </>
                     )}
+                    <NativeSelect
+                        label="Species"
+                        description="keep this blank if service is for all species"
+                        {...form.getInputProps("species")}
+                        data={[{ label: "", value: "" }].concat(
+                            speciesConst.map((v) => ({
+                                label: toTitleCase(v),
+                                value: v,
+                            }))
+                        )}
+                    />
 
                     <Group justify="end" mt={"md"}>
                         <Button

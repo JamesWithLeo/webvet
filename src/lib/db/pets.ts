@@ -8,9 +8,10 @@ export const checkExistingPets = async ({
     ownerId,
 }: {
     name: string;
-    breedId: number;
+    breedId: number | null;
     ownerId: string | undefined;
 }) => {
+    if (!breedId) return [];
     let condition = [eq(pets.name, name), eq(pets.breedId, breedId)];
     if (ownerId) condition.push(eq(pets.ownerId, ownerId));
     return await db
@@ -50,8 +51,8 @@ export const getAllPets = async (id: string) => {
             breed: breeds.name,
         })
         .from(pets)
-        .where(and(eq(pets.ownerId, id), isNull(pets.archivedAt)))
-        .innerJoin(breeds, eq(pets.breedId, breeds.id));
+        .leftJoin(breeds, eq(breeds.id, pets.breedId))
+        .where(and(eq(pets.ownerId, id), isNull(pets.archivedAt)));
 };
 export const getAllArchivedPets = async (id: string) => {
     return await db
@@ -61,7 +62,7 @@ export const getAllArchivedPets = async (id: string) => {
         })
         .from(pets)
         .where(and(eq(pets.ownerId, id), isNotNull(pets.archivedAt)))
-        .innerJoin(breeds, eq(pets.breedId, breeds.id));
+        .leftJoin(breeds, eq(pets.breedId, breeds.id));
 };
 
 export const getAllAlivePets = async (id: string) => {
@@ -77,6 +78,7 @@ export const getAllPetsIdName = async (id: string) => {
             id: pets.id,
             name: pets.name,
             photoUrl: pets.photoUrl,
+            species: pets.species,
             breed: pets.breedSpecification,
             weight: pets.weight,
         })

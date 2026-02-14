@@ -9,7 +9,7 @@ import {
     varchar,
 } from "drizzle-orm/pg-core";
 import { InferSelectModel } from "drizzle-orm";
-import { appointmentType } from "./appointments";
+import { appointmentType } from "./enums";
 import { speciesEnum } from "./pets";
 
 export const services = pgTable("services", {
@@ -21,7 +21,7 @@ export const services = pgTable("services", {
     description: text().notNull(),
     reminder: text().notNull(),
     inclusions: text("inclusions").array().notNull().default([]),
-    species: speciesEnum().notNull(),
+    species: speciesEnum(),
 });
 
 export const servicePriceVariant = [

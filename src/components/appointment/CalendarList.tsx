@@ -15,18 +15,32 @@ import NewAppointmentButton from "../common/NewAppointmentButton";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import AppointmentDrawer from "./AppointmentDrawer";
-import { JoinedAppointmentType } from "@/db/schema/appointments";
 import { notifications } from "@mantine/notifications";
-import { PetTypeModel } from "@/db/schema/pets";
 import AddNewPetButton from "../common/AddNewPetButton";
 
 export default function CalendarList({
     appointments,
-    pets,
     error,
 }: {
-    appointments: JoinedAppointmentType[] | null;
-    pets: PetTypeModel[];
+    appointments:
+        | {
+              title: string;
+              id: string;
+              event_datetime: string;
+              serviceType:
+                  | "CHECK_UP"
+                  | "GROOMING"
+                  | "VACCINATION"
+                  | "DEWORMING"
+                  | null;
+              serviceName: string | null;
+              pets: {
+                  id: string;
+                  name: string;
+                  photoUrl: string | null;
+              }[];
+          }[]
+        | null;
     error: string | null;
 }) {
     const calendarRef = useRef<FullCalendar>(null);
@@ -34,9 +48,15 @@ export default function CalendarList({
     const [opened, { open, close }] = useDisclosure(false);
     const [selectedAppointment, setSelectedAppointment] = useState<{
         id: string;
-        title: string | null;
+        title: string;
         event_datetime: string;
-        type: string;
+        serviceType:
+            | "CHECK_UP"
+            | "GROOMING"
+            | "VACCINATION"
+            | "DEWORMING"
+            | null;
+        serviceName: string;
         pets: {
             id: string;
             name: string;
@@ -52,9 +72,15 @@ export default function CalendarList({
         setSelectedAppointment({
             ...(info.event.extendedProps as {
                 id: string;
-                title: string | null;
+                title: string;
                 event_datetime: string;
-                type: string;
+                serviceType:
+                    | "CHECK_UP"
+                    | "GROOMING"
+                    | "VACCINATION"
+                    | "DEWORMING"
+                    | null;
+                serviceName: string;
                 pets: {
                     id: string;
                     name: string;
@@ -85,7 +111,7 @@ export default function CalendarList({
                 ? appointments.map((v) => ({
                       title:
                           v.title ??
-                          `${toTitleCase(v.type)} for ${toTitleCase(v.pets.map((v) => v.name).join(", "))}`,
+                          `${toTitleCase(v.pets.map((v) => v.name).join(", "))}`,
                       start: new Date(v.event_datetime).toISOString(),
                       end: new Date(v.event_datetime).toISOString(),
                       display: "block",
@@ -121,6 +147,9 @@ export default function CalendarList({
         }
     }, [error]);
 
+    useEffect(() => {
+        console.log(appointments);
+    }, [appointments]);
     return (
         <>
             <div className="justify-between items-center flex ">

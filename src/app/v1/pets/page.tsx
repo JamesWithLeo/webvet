@@ -15,7 +15,7 @@ export default async function Page() {
 
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery({
-        queryKey: ["pets"],
+        queryKey: ["pets", session.user.id, "all"],
         queryFn: async () => {
             return await getAllPets(session.user.id);
         },

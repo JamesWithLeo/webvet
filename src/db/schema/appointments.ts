@@ -8,33 +8,14 @@ import {
     integer,
     serial,
     date,
+    decimal,
 } from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
 import { invoices } from "./invoice";
 import { users } from "./users";
-
-export const appointmentStatusValues = [
-    "SCHEDULED",
-    "CANCELLED",
-    "COMPLETED",
-    "NO_SHOW",
-] as const;
-export const appointmentStatusType = pgEnum(
-    "appointment_status",
-    appointmentStatusValues
-);
-export const appointmentTypeValues = [
-    "CHECK_UP",
-    "GROOMING",
-    "VACCINATION",
-    "DEWORMING",
-] as const;
-
-export const appointmentType = pgEnum(
-    "appointment_type",
-    appointmentTypeValues
-);
+import { appointmentType } from "./enums";
+import { prices, services } from "./services";
 
 export type AppointmentType = (typeof appointmentType.enumValues)[number];
 
@@ -46,13 +27,11 @@ export type AppointmentPetMergeType = {
     petId: string;
     photoUrl: string | null;
     title: string | null;
-    type: string;
 };
 export type JoinedAppointmentType = {
     id: string;
     title: string | null;
     event_datetime: string;
-    type: AppointmentType;
     created_at: Date;
     expiredNotification: boolean;
     incomingNotification: boolean;
@@ -75,12 +54,12 @@ export const monthAbbreviations = [
 
 export const appointments = pgTable("appointments", {
     id: uuid("id").defaultRandom().primaryKey(),
-    title: varchar("title", { length: 50 }),
+    title: varchar("title", { length: 50 }).notNull(),
     event_datetime: timestamp("event_datetime", {
         withTimezone: true,
         mode: "string",
     }).notNull(),
-    type: appointmentType("type").notNull(),
+    // type: appointmentType("type").notNull(),
     created_at: timestamp("created_at").defaultNow().notNull(),
 
     expiredNotification: boolean("expired_notification")
@@ -111,6 +90,10 @@ export const appointmentsToPets = pgTable("appointments_to_pets", {
     petId: uuid("pet_id")
         .notNull()
         .references(() => pets.id, { onDelete: "cascade" }),
+    serviceId: uuid("serviceId")
+        .notNull()
+        .references(() => services.id),
+    // priceAtBooking: decimal({ precision: 10, scale: 2 }).notNull(),
 });
 
 export const appointmentSchedules = pgTable("appointment_schedules", {

@@ -16,7 +16,7 @@ export const createPetSchema = z.object({
         .trim()
         .nonempty("Missing pets name.")
         .toLowerCase(),
-    breedId: z.number().nonnegative().nonoptional(),
+    breedId: z.number().nonnegative().nullable(),
     color: z
         .string()
         .regex(/^[a-zA-Z ]+$/, "No special characters in color description")

@@ -1,6 +1,9 @@
 import { auth } from "@/auth";
 import AppointmentWrapper from "@/components/appointment/AppointmentWrapper";
-import { getAppointment } from "@/lib/db/appointments";
+import {
+    getAppointment,
+    getAppointmentWithDetails,
+} from "@/lib/db/appointments";
 import { notFound, unauthorized } from "next/navigation";
 
 export default async function Page({
@@ -12,14 +15,15 @@ export default async function Page({
     if (!session?.user) unauthorized();
 
     const { id } = await params;
-    const appointment = await getAppointment({
-        ownerId: session.user.id,
-        appointmentId: id,
-    });
-    if (!appointment) notFound();
+    // const appointment = await getAppointment({
+    //     ownerId: session.user.id,
+    //     appointmentId: id,
+    // });
+    const { data } = await getAppointmentWithDetails({ id });
+    if (!data) notFound();
     return (
         <div className="min-h-screen w-full relative lg:items-center md:px-16 p-8 flex gap-8 flex-col">
-            <AppointmentWrapper data={appointment} />
+            <AppointmentWrapper data={data} />
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import { appointmentTypeValues } from "@/db/schema/appointments";
+import { appointmentTypeValues } from "@/db/schema/enums";
 import { z } from "zod/v4";
 
 const AllowedType = z.enum(appointmentTypeValues, {
@@ -11,11 +11,21 @@ export const newAppointmentSchema = z.object({
         .trim()
         .min(3, { message: "Title must be at least 3 characters long" }),
 
+    // items: z
+    //     .array(
+    //         z.object({
+    //             petId: z.string("Invalid pet selection"),
+    //             priceId: z.string("Please select a service variant"),
+    //             priceAtBooking: z.string().or(z.number()),
+    //         })
+    //     )
+    //     .min(1, "Please add at least one pet and service to the appointment"),
     type: z
         .union([AllowedType, z.literal("")])
         .refine((value) => value !== "", {
             message: "Please select an appointment type",
         }),
+    serviceId: z.string().trim().min(1),
     petIds: z
         .array(
             z

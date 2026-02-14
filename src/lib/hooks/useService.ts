@@ -8,7 +8,12 @@ export function useCreateService() {
     return useMutation({
         mutationFn: async (payload: {
             serviceData: ServiceFormInput;
-            initailPrice: any;
+            initialPrice: {
+                flat: string | undefined;
+                small: string | undefined;
+                medium: string | undefined;
+                large: string | undefined;
+            };
         }) => {
             const res = await fetch("/api/service", {
                 method: "POST",

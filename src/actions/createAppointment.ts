@@ -44,10 +44,10 @@ export default async function CreateAppointmentAction(
         const { error } = await resend.emails.send({
             from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
             to: [email],
-            subject: `${toTitleCase(result.type)} Appointment`,
+            subject: `${toTitleCase(data.type)} Appointment`,
             react: AppointmentSaved({
                 id: result.id,
-                type: result.type.toLowerCase(),
+                type: data.type,
                 name: firstName ? toTitleCase(firstName) : "lovely fur parent",
                 pets: result.petNames.join(", "),
             }),

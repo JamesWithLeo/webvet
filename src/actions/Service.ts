@@ -22,7 +22,7 @@ export async function CreateService(prevState: any, data: ServiceFormInput) {
         const { isFlat, flat, small, medium, large, ...rest } = parsed.data;
         const result = await saveServiceToDb({
             serviceData: rest,
-            initailPrice: {
+            initialPrice: {
                 isFlat: isFlat,
                 flat: flat,
                 small: small,

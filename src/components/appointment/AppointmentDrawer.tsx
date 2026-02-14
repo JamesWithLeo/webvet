@@ -13,13 +13,7 @@ import {
     Text,
     Tooltip,
 } from "@mantine/core";
-import {
-    IconCalendar,
-    IconClock,
-    IconInvoice,
-    IconTag,
-    IconX,
-} from "@tabler/icons-react";
+import { IconCalendar, IconInvoice, IconTag, IconX } from "@tabler/icons-react";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useMediaQuery } from "@mantine/hooks";
 import Link from "next/link";
@@ -30,9 +24,15 @@ type Props = {
     close: () => void;
     selectedAppointment: {
         id: string;
-        title: string | null;
+        title: string;
         event_datetime: string;
-        type: string;
+        serviceType:
+            | "CHECK_UP"
+            | "GROOMING"
+            | "VACCINATION"
+            | "DEWORMING"
+            | null;
+        serviceName: string;
         pets: {
             id: string;
             name: string;
@@ -44,7 +44,14 @@ type Props = {
 export default function AppointmentDrawer({
     opened,
     close,
-    selectedAppointment: { title, type, id, event_datetime, pets },
+    selectedAppointment: {
+        title,
+        id,
+        event_datetime,
+        pets,
+        serviceType,
+        serviceName,
+    },
 }: Props) {
     const isMobile = useMediaQuery("(max-width: 64rem)");
     return (
@@ -59,12 +66,8 @@ export default function AppointmentDrawer({
         >
             <Drawer.Overlay />
             <Drawer.Content>
-                {/* <Drawer.Header>
-                    <Drawer.Title>Drawer title</Drawer.Title>
-                    <Drawer.CloseButton />
-                </Drawer.Header> */}
                 <Drawer.Body
-                    style={{ minHeight: "max-height", height: "100%" }}
+                    style={{ minHeight: "max-height", height: "auto" }}
                 >
                     <Flex
                         mih={"100%"}
@@ -97,7 +100,8 @@ export default function AppointmentDrawer({
                             </Avatar.Group>
                             <Box>
                                 <Text size="xl" fw={700}>
-                                    {toTitleCase(title ?? `${type}`)}
+                                    {toTitleCase(title)}{" "}
+                                    {toTitleCase(serviceName)}
                                 </Text>
                                 <Text size="xs" c={"dimmed"}>
                                     Appointment ID: <br />
@@ -106,38 +110,6 @@ export default function AppointmentDrawer({
                             </Box>
 
                             <div className="flex-1 items-start w-full flex justify-end min-h-full h-full ">
-                                {/* <Menu shadow="md" withArrow width={"250"}>
-                            <Menu.Target>
-                                <IconDotsVertical stroke={1.5} />
-                            </Menu.Target>
-                            <Menu.Dropdown>
-                                <Menu.Label>Pet Menu</Menu.Label>
-                                <Menu.Item
-                                    leftSection={
-                                        <IconCat size={20} stroke={1.5} />
-                                    }
-                                >
-                                    Profile
-                                </Menu.Item>
-                                <Menu.Item
-                                    leftSection={
-                                        <IconLogs size={20} stroke={1.5} />
-                                    }
-                                >
-                                    History
-                                </Menu.Item>
-                                <Menu.Divider />
-                                <Menu.Label>Action</Menu.Label>
-                                <Menu.Item
-                                    color="primary"
-                                    leftSection={
-                                        <IconPlus size={20} stroke={1.5} />
-                                    }
-                                >
-                                    New Appointment
-                                </Menu.Item>
-                            </Menu.Dropdown>
-                        </Menu> */}
                                 <ActionIcon
                                     onClick={close}
                                     variant="white"
@@ -152,11 +124,13 @@ export default function AppointmentDrawer({
                         <Divider w={"100%"} />
 
                         <Stack gap="lg">
-                            <DetailRow
-                                icon={<IconTag size={18} />}
-                                label="Service Type"
-                                value={toTitleCase(type)}
-                            />
+                            {serviceType && (
+                                <DetailRow
+                                    icon={<IconTag size={18} />}
+                                    label="Service Type"
+                                    value={toTitleCase(serviceType)}
+                                />
+                            )}
                             <DetailRow
                                 icon={<IconCalendar size={18} />}
                                 label="Scheduled For"
@@ -164,7 +138,7 @@ export default function AppointmentDrawer({
                             />
                         </Stack>
 
-                        <div className="h-full  justify-end  flex-col min-h-full flex grow w-full ">
+                        {/* <div className="h-full  justify-end  flex-col min-h-full flex grow w-full ">
                             <Group h={"100%"}>
                                 <Button
                                     fullWidth
@@ -186,7 +160,7 @@ export default function AppointmentDrawer({
                                     Cancel Appointment
                                 </Button>
                             </Group>
-                        </div>
+                        </div> */}
                     </Flex>
                 </Drawer.Body>
             </Drawer.Content>

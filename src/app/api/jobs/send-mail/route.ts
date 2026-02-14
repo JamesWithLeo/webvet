@@ -1,4 +1,4 @@
-import { verifySignatureAppRouter } from "@upstash/qstash/dist/nextjs";
+import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import { NextResponse } from "next/server";
 import { resend } from "@/lib/resend";
 import { toTitleCase } from "@/lib/toTitleCase";

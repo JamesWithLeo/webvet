@@ -4,7 +4,7 @@ import { PetTypeModel } from "@/db/schema/pets";
 import calculatePetAge from "@/lib/calculatePetAge";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { Stack, Title, Text, List, Space, ActionIcon } from "@mantine/core";
-import { IconChevronLeft, IconTrash } from "@tabler/icons-react";
+import { IconArchive, IconChevronLeft, IconTrash } from "@tabler/icons-react";
 import Image from "next/image";
 import NewAppointmentButton from "../common/NewAppointmentButton";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,8 @@ export default function PetProfile({
         distinguishingMarks,
         breedSpecification,
         dateOfBirth,
+        weight,
+        archivedAt,
     },
 }: Props) {
     const age = calculatePetAge(dateOfBirth);
@@ -51,9 +53,6 @@ export default function PetProfile({
                 </div>
                 <div className="flex gap-2 ">
                     <NewAppointmentButton size="sm" />
-                    <ActionIcon bg={"red"} size={"input-sm"}>
-                        <IconTrash size={20} stroke={1.5} />
-                    </ActionIcon>
                 </div>
             </div>
             <div className="flex flex-col items-center sm:items-start  justify-start w-full gap-4 lg:gap-8 md:flex-row">
@@ -77,14 +76,11 @@ export default function PetProfile({
                                 {age.years ? age.years : age.months} years old
                             </Title>
                             <Title order={6} c={"dimmed"}>
-                                Weight: 30 kg
-                            </Title>
-                            <Title order={6} c={"dimmed"}>
-                                Height: 50 cm
+                                Weight: {weight ? weight : "To be assigned"}
                             </Title>
                             <Space h={"sm"} />
                             <Text>Last Vaccination: Null</Text>
-                            <Text>Last Grooming: July 01, 2025</Text>
+                            <Text>Last Grooming: Null</Text>
                             <Text>Descriptive Features</Text>
 
                             <List listStyleType="disc">

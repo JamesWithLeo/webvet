@@ -37,6 +37,7 @@ import {
     useUpdateBlockDates,
 } from "@/lib/hooks/useBlockDates";
 import { notifications } from "@mantine/notifications";
+import { modals } from "@mantine/modals";
 
 type DateCounts = Record<string, number>;
 
@@ -128,38 +129,86 @@ export default function AdminCalendar() {
     };
     const handleEnableButtonClick = () => {
         if (isSelectionPending) {
-            stack.open("enabled-dates");
+            modals.openConfirmModal({
+                id: "confirm-modal",
+                title: "Enabled blocklisted date",
+                size: "lg",
+                withCloseButton: true,
+                centered: true,
+
+                labels: {
+                    cancel: "cancel",
+                    confirm: "confirm",
+                },
+                children: (
+                    <h1 className="text-gray-800">
+                        Enabling blocklisted dates will make the dates available
+                        to the user.
+                    </h1>
+                ),
+
+                onConfirm: () => {
+                    updateBlockDates(
+                        {
+                            dates: selectedDates,
+                        },
+                        {
+                            onSuccess: () => {
+                                notifications.show({
+                                    title: `Dates enabled!`,
+                                    message:
+                                        "The dates are full available from the client.",
+                                    color: "teal",
+                                    icon: <IconCheck size={20} />,
+                                });
+                                // handleCancelBlock();
+                                modals.close("confirm-modal");
+                            },
+                            onError: (error) => {
+                                notifications.show({
+                                    title: `Enabled dates failed`,
+                                    message: error.message,
+                                    color: "red",
+                                    icon: <IconX size={20} />,
+                                });
+                                modals.close("confirm-modal");
+                            },
+                        }
+                    );
+                },
+            });
+            // stack.open("enabled-dates");
         }
     };
 
-    const handleConfirmEnable = () => {
-        updateBlockDates(
-            {
-                dates: selectedDates,
-            },
-            {
-                onSuccess: () => {
-                    notifications.show({
-                        title: `Dates enabled!`,
-                        message:
-                            "The dates are full available from the client.",
-                        color: "teal",
-                        icon: <IconCheck size={20} />,
-                    });
-                    handleCancelBlock();
-                },
-                onError: (error) => {
-                    notifications.show({
-                        title: `Enabled dates failed`,
-                        message: error.message,
-                        color: "red",
-                        icon: <IconX size={20} />,
-                    });
-                    handleCancelBlock();
-                },
-            }
-        );
-    };
+    // const handleConfirmEnable = () => {
+    //     updateBlockDates(
+    //         {
+    //             dates: selectedDates,
+    //         },
+    //         {
+    //             onSuccess: () => {
+    //                 notifications.show({
+    //                     title: `Dates enabled!`,
+    //                     message:
+    //                         "The dates are full available from the client.",
+    //                     color: "teal",
+    //                     icon: <IconCheck size={20} />,
+    //                 });
+    //                 handleCancelBlock();
+    //             },
+    //             onError: (error) => {
+    //                 notifications.show({
+    //                     title: `Enabled dates failed`,
+    //                     message: error.message,
+    //                     color: "red",
+    //                     icon: <IconX size={20} />,
+    //                 });
+    //                 handleCancelBlock();
+    //             },
+    //         }
+    //     );
+    // };
 
     const handleCancelBlock = () => {
         stack.closeAll();
@@ -421,19 +470,15 @@ export default function AdminCalendar() {
                     {...stack.register("enabled-dates")}
                     className=".fc-ignore-unselect"
                     centered
-                    withCloseButton={false}
                     size={"lg"}
+                    padding={"lg"}
+                    title="Enabled blocklisted date"
                 >
                     <Stack p={"lg"}>
-                        <Stack mb={"md"} gap={"0"}>
-                            <h1 className="text-3xl font-semibold">
-                                Enabled Blocklisted Date
-                            </h1>
-                            <h1 className="text-gray-800 mt-2">
-                                Enabling blocklisted dates will make the dates
-                                available to the user.
-                            </h1>
-                        </Stack>
+                        <h1 className="text-gray-800">
+                            Enabling blocklisted dates will make the dates
+                            available to the user.
+                        </h1>
                         <span className="w-full flex justify-end gap-4">
                             <Button
                                 variant="default"
@@ -443,7 +488,7 @@ export default function AdminCalendar() {
                                 Cancel
                             </Button>
                             <Button
-                                onClick={handleConfirmEnable}
+                                onClick={handleEnableButtonClick}
                                 bg={"red"}
                                 disabled={
                                     !selectedDates.length ||

@@ -7,6 +7,31 @@ import {
     IconZoomCheckFilled,
 } from "@tabler/icons-react";
 
+const dewormingPrices = [
+    {
+        title: "Pet Deworming",
+        description:
+            "A vital treatment to eliminate internal parasites such as roundworms, hookworms, and tapeworms, ensuring your pet's digestive health and nutrient absorption.",
+        inclusion: [
+            "Internal parasite assessment",
+            "Species-specific oral medication",
+            "Weight-based dosage calculation",
+        ],
+        // This label covers both cats and the dog weight ranges
+        priceLabel: "₱150 - ₱450 (varies by species and size)",
+        pricesBySize: {
+            small: 150, // Also used for Cats or Small Dogs
+            medium: 300,
+            large: 450,
+        },
+        // For your logic, you can treat cats as "small" or add a flat price
+        catPrice: 200,
+        serviceType: "deworming",
+        reminder:
+            "Recommended every 3–6 months. Safe for puppies and kittens; ensure pet is in good health before administration.",
+        status: "available",
+    },
+];
 const vaccinePrices = [
     {
         title: "5-in-1 Vaccine",

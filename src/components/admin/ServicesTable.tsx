@@ -28,7 +28,7 @@ import {
 } from "mantine-datatable";
 import AddServiceModal from "../services/AddServiceModal";
 import useServiceVariant from "@/lib/hooks/useServiceVariant";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import AddVariantModal from "../services/AddVariantModal";
 import { DeleteVariant } from "@/actions/variant";
 import ConfirmationModal from "../common/ConfirmationModal";
@@ -279,6 +279,17 @@ export default function ServicesTable() {
                 ),
             },
             {
+                accessor: "species",
+                title: "species",
+                draggable: true,
+                ellipsis: true,
+                width: "20%",
+                resizable: true,
+                render: (rowData) => (
+                    <p className="line-clamp-2">{rowData.species}</p>
+                ),
+            },
+            {
                 accessor: "gapInDays",
                 title: "Gap in days",
                 draggable: true,
@@ -386,11 +397,16 @@ export default function ServicesTable() {
         ],
         []
     );
-    const key = "draggable-example";
+    // const [key, setKey] = useState("admin-services-table");
+    const key = "admin-services-table";
     const { effectiveColumns } = useDataTableColumns<ServiceTypeModel>({
         key,
         columns: columns,
     });
+
+    // useEffect(() => {
+    //     setKey("admin-services-table");
+    // }, []);
     return (
         <>
             <Stack>

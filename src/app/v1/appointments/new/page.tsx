@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import AppointmentStepper from "@/components/appointment/AppointmentStepper";
 import { getAppointmentSchedules, getBlockDates } from "@/lib/db/appointments";
 import { getAllPetsIdName } from "@/lib/db/pets";
-import { getServices, getServicesGrouped } from "@/lib/db/services";
+import { getServicesGrouped } from "@/lib/db/services";
 import {
     dehydrate,
     HydrationBoundary,
@@ -23,7 +23,7 @@ export default async function AppointmentPage() {
     });
 
     const serviceWithPrices = await getServicesGrouped();
-    console.log(serviceWithPrices);
+
     return (
         <>
             <div className="grid grid-rows-[auto_auto_8fr] min-h-screen  grid-cols-1  gap-8  w-full items-center pt-16 pb-16  h-full md:px-16 px-10">

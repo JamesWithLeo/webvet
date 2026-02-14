@@ -68,9 +68,9 @@ export const pets = pgTable(
     {
         id: uuid("id").defaultRandom().primaryKey(),
         name: varchar("name", { length: 100 }).notNull(),
-        breedId: integer("breed_id")
-            .notNull()
-            .references(() => breeds.id, { onDelete: "restrict" }),
+        breedId: integer("breed_id").references(() => breeds.id, {
+            onDelete: "restrict",
+        }),
         breedSpecification: text("breed_specification").notNull(),
         ownerId: uuid("owner_id").references(() => users.id, {
             onDelete: "set null",
@@ -89,7 +89,6 @@ export const pets = pgTable(
             scale: 2,
             mode: "number",
         }).default(0),
-        height: decimal("height", { precision: 5, scale: 2, mode: "number" }),
         life: lifeStatusEnum().default("alive").notNull(),
 
         isEstimatedDOB: boolean().default(false),

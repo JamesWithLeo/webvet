@@ -4,31 +4,27 @@ import {
     ServiceMergePriceType,
     ServicePriceType,
     ServicePriceTypeModel,
-    servicePriceVariant,
     services,
     ServiceTypeModel,
 } from "@/db/schema/services";
-import {
-    ServiceFormEditOuput,
-    ServiceFormOutput,
-} from "../validators/serviceZodSchema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 import { AppointmentType } from "@/db/schema/appointments";
 import { ServiceVariantFormOutput } from "../validators/serviceVariantSchema";
 
 export async function saveServiceToDb({
     serviceData,
-    initailPrice,
+    initialPrice,
 }: {
     serviceData: {
         title: string;
         type: AppointmentType;
         description: string;
         reminder: string;
+        species: "dog" | "cat" | null;
         inclusions: string[];
-    };
-    initailPrice: {
         isFlat: boolean;
+    };
+    initialPrice: {
         flat: string | undefined;
         small: string | undefined;
         medium: string | undefined;
@@ -47,33 +43,33 @@ export async function saveServiceToDb({
                 price: string;
             }[] = [];
 
-            if (initailPrice.isFlat && initailPrice.flat) {
+            if (serviceData.isFlat && initialPrice.flat) {
                 priceRows.push({
                     serviceId: inserted.id,
                     variant: "FLAT",
-                    price: initailPrice.flat,
+                    price: initialPrice.flat,
                 });
             } else {
                 // Manually map the specific fields to the DB enum strings
-                if (initailPrice.small) {
+                if (initialPrice.small) {
                     priceRows.push({
                         serviceId: inserted.id,
                         variant: "SMALL",
-                        price: initailPrice.small,
+                        price: initialPrice.small,
                     });
                 }
-                if (initailPrice.medium) {
+                if (initialPrice.medium) {
                     priceRows.push({
                         serviceId: inserted.id,
                         variant: "MEDIUM",
-                        price: initailPrice.medium,
+                        price: initialPrice.medium,
                     });
                 }
-                if (initailPrice.large) {
+                if (initialPrice.large) {
                     priceRows.push({
                         serviceId: inserted.id,
                         variant: "LARGE",
-                        price: initailPrice.large,
+                        price: initialPrice.large,
                     });
                 }
             }
@@ -82,7 +78,9 @@ export async function saveServiceToDb({
             }
             return inserted;
         });
-    } catch (error: any) {}
+    } catch (error: any) {
+        console.log(error);
+    }
 }
 
 export async function updateServiceToDB(

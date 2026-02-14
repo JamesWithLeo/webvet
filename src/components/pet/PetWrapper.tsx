@@ -131,11 +131,14 @@ export default function PetWrapper({ id }: Props) {
                           (petTwoAge.years ?? petTwoAge.months ?? 0);
             });
         } else {
-            return pets.toSorted((a, b) =>
-                sortState.order === "ASC"
-                    ? a.createdAt.getTime() - b.createdAt.getTime()
-                    : b.createdAt.getTime() - a.createdAt.getTime()
-            );
+            return [...pets].sort((a, b) => {
+                const timeA = new Date(a.createdAt).getTime();
+                const timeB = new Date(b.createdAt).getTime();
+
+                return sortState.order === "ASC"
+                    ? timeA - timeB
+                    : timeB - timeA;
+            });
         }
     }, [pets, search, sortState.order, sortState.sortBy, isPending]);
 

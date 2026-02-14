@@ -6,6 +6,7 @@ import { pets } from "@/db/schema/pets";
 import { users } from "@/db/schema/users";
 import { qstash } from "@/lib/qtash";
 import { toTitleCase } from "@/lib/toTitleCase";
+import { services } from "@/db/schema/services";
 
 export async function GET(request: Request) {
     const authHeader = request.headers.get("authorization");
@@ -25,18 +26,20 @@ export async function GET(request: Request) {
             .select({
                 id: appointments.id,
                 firstName: users.firstName,
-                type: appointments.type,
                 userEmail: users.email,
                 eventDateTime: appointments.event_datetime,
+                // 1. Add these fields to the selection
+                serviceType: services.type,
+                serviceName: services.title,
                 pets: sql<{ name: string }[]>`
-                COALESCE(
-                    json_agg(
-                        json_build_object(
-                            'name', ${pets.name} 
-                        )
-                    ) FILTER (WHERE ${pets.id} IS NOT NULL), 
-                     '[]'
-                )`.as("pets"),
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'name', ${pets.name} 
+                )
+            ) FILTER (WHERE ${pets.id} IS NOT NULL), 
+             '[]'
+        )`.as("pets"),
             })
             .from(appointmentsToPets)
             .innerJoin(
@@ -45,6 +48,8 @@ export async function GET(request: Request) {
             )
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
             .innerJoin(users, eq(pets.ownerId, users.id))
+            // 2. Join the services table
+            .innerJoin(services, eq(appointmentsToPets.serviceId, services.id))
             .where(
                 and(
                     gte(appointments.event_datetime, startWindow),
@@ -56,8 +61,11 @@ export async function GET(request: Request) {
                 appointments.id,
                 users.email,
                 users.firstName,
-                appointments.type,
-                appointments.event_datetime
+                appointments.event_datetime,
+                // 3. Add these to group by so the query doesn't error out
+                services.id,
+                services.type,
+                services.title
             );
 
         if (result.length === 0) {
@@ -96,7 +104,7 @@ export async function GET(request: Request) {
                     body: {
                         email: item.userEmail,
                         pets: formattedPets,
-                        type: toTitleCase(item.type),
+                        // type: toTitleCase(item.type),
                         eventDateTime: formattedDate,
                         firstName: item.firstName,
                         id: item.id,

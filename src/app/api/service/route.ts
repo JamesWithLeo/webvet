@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServices, saveServiceToDb } from "@/lib/db/services";
+import { createServiceSchema } from "@/lib/validators/serviceZodSchema";
 
 export async function GET() {
     try {
@@ -14,18 +15,22 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        if (!body.serviceData || !body.initailPrice) {
+        if (!body.serviceData || !body.initialPrice) {
             return NextResponse.json(
                 { error: "Missing required data" },
                 { status: 400 }
             );
         }
+
         const newService = await saveServiceToDb({
             serviceData: body.serviceData,
-            initailPrice: body.initailPrice,
+            initialPrice: body.initialPrice,
         });
-
-        return NextResponse.json(newService, { status: 201 });
+        if (newService) return NextResponse.json(newService, { status: 201 });
+        return NextResponse.json(
+            { error: "Failed to create service" },
+            { status: 500 }
+        );
     } catch (error: any) {
         console.error("API POST Error:", error);
         return NextResponse.json(

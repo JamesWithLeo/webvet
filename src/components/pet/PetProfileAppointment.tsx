@@ -1,6 +1,5 @@
 "use client";
 
-import { AppointmentTypeModel } from "@/db/schema/appointments";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
     Stack,
@@ -10,12 +9,10 @@ import {
     Group,
     Space,
     Divider,
-    ActionIcon,
     Card,
     ThemeIcon,
 } from "@mantine/core";
 import {
-    IconArrowBarToDownDashed,
     IconPillFilled,
     IconScissors,
     IconStethoscope,
@@ -25,14 +22,24 @@ import { formatDistance } from "date-fns";
 import Link from "next/link";
 
 type Props = {
-    data: AppointmentTypeModel[];
+    data: {
+        serviceType: "GROOMING" | "CHECK_UP" | "DEWORMING" | "VACCINATION";
+        serviceName: string;
+        id: string;
+        title: string;
+        event_datetime: string;
+        created_at: Date;
+        expiredNotification: boolean;
+        incomingNotification: boolean;
+        invoiceId: string | null;
+    }[];
 };
 
 export default function PetProfileAppointment({ data }: Props) {
     const timelines = () =>
         data.map((v) => {
             let bulletIcon: React.ReactNode;
-            switch (v.type) {
+            switch (v.serviceType) {
                 case "GROOMING":
                     bulletIcon = <IconScissors size={20} stroke={2} />;
                     break;
@@ -73,7 +80,7 @@ export default function PetProfileAppointment({ data }: Props) {
                                     className="font-semibold w-max text-sm hover:underline "
                                     href={`/v1/appointments/${v.id}`}
                                 >
-                                    {toTitleCase(v.type)}
+                                    {toTitleCase(v.serviceType)}
                                 </Link>
                                 <Text size="sm" mt={4}>
                                     {new Date(v.event_datetime) > new Date()
