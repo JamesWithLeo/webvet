@@ -16,11 +16,16 @@ import { useRouter } from "next/navigation";
 
 type Props = {
     data: {
-        title: string | null;
         id: string;
+        title: string;
         event_datetime: string;
-        type: AppointmentType;
-        pets: { id: string; name: string; photoUrl: string | null }[];
+        serviceType: "CHECK_UP" | "GROOMING" | "VACCINATION" | "DEWORMING";
+        serviceName: string;
+        pets: {
+            id: string;
+            name: string;
+            photoUrl: string | null;
+        }[];
     };
 };
 

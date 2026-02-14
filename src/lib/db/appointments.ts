@@ -234,7 +234,9 @@ export const getNearestAppointment = async ({ id }: { id: string }) => {
             id: appointments.id,
             title: appointments.title,
             event_datetime: appointments.event_datetime,
-            // type: appointments.type,
+            // 1. Add service fields to the selection
+            serviceType: services.type,
+            serviceName: services.title,
             pets: sql<{ id: string; name: string; photoUrl: string | null }[]>`
                 json_agg(
                     json_build_object(
@@ -250,13 +252,21 @@ export const getNearestAppointment = async ({ id }: { id: string }) => {
             eq(appointments.id, appointmentsToPets.appointmentId)
         )
         .innerJoin(pets, eq(pets.id, appointmentsToPets.petId))
+        // 2. Join the services table
+        .innerJoin(services, eq(services.id, appointmentsToPets.serviceId))
         .where(
             and(
                 eq(pets.ownerId, id),
                 gt(appointments.event_datetime, new Date().toISOString())
             )
         )
-        .groupBy(appointments.id)
+        .groupBy(
+            appointments.id,
+            // 3. Add service columns to groupBy to satisfy SQL requirements
+            services.id,
+            services.type,
+            services.title
+        )
         .orderBy(asc(appointments.event_datetime))
         .limit(1)
         .then((v) => v[0] ?? null);
