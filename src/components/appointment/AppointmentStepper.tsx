@@ -21,7 +21,13 @@ import {
 
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { useActionState, useEffect, useState, useTransition } from "react";
+import {
+    useActionState,
+    useEffect,
+    useMemo,
+    useState,
+    useTransition,
+} from "react";
 import SelectDateCal from "../calendars/SelectDateCal";
 import SelectTimeCal from "../calendars/SelectTimeCal";
 import {
@@ -131,26 +137,28 @@ export default function AppointmentStepper({
         validate: zod4Resolver(newAppointmentSchema),
     });
 
-    const selectedService = services.find(
-        (s) => s.id === form.values.serviceId
-    );
+    const selectedService = useMemo(() => {
+        return services.find((s) => s.id === form.values.serviceId);
+    }, [services, form.values.serviceId]);
 
-    const filteredPetsData = pets
-        .filter((pet) => {
-            // 1. If no service is selected yet, show no pets (or all pets, depending on your preference)
-            if (!selectedService) return false;
+    const filteredPetsData = useMemo(() => {
+        return pets
+            .filter((pet) => {
+                // 1. If no service is selected yet, show no pets (or all pets, depending on your preference)
+                if (!selectedService) return false;
 
-            // 2. If service species is null or "all", show all pets
-            // 3. Otherwise, only show pets that match the specific species (dog/cat)
-            return (
-                selectedService.species === null ||
-                pet.species === selectedService.species
-            );
-        })
-        .map((v) => ({
-            label: toTitleCase(v.name),
-            value: v.id,
-        }));
+                // 2. If service species is null or "all", show all pets
+                // 3. Otherwise, only show pets that match the specific species (dog/cat)
+                return (
+                    selectedService.species === null ||
+                    pet.species === selectedService.species
+                );
+            })
+            .map((v) => ({
+                label: toTitleCase(v.name),
+                value: v.id,
+            }));
+    }, [pets, selectedService]);
 
     const getStepFields = (step: number) => {
         switch (step) {

@@ -1,4 +1,5 @@
 import { signIn } from "@/auth";
+import { Role } from "@/db/schema/users";
 import { Button, TextInput } from "@mantine/core";
 
 export default function AuthForm({ label }: { label: string }) {
@@ -11,7 +12,7 @@ export default function AuthForm({ label }: { label: string }) {
                     const email = formData.get("email");
                     await signIn("resend", {
                         email,
-                        redirectTo: "/dashboard",
+                        redirectTo: "/",
                     });
                 }}
             >

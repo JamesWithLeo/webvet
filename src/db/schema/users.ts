@@ -15,6 +15,8 @@ export type USERTYPE = typeof users.$inferSelect;
 export const userGenderValue = userGender.enumValues;
 
 export const role = pgEnum("role", ["client", "staff", "admin"]);
+export type Role = (typeof role.enumValues)[number];
+
 export const users = pgTable("users", {
     photoUrl: varchar("photo_url", { length: 255 }),
     googleId: varchar("google_id", { length: 255 }).unique(),

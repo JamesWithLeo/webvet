@@ -50,7 +50,6 @@ export default function AppointmentCard({
     created_at,
     expiredNotification,
     incomingNotification,
-    // species,
     // paid,
     // doctor,
     event_datetime,
@@ -60,26 +59,6 @@ export default function AppointmentCard({
     const router = useRouter();
     const handleInvoiceClick = async () => {
         router.push("/v1/invoice");
-        // const amount = 1000;
-        // const email = "jamesocampo@gmail.com";
-        // const response = await fetch("/api/xendit/checkout", {
-        //     method: "POST",
-        //     headers: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({
-        //         amount: amount,
-        //         email: email,
-        //         currency: "PHP",
-        //     }),
-        // });
-        // if (response.ok) {
-        //     const invoiceData = await response.json();
-        //     const invoiceUrl = invoiceData.invoice_url;
-        //     window.location.href = invoiceUrl;
-        // } else {
-        //     const errorData = await response.json();
-        //     console.error("Payment initiation failed:", errorData);
-        //     alert("Could not start payment. Please try again.");
-        // }
     };
 
     return (
@@ -92,7 +71,6 @@ export default function AppointmentCard({
             >
                 <div className="absolute group-hover:scale-[1.05] -right-7 text-gray-200 -rotate-12 -top-5">
                     <PawSvg />
-                    {/* {species === "DOG" ? <DogSvg /> : <CatSvg />} */}
                 </div>
                 <Group>
                     <Group>
@@ -117,8 +95,11 @@ export default function AppointmentCard({
                             <Text c={"dimmed"}>
                                 {date.toLocaleTimeString()}
                             </Text>
-                            {/* <Text c={"dimmed"}>{doctor}</Text> */}
-                            <Text c={"dimmed"}>Dr. Ace Ventura</Text>
+
+                            {/* <Text c={"dimmed"}>Dr. Ace Ventura</Text> */}
+                            <Text c={"dimmed"} size="xs">
+                                {id}
+                            </Text>
                         </Stack>
                     </Group>
                 </Group>

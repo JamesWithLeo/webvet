@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function Admin() {
+export default async function Admin() {
     redirect("admin/dashboard");
 }

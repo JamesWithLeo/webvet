@@ -179,20 +179,22 @@ export default function CalendarList({
                     </Button.Group>
                 </div>
             </div>
-            <FullCalendar
-                ref={calendarRef}
-                plugins={[multiMonthPlugin, dayMonthPlugin]}
-                initialView="dayGridMonth"
-                selectable={false}
-                datesSet={handleDatesSet}
-                aspectRatio={isMobile ? 0.8 : 2}
-                multiMonthMaxColumns={1}
-                headerToolbar={false}
-                footerToolbar={false}
-                events={getEvent()}
-                eventClick={onEventClick}
-                viewClassNames={"cursor-pointer"}
-            />
+            <div className="bg-white">
+                <FullCalendar
+                    ref={calendarRef}
+                    plugins={[multiMonthPlugin, dayMonthPlugin]}
+                    initialView="dayGridMonth"
+                    selectable={false}
+                    datesSet={handleDatesSet}
+                    aspectRatio={isMobile ? 0.8 : 2}
+                    multiMonthMaxColumns={1}
+                    headerToolbar={false}
+                    footerToolbar={false}
+                    events={getEvent()}
+                    eventClick={onEventClick}
+                    viewClassNames={"cursor-pointer"}
+                />
+            </div>
             {selectedAppointment && (
                 <AppointmentDrawer
                     opened={opened}

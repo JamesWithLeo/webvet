@@ -42,6 +42,7 @@ export const authConfig = {
         Resend({
             apiKey: process.env.RESEND_API_KEY,
             from: "Joseph and Mary Clinic <auth@updates.josephmary.me>",
+
             sendVerificationRequest: async ({
                 expires,
                 identifier: email,

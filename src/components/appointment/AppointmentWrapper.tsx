@@ -26,7 +26,7 @@ import {
     IconTag,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { notifications } from "@mantine/notifications";
 
 const googleCalendarIcon = () => (
@@ -75,6 +75,7 @@ type Props = {
             id: string;
             name: string;
             photoUrl: string | null;
+            priceAtBooking: string;
         }[];
     };
 };
@@ -83,7 +84,14 @@ export default function AppointmentWrapper({
     data: { pets, title, event_datetime, id, serviceName, serviceType },
 }: Props) {
     const router = useRouter();
-    const name = pets.map((c) => toTitleCase(c.name)).join(", ");
+    const { nameOfAllPets, totalAmount } = useMemo(() => {
+        const nameOfAllPets = pets.map((c) => toTitleCase(c.name)).join(", ");
+
+        const totalAmount = pets.reduce((acc, pet) => {
+            return acc + (Number(pet.priceAtBooking) || 0);
+        }, 0);
+        return { nameOfAllPets, totalAmount };
+    }, [pets]);
     const expired = new Date() > new Date(event_datetime);
 
     const [loading, setLoading] = useState(false);
@@ -97,7 +105,7 @@ export default function AppointmentWrapper({
             title: title,
             start: new Date(event_datetime),
             end: new Date(event_datetime),
-            description: `${toTitleCase(serviceType)} for ${name} in Joseph & Mary Veterinary Clinic. This event is created via Web: https://www.josephmary.me`,
+            description: `${toTitleCase(serviceType)} for ${nameOfAllPets} in Joseph & Mary Veterinary Clinic. This event is created via Web: https://www.josephmary.me`,
         });
 
         setLoading(false);
@@ -127,6 +135,7 @@ export default function AppointmentWrapper({
             setIsExistingToCalendar(false);
         }
     };
+
     useEffect(() => {
         checkGoogleCalendar();
     }, []);
@@ -161,7 +170,9 @@ export default function AppointmentWrapper({
             </div>
             <div className="flex gap-4 flex-col">
                 <div>
-                    <Title c={"primary"}>{toTitleCase(title ?? name)}</Title>
+                    <Title c={"primary"}>
+                        {toTitleCase(title ?? nameOfAllPets)}
+                    </Title>
                     <Text c={"dimmed"} size="xs">
                         {id}
                     </Text>
@@ -179,11 +190,13 @@ export default function AppointmentWrapper({
                 <DetailRow
                     icon={<IconCurrencyPeso size={18} />}
                     label="Amount"
-                    value={"1000.00"}
+                    value={totalAmount.toString()}
                 />
 
                 <div>
-                    <Text>Please bring your lovely pet(s): {name}</Text>
+                    <Text>
+                        Please bring your lovely pet(s): {nameOfAllPets}
+                    </Text>
                     <AvatarGroup mt={"sm"}>
                         {pets.map((v) => (
                             <Tooltip
@@ -193,7 +206,7 @@ export default function AppointmentWrapper({
                             >
                                 <Avatar
                                     src={v.photoUrl}
-                                    size={"md"}
+                                    size={"lg"}
                                     radius="xl"
                                     color="blue"
                                     component={Link}

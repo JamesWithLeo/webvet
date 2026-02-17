@@ -16,12 +16,16 @@ import {
     eq,
     getTableColumns,
     gt,
+    gte,
     inArray,
+    lt,
+    lte,
     sql,
 } from "drizzle-orm";
 import { PgTransaction } from "drizzle-orm/pg-core";
 import { toTitleCase } from "../toTitleCase";
-import { services } from "@/db/schema/services";
+import { prices, services } from "@/db/schema/services";
+import { users } from "@/db/schema/users";
 
 export class ExistingAppointmentConflictError extends Error {
     public code: string;
@@ -113,6 +117,7 @@ export const saveAppointmentToDb = async ({
                     appointmentId: inserted.id,
                     petId,
                     serviceId: appointmentData.serviceId,
+                    priceAtBooking: "0",
                 }))
             );
 
@@ -360,27 +365,37 @@ export const getAppointment = async ({
     }
 };
 
-export const getAppointmentWithDetails = async ({ id }: { id: string }) => {
+export const getAppointmentWithDetails = async ({
+    appointmentId,
+    ownerId,
+}: {
+    appointmentId: string;
+    ownerId: string;
+}) => {
     try {
         const result = await db
             .select({
                 id: appointments.id,
                 title: appointments.title,
                 event_datetime: appointments.event_datetime,
-                // Direct selection because there is only one service per appointment
                 serviceType: services.type,
                 serviceName: services.title,
-
                 // Aggregate only the pets
                 pets: sql<
-                    { id: string; name: string; photoUrl: string | null }[]
+                    {
+                        id: string;
+                        name: string;
+                        photoUrl: string | null;
+                        priceAtBooking: string;
+                    }[]
                 >`
                     COALESCE(
                         json_agg(
                             json_build_object(
                                 'id', ${pets.id}, 
                                 'name', ${pets.name}, 
-                                'photoUrl', ${pets.photoUrl}
+                                'photoUrl', ${pets.photoUrl},
+                                'priceAtBooking', ${appointmentsToPets.priceAtBooking}
                             )
                         ) FILTER (WHERE ${pets.id} IS NOT NULL), 
                         '[]'
@@ -393,7 +408,13 @@ export const getAppointmentWithDetails = async ({ id }: { id: string }) => {
             )
             .innerJoin(services, eq(appointmentsToPets.serviceId, services.id))
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
-            .where(eq(appointments.id, id))
+            .where(
+                and(
+                    eq(appointments.id, appointmentId),
+                    // Filter by the owner of the pet
+                    eq(pets.ownerId, ownerId)
+                )
+            )
             // Group by everything EXCEPT the pets
             .groupBy(
                 appointments.id,
@@ -455,5 +476,98 @@ export const getBlockDates = async (): Promise<
         return await db.select().from(blockedDates);
     } catch (error: any) {
         return [];
+    }
+};
+
+/**
+ *
+ * @returns all appointment
+ */
+export const getAllAppointmentsAdmin = async (
+    scope: "incoming" | "past" | "all" = "all"
+) => {
+    let filters = undefined;
+    const now = new Date().toISOString();
+
+    if (scope === "incoming") {
+        filters = gte(appointments.event_datetime, new Date().toISOString());
+    } else if (scope === "past") {
+        filters = lt(appointments.event_datetime, new Date().toISOString());
+    }
+    try {
+        const response = await db
+            .select({
+                // Spreading into objects makes it much cleaner to handle in React
+                ...getTableColumns(appointments),
+                user: {
+                    id: users.id,
+                    firstName: users.firstName,
+                    lastName: users.lastName,
+                    photoUrl: users.photoUrl,
+                    contactNumber: users.contactNumber,
+                    email: users.email,
+                },
+            })
+            .from(appointments)
+            .innerJoin(
+                appointmentsToPets,
+                eq(appointments.id, appointmentsToPets.appointmentId)
+            )
+            .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            .innerJoin(users, eq(pets.ownerId, users.id))
+            .where(filters)
+            .orderBy(desc(appointments.event_datetime))
+            .groupBy(appointments.id, users.id);
+
+        return { data: response, error: null };
+    } catch (error) {
+        console.error(error);
+        return {
+            data: null,
+            error: "Failed to load all appointments for admin.",
+        };
+    }
+};
+
+export const getAppointmentToPetsAdmin = async (id: string) => {
+    try {
+        const response = await db
+            .select({
+                pets: sql<
+                    {
+                        id: string;
+                        name: string;
+                        photoUrl: string | null;
+                        serviceName: string;
+                    }[]
+                >`
+                    COALESCE(
+                        json_agg(
+                            json_build_object(
+                                'id', ${pets.id}, 
+                                'name', ${pets.name}, 
+                                'photoUrl', ${pets.photoUrl},
+                                'serviceName', ${services.title}
+
+                                
+                            )
+                        ) FILTER (WHERE ${pets.id} IS NOT NULL), 
+                        '[]'
+                    )`.as("pets"),
+            })
+            .from(appointmentsToPets)
+            .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            .innerJoin(services, eq(services.id, appointmentsToPets.serviceId))
+            .where(eq(appointmentsToPets.appointmentId, id))
+            .groupBy(appointmentsToPets.appointmentId)
+            .then((v) => v[0]);
+
+        return { data: response, error: null };
+    } catch (error) {
+        console.error(error);
+        return {
+            data: null,
+            error: "Failed to load all appointments for admin.",
+        };
     }
 };

@@ -1,5 +1,4 @@
 import {
-    pgEnum,
     pgTable,
     boolean,
     timestamp,
@@ -28,6 +27,7 @@ export type AppointmentPetMergeType = {
     photoUrl: string | null;
     title: string | null;
 };
+
 export type JoinedAppointmentType = {
     id: string;
     title: string | null;
@@ -37,6 +37,7 @@ export type JoinedAppointmentType = {
     incomingNotification: boolean;
     pets: { id: string; name: string; photoUrl: string | null }[];
 };
+
 export const monthAbbreviations = [
     "Jan",
     "Feb",
@@ -54,31 +55,29 @@ export const monthAbbreviations = [
 
 export const appointments = pgTable("appointments", {
     id: uuid("id").defaultRandom().primaryKey(),
+
     title: varchar("title", { length: 50 }).notNull(),
+
     event_datetime: timestamp("event_datetime", {
         withTimezone: true,
         mode: "string",
     }).notNull(),
+
     // type: appointmentType("type").notNull(),
+
     created_at: timestamp("created_at").defaultNow().notNull(),
 
     expiredNotification: boolean("expired_notification")
         .default(false)
         .notNull(),
+
     incomingNotification: boolean("incoming_notification")
         .default(false)
         .notNull(),
 
-    // payment
-    // priceAtBooking: integer("price_at_booking"),
     invoiceId: uuid("invoice_id").references(() => invoices.id, {
         onDelete: "set null",
     }),
-
-    // todo
-    // status: appointmentStatusType().default("SCHEDULED").notNull(),
-    // cancelledAt: timestamp("cancelled_at"),
-    // cancellationReason: text("cancellation_reason"),
 });
 
 export const appointmentsToPets = pgTable("appointments_to_pets", {
@@ -93,8 +92,10 @@ export const appointmentsToPets = pgTable("appointments_to_pets", {
     serviceId: uuid("serviceId")
         .notNull()
         .references(() => services.id),
-    // priceAtBooking: decimal({ precision: 10, scale: 2 }).notNull(),
+    priceAtBooking: decimal({ precision: 10, scale: 2 }).notNull(),
 });
+
+export type AppointmentToPetsTypeModel = InferSelectModel<typeof appointments>;
 
 export const appointmentSchedules = pgTable("appointment_schedules", {
     id: serial("id").primaryKey(),
@@ -127,3 +128,21 @@ export const blockedDates = pgTable("blocked_dates", {
 });
 
 export type BlockDatesTypeModel = InferSelectModel<typeof blockedDates>;
+
+export type AdminAppointment = {
+    user: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        photoUrl: string;
+        contactNumber: string;
+        email: string | null;
+    };
+    id: string;
+    title: string;
+    event_datetime: string;
+    created_at: Date;
+    expiredNotification: boolean;
+    incomingNotification: boolean;
+    invoiceId: string | null;
+};

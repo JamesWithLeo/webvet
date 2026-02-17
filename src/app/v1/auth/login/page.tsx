@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import AuthForm from "@/components/auth/AuthForm";
 import GoogleButton from "@/components/common/GoogleButton";
 import Logo from "@/components/common/Logo";
-import { Box, Button, TextInput } from "@mantine/core";
+import { Box } from "@mantine/core";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 

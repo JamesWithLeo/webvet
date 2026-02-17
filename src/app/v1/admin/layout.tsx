@@ -1,8 +1,17 @@
 import AdminNav from "@/components/admin/AdminNav";
 import BottomPattern from "@/components/common/BottomPattern";
 import Providers from "../Provider";
+import { auth } from "@/auth";
+import { unauthorized } from "next/navigation";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    const session = await auth();
+    if (session?.user.role !== "admin" && session?.user.role !== "staff")
+        unauthorized();
     return (
         <Providers>
             <main

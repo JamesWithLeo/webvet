@@ -1,282 +1,176 @@
 "use client";
 
+import { AdminAppointment } from "@/db/schema/appointments";
+import useAppointmentAdmin from "@/lib/hooks/useAppointmentAdmin";
+import useAppointmentToPetsAdmin from "@/lib/hooks/useAppointmnetToPetsAdmin";
+import { toTitleCase } from "@/lib/toTitleCase";
 import {
     ActionIcon,
-    Box,
+    Avatar,
     Button,
     Group,
-    MultiSelect,
+    Loader,
+    LoadingOverlay,
     Stack,
+    Text,
     TextInput,
 } from "@mantine/core";
-import { DatePicker } from "@mantine/dates";
+import { IconInvoice, IconSearch, IconX } from "@tabler/icons-react";
+import { formatDistance, subDays } from "date-fns";
 import {
-    IconCancel,
-    IconCheck,
-    IconEdit,
-    IconPointer,
-    IconSearch,
-    IconX,
-} from "@tabler/icons-react";
-import { DataTable } from "mantine-datatable";
+    DataTable,
+    DataTableColumn,
+    useDataTableColumns,
+} from "mantine-datatable";
+import { useMemo } from "react";
 
-const records = [
-    {
-        id: 1,
-        Firstname: "Ethan",
-        Lastname: "Hayes",
-        service: "CHECK_UP",
-        ScheduledDate: "12/09/2025",
-    },
-    {
-        id: 2,
-        Firstname: "Olivia",
-        Lastname: "Bennett",
-        service: "CHECK_UP",
-        ScheduledDate: "01/14/2026",
-    },
-    {
-        id: 3,
-        Firstname: "Liam",
-        Lastname: "Russell",
-        service: "CHECK_UP",
-        ScheduledDate: "01/21/2026",
-    },
-    {
-        id: 4,
-        Firstname: "Ava",
-        Lastname: "Chen",
-        service: "CONSULTATION",
-        ScheduledDate: "03/03/2026",
-    },
-    {
-        id: 5,
-        Firstname: "Noah",
-        Lastname: "Rodriguez",
-        service: "VACCINATION",
-        ScheduledDate: "02/17/2026",
-    },
-    {
-        id: 6,
-        Firstname: "Isabella",
-        Lastname: "Foster",
-        service: "GROOMING",
-        ScheduledDate: "02/16/2026",
-    },
-    {
-        id: 7,
-        Firstname: "Lucas",
-        Lastname: "Morgan",
-        service: "GROOMING",
-        ScheduledDate: "12/20/2025",
-    },
-    {
-        id: 8,
-        Firstname: "Mia",
-        Lastname: "Sullivan",
-        service: "NEUTURING",
-        ScheduledDate: "01/07/2026",
-    },
-    {
-        id: 9,
-        Firstname: "Alexander",
-        Lastname: "Reed",
-        service: "CHECK_UP",
-        ScheduledDate: "02/15/2026",
-    },
-    {
-        id: 10,
-        Firstname: "Charlotte",
-        Lastname: "Ward",
-        service: "CONSULTATION",
-        ScheduledDate: "01/29/2026",
-    },
-    {
-        id: 11,
-        Firstname: "William",
-        Lastname: "Gray",
-        service: "CHECK_UP",
-        ScheduledDate: "02/14/2026",
-    },
-    {
-        id: 12,
-        Firstname: "Amelia",
-        Lastname: "Stone",
-        service: "VACCINATION",
-        ScheduledDate: "12/20/2025",
-    },
-    {
-        id: 13,
-        Firstname: "James",
-        Lastname: "Porter",
-        service: "CHECK_UP",
-        ScheduledDate: "01/10/2026",
-    },
-    {
-        id: 14,
-        Firstname: "Sophia",
-        Lastname: "Brooks",
-        service: "VACCINATION",
-        ScheduledDate: "01/06/2026",
-    },
-    {
-        id: 15,
-        Firstname: "Benjamin",
-        Lastname: "King",
-        service: "VACCINATION",
-        ScheduledDate: "12/07/2025",
-    },
-    {
-        id: 16,
-        Firstname: "Evelyn",
-        Lastname: "Dixon",
-        service: "VACCINATION",
-        ScheduledDate: "12/19/2025",
-    },
-    {
-        id: 17,
-        Firstname: "Henry",
-        Lastname: "Myers",
-        service: "VACCINATION",
-        ScheduledDate: "12/11/2025",
-    },
-    {
-        id: 18,
-        Firstname: "Abigail",
-        Lastname: "Carter",
-        service: "VACCINATION",
-        ScheduledDate: "02/19/2026",
-    },
-    // {
-    //     id: 19,
-    //     Firstname: "Daniel",
-    //     Lastname: "Nelson",
-    //     service: "VACCINATION",
-    //     ScheduledDate: "12/26/2025",
-    // },
-    // {
-    //     id: 20,
-    //     Firstname: "Emily",
-    //     Lastname: "Fisher",
-    //     service: "CONSULTATION",
-    //     ScheduledDate: "02/25/2026",
-    // },
-];
-export default function AdminAppointmentTable() {
+export default function AdminAppointmentTable({
+    scope,
+}: {
+    scope: "all" | "incoming" | "past";
+}) {
+    const {
+        data,
+        isLoading,
+        setSortStatus,
+        sortStatus,
+        searchName,
+        setSearchName,
+    } = useAppointmentAdmin(scope);
+
+    const columns = useMemo<DataTableColumn<AdminAppointment>[]>(
+        () => [
+            {
+                accessor: "firstName", // Use dot notation for nested fields
+                title: "Full name",
+
+                render: (
+                    { user } // Destructure user from the record
+                ) => (
+                    <Text>
+                        {toTitleCase(user.firstName)}{" "}
+                        {toTitleCase(user.lastName)}
+                    </Text>
+                ),
+                filter: (
+                    <TextInput
+                        label="Clients"
+                        description="Show client whose names include the specified text"
+                        placeholder="Search client..."
+                        leftSection={<IconSearch size={16} />}
+                        rightSection={
+                            <ActionIcon
+                                size="sm"
+                                variant="transparent"
+                                c="dimmed"
+                                onClick={() => setSearchName("")}
+                            >
+                                <IconX size={14} />
+                            </ActionIcon>
+                        }
+                        defaultValue={searchName}
+                        onChange={(e) => {
+                            setSearchName(e.currentTarget.value);
+                        }}
+                    />
+                ),
+                filtering: searchName !== "",
+            },
+            { accessor: "title", title: "Title / Reason" },
+            {
+                accessor: "contactNumber",
+                title: "contact no.",
+                resizable: true,
+                render: ({ user }) => (
+                    <Text>{toTitleCase(user.contactNumber)}</Text>
+                ),
+            },
+            {
+                accessor: "event_datetime",
+                title: "Event Date time",
+                resizable: true,
+                sortable: true,
+                render: (data) => (
+                    <Text>
+                        {new Date(data.event_datetime).toLocaleString()}
+                        {" -> "}
+                        {formatDistance(
+                            new Date(),
+                            new Date(data.event_datetime)
+                        )}
+                    </Text>
+                ),
+            },
+            {
+                accessor: "created_at",
+                title: "createdAt",
+                resizable: true,
+                sortable: true,
+                render: (data) => (
+                    <Text>
+                        {new Date(data.created_at).toLocaleString()}
+                        {" -> "}
+                        {formatDistance(
+                            subDays(new Date(), 0),
+                            new Date(data.created_at),
+                            { addSuffix: true }
+                        )}
+                    </Text>
+                ),
+            },
+            {
+                accessor: "user.id",
+                title: "Action",
+                textAlign: "right",
+                render: (data) => (
+                    <Group justify="right">
+                        <Button size="xs" variant="default">
+                            Invoice
+                        </Button>
+                    </Group>
+                ),
+            },
+        ],
+        []
+    );
+
+    const key = `admin-appointment-table-${scope}`;
+    const { effectiveColumns } = useDataTableColumns<AdminAppointment>({
+        key,
+        columns: columns,
+    });
+
     return (
         <Stack>
             <DataTable
-                withTableBorder
+                key={`${scope}-appointment-table`}
+                idAccessor={"id"}
+                withTableBorder={false}
+                withColumnBorders={true}
                 withRowBorders
-                verticalSpacing="xs"
-                borderRadius="sm"
+                verticalSpacing={"xs"}
+                horizontalSpacing={"xs"}
+                borderRadius="xl"
                 striped
                 pinFirstColumn
                 highlightOnHover={true}
-                columns={[
-                    {
-                        accessor: "id",
-                        title: "Action",
-                        render: () => (
-                            <Group gap={4} justify="left" wrap="nowrap">
-                                <Button size="compact-xs">Approve</Button>
-                                <Button size="compact-xs" color="red.5">
-                                    cancel
-                                </Button>
-                                {/* <ActionIcon
-                                size="sm"
-                                variant="subtle"
-                                color="green"
-                            >
-                                <IconCheck size={16} />
-                            </ActionIcon> */}
-                                {/* <ActionIcon size="sm" variant="subtle" color="blue">
-                                <IconEdit size={16} />
-                            </ActionIcon>
-                            <ActionIcon size="sm" variant="subtle" color="red">
-                                <IconCancel size={16} />
-                            </ActionIcon> */}
-                            </Group>
-                        ),
-                    },
-                    {
-                        accessor: "id",
-                        title: "Id",
-                        sortable: true,
-
-                        filter: ({ close }) => (
-                            <TextInput
-                                label="Employees"
-                                description="Show employees whose names include the specified text"
-                                placeholder="Search employees..."
-                                leftSection={<IconSearch size={16} />}
-                                rightSection={
-                                    <ActionIcon
-                                        size="sm"
-                                        variant="transparent"
-                                        c="dimmed"
-                                    >
-                                        <IconX size={14} />
-                                    </ActionIcon>
-                                }
-                            />
-                        ),
-                    },
-                    {
-                        accessor: "service",
-                        title: "Service",
-                        // filtering: false,
-                        filter: (
-                            <MultiSelect
-                                label="Departments"
-                                description="Show all employees working at the selected departments"
-                                data={[
-                                    "CHECK_UP",
-                                    "CONSULTATION",
-                                    "GROOMING",
-                                    "NEUTURING",
-                                    "DE-WORMING",
-                                ]}
-                                placeholder="Search departments…"
-                                leftSection={<IconSearch size={16} />}
-                                comboboxProps={{ withinPortal: false }}
-                                clearable
-                                searchable
-                            />
-                        ),
-                    },
-                    {
-                        accessor: "ScheduledDate",
-                        title: "Scheduled Date",
-                        sortable: true,
-                        filter: ({ close }) => (
-                            <Stack>
-                                <DatePicker type="range" />
-                                <Button variant="light">Clear</Button>
-                            </Stack>
-                        ),
-                    },
-                    {
-                        accessor: "FirstName",
-                        title: "Fullname",
-                        render(record, index) {
-                            return `${record.Firstname} ${record.Lastname}`;
-                        },
-                    },
-                ]}
-                // rowExpansion={{
-                //     allowMultiple: false,
-                //     content: () => (
-                //         <Stack bg={"gray.1"} gap={6} m={0} p="xs">
-                //             <h1>Hello</h1>
-                //         </Stack>
-                //     ),
-                // }}
-                records={records}
-                totalRecords={1500}
+                fetching={isLoading}
+                minHeight={250}
+                columns={effectiveColumns}
+                pinLastColumn={true}
+                rowExpansion={{
+                    allowMultiple: true,
+                    content: ({ record, index, collapse }) => (
+                        <AppointmentToPetsTable id={record.id} />
+                    ),
+                }}
+                records={data}
+                totalRecords={data && data.length ? data.length : 0}
                 page={1}
                 onPageChange={() => {}}
                 recordsPerPage={10}
+                onSortStatusChange={setSortStatus}
+                sortStatus={sortStatus}
             />
             <Group justify="flex-end">
                 <Button
@@ -295,3 +189,32 @@ export default function AdminAppointmentTable() {
         </Stack>
     );
 }
+
+const AppointmentToPetsTable = ({ id }: { id: string }) => {
+    const { data } = useAppointmentToPetsAdmin(id);
+    return (
+        <Stack p={"md"}>
+            {data && data.pets ? (
+                data.pets.map((pet) => (
+                    <Group key={`${id}-${pet.id}`} gap={"md"}>
+                        <Avatar src={pet.photoUrl}>{pet.name[0]}</Avatar>
+                        <Stack gap={0}>
+                            <Text>{toTitleCase(pet.name)}</Text>
+                            <Text size="xs" c={"dimmed"}>
+                                {pet.id}
+                            </Text>
+                        </Stack>
+                        <Stack gap={0}>
+                            <Text size="xs" c={"blue.5"}>
+                                Service
+                            </Text>
+                            <Text size="sm">{pet.serviceName}</Text>
+                        </Stack>
+                    </Group>
+                ))
+            ) : (
+                <Loader />
+            )}
+        </Stack>
+    );
+};

@@ -150,6 +150,9 @@ export default function PetCard({ pet }: Props) {
                                         leftSection={
                                             <IconPlus size={20} stroke={1.5} />
                                         }
+                                        onClick={() => {
+                                            router.push("/v1/appointments/new");
+                                        }}
                                     >
                                         New Appointment
                                     </Menu.Item>
