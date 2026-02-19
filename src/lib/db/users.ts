@@ -106,3 +106,27 @@ export const saveSetupInDb = async (
 export const getUserById = async (id: string) => {
     return await db.select().from(users).where(eq(users.id, id)).limit(1);
 };
+
+export const getAllUsersAdmin = async () => {
+    try {
+        const response = await db
+            .select({
+                id: users.id,
+                dateOfBirth: users.dateOfBirth,
+                role: users.role,
+                firstName: users.firstName,
+                lastName: users.lastName,
+                email: users.email,
+                contactNumber: users.contactNumber,
+                gender: users.gender,
+            })
+            .from(users);
+        return { data: response, error: null };
+    } catch (error) {
+        console.error(error);
+        return {
+            data: null,
+            error: "Failed to load all users for admin.",
+        };
+    }
+};

@@ -1,6 +1,5 @@
 "use client";
 
-import Logo from "../common/Logo";
 import {
     IconCalendarSearch,
     IconCat,
@@ -14,7 +13,7 @@ import {
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "../common/LogoutButton";
-import { Indicator, UnstyledButton } from "@mantine/core";
+import { UnstyledButton } from "@mantine/core";
 import { Baskervville_SC } from "next/font/google";
 import { LogoSvg } from "../common/LogoSvg";
 
@@ -70,18 +69,14 @@ const NavLink = ({
     onClick: () => void;
     subLinks?: { link: string; label: string }[];
 }) => {
-    const [opened, setOpened] = useState(false);
-    const router = useRouter();
-    if (label === "Appointments")
-        return (
-            <Indicator offset={5} label={"10+"} inline size={"lg"} color="red">
-                <UnstyledButton w={"100%"}>
-                    <a
-                        data-active={isActive || undefined}
-                        href={link}
-                        key={label}
-                        onClick={onClick}
-                        className={`
+    return (
+        <UnstyledButton w={"100%"}>
+            <a
+                data-active={isActive || undefined}
+                href={link}
+                key={label}
+                onClick={onClick}
+                className={`
                 ${
                     isActive
                         ? " bg-(--mantine-color-blue-light) text-(--mantine-color-blue-light-color) "
@@ -91,37 +86,12 @@ const NavLink = ({
                 transition-colors duration-200 ease-in-out mt-2 
                 rounded flex gap-4 h-12 items-center  
             `}
-                    >
-                        {icon}
-                        {!isCollapsed && <span>{label}</span>}
-                    </a>
-                </UnstyledButton>
-            </Indicator>
-        );
-    else
-        return (
-            <UnstyledButton w={"100%"}>
-                <a
-                    data-active={isActive || undefined}
-                    href={link}
-                    key={label}
-                    onClick={onClick}
-                    className={`
-                ${
-                    isActive
-                        ? " bg-(--mantine-color-blue-light) text-(--mantine-color-blue-light-color) "
-                        : " text-gray-500 hover:bg-gray-100 "
-                } 
-                ${isCollapsed ? " justify-center " : " p-4 "}
-                transition-colors duration-200 ease-in-out mt-2 
-                rounded flex gap-4 h-12 items-center  
-            `}
-                >
-                    {icon}
-                    {!isCollapsed && <span>{label}</span>}
-                </a>
-            </UnstyledButton>
-        );
+            >
+                {icon}
+                {!isCollapsed && <span>{label}</span>}
+            </a>
+        </UnstyledButton>
+    );
 };
 
 export default function AdminNav() {
@@ -130,15 +100,16 @@ export default function AdminNav() {
 
     const [active, setActive] = useState(lastpath);
 
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const key = "sidebarCollapsed";
+
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     const toggleCollapse = () => {
-        localStorage.setItem(
-            "sidebarCollapsed",
-
-            isCollapsed.valueOf.toString()
-        );
-        setIsCollapsed(!isCollapsed);
+        setIsCollapsed((prev) => {
+            const newState = !prev;
+            localStorage.setItem(key, String(newState));
+            return newState;
+        });
     };
 
     const links = data.map((item) => (
@@ -155,9 +126,9 @@ export default function AdminNav() {
         />
     ));
     useEffect(() => {
-        const savedState = localStorage.getItem("sidebarCollapsed");
-        if (savedState !== null) {
-            setIsCollapsed(savedState === "true");
+        const saved = localStorage.getItem(key);
+        if (saved !== null) {
+            setIsCollapsed(saved === "true");
         }
     }, []);
 

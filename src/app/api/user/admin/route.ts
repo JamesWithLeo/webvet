@@ -1,11 +1,8 @@
 import { auth } from "@/auth";
-import { getAllAppointmentsAdmin } from "@/lib/db/appointments";
+import { getAllUsersAdmin } from "@/lib/db/users";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const scope =
-        (searchParams.get("scope") as "incoming" | "past" | "all") || "all";
     try {
         const session = await auth();
         if (session?.user.role !== "admin" && session?.user.role !== "staff") {
@@ -14,10 +11,14 @@ export async function GET(request: Request) {
                 { status: 403 }
             );
         }
-        const { data, error } = await getAllAppointmentsAdmin(scope);
+
+        const { data, error } = await getAllUsersAdmin();
         if (error) throw new Error(error);
         return NextResponse.json(data);
     } catch (error) {
-        return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Failed to fetch user" },
+            { status: 500 }
+        );
     }
 }
