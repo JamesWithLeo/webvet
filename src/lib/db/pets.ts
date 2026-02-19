@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { breeds, pets, PetTypeModel } from "@/db/schema/pets";
+import { breeds, pets } from "@/db/schema/pets";
 import { and, eq, getTableColumns, isNotNull, isNull } from "drizzle-orm";
 
 export const checkExistingPets = async ({
@@ -96,5 +96,15 @@ export const getPet = async (petId: string, ownerId: string) => {
             .then((v) => v[0]);
     } catch (error) {
         return null;
+    }
+};
+
+export const getAllPetsAdmin = async () => {
+    try {
+        const result = await db.select().from(pets);
+        return { data: result, error: null };
+    } catch (error) {
+        console.error(error);
+        return { data: null, error: "Failed to load all pets for admin" };
     }
 };

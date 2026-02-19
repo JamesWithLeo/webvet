@@ -21,7 +21,7 @@ export default function useAppointmentAdmin(
     const query = useQuery<AdminAppointment[], Error>({
         queryKey: ["appointments", "admin", scope],
         queryFn: async () => {
-            const res = await fetch(`/api/appointment/admin?scope=${scope}`);
+            const res = await fetch(`/api/admin/appointments?scope=${scope}`);
 
             if (!res.ok) {
                 const errorData = await res.json();

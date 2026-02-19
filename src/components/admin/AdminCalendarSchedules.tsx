@@ -173,7 +173,7 @@ export default function AdminCalendarSchedules({
                         </Group>
                     </Stack>
                 </form>
-
+                {/* 
                 <Group justify="space-between" wrap="nowrap">
                     <Box>
                         <Text fw={500}>Manual Approval</Text>
@@ -182,7 +182,7 @@ export default function AdminCalendarSchedules({
                         </Text>
                     </Box>
                     <Switch size="lg" onLabel="ON" offLabel="OFF" />
-                </Group>
+                </Group> */}
             </Stack>
         </>
     );

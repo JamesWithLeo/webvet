@@ -21,7 +21,7 @@ export default function useUserAdmin() {
         queryKey: ["user", "admin"],
 
         queryFn: async () => {
-            const res = await fetch("/api/user/admin", { method: "GET" });
+            const res = await fetch("/api/admin/users", { method: "GET" });
 
             if (!res.ok) {
                 const errorData = await res.json();

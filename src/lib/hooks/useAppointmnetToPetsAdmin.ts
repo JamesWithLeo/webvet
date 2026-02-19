@@ -17,7 +17,7 @@ export default function useAppointmentToPets(id: string) {
             if (!id) throw new Error("No Appointment ID provided");
 
             const res = await fetch(
-                `/api/appointment/admin/appointmentToPets?id=${id}`,
+                `/api/admin/appointments/appointmentToPets?id=${id}`,
                 { method: "GET" }
             );
 

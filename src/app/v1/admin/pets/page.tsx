@@ -1,18 +1,27 @@
-import PetPanels from "@/components/admin/PetPanel";
 import PetTable from "@/components/PetTable";
-import { Title, Stack, Button, Group } from "@mantine/core";
+import { getAllPetsAdmin } from "@/lib/db/pets";
+import { Title, Stack } from "@mantine/core";
+import {
+    dehydrate,
+    HydrationBoundary,
+    QueryClient,
+} from "@tanstack/react-query";
 
 export default function Pets() {
+    const queryClient = new QueryClient();
+    queryClient.prefetchQuery({
+        queryKey: ["pets", "admin"],
+        queryFn: async () => {
+            const { data } = await getAllPetsAdmin();
+            return data ?? [];
+        },
+    });
     return (
         <Stack className="w-full h-screen gap-8 p-16 light:bg-gray-50">
             <Title>Pets</Title>
-            <PetTable />
-            <PetPanels detailed={true} />
-            <Group justify="end">
-                <Button variant="default" size="xs">
-                    Hide Charts
-                </Button>
-            </Group>
+            <HydrationBoundary state={dehydrate(queryClient)}>
+                <PetTable />
+            </HydrationBoundary>
         </Stack>
     );
 }

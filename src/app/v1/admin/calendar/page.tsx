@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import AdminCalendarSchedules from "@/components/admin/AdminCalendarSchedules";
 import CalendarCapacityAndLimit from "@/components/admin/CalendarCapacityAndLimit";
 import AdminCalendar from "@/components/calendars/AdminCalendar";
@@ -8,8 +9,13 @@ import {
     HydrationBoundary,
     QueryClient,
 } from "@tanstack/react-query";
+import { unauthorized } from "next/navigation";
 
 export default async function Page() {
+    // only the admin
+    const session = await auth();
+    if (session?.user.role !== "admin") unauthorized();
+
     const appointmentSchedules = await getAppointmentSchedules();
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery({

@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import ServicesTable from "@/components/admin/ServicesTable";
 import { getServices } from "@/lib/db/services";
 import { Title } from "@mantine/core";
@@ -6,8 +7,13 @@ import {
     HydrationBoundary,
     QueryClient,
 } from "@tanstack/react-query";
+import { unauthorized } from "next/navigation";
 
 export default async function Page() {
+    // only the admin
+    const session = await auth();
+    if (session?.user.role !== "admin") unauthorized();
+
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery({
         queryKey: ["services"],

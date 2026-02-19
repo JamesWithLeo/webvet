@@ -31,11 +31,6 @@ const data = [
         icon: <IconGauge stroke={1.5} />,
     },
     {
-        link: "/v1/admin/calendar",
-        label: "Calendar",
-        icon: <IconCalendarSearch stroke={1.5} />,
-    },
-    {
         link: "/v1/admin/appointments",
         label: "Appointments",
         icon: <IconListSearch stroke={1.5} />,
@@ -46,6 +41,11 @@ const data = [
         icon: <IconUser stroke={1.5} />,
     },
     { link: "/v1/admin/pets", label: "Pets", icon: <IconCat stroke={1.5} /> },
+    {
+        link: "/v1/admin/calendar",
+        label: "Calendar",
+        icon: <IconCalendarSearch stroke={1.5} />,
+    },
     {
         link: "/v1/admin/services",
         label: "Services",
