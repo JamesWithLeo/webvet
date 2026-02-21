@@ -1,13 +1,14 @@
 import {
+    lifeStatusEnum,
     OWNERSHIP_STATUS,
     petGenderValues,
+    reproductiveStatusEnum,
     speciesConst,
-    speciesEnum,
 } from "@/db/schema/pets";
-import { z } from "zod/v4";
+import z4 from "zod/v4";
 
-export const createPetSchema = z.object({
-    name: z
+export const createPetSchema = z4.object({
+    name: z4
         .string()
         .regex(
             /^[a-zA-Z0-9 .\-]+$/,
@@ -16,76 +17,81 @@ export const createPetSchema = z.object({
         .trim()
         .nonempty("Missing pets name.")
         .toLowerCase(),
-    breedId: z.number().nonnegative().nullable(),
-    color: z
+    breedId: z4.number().nonnegative().nullable(),
+    color: z4
         .string()
         .regex(/^[a-zA-Z ]+$/, "No special characters in color description")
         .trim()
         .nonempty("Missing pets color.")
         .toLowerCase(),
-    dateOfBirth: z
+    dateOfBirth: z4
         .string("Invalid date.")
         .nonempty("Please select the date of birth of pet."),
-    isEstimatedDOB: z.boolean().nonoptional(),
-    breedSpecification: z
+    isEstimatedDOB: z4.boolean().nonoptional(),
+    breedSpecification: z4
         .string()
         .trim()
         .nonempty("Missing pet breed.")
         .toLowerCase(),
-    photoUrl: z.string().nonempty("Missing pet profile picture."),
-    gender: z.enum(petGenderValues).nonoptional("Missing pet gender"),
-    distinguishingMarks: z
-        .string()
-        .nonempty("Distinguishing marks is too short.")
-        .regex(/^[a-zA-Z0-9\s,]*$/, "Only letters, numbers, and commas allowed")
-        .max(200, "Distinguishing marks is too long.")
-        .toLowerCase()
-        .transform(
-            (val) =>
-                val
-                    .split(",")
-                    .map((item) => item.trim())
-                    .filter((item) => item.length > 0)
-                    .filter(Boolean) // Remove empty entries
-        ),
-    diet: z
-        .string()
-        .nonempty("Diet description is too short.")
-        .regex(/^[a-zA-Z0-9\s,]*$/, "Only letters, numbers, and commas allowed")
-        .max(300, "Diet description is too long.")
-        .toLowerCase()
-        .transform((val) =>
-            val
-                .split(",")
-                .map((item) => item.trim())
-                .filter(Boolean)
-        ),
-    allergies: z
-        .string()
-        .max(200, "Allergies description is too long.")
-        .toLowerCase()
-        .transform(
-            (val) =>
-                val
-                    .split(",")
-                    .map((item) => item.trim())
-                    .filter((item) => item.length > 0)
-                    .filter(Boolean) // Remove empty entries
-        )
-        .optional(),
+    photoUrl: z4.string().nonempty("Missing pet profile picture."),
+    gender: z4.enum(petGenderValues).nonoptional("Missing pet gender"),
+    distinguishingMarks: z4
+        .array(z4.string().toLowerCase())
+        .nonempty("Missing distinguishing marks")
+        .min(1, "At least one distinguishing mark is required"),
+    diet: z4
+        .array(z4.string().toLowerCase())
+        .nonempty("Missing Diet")
+        .min(1, "At least one diet is required."),
+    allergies: z4.array(z4.string().toLowerCase()).optional(),
 
-    ownerId: z.string().trim().optional(),
-    ownershipStatus: z.enum(OWNERSHIP_STATUS).nonoptional(),
-    species: z
-        .union([z.literal(""), z.enum(speciesConst)])
+    ownerId: z4.string().trim().optional(),
+    ownershipStatus: z4.enum(OWNERSHIP_STATUS).nonoptional(),
+    species: z4
+        .union([z4.literal(""), z4.enum(speciesConst)])
         .refine((val) => val !== "", "Please select a species")
         .nonoptional(),
 });
 
-// Use this for your React Hook Form / UI State
-export type PetFormInput = z.input<typeof createPetSchema>;
-// Result: { name: string; diet: string; }
+export type PetCreateFormInput = z4.input<typeof createPetSchema>;
 
-// Use this for your Server Action / Drizzle Insert
-export type PetFormOutput = z.output<typeof createPetSchema>;
-// Result: { name: string; diet: string[]; }
+export const editPetSchemaAdmin = z4.object({
+    name: z4
+        .string()
+        .regex(
+            /^[a-zA-Z0-9 .\-]+$/,
+            "Only letters, numbers, spaces, periods, and hyphens are allowed."
+        )
+        .trim()
+        .toLowerCase()
+        .optional(),
+    dateOfBirth: z4.string("Invalid date.").optional(),
+    breedSpecification: z4.string().trim().toLowerCase().optional(),
+    gender: z4.enum(petGenderValues).optional(),
+    distinguishingMarks: z4.array(z4.string().toLowerCase()).optional(),
+    diet: z4.array(z4.string().toLowerCase()).optional(),
+    allergies: z4
+        .array(z4.string().toLowerCase())
+        .nullish()
+        .optional()
+        .transform((v) => v ?? []),
+
+    ownershipStatus: z4.enum(OWNERSHIP_STATUS).optional(),
+    species: z4
+        .union([z4.literal(""), z4.enum(speciesConst)])
+        .refine((val) => val !== "", "Please select a species")
+        .optional(),
+    weight: z4
+        .number("Weight must be a number")
+        .min(0, "Weight cannot be negative")
+        .max(200, "Please verify weight (too high)")
+        .optional()
+        .nullable(),
+
+    life: z4.enum(lifeStatusEnum.enumValues).optional(),
+
+    reproductiveStatus: z4.enum(reproductiveStatusEnum.enumValues).optional(),
+});
+
+export type PetEditFormInput = z4.input<typeof editPetSchemaAdmin>;
+export type PetEditFormOutput = z4.output<typeof editPetSchemaAdmin>;

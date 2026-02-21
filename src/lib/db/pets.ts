@@ -1,6 +1,11 @@
 import { db } from "@/db";
 import { breeds, pets } from "@/db/schema/pets";
+import { AdminPetsSummary } from "@/types/pets";
 import { and, eq, getTableColumns, isNotNull, isNull } from "drizzle-orm";
+import {
+    PetEditFormInput,
+    PetEditFormOutput,
+} from "../validators/petsZodSchema";
 
 export const checkExistingPets = async ({
     name,
@@ -102,6 +107,25 @@ export const getPet = async (petId: string, ownerId: string) => {
 export const getAllPetsAdmin = async () => {
     try {
         const result = await db.select().from(pets);
+        return { data: result, error: null };
+    } catch (error) {
+        console.error(error);
+        return { data: null, error: "Failed to load all pets for admin" };
+    }
+};
+
+export const updatePetAdmin = async (
+    id: string,
+    pet: Partial<AdminPetsSummary>
+) => {
+    try {
+        const result = await db
+            .update(pets)
+            .set(pet)
+            .where(eq(pets.id, id))
+            .returning()
+            .then((v) => v[0]);
+
         return { data: result, error: null };
     } catch (error) {
         console.error(error);

@@ -16,4 +16,8 @@ export type AdminPetsSummary = Pick<
     | "ownershipStatus"
     | "reproductiveStatus"
     | "weight"
+    | "allergies"
+    | "distinguishingMarks"
+    | "diet"
+    | "gender"
 >;

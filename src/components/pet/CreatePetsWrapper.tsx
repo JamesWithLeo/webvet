@@ -12,6 +12,7 @@ import {
     Modal,
     NativeSelect,
     Stack,
+    TagsInput,
     Text,
     Textarea,
     TextInput,
@@ -46,14 +47,17 @@ import {
 import ProfileDropzone from "../common/ProfileDropzone";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { createPetSchema, PetFormInput } from "@/lib/validators/petsZodSchema";
+import {
+    createPetSchema,
+    PetCreateFormInput,
+} from "@/lib/validators/petsZodSchema";
 import { useUploadThing } from "@/lib/uploadThing";
 import { notifications } from "@mantine/notifications";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useRouter } from "next/navigation";
 import { DeleteUTFile } from "@/lib/uploadthing-util";
 
-const formInitialValues: PetFormInput = {
+const formInitialValues: PetCreateFormInput = {
     name: "",
     breedId: 0,
     color: "",
@@ -62,9 +66,9 @@ const formInitialValues: PetFormInput = {
     photoUrl: "",
     gender: petGenderValues[2],
     breedSpecification: "",
-    distinguishingMarks: "",
-    diet: "",
-    allergies: "",
+    distinguishingMarks: [],
+    diet: [],
+    allergies: [],
     ownershipStatus: OWNERSHIP_STATUS.OWNED,
     species: "",
 };
@@ -89,7 +93,7 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
 
     const [isPendingTransition, startTransition] = useTransition();
 
-    const form = useForm<PetFormInput>({
+    const form = useForm<PetCreateFormInput>({
         mode: "uncontrolled",
         initialValues: formInitialValues,
         validate: zod4Resolver(createPetSchema),
@@ -126,7 +130,7 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
     };
 
     const processAndSubmit = (
-        value: PetFormInput,
+        value: PetCreateFormInput,
         url: string,
         key: string,
         force: boolean
@@ -152,7 +156,7 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
         });
     };
 
-    const handleSubmit = async (value: PetFormInput) => {
+    const handleSubmit = async (value: PetCreateFormInput) => {
         if (isForced && uploadDataRef.current) {
             processAndSubmit(
                 value,
@@ -425,10 +429,10 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                         }
                         {...form.getInputProps("breedSpecification")}
                     />
-                    <Textarea
-                        // required
+                    <TagsInput
                         withAsterisk
                         label="Food diet"
+                        min={1}
                         description="What food do they eat?"
                         name="diet"
                         {...form.getInputProps("diet")}
@@ -436,20 +440,19 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                             isPending || isPendingTransition || isUploading
                         }
                     />
-                    <Textarea
-                        // required
+                    <TagsInput
                         withAsterisk
                         {...form.getInputProps("distinguishingMarks")}
                         label="Distinguishing Marks"
                         name="distinguishingMarks"
+                        min={1}
                         description="Description about the pet"
                         placeholder="Birthmark on the paw and spot on the left eye"
                         disabled={
                             isPending || isPendingTransition || isUploading
                         }
                     />
-                    <Textarea
-                        // required
+                    <TagsInput
                         {...form.getInputProps("allergies")}
                         label="Allergies"
                         description="Does your pet have any known allergies?"

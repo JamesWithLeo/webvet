@@ -19,6 +19,7 @@ type ComboProps = {
     error?: React.ReactNode;
     disabled?: boolean;
 };
+
 export default function BreedComboBox({
     label,
     isLoading,
@@ -31,7 +32,7 @@ export default function BreedComboBox({
 }: ComboProps) {
     const combobox = useCombobox();
 
-    const [comboValue, setComboValue] = useState("");
+    const [comboValue, setComboValue] = useState(value ?? "");
     const shouldFilterOptions = !options.some(
         (item) => item.name === comboValue
     );
@@ -43,8 +44,9 @@ export default function BreedComboBox({
         : options;
 
     useEffect(() => {
-        setComboValue("");
+        setComboValue(value ?? "");
     }, [isLoading]);
+
     return (
         <Combobox
             onOptionSubmit={(optionValue) => {
@@ -64,7 +66,6 @@ export default function BreedComboBox({
                         comboValue &&
                         "Pick breed or type custom breed if not provided."
                     }
-                    // required
                     label={label}
                     error={error}
                     placeholder="Pick breed or type custom breed if not provided."

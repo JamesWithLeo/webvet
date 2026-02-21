@@ -1,15 +1,15 @@
 "use server";
 
 import { auth } from "@/auth";
-import { PetTypeModel } from "@/db/schema/pets";
-import {
-    archivePet,
-    checkExistingPets,
-    savePetsToDb,
-    unarchivePet,
-} from "@/lib/db/pets";
+import { AdminPetsSummary, PetTypeModel } from "@/types/pets";
+import { checkExistingPets, savePetsToDb, updatePetAdmin } from "@/lib/db/pets";
 import { DeleteUTFile } from "@/lib/uploadthing-util";
-import { createPetSchema, PetFormInput } from "@/lib/validators/petsZodSchema";
+import {
+    createPetSchema,
+    editPetSchemaAdmin,
+    PetCreateFormInput,
+    PetEditFormInput,
+} from "@/lib/validators/petsZodSchema";
 import { unauthorized } from "next/navigation";
 import { success } from "zod";
 
@@ -27,7 +27,7 @@ export type ActionResponse = {
 
 export async function CreatePet(
     prevState: any,
-    data: PetFormInput & {
+    data: PetCreateFormInput & {
         photoUrlKey: string;
         isForce: boolean;
     }
@@ -42,6 +42,10 @@ export async function CreatePet(
         return {
             success: false,
             error: "Pets data failed the validation",
+            debug: {
+                code: "ZOD_SCHEMA_VALIDATION",
+                message: parsed.error.message,
+            },
         };
     }
 
@@ -64,7 +68,6 @@ export async function CreatePet(
                 };
             }
         }
-        console.log(parsedData);
         await savePetsToDb(parsedData);
         return {
             success: true,
@@ -84,6 +87,36 @@ export async function CreatePet(
                 code: errorCode,
                 message: technicalMessage,
             },
+        };
+    }
+}
+
+export async function UpdatePetAdmin(
+    prevState: any,
+    data: { pet: Partial<PetEditFormInput>; petId: string }
+) {
+    const session = await auth();
+    if (!session?.user?.id) unauthorized();
+    if (session.user.role !== "admin" && session.user.role !== "staff")
+        unauthorized();
+
+    try {
+        const parsed = editPetSchemaAdmin.partial().safeParse(data.pet);
+        if (!parsed.success) {
+            return {
+                success: false,
+                error: "Pets data failed the validation",
+                petId: data.petId,
+            };
+        }
+        const result = await updatePetAdmin(data.petId, parsed.data);
+        if (result) return { success: true, pet: result.data };
+        return { success: false, petId: data.petId };
+    } catch (error) {
+        return {
+            success: false,
+            petId: data.petId,
+            error: "An unexpected database error occurred.",
         };
     }
 }

@@ -13,7 +13,7 @@ import {
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "../common/LogoutButton";
-import { UnstyledButton } from "@mantine/core";
+import { Tooltip, UnstyledButton } from "@mantine/core";
 import { Baskervville_SC } from "next/font/google";
 import { LogoSvg } from "../common/LogoSvg";
 
@@ -70,13 +70,14 @@ const NavLink = ({
     subLinks?: { link: string; label: string }[];
 }) => {
     return (
-        <UnstyledButton w={"100%"}>
-            <a
-                data-active={isActive || undefined}
-                href={link}
-                key={label}
-                onClick={onClick}
-                className={`
+        <Tooltip label={label} position="right" withArrow>
+            <UnstyledButton w={"100%"}>
+                <a
+                    data-active={isActive || undefined}
+                    href={link}
+                    key={label}
+                    onClick={onClick}
+                    className={`
                 ${
                     isActive
                         ? " bg-(--mantine-color-blue-light) text-(--mantine-color-blue-light-color) "
@@ -86,11 +87,12 @@ const NavLink = ({
                 transition-colors duration-200 ease-in-out mt-2 
                 rounded flex gap-4 h-12 items-center  
             `}
-            >
-                {icon}
-                {!isCollapsed && <span>{label}</span>}
-            </a>
-        </UnstyledButton>
+                >
+                    {icon}
+                    {!isCollapsed && <span>{label}</span>}
+                </a>
+            </UnstyledButton>
+        </Tooltip>
     );
 };
 

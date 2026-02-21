@@ -15,10 +15,10 @@ export default function Page() {
     });
     return (
         <div className="w-full h-screen p-16 flex flex-col gap-4">
+            {" "}
             <Title>Appointment</Title>
-
             <HydrationBoundary state={dehydrate(queryClient)}>
-                <Tabs defaultValue={"all"}>
+                <Tabs defaultValue={"incoming"}>
                     <TabsList grow>
                         <TabsTab value="all">All</TabsTab>
                         <TabsTab value="incoming">Incoming</TabsTab>

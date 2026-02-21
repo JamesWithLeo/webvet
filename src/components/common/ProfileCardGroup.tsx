@@ -1,6 +1,6 @@
 "use client";
 
-import { userGenderValue } from "@/db/schema/users";
+import { userGenderValue } from "@/types/user";
 
 import {
     Group,

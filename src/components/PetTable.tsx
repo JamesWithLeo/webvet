@@ -8,21 +8,182 @@ import {
     Button,
     TextInput,
     NativeSelect,
+    Modal,
+    NumberInput,
+    TagsInput,
+    Text,
 } from "@mantine/core";
-import { IconSearch, IconX } from "@tabler/icons-react";
+
+import {
+    IconArrowAutofitWidth,
+    IconCheck,
+    IconColumns3,
+    IconEdit,
+    IconPointerCode,
+    IconSearch,
+    IconSquareToggle,
+    IconX,
+} from "@tabler/icons-react";
+
 import Image from "next/image";
-import { useMemo } from "react";
+import {
+    startTransition,
+    useActionState,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import usePetsAdmin from "@/lib/hooks/usePetsAdmin";
 import { AdminPetsSummary } from "@/types/pets";
 import { toTitleCase } from "@/lib/toTitleCase";
+import { useDisclosure } from "@mantine/hooks";
+
+import {
+    LIFE_STATUS,
+    lifeStatusEnum,
+    OWNERSHIP_STATUS,
+    ownershipStatusEnum,
+    petGenderValues,
+    reproductiveStatusEnum,
+    speciesConst,
+} from "@/db/schema/pets";
+
+import { DatePickerInput } from "@mantine/dates";
+import { modals } from "@mantine/modals";
+import { useForm } from "@mantine/form";
+
+import {
+    editPetSchemaAdmin,
+    PetEditFormInput,
+    PetEditFormOutput,
+} from "@/lib/validators/petsZodSchema";
+
+import { zod4Resolver } from "mantine-form-zod-resolver";
+import BreedComboBox from "./pet/BreedComboBox";
+import { UpdatePetAdmin } from "@/actions/pets";
+import { notifications } from "@mantine/notifications";
+import { useQueryClient } from "@tanstack/react-query";
+
+const initialValue: PetEditFormInput = {
+    name: "",
+    dateOfBirth: "",
+    gender: petGenderValues[2],
+    breedSpecification: "",
+    distinguishingMarks: [],
+    diet: [],
+    allergies: [],
+    ownershipStatus: OWNERSHIP_STATUS.OWNED,
+    species: "",
+    weight: 0,
+    life: LIFE_STATUS.alived,
+    reproductiveStatus: "UNKNOWN",
+};
 
 export default function PetTable() {
     const key = "draggable-example";
+    const queryClient = useQueryClient();
 
-    const { data, isLoading } = usePetsAdmin();
+    const { data, isLoading, queryId, setQueryId } = usePetsAdmin();
+    const [opened, { open, close }] = useDisclosure();
+
+    const [selected, setSelected] = useState<AdminPetsSummary | null>(null);
+
+    const [isLoadingBreed, setIsLoadingBreed] = useState<boolean>(false);
+    const [breeds, setBreeds] = useState<{ id: string; name: string }[]>([]);
+    const breedRef = useRef<HTMLInputElement>(null);
+    const updatePetAdmin = UpdatePetAdmin.bind(null);
+
+    const [formState, formAction, isPending] = useActionState(updatePetAdmin, {
+        success: false,
+        petId: "",
+    });
+
+    const form = useForm({
+        mode: "controlled",
+        validate: zod4Resolver(editPetSchemaAdmin),
+        initialValues: initialValue,
+        validateInputOnBlur: true,
+        validateInputOnChange: true,
+    });
+
+    form.watch("species", ({ previousValue, value }) => {
+        if (!value) {
+            setBreeds([]);
+            return;
+        }
+        if (previousValue !== value) fetchBreeds(value);
+    });
+
     const allBreed = useMemo(() => {
         return new Set(data?.map((pet) => pet.breedSpecification));
     }, [data]);
+
+    const fetchBreeds = async (species: string) => {
+        setIsLoadingBreed(true);
+        const response = await fetch(`/api/pets/breeds?species=${species}`);
+
+        if (response.ok) {
+            const data = await response.json();
+            setIsLoadingBreed(false);
+            console.log(data.breed);
+            setBreeds(data.breed);
+        } else if (response.status === 401) {
+            console.error("You must be logged in to see breeds!");
+            setIsLoadingBreed(false);
+        }
+    };
+
+    const handleCloseEdit = () => {
+        setSelected(null);
+        form.reset();
+        close();
+    };
+
+    const handleEditClick = (pet: AdminPetsSummary) => {
+        setSelected(pet);
+    };
+
+    const handleSubmit = async (values: PetEditFormInput) => {
+        if (!selected?.id) return;
+
+        const updates = (
+            Object.keys(values) as Array<keyof PetEditFormInput>
+        ).reduce((acc, key) => {
+            if (form.isDirty(key)) {
+                (acc as any)[key] = values[key];
+            }
+            return acc;
+        }, {} as Partial<PetEditFormInput>);
+
+        if (Object.keys(updates).length === 0) {
+            handleCloseEdit();
+            return;
+        }
+        startTransition(async () => {
+            formAction({ pet: updates, petId: selected.id });
+        });
+    };
+
+    const handleSaveEditClick = () => {
+        modals.openConfirmModal({
+            title: "Pet edit confirmation",
+            withCloseButton: false,
+            centered: true,
+            children: (
+                <Text size="sm">
+                    Are you sure you want to save this pet edit? This action is
+                    unreversable and will overwrite the pets data.
+                </Text>
+            ),
+            labels: { confirm: "Confirm", cancel: "Cancel" },
+            confirmProps: { color: "red" },
+            onCancel: () => {},
+            onConfirm: () => {
+                form.onSubmit((v) => handleSubmit(v))();
+            },
+        });
+    };
 
     const {
         effectiveColumns,
@@ -37,7 +198,27 @@ export default function PetTable() {
                 title: "id",
                 width: "6%",
                 toggleable: true,
+                resizable: true,
                 ellipsis: true,
+                filter: ({ close }) => (
+                    <TextInput
+                        label="Pet Id"
+                        description="Show pet whose id include the matches the text"
+                        placeholder="Search id..."
+                        leftSection={<IconSearch size={16} />}
+                        rightSection={
+                            <ActionIcon
+                                size="sm"
+                                variant="transparent"
+                                c="dimmed"
+                            >
+                                <IconX size={14} onClick={close} />
+                            </ActionIcon>
+                        }
+                        onChange={(e) => setQueryId(e.currentTarget.value)}
+                    />
+                ),
+                filtering: queryId !== "",
             },
             {
                 accessor: "name",
@@ -97,6 +278,13 @@ export default function PetTable() {
                 sortable: true,
             },
             {
+                accessor: "gender",
+                title: "Gender",
+                width: "8%",
+                textAlign: "center",
+                sortable: true,
+            },
+            {
                 accessor: "life",
                 title: "Is alived?",
                 width: "8%",
@@ -121,10 +309,65 @@ export default function PetTable() {
                 title: "Ownership status",
                 textAlign: "center",
                 width: "8%",
+                resizable: true,
+            },
+            {
+                accessor: "action",
+                title: (
+                    <Group justify="center" wrap="nowrap">
+                        <IconPointerCode size={16} />
+                    </Group>
+                ),
+                width: "6%",
+                textAlign: "center",
+                render: (record) => (
+                    <Group justify="center">
+                        <ActionIcon
+                            variant="subtle"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditClick(record);
+                            }}
+                        >
+                            <IconEdit size={16} />
+                        </ActionIcon>
+                    </Group>
+                ),
             },
         ],
     });
 
+    useEffect(() => {
+        if (selected) {
+            form.initialize(selected);
+            open();
+        }
+    }, [selected]);
+
+    useEffect(() => {
+        if (formState.error) {
+            notifications.show({
+                title: "Pet update failed",
+                icon: <IconX size={16} />,
+                color: "red",
+                message: formState.error
+                    ? `Could not update ${formState.petId}: ${formState.error}`
+                    : `An unexpected error occurred while saving changes to ${formState.petId}.`,
+            });
+            handleCloseEdit();
+        }
+
+        if (formState.success && formState.pet) {
+            notifications.show({
+                title: "Pet updated",
+                icon: <IconCheck size={16} />,
+                color: "teal",
+                message: `Changes to ${formState.pet.id} have been synced.`,
+            });
+            queryClient.invalidateQueries({ queryKey: ["pets", "admin"] });
+            handleCloseEdit();
+        }
+    }, [formState]);
     return (
         <Stack>
             <Group justify="flex-end">
@@ -132,15 +375,26 @@ export default function PetTable() {
                     size="xs"
                     onClick={resetColumnsToggle}
                     variant="default"
+                    rightSection={<IconSquareToggle size={16} />}
                 >
-                    Reset column Toggle
+                    Reset Toggle
                 </Button>
 
-                <Button size="xs" onClick={resetColumnsOrder} variant="default">
-                    Reset Column Order
+                <Button
+                    size="xs"
+                    onClick={resetColumnsOrder}
+                    variant="default"
+                    rightSection={<IconColumns3 size={16} />}
+                >
+                    Reset Order
                 </Button>
-                <Button size="xs" onClick={resetColumnsWidth} variant="default">
-                    Reset Column Width
+                <Button
+                    size="xs"
+                    onClick={resetColumnsWidth}
+                    variant="default"
+                    rightSection={<IconArrowAutofitWidth size={16} />}
+                >
+                    Reset Width
                 </Button>
             </Group>
             <DataTable
@@ -199,6 +453,92 @@ export default function PetTable() {
                     },
                 }}
             />
+
+            <Modal opened={opened} onClose={handleCloseEdit} title={"Edit Pet"}>
+                <form>
+                    <Stack>
+                        <TextInput
+                            name="name"
+                            label="Name"
+                            {...form.getInputProps("name")}
+                        />
+                        <NativeSelect
+                            name="species"
+                            label="Species"
+                            data={speciesConst.map((v) => ({
+                                label: toTitleCase(v),
+                                value: v,
+                            }))}
+                            {...form.getInputProps("species")}
+                        />
+
+                        <BreedComboBox
+                            label="Breed"
+                            ref={breedRef}
+                            isLoading={isLoadingBreed}
+                            options={breeds}
+                            {...form.getInputProps("breedSpecification")}
+                        />
+
+                        <DatePickerInput
+                            name="dateOfBirth"
+                            label="Date of Birth"
+                            {...form.getInputProps("dateOfBirth")}
+                        />
+
+                        <NativeSelect
+                            name="life"
+                            label="Life status"
+                            data={lifeStatusEnum.enumValues}
+                            {...form.getInputProps("life")}
+                        />
+
+                        <NumberInput
+                            allowNegative={false}
+                            label="Weight"
+                            name="weight"
+                            {...form.getInputProps("weight")}
+                        />
+
+                        <NativeSelect
+                            data={reproductiveStatusEnum.enumValues}
+                            label="Reproductive Status"
+                            {...form.getInputProps("reproductiveStatus")}
+                        />
+                        <NativeSelect
+                            data={ownershipStatusEnum.enumValues}
+                            label="Ownership status"
+                            {...form.getInputProps("ownershipStatus")}
+                        />
+
+                        <TagsInput
+                            label="Allergies"
+                            {...form.getInputProps("allergies")}
+                        />
+                        <TagsInput
+                            label="Diet"
+                            {...form.getInputProps("diet")}
+                        />
+                        <TagsInput
+                            label="Distinguishable Marks"
+                            {...form.getInputProps("distinguishingMarks")}
+                        />
+
+                        <Group justify="right" mt={"lg"}>
+                            <Button variant="default" onClick={handleCloseEdit}>
+                                Discard changes
+                            </Button>
+                            <Button
+                                onClick={handleSaveEditClick}
+                                disabled={!form.isValid()}
+                                loading={isPending}
+                            >
+                                Save edit
+                            </Button>
+                        </Group>
+                    </Stack>
+                </form>
+            </Modal>
         </Stack>
     );
 }

@@ -479,6 +479,43 @@ export const getBlockDates = async (): Promise<
     }
 };
 
+export const getAppointmentAdmin = async (id: string) => {
+    try {
+        const response = await db
+            .select({
+                // Spreading into objects makes it much cleaner to handle in React
+                ...getTableColumns(appointments),
+                user: {
+                    id: users.id,
+                    firstName: users.firstName,
+                    lastName: users.lastName,
+                    photoUrl: users.photoUrl,
+                    contactNumber: users.contactNumber,
+                    email: users.email,
+                },
+            })
+            .from(appointments)
+            .innerJoin(
+                appointmentsToPets,
+                eq(appointments.id, appointmentsToPets.appointmentId)
+            )
+            .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            .innerJoin(users, eq(pets.ownerId, users.id))
+            .where(eq(appointments.id, id))
+            .orderBy(desc(appointments.event_datetime))
+            .groupBy(appointments.id, users.id)
+            .then((v) => v[0]);
+
+        return { data: response, error: null };
+    } catch (error) {
+        console.error(error);
+        return {
+            data: null,
+            error: "Failed to load all appointments for admin.",
+        };
+    }
+};
+
 /**
  *
  * @returns all appointment
@@ -537,8 +574,11 @@ export const getAppointmentToPetsAdmin = async (id: string) => {
                     {
                         id: string;
                         name: string;
+                        species: "dog" | "cat";
                         photoUrl: string | null;
+                        weight: string;
                         serviceName: string;
+                        priceAtBooking: string;
                     }[]
                 >`
                     COALESCE(
@@ -547,8 +587,10 @@ export const getAppointmentToPetsAdmin = async (id: string) => {
                                 'id', ${pets.id}, 
                                 'name', ${pets.name}, 
                                 'photoUrl', ${pets.photoUrl},
-                                'serviceName', ${services.title}
-
+                                'serviceName', ${services.title},
+                                'priceAtBooking', ${appointmentsToPets.priceAtBooking},
+                                'species', ${pets.species},
+                                'weight', ${pets.weight}
                                 
                             )
                         ) FILTER (WHERE ${pets.id} IS NOT NULL), 

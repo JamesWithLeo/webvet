@@ -78,11 +78,10 @@ export const pets = pgTable(
         species: speciesEnum("species").notNull(),
         gender: petGender("gender").default("unknown").notNull(),
         color: text(),
-        distinguishingMarks: jsonb().$type<string[]>().default([]),
-        monthOfBirth: integer("month_of_birth"),
+        distinguishingMarks: jsonb().$type<string[]>().notNull(),
         dateOfBirth: date("date_of_birth").notNull(),
         createdAt: timestamp("created_at").defaultNow().notNull(),
-        diet: jsonb().$type<string[]>().default([]),
+        diet: jsonb().$type<string[]>().notNull(),
         allergies: jsonb().$type<string[]>().default([]),
         weight: decimal("weight", {
             precision: 5,

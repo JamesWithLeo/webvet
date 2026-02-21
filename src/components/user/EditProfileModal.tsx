@@ -1,7 +1,7 @@
 "use client";
 
 import updateUser from "@/actions/user";
-import { userGenderValue } from "@/db/schema/users";
+import { userGenderValue } from "@/types/user";
 import { useUploadThing } from "@/lib/uploadThing";
 import {
     Stack,

@@ -63,8 +63,6 @@ export const appointments = pgTable("appointments", {
         mode: "string",
     }).notNull(),
 
-    // type: appointmentType("type").notNull(),
-
     created_at: timestamp("created_at").defaultNow().notNull(),
 
     expiredNotification: boolean("expired_notification")
