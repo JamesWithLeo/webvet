@@ -24,7 +24,7 @@ import {
 
 import DogPlaceholder from "../common/DogPlaceholder";
 import CatPlaceholder from "../common/CatPlaceholder";
-import { PetTypeModelWithBreed } from "@/db/schema/pets";
+import { PetTypeModelWithBreed } from "@/types/pets";
 import { toTitleCase } from "@/lib/toTitleCase";
 import calculatePetAge from "@/lib/calculatePetAge";
 import { useRouter } from "next/navigation";

@@ -1,9 +1,9 @@
 import AdminCreateInvoiceTable from "@/components/admin/invoice/AdminCreateInvoiceTable";
-import { pets } from "@/db/schema/pets";
 import {
     getAppointmentAdmin,
     getAppointmentToPetsAdmin,
 } from "@/lib/db/appointments";
+import { getAllPets } from "@/lib/db/pets";
 import { getServicesGrouped } from "@/lib/db/services";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { Stack, Text, Title } from "@mantine/core";
@@ -32,6 +32,8 @@ export default async function Page({
 
     const { firstName, lastName, ...user } = appointment.user;
 
+    const allPets = await getAllPets(user.id);
+
     return (
         <div className="w-full h-screen p-16 flex flex-col gap-4">
             <Title>Invoice</Title>
@@ -43,6 +45,8 @@ export default async function Page({
                     </Text>
                 </Stack>
                 <AdminCreateInvoiceTable
+                    appointmentId={id}
+                    allPets={allPets}
                     pets={petsData.pets}
                     services={services}
                 />

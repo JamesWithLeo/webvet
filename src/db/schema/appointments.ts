@@ -8,6 +8,8 @@ import {
     serial,
     date,
     decimal,
+    pgEnum,
+    uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
@@ -78,22 +80,45 @@ export const appointments = pgTable("appointments", {
     }),
 });
 
-export const appointmentsToPets = pgTable("appointments_to_pets", {
-    id: uuid("id").defaultRandom().primaryKey(),
-    appointmentId: uuid("appointment_id")
-        .notNull()
-        .references(() => appointments.id, { onDelete: "cascade" }),
+export const bookingSourceEnum = pgEnum("booking_source", [
+    "client",
+    "staff",
+    "admin",
+]);
+export type BookingSourceType = (typeof bookingSourceEnum.enumValues)[number];
 
-    petId: uuid("pet_id")
-        .notNull()
-        .references(() => pets.id, { onDelete: "cascade" }),
-    serviceId: uuid("serviceId")
-        .notNull()
-        .references(() => services.id),
-    priceAtBooking: decimal({ precision: 10, scale: 2 }).notNull(),
-});
+// Inside your table...
 
-export type AppointmentToPetsTypeModel = InferSelectModel<typeof appointments>;
+export const appointmentsToPets = pgTable(
+    "appointments_to_pets",
+    {
+        id: uuid("id").defaultRandom().primaryKey(),
+        appointmentId: uuid("appointment_id")
+            .notNull()
+            .references(() => appointments.id, { onDelete: "cascade" }),
+        petId: uuid("pet_id")
+            .notNull()
+            .references(() => pets.id, { onDelete: "cascade" }),
+        serviceId: uuid("serviceId")
+            .notNull()
+            .references(() => services.id),
+        priceAtBooking: decimal({ precision: 10, scale: 2 }).notNull(),
+        source: bookingSourceEnum("source").default("client").notNull(),
+    },
+    (table) => {
+        return {
+            // This ensures that for a specific appointment,
+            // a pet cannot have the same service assigned twice.
+            uniquePetServicePerAppointment: uniqueIndex(
+                "unique_pet_service_per_appointment"
+            ).on(table.appointmentId, table.petId, table.serviceId),
+        };
+    }
+);
+
+export type AppointmentToPetsTypeModel = InferSelectModel<
+    typeof appointmentsToPets
+>;
 
 export const appointmentSchedules = pgTable("appointment_schedules", {
     id: serial("id").primaryKey(),

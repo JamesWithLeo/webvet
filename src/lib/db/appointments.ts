@@ -4,9 +4,12 @@ import {
     appointmentSchedules,
     AppointmentSchedulesTypeModel,
     appointmentsToPets,
+    AppointmentToPetsTypeModel,
     AppointmentType,
+    AppointmentTypeModel,
     BlockDatesTypeModel,
     blockedDates,
+    BookingSourceType,
 } from "@/db/schema/appointments";
 import { pets } from "@/db/schema/pets";
 import {
@@ -24,7 +27,7 @@ import {
 } from "drizzle-orm";
 import { PgTransaction } from "drizzle-orm/pg-core";
 import { toTitleCase } from "../toTitleCase";
-import { prices, services } from "@/db/schema/services";
+import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
 
 export class ExistingAppointmentConflictError extends Error {
@@ -135,6 +138,27 @@ export const saveAppointmentToDb = async ({
             petNames,
         };
     });
+};
+/**
+ * Insert AppointmentToPets row, then return the inserted Id if successful.
+ * Throws database errors so the caller (Server Action) can handle them specifically.
+ */
+export const saveAppointmentToPetsToDbAdmin = async (
+    values: Pick<
+        AppointmentToPetsTypeModel,
+        "petId" | "appointmentId" | "priceAtBooking" | "serviceId" | "source"
+    >
+) => {
+    const [result] = await db
+        .insert(appointmentsToPets)
+        .values(values)
+        .returning({ id: appointmentsToPets.id });
+
+    if (!result) {
+        throw new Error("Failed to insert: No record returned");
+    }
+
+    return result.id;
 };
 
 export const getAppointments = async ({ id }: { id: string }) => {
@@ -573,24 +597,28 @@ export const getAppointmentToPetsAdmin = async (id: string) => {
                 pets: sql<
                     {
                         id: string;
+                        petId: string;
                         name: string;
                         species: "dog" | "cat";
                         photoUrl: string | null;
-                        weight: string;
+                        weight: number;
                         serviceName: string;
-                        priceAtBooking: string;
+                        priceAtBooking: number;
+                        source: BookingSourceType;
                     }[]
                 >`
                     COALESCE(
                         json_agg(
                             json_build_object(
-                                'id', ${pets.id}, 
+                                'id', ${appointmentsToPets.id},
+                                'petId', ${pets.id}, 
                                 'name', ${pets.name}, 
                                 'photoUrl', ${pets.photoUrl},
                                 'serviceName', ${services.title},
                                 'priceAtBooking', ${appointmentsToPets.priceAtBooking},
                                 'species', ${pets.species},
-                                'weight', ${pets.weight}
+                                'weight', ${pets.weight},
+                                'source', ${appointmentsToPets.source}
                                 
                             )
                         ) FILTER (WHERE ${pets.id} IS NOT NULL), 
