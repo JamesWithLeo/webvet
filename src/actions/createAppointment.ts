@@ -26,7 +26,11 @@ export default async function CreateAppointmentAction(
     if (!session?.user?.id) unauthorized();
 
     const parsed = newAppointmentSchema.safeParse(data);
-    if (!parsed.success) return { succesful: false };
+    if (!parsed.success)
+        return {
+            successful: false,
+            error: "Appointment Data failed the validation",
+        };
 
     try {
         const { petIds, ...appintmentData } = parsed.data;
@@ -35,7 +39,7 @@ export default async function CreateAppointmentAction(
             appointmentData: appintmentData,
         });
         if (!result || !result.id) {
-            return { succesful: false };
+            return { successful: false };
         }
         const email = session.user.email;
         const firstName = session.user.firstName;
@@ -54,7 +58,7 @@ export default async function CreateAppointmentAction(
         });
         if (error) {
             return {
-                succesful: true,
+                successful: true,
                 appointmentId: result.id,
                 emailed: false,
                 debug: {
@@ -64,7 +68,7 @@ export default async function CreateAppointmentAction(
             };
         }
 
-        return { succesful: true, appointmentId: result.id, emailed: true };
+        return { successful: true, appointmentId: result.id, emailed: true };
     } catch (error: any) {
         const errorCode = error.code || "UNKNOWN_DB_ERR";
         const technicalMessage = error.message;

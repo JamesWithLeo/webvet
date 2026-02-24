@@ -3,6 +3,7 @@ import AppointmentStepper from "@/components/appointment/AppointmentStepper";
 import { getAppointmentSchedules, getBlockDates } from "@/lib/db/appointments";
 import { getAllPetsIdName } from "@/lib/db/pets";
 import { getServicesGrouped } from "@/lib/db/services";
+import { AppointmentProvider } from "@/lib/hooks/useAppointmentContext";
 import {
     dehydrate,
     HydrationBoundary,
@@ -27,13 +28,15 @@ export default async function AppointmentPage() {
     return (
         <>
             <div className="grid grid-rows-[auto_auto_8fr] min-h-screen  grid-cols-1  gap-8  w-full items-center pt-16 pb-16  h-full md:px-16 px-10">
-                <HydrationBoundary state={dehydrate(queryClient)}>
-                    <AppointmentStepper
-                        services={serviceWithPrices}
-                        pets={pets}
-                        schedules={serviceSchedules}
-                    />
-                </HydrationBoundary>
+                <AppointmentProvider schedules={serviceSchedules}>
+                    <HydrationBoundary state={dehydrate(queryClient)}>
+                        <AppointmentStepper
+                            services={serviceWithPrices}
+                            pets={pets}
+                            schedules={serviceSchedules}
+                        />
+                    </HydrationBoundary>
+                </AppointmentProvider>
             </div>
         </>
     );

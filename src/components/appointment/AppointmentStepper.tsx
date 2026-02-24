@@ -36,6 +36,8 @@ import {
 } from "@/lib/validators/newAppointmentSchema";
 
 import {
+    IconArrowRight,
+    IconArrowRightDashed,
     IconChevronLeft,
     IconInfoCircle,
     IconInfoTriangle,
@@ -45,7 +47,6 @@ import { toTitleCase } from "@/lib/toTitleCase";
 import SuccessModal from "../common/SuccessModal";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { AppointmentSchedulesTypeModel } from "@/db/schema/appointments";
-import { appointmentTypeValues } from "@/db/schema/enums";
 import CreateAppointmentAction from "@/actions/createAppointment";
 import { notifications } from "@mantine/notifications";
 import Tips from "../common/Tips";
@@ -53,26 +54,8 @@ import { TIPS } from "@/lib/tips";
 import Link from "next/link";
 import PopoverViewSchedule from "../common/PopoverViewSchedule";
 import { ServiceMergePriceType } from "@/db/schema/services";
-
-const getVariantFromWeight = (
-    weight: number | null
-): "SMALL" | "MEDIUM" | "LARGE" | "FLAT" => {
-    if (!weight) return "FLAT"; // Default if no weight
-    if (weight <= 10) return "SMALL";
-    if (weight <= 25) return "MEDIUM";
-    return "LARGE";
-};
-
-type Target = Record<
-    string,
-    {
-        photoUrl: string | null;
-        id: string;
-        breed: string;
-        name: string;
-        weight: number | null;
-    }
->;
+import PetAccordionItem from "./PetAccordionItem";
+import { useAppointment } from "@/lib/hooks/useAppointmentContext";
 
 type Props = {
     pets: {
@@ -92,16 +75,7 @@ export default function AppointmentStepper({
     schedules,
     services,
 }: Props) {
-    const converted: Target = pets.reduce((acc, item) => {
-        acc[item.id] = {
-            id: item.id,
-            photoUrl: item.photoUrl ?? null,
-            breed: item.breed,
-            name: item.name,
-            weight: item.weight,
-        };
-        return acc;
-    }, {} as Target);
+    const { selections, clearAll } = useAppointment();
 
     const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
     const [active, setActive] = useState(0);
@@ -117,7 +91,7 @@ export default function AppointmentStepper({
     const createAppointment = CreateAppointmentAction.bind(null);
 
     const [formState, formAction] = useActionState(createAppointment, {
-        succesful: false,
+        successful: false,
     });
 
     const [isPending, startTransition] = useTransition();
@@ -125,10 +99,7 @@ export default function AppointmentStepper({
     const form = useForm<AppointmentFormInput>({
         initialValues: {
             title: "",
-            // items: [],
-            serviceId: "",
-            type: "",
-            petIds: [],
+            selections: {},
             date: "",
             event_datetime: "",
         },
@@ -137,56 +108,8 @@ export default function AppointmentStepper({
         validate: zod4Resolver(newAppointmentSchema),
     });
 
-    const selectedService = useMemo(() => {
-        return services.find((s) => s.id === form.values.serviceId);
-    }, [services, form.values.serviceId]);
-
-    const filteredPetsData = useMemo(() => {
-        return pets
-            .filter((pet) => {
-                // 1. If no service is selected yet, show no pets (or all pets, depending on your preference)
-                if (!selectedService) return false;
-
-                // 2. If service species is null or "all", show all pets
-                // 3. Otherwise, only show pets that match the specific species (dog/cat)
-                return (
-                    selectedService.species === null ||
-                    pet.species === selectedService.species
-                );
-            })
-            .map((v) => ({
-                label: toTitleCase(v.name),
-                value: v.id,
-            }));
-    }, [pets, selectedService]);
-
-    const getStepFields = (step: number) => {
-        switch (step) {
-            case 0:
-                return ["title", "serviceId", "petIds"];
-            case 1:
-                return ["date"];
-            case 2:
-                return ["event_datetime"];
-            default:
-                return [];
-        }
-    };
-
     const nextStep = () => {
-        // 2. Validate all fields
-        const validation = form.validate();
-
-        // 3. Check if the fields in the CURRENT step have errors
-        const currentStepFields = getStepFields(active);
-        const hasErrorsInCurrentStep = currentStepFields.some(
-            (field) => validation.errors[field]
-        );
-
-        if (!hasErrorsInCurrentStep) {
-            setActive((current) => (current < 3 ? current + 1 : current));
-        }
-        console.log(form.values);
+        setActive((current) => (current < 3 ? current + 1 : current));
     };
 
     const handleStepClick = (index: number) => {
@@ -208,7 +131,11 @@ export default function AppointmentStepper({
     };
 
     useEffect(() => {
-        if (formState?.succesful && formState.appointmentId) {
+        form.setFieldValue("selections", selections);
+    }, [selections]);
+
+    useEffect(() => {
+        if (formState.successful && formState.appointmentId) {
             stack.close("confirm-modal");
             openSuccessModal();
 
@@ -217,7 +144,7 @@ export default function AppointmentStepper({
             }, successTimeOut);
         }
 
-        if (!formState.succesful && formState.debug) {
+        if (!formState.successful && formState.debug) {
             stack.close("confirm-modal");
             notifications.show({
                 title: `Error code: ${formState.debug.code}`,
@@ -275,6 +202,8 @@ export default function AppointmentStepper({
                                 name="title"
                                 {...form.getInputProps("title")}
                             />
+
+                            {/* 
                             <NativeSelect
                                 label="Service"
                                 {...form.getInputProps("serviceId")}
@@ -355,10 +284,10 @@ export default function AppointmentStepper({
                                         </div>
                                     </Group>
                                 )}
-                            />
-                            {/* <Accordion
+                            /> */}
+                            <Accordion
                                 className="gap-2 flex  flex-col"
-                                multiple={true}
+                                // multiple={true}
                             >
                                 {pets.map((pet) => (
                                     <PetAccordionItem
@@ -367,11 +296,26 @@ export default function AppointmentStepper({
                                         services={services}
                                     />
                                 ))}
-                            </Accordion> */}
-                            <div className="w-full flex justify-end">
+                            </Accordion>
+                            <div className="w-full flex justify-between">
                                 <Button
+                                    variant="light"
+                                    disabled={!form.isDirty()}
+                                    color="red"
                                     onClick={() => {
-                                        checkPets();
+                                        form.reset();
+                                        clearAll();
+                                    }}
+                                >
+                                    Reset
+                                </Button>
+                                <Button
+                                    disabled={
+                                        form.values.title.trim().length === 0 ||
+                                        Object.keys(form.values.selections)
+                                            .length === 0
+                                    }
+                                    onClick={() => {
                                         nextStep();
                                     }}
                                 >
@@ -379,7 +323,6 @@ export default function AppointmentStepper({
                                 </Button>
                             </div>
                         </div>
-
                         <Tips
                             w={"100%"}
                             variant="light"
@@ -390,34 +333,29 @@ export default function AppointmentStepper({
                     </section>
                 )}
 
-                {active === 1 &&
-                    form.values.type &&
-                    schedules &&
-                    schedules.length && (
-                        <section className="w-full h-full gap-4 flex flex-col  justify-between max-w-7xl">
-                            <SelectDateCal
+                {active === 1 && schedules && schedules.length && (
+                    <section className="w-full h-full gap-4 flex flex-col  justify-between max-w-7xl">
+                        <SelectDateCal
+                            {...form.getInputProps("date")}
+                            onChange={(date: string) => {
+                                form.setFieldValue("date", date);
+                                nextStep();
+                            }}
+                        >
+                            <PopoverViewSchedule
+                                isMobile={isMobile}
                                 schedules={schedules}
-                                type={form.values.type}
-                                {...form.getInputProps("date")}
-                                onChange={(date: string) => {
-                                    form.setFieldValue("date", date);
-                                    nextStep();
-                                }}
-                            >
-                                <PopoverViewSchedule
-                                    isMobile={isMobile}
-                                    schedules={schedules}
-                                    position="bottom-end"
-                                />
-                            </SelectDateCal>
-                            <Tips
-                                variant="light"
-                                color="gray"
-                                title="Advisory Tip"
-                                message={TIPS.appointment.date}
+                                position="bottom-end"
                             />
-                        </section>
-                    )}
+                        </SelectDateCal>
+                        <Tips
+                            variant="light"
+                            color="gray"
+                            title="Advisory Tip"
+                            message={TIPS.appointment.date}
+                        />
+                    </section>
+                )}
 
                 {active === 2 && (
                     <section className="w-full h-full flex flex-col justify-between max-w-7xl">
@@ -441,50 +379,66 @@ export default function AppointmentStepper({
 
                 {active === 3 && (
                     <section className=" w-full max-w-7xl  flex items-center justify-center h-full flex-col">
-                        <div className="text-center w-full flex items-center justify-center flex-col gap-3 h-full row-start-2 col-start-2">
-                            <div className="max-w-md w-full  border-b border-gray-200 items-start flex flex-col">
-                                <Text c={"dimmed"} size="xs">
-                                    Title
-                                </Text>
-                                <Text ml={"xs"}>
-                                    {toTitleCase(form.values.title)}
-                                </Text>
+                        <div className="text-center w-full flex items-center justify-center flex-col gap-3 h-full ">
+                            <div className="flex gap-8 max-w-md w-full flex-col">
+                                <Stack align="flex-start" w={"100%"} gap={"xs"}>
+                                    <Text c={"dimmed"} size="sm">
+                                        Title / Reason
+                                    </Text>
+                                    <Group
+                                        w={"100%"}
+                                        className="shadow rounded p-4 bg-white outline"
+                                    >
+                                        <Text>
+                                            {toTitleCase(form.values.title)}
+                                        </Text>
+                                    </Group>
+                                </Stack>
+
+                                <Stack align="flex-start" w={"100%"} gap={"xs"}>
+                                    <Text c={"dimmed"} size="sm">
+                                        Pets & Service
+                                    </Text>
+                                    {Object.values(form.values.selections)
+                                        .flat()
+                                        .map((value) => (
+                                            <Group
+                                                w={"100%"}
+                                                key={`${value.name}-${value.id}`}
+                                                className="shadow rounded p-4 bg-white outline"
+                                            >
+                                                <Text>
+                                                    {toTitleCase(value.name)}
+                                                </Text>
+                                                <IconArrowRightDashed
+                                                    stroke={1.5}
+                                                />
+                                                <Text>
+                                                    {toTitleCase(value.title)}
+                                                </Text>
+                                            </Group>
+                                        ))}
+                                </Stack>
+                                <Stack align="flex-start" w={"100%"} gap={"xs"}>
+                                    <Text c={"dimmed"} size="sm">
+                                        Date
+                                    </Text>
+                                    <Group
+                                        w={"100%"}
+                                        className="shadow rounded p-4 bg-white outline"
+                                    >
+                                        <Text ml={"xs"}>
+                                            {new Date(
+                                                form.values.event_datetime
+                                            ).toDateString()}{" "}
+                                            {new Date(
+                                                form.values.event_datetime
+                                            ).toLocaleTimeString()}
+                                        </Text>
+                                    </Group>
+                                </Stack>
                             </div>
-                            <div className="max-w-md w-full  border-b border-gray-200 items-start flex flex-col">
-                                <Text c={"dimmed"} size="xs">
-                                    Type
-                                </Text>
-                                <Text ml={"xs"}>
-                                    {toTitleCase(form.values.type)}
-                                </Text>
-                            </div>
-                            <div className="max-w-md w-full  border-b border-gray-200 items-start flex flex-col">
-                                <Text c={"dimmed"} size="xs">
-                                    Pet
-                                </Text>
-                                <Text ml={"xs"}>
-                                    {form.values.petIds
-                                        .map((v) => {
-                                            return toTitleCase(
-                                                converted[v].name
-                                            );
-                                        })
-                                        .join(", ")}
-                                </Text>
-                            </div>
-                            <div className="max-w-md w-full  border-b border-gray-200 items-start flex flex-col">
-                                <Text c={"dimmed"} size="xs">
-                                    Date
-                                </Text>
-                                <Text ml={"xs"}>
-                                    {new Date(
-                                        form.values.event_datetime
-                                    ).toDateString()}{" "}
-                                    {new Date(
-                                        form.values.event_datetime
-                                    ).toLocaleTimeString()}
-                                </Text>
-                            </div>
+
                             <div className="flex mt-2 justify-center gap-8  col-start-2 row-start-3">
                                 <div>
                                     <Button

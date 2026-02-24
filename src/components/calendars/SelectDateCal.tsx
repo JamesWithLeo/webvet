@@ -6,36 +6,26 @@ import monthGridPlugin from "@fullcalendar/multimonth";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
 import { DatesSetArg, DayCellContentArg } from "@fullcalendar/core/index.js";
 import { notifications } from "@mantine/notifications";
-import {
-    AppointmentSchedulesTypeModel,
-    BlockDatesTypeModel,
-} from "@/db/schema/appointments";
-import { appointmentTypeValues } from "@/db/schema/enums";
+import { BlockDatesTypeModel } from "@/db/schema/appointments";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, em, Group, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { useAppointment } from "@/lib/hooks/useAppointmentContext";
 
 interface Props {
     children: React.ReactNode;
     onChange: (value: string) => void;
     error?: string;
-    type: (typeof appointmentTypeValues)[number];
-    schedules: AppointmentSchedulesTypeModel[];
 }
 
-export default function SelectDateCal({
-    children,
-    onChange,
-    error,
-    type,
-    schedules,
-}: Props) {
+export default function SelectDateCal({ children, onChange, error }: Props) {
     const calendarRef = useRef<FullCalendar>(null);
     const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
     const [currentTitle, setCurrentTitle] = useState("loading...");
     const [now, setNow] = useState(new Date());
+    const { allowedDays, hasConflict, incompatibleServices } = useAppointment();
 
     const handleDatesSet = (dateInfo: DatesSetArg) => {
         const calendarApi = calendarRef.current?.getApi();
@@ -43,10 +33,6 @@ export default function SelectDateCal({
             const title = calendarApi.view.title;
             setCurrentTitle(title);
         }
-    };
-
-    const isDayMatchToType = (day: number) => {
-        return typePerSchedule[type].includes(day);
     };
 
     const onDateClick = (dateArg: DateClickArg) => {
@@ -81,20 +67,12 @@ export default function SelectDateCal({
                 color: "red",
             });
             return;
-        } else if (clickedDate < today) {
+        } else if (!allowedDays.includes(dayOfWeek)) {
             notifications.show({
-                title: "Appointment Not Available",
+                title: "Service Not Available",
                 message:
-                    "The selected date is no longer available. Please choose another date.",
-                color: "red",
-            });
-            return;
-        } else if (!isDayMatchToType(dayOfWeek)) {
-            notifications.show({
-                title: "Appointment Not Available",
-                message:
-                    "The clinic is not open for this type of appointment on the selected day of the week. Please choose a different date.",
-                color: "red",
+                    "One or more of your selected services are not scheduled for this day of the week.",
+                color: "orange",
             });
             return;
         } else if (clickedDate >= today) {
@@ -119,19 +97,6 @@ export default function SelectDateCal({
         },
     });
 
-    const typePerSchedule = useMemo(() => {
-        return schedules.reduce(
-            (acc, item) => {
-                acc[item.appointmentType] = item.availableDays;
-                return acc;
-            },
-            {} as Record<
-                AppointmentSchedulesTypeModel["appointmentType"],
-                number[]
-            >
-        );
-    }, [schedules]);
-
     const getDayClassNames = (arg: DayCellContentArg) => {
         const date = arg.date;
         const dayOfWeek = date.getDay();
@@ -151,13 +116,8 @@ export default function SelectDateCal({
         if (cellDate < today) {
             return "past-date-cell";
         }
-
-        const availSchedule = typePerSchedule[type] ?? [];
-
-        if (!availSchedule || !availSchedule.includes(dayOfWeek)) {
+        if (!allowedDays || !allowedDays.includes(dayOfWeek))
             return "past-date-cell";
-        }
-
         return "future-date-cell";
     };
 
@@ -218,11 +178,6 @@ export default function SelectDateCal({
                 initialView="dayGridMonth"
                 multiMonthMaxColumns={1}
                 headerToolbar={false}
-                // headerToolbar={{
-                //     left: "title",
-                //     center: "",
-                //     right: "prev,next today",
-                // }}
                 footerToolbar={false}
                 aspectRatio={isMobile ? 1 : 2}
                 dateClick={onDateClick}
@@ -238,9 +193,6 @@ export default function SelectDateCal({
                     start: v.startTime,
                     end: v.endTime,
                     display: "block",
-                    // start: v.startTime.replace(" ", "T"),
-                    // end: v.endTime.replace(" ", "T"),
-
                     color: "#4a5565",
                 }))}
                 slotMinTime="08:00:00"
