@@ -1,6 +1,6 @@
 "use client";
 
-import { PetTypeModel } from "@/db/schema/pets";
+import { PetTypeModel } from "@/types/pets";
 import calculatePetAge from "@/lib/calculatePetAge";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { Stack, Title, Text, List, Space, ActionIcon } from "@mantine/core";
