@@ -1,4 +1,4 @@
-import { PetTypeModelWithBreed } from "@/db/schema/pets";
+import { PetTypeModelWithBreed } from "@/types/pets";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const fetchPets = async (
