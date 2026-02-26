@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import AppointmentSaved from "@/components/emails/AppointmentSaved";
-import { saveAppointmentToDb } from "@/lib/db/appointments";
+import { saveAppointmentToDbV2 } from "@/lib/db/appointments";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
     AppointmentFormInput,
@@ -10,6 +10,7 @@ import {
 } from "@/lib/validators/newAppointmentSchema";
 import { unauthorized } from "next/navigation";
 import { resend } from "@/lib/resend";
+import LongItemFormatter from "@/lib/LongItemFormatter";
 
 /**
  *
@@ -33,11 +34,7 @@ export default async function CreateAppointmentAction(
         };
 
     try {
-        const { petIds, ...appintmentData } = parsed.data;
-        const result = await saveAppointmentToDb({
-            petIds: petIds,
-            appointmentData: appintmentData,
-        });
+        const result = await saveAppointmentToDbV2(parsed.data);
         if (!result || !result.id) {
             return { successful: false };
         }
@@ -45,13 +42,15 @@ export default async function CreateAppointmentAction(
         const firstName = session.user.firstName;
         if (!email) return { succesful: true, emailed: false };
 
+        const formattedServices = LongItemFormatter(result.petServices);
+
         const { error } = await resend.emails.send({
             from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
             to: [email],
-            subject: `${toTitleCase(data.type)} Appointment`,
+            subject: `${toTitleCase(formattedServices)} Appointment`,
             react: AppointmentSaved({
                 id: result.id,
-                type: data.type,
+                type: formattedServices,
                 name: firstName ? toTitleCase(firstName) : "lovely fur parent",
                 pets: result.petNames.join(", "),
             }),

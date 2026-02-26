@@ -37,7 +37,12 @@ export type JoinedAppointmentType = {
     created_at: Date;
     expiredNotification: boolean;
     incomingNotification: boolean;
-    pets: { id: string; name: string; photoUrl: string | null }[];
+    pets: {
+        id: string;
+        name: string;
+        photoUrl: string | null;
+        priceAtBooking: string;
+    }[];
 };
 
 export const monthAbbreviations = [

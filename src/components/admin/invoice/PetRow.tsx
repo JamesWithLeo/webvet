@@ -13,6 +13,7 @@ import { IconPlus } from "@tabler/icons-react";
 import CopyButton from "@/components/common/CopyButton";
 import { getSizeByWeight } from "@/lib/getSizeByWeight";
 import GetIcon from "@/components/common/GetIcon";
+import CurrencyFormatter from "@/lib/CurrencyFormatter";
 
 interface PetRowProps {
     pet: any; // Replace with your Pet type
@@ -36,12 +37,6 @@ export function PetRow({
                 : selectedRows.filter((row) => row.id !== pet.id)
         );
     };
-
-    const currencyFormatter = new Intl.NumberFormat("en-PH", {
-        style: "currency",
-        currency: "PHP",
-        minimumFractionDigits: 2,
-    });
 
     return (
         <Table.Tr
@@ -68,9 +63,7 @@ export function PetRow({
             <Table.Td>{pet.source}</Table.Td>
             <Table.Td>{pet.serviceName}</Table.Td>
 
-            <Table.Td>
-                {currencyFormatter.format(Number(pet.priceAtBooking))}
-            </Table.Td>
+            <Table.Td>{CurrencyFormatter(pet.priceAtBooking)}</Table.Td>
         </Table.Tr>
     );
 }

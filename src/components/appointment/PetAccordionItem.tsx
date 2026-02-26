@@ -105,6 +105,7 @@ export default function PetAccordionItem({ pet, services }: Props) {
                                                 console.log("toggled");
                                                 toggleService(pet.id, {
                                                     name: pet.name,
+                                                    priceAtBooking: "0",
                                                     ...service,
                                                 });
                                             }}
@@ -163,6 +164,8 @@ export default function PetAccordionItem({ pet, services }: Props) {
                                         onClick={() => {
                                             toggleService(pet.id, {
                                                 name: pet.name,
+                                                priceAtBooking:
+                                                    matchingVariant.price,
                                                 ...service,
                                             });
                                         }}

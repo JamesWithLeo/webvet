@@ -6,7 +6,6 @@ import {
     appointmentsToPets,
     AppointmentToPetsTypeModel,
     AppointmentType,
-    AppointmentTypeModel,
     BlockDatesTypeModel,
     blockedDates,
     BookingSourceType,
@@ -22,121 +21,145 @@ import {
     gte,
     inArray,
     lt,
-    lte,
     sql,
 } from "drizzle-orm";
 import { PgTransaction } from "drizzle-orm/pg-core";
 import { toTitleCase } from "../toTitleCase";
 import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
+import { AppointmentFormInput } from "../validators/newAppointmentSchema";
 
 export class ExistingAppointmentConflictError extends Error {
     public code: string;
     public petIds: string[];
 
+    // FIXED: Added the 'c' to constructor
     constructor(petIds: string[], type: AppointmentType) {
+        // We pass the formatted string to the parent Error
         super(
             `Pet/s [${toTitleCase(petIds.join(", "))}] already have ${toTitleCase(type)} appointment.`
         );
+
         this.name = "ExistingAppointmentConflictError";
         this.code = "Existing Appointment";
         this.petIds = petIds;
     }
 }
-/**
- * Check whether pets already have appointment to the given type
- *
- * @param tx drizzle websocket instance
- * @param petIds id to validate
- * @param type appointment type
- *
- * @throws ExistingAppintmentConflictError if not unavailable
- */
-const validatePetsAvailability = async (
+const validateAllPetsAvailability = async (
     tx: PgTransaction<any, any, any>,
-    petIds: string[],
-    type: AppointmentType
+    selections: Record<
+        string,
+        {
+            id: string;
+            type: "CHECK_UP" | "GROOMING" | "VACCINATION" | "DEWORMING";
+            title: string;
+            name: string;
+        }[]
+    >
 ) => {
+    const allPetIds = Object.keys(selections);
+    // Flatten all service types into a unique array
+    const allTypes = [
+        ...new Set(
+            Object.values(selections)
+                .flat()
+                .map((s) => s.type)
+        ),
+    ];
+
     const existing = await tx
         .select({
-            name: pets.name,
+            petId: appointmentsToPets.petId,
+            petName: pets.name,
+            // title: appointment,
+            title: services.title,
+            type: services.type,
+            // serviceType: appointments., // Assuming this exists in your schema
         })
         .from(appointmentsToPets)
         .innerJoin(
             appointments,
             eq(appointments.id, appointmentsToPets.appointmentId)
         )
+        .innerJoin(services, eq(services.id, appointmentsToPets.serviceId))
         .innerJoin(pets, eq(pets.id, appointmentsToPets.petId))
         .where(
             and(
-                inArray(appointmentsToPets.petId, petIds),
+                inArray(appointmentsToPets.petId, allPetIds),
+                inArray(services.type, allTypes),
                 gt(appointments.event_datetime, new Date().toISOString())
-                // eq(appointments.ser, type)
             )
         );
 
     if (existing.length > 0) {
-        const busyPetIds = existing.map((row) => row.name);
-        throw new ExistingAppointmentConflictError(busyPetIds, type);
+        // 1. Group the conflicts
+        const conflictsByType: Record<string, string[]> = {};
+
+        for (const row of existing) {
+            const t = row.type;
+            if (!conflictsByType[t]) conflictsByType[t] = [];
+            conflictsByType[t].push(row.petName);
+        }
+
+        // 2. Extract the first conflict type
+        const firstTypeString = Object.keys(conflictsByType)[0]; // This is a string
+        const busyPets = conflictsByType[firstTypeString];
+
+        throw new ExistingAppointmentConflictError(
+            busyPets,
+            firstTypeString as AppointmentType
+        );
     }
 };
 
-/**
- *
- * @param appointmentData
- * @param petId
- * @returns
- */
-export const saveAppointmentToDb = async ({
-    appointmentData,
-    petIds,
-}: {
-    appointmentData: {
-        title: string;
-        type: "CHECK_UP" | "GROOMING" | "VACCINATION" | "DEWORMING";
-        serviceId: string;
-        date: string;
-        event_datetime: string;
-    };
-    petIds: string[];
-}) => {
+export const saveAppointmentToDbV2 = async (
+    appointmentData: AppointmentFormInput
+) => {
     return await dbTx.transaction(async (tx) => {
-        // check existing appointment
-        if (petIds.length > 0) {
-            await validatePetsAvailability(tx, petIds, appointmentData.type);
-        }
+        // Validate everything first
+        await validateAllPetsAvailability(tx, appointmentData.selections);
 
-        const [inserted] = await tx
+        // Create a unique appointment record for THIS pet
+        const [insertedAppointment] = await tx
             .insert(appointments)
-            .values({ ...appointmentData })
+            .values({
+                title: appointmentData.title,
+                event_datetime: appointmentData.event_datetime,
+            })
             .returning();
 
-        let petNames: string[] = [];
+        const allJoinEntries: Pick<
+            AppointmentToPetsTypeModel,
+            "appointmentId" | "petId" | "priceAtBooking" | "serviceId"
+        >[] = [];
+        const petNames: string[] = [];
+        const petServices = new Set<string>();
 
-        if (petIds.length > 0) {
-            // 1. Perform the link
-            await tx.insert(appointmentsToPets).values(
-                petIds.map((petId) => ({
-                    appointmentId: inserted.id,
-                    petId,
-                    serviceId: appointmentData.serviceId,
-                    priceAtBooking: "0",
-                }))
-            );
+        for (const [petId, servicesData] of Object.entries(
+            appointmentData.selections
+        )) {
+            for (const s of servicesData) {
+                petNames.push(s.name);
+                petServices.add(toTitleCase(s.type));
 
-            const selectedPets = await tx
-                .select({ name: pets.name })
-                .from(pets)
-                .where(inArray(pets.id, petIds));
-
-            petNames = selectedPets.map((p) => p.name);
+                allJoinEntries.push({
+                    appointmentId: insertedAppointment.id,
+                    petId: petId,
+                    serviceId: s.id,
+                    priceAtBooking: s.priceAtBooking,
+                });
+            }
         }
 
-        // Return the appointment data + the pet names
-        return {
-            ...inserted,
-            petNames,
-        };
+        if (allJoinEntries.length > 0) {
+            await tx.insert(appointmentsToPets).values(allJoinEntries);
+
+            return {
+                id: insertedAppointment.id,
+                petNames: petNames,
+                petServices: [...petServices],
+            };
+        }
     });
 };
 /**
@@ -168,14 +191,20 @@ export const getAppointments = async ({ id }: { id: string }) => {
                 ...getTableColumns(appointments),
                 // Squash the pet data into a single JSON array column
                 pets: sql<
-                    { id: string; name: string; photoUrl: string | null }[]
+                    {
+                        id: string;
+                        name: string;
+                        photoUrl: string | null;
+                        priceAtBooking: string;
+                    }[]
                 >`
                 COALESCE(
                     json_agg(
                         json_build_object(
                             'id', ${pets.id}, 
                             'name', ${pets.name}, 
-                            'photoUrl', ${pets.photoUrl}
+                            'photoUrl', ${pets.photoUrl},
+                            'priceAtBooking', ${appointmentsToPets.priceAtBooking}
                         )
                     ) FILTER (WHERE ${pets.id} IS NOT NULL), 
                      '[]'
@@ -402,15 +431,14 @@ export const getAppointmentWithDetails = async ({
                 id: appointments.id,
                 title: appointments.title,
                 event_datetime: appointments.event_datetime,
-                serviceType: services.type,
-                serviceName: services.title,
-                // Aggregate only the pets
                 pets: sql<
                     {
                         id: string;
                         name: string;
                         photoUrl: string | null;
                         priceAtBooking: string;
+                        type: AppointmentType;
+                        title: string;
                     }[]
                 >`
                     COALESCE(
@@ -419,7 +447,9 @@ export const getAppointmentWithDetails = async ({
                                 'id', ${pets.id}, 
                                 'name', ${pets.name}, 
                                 'photoUrl', ${pets.photoUrl},
-                                'priceAtBooking', ${appointmentsToPets.priceAtBooking}
+                                'priceAtBooking', ${appointmentsToPets.priceAtBooking},
+                                'type', ${services.type},
+                                'title', ${services.title}
                             )
                         ) FILTER (WHERE ${pets.id} IS NOT NULL), 
                         '[]'

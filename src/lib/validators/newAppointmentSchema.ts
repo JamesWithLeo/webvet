@@ -40,6 +40,7 @@ export const newAppointmentSchema = z.object({
                         ]),
                         title: z.string(),
                         name: z.string(),
+                        priceAtBooking: z.string(),
                     })
                 )
                 .min(1, "Each selected pet needs at least one service")
@@ -53,4 +54,4 @@ export const newAppointmentSchema = z.object({
 
 export type AppointmentFormInput = z.input<typeof newAppointmentSchema>;
 
-export type AppointmentFormOutput = z.output<typeof newAppointmentSchema>;
+// export type AppointmentFormOutput = z.output<typeof newAppointmentSchema>;

@@ -6,7 +6,6 @@ import {
     Divider,
     Flex,
     Group,
-    NumberFormatter,
     Stack,
     Text,
     Title,
@@ -17,6 +16,8 @@ import {
     JoinedAppointmentType,
     monthAbbreviations,
 } from "@/db/schema/appointments";
+import { useMemo } from "react";
+import CurrencyFormatter from "@/lib/CurrencyFormatter";
 
 const PawSvg = () => {
     return (
@@ -25,8 +26,6 @@ const PawSvg = () => {
             width="120"
             height="120"
             viewBox="0 0 24 24"
-            // fill="currentColor"
-            // stroke="none"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
@@ -43,15 +42,11 @@ const PawSvg = () => {
         </svg>
     );
 };
+
 export default function AppointmentCard({
     title,
     pets,
     id,
-    created_at,
-    expiredNotification,
-    incomingNotification,
-    // paid,
-    // doctor,
     event_datetime,
 }: JoinedAppointmentType) {
     const passed = isPast(event_datetime);
@@ -60,6 +55,13 @@ export default function AppointmentCard({
     const handleInvoiceClick = async () => {
         router.push("/v1/invoice");
     };
+
+    const sum = useMemo(() => {
+        return pets.reduce((pet, row) => {
+            const price = Number(row.priceAtBooking) || 0;
+            return pet + price;
+        }, 0);
+    }, [pets]);
 
     return (
         <Card withBorder w={500} h={200} p={"md"} radius={"md"}>
@@ -96,7 +98,6 @@ export default function AppointmentCard({
                                 {date.toLocaleTimeString()}
                             </Text>
 
-                            {/* <Text c={"dimmed"}>Dr. Ace Ventura</Text> */}
                             <Text c={"dimmed"} size="xs">
                                 {id}
                             </Text>
@@ -107,14 +108,7 @@ export default function AppointmentCard({
             <Card.Section px={"md"}>
                 <Divider label={"Amount"} />
                 <Flex c={"dimmed"} align={"center"} justify="space-between">
-                    <Text>
-                        <NumberFormatter
-                            thousandSeparator
-                            value={1000}
-                            prefix="₱"
-                            suffix=".00"
-                        />
-                    </Text>
+                    <Text>{CurrencyFormatter(sum)}</Text>
                     {true ? (
                         <Button variant="default" onClick={handleInvoiceClick}>
                             Invoice

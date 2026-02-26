@@ -4,7 +4,10 @@ import {
     addAppointmentToCalendar,
     checkAppointmentFromCalendar,
 } from "@/actions/calendar";
-import { JoinedAppointmentType } from "@/db/schema/appointments";
+import {
+    AppointmentType,
+    JoinedAppointmentType,
+} from "@/db/schema/appointments";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
     ActionIcon,
@@ -28,6 +31,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { notifications } from "@mantine/notifications";
+import LongItemFormatter from "@/lib/LongItemFormatter";
+import CurrencyFormatter from "@/lib/CurrencyFormatter";
 
 const googleCalendarIcon = () => (
     <svg
@@ -69,19 +74,19 @@ type Props = {
         id: string;
         title: string;
         event_datetime: string;
-        serviceType: "CHECK_UP" | "GROOMING" | "VACCINATION" | "DEWORMING";
-        serviceName: string | null;
         pets: {
             id: string;
             name: string;
             photoUrl: string | null;
             priceAtBooking: string;
+            type: AppointmentType;
+            title: string;
         }[];
     };
 };
 
 export default function AppointmentWrapper({
-    data: { pets, title, event_datetime, id, serviceName, serviceType },
+    data: { pets, title, event_datetime, id },
 }: Props) {
     const router = useRouter();
     const { nameOfAllPets, totalAmount } = useMemo(() => {
@@ -98,6 +103,7 @@ export default function AppointmentWrapper({
     const [existingToCalendar, setIsExistingToCalendar] =
         useState<boolean>(false);
 
+    const longService = LongItemFormatter(pets.map((p) => toTitleCase(p.type)));
     const handleBooking = async () => {
         setLoading(true);
         const result = await addAppointmentToCalendar({
@@ -105,7 +111,7 @@ export default function AppointmentWrapper({
             title: title,
             start: new Date(event_datetime),
             end: new Date(event_datetime),
-            description: `${toTitleCase(serviceType)} for ${nameOfAllPets} in Joseph & Mary Veterinary Clinic. This event is created via Web: https://www.josephmary.me`,
+            description: `${longService} for ${nameOfAllPets} in Joseph & Mary Veterinary Clinic. This event is created via Web: https://www.josephmary.me`,
         });
 
         setLoading(false);
@@ -178,8 +184,8 @@ export default function AppointmentWrapper({
                     </Text>
                 </div>
                 <DetailRow
-                    label="Service Type"
-                    value={toTitleCase(serviceType)}
+                    label="Title / Reason"
+                    value={longService}
                     icon={<IconTag size={18} />}
                 />
                 <DetailRow
@@ -190,7 +196,7 @@ export default function AppointmentWrapper({
                 <DetailRow
                     icon={<IconCurrencyPeso size={18} />}
                     label="Amount"
-                    value={totalAmount.toString()}
+                    value={CurrencyFormatter(totalAmount)}
                 />
 
                 <div>

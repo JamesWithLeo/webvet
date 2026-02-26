@@ -7,6 +7,7 @@ type PetId = string;
 
 type SelectionItem = Pick<ServiceMergePriceType, "id" | "type" | "title"> & {
     name: string;
+    priceAtBooking: string;
 };
 type Schedules =
     | {
@@ -61,6 +62,7 @@ export function AppointmentProvider({
                           type: service.type,
                           title: service.title,
                           name: service.name,
+                          priceAtBooking: service.priceAtBooking,
                       },
                   ]; // Store both!
 
