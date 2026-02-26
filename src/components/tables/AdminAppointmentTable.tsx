@@ -1,6 +1,7 @@
 "use client";
 
 import { AdminAppointment } from "@/db/schema/appointments";
+import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import useAppointmentAdmin from "@/lib/hooks/useAppointmentAdmin";
 import useAppointmentToPetsAdmin from "@/lib/hooks/useAppointmnetToPetsAdmin";
 import { toTitleCase } from "@/lib/toTitleCase";
@@ -191,19 +192,29 @@ const AppointmentToPetsTable = ({ id }: { id: string }) => {
         <Stack p={"md"}>
             {data && data.pets ? (
                 data.pets.map((pet) => (
-                    <Group key={`${id}-${pet.id}`} gap={"md"}>
-                        <Avatar src={pet.photoUrl}>{pet.name[0]}</Avatar>
-                        <Stack gap={0}>
-                            <Text>{toTitleCase(pet.name)}</Text>
-                            <Text size="xs" c={"dimmed"}>
-                                {pet.id}
-                            </Text>
-                        </Stack>
+                    <Group key={`${id}-${pet.id}`} gap={"4rem"}>
+                        <Group>
+                            <Avatar src={pet.photoUrl}>{pet.name[0]}</Avatar>
+                            <Stack gap={0}>
+                                <Text>{toTitleCase(pet.name)}</Text>
+                                <Text size="xs" c={"dimmed"}>
+                                    {pet.id}
+                                </Text>
+                            </Stack>
+                        </Group>
                         <Stack gap={0}>
                             <Text size="xs" c={"blue.5"}>
                                 Service
                             </Text>
-                            <Text size="sm">{pet.serviceName}</Text>
+                            <Text size="sm">{pet.title}</Text>
+                        </Stack>
+                        <Stack gap={0}>
+                            <Text size="xs" c={"blue.5"}>
+                                Amount
+                            </Text>
+                            <Text size="sm">
+                                {CurrencyFormatter(pet.priceAtBooking)}
+                            </Text>
                         </Stack>
                     </Group>
                 ))

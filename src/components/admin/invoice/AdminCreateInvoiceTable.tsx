@@ -1,6 +1,5 @@
 "use client";
 
-import { BookingSourceType } from "@/db/schema/appointments";
 import { ServiceMergePriceType } from "@/db/schema/services";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { Button, Checkbox, Group, Stack, Table, Text } from "@mantine/core";
@@ -10,19 +9,10 @@ import { PetRow } from "./PetRow";
 import PetsSelectModal from "./PetsSelectModal";
 import { useDisclosure } from "@mantine/hooks";
 import { PetTypeModel } from "@/types/pets";
+import PetServiceMerged from "@/types/PetsServiceMerged";
 
 type Props = {
-    pets: {
-        id: string;
-        petId: string;
-        name: string;
-        photoUrl: string | null;
-        species: "dog" | "cat";
-        serviceName: string;
-        priceAtBooking: number;
-        weight: number;
-        source: BookingSourceType;
-    }[];
+    pets: PetServiceMerged[];
     allPets: PetTypeModel[];
     services: ServiceMergePriceType[];
     appointmentId: string;
@@ -33,19 +23,7 @@ export default function AdminCreateInvoiceTable({
     allPets,
     appointmentId,
 }: Props) {
-    const [selectedRows, setSelectedRows] = useState<
-        {
-            id: string;
-            petId: string;
-            name: string;
-            photoUrl: string | null;
-            species: "dog" | "cat";
-            serviceName: string;
-            priceAtBooking: number;
-            weight: number;
-            source: BookingSourceType;
-        }[]
-    >([]);
+    const [selectedRows, setSelectedRows] = useState<PetServiceMerged[]>([]);
     const [opened, { close, open }] = useDisclosure();
 
     const handleIssueInvoice = () => {
@@ -69,7 +47,6 @@ export default function AdminCreateInvoiceTable({
         <PetRow
             key={pet.id}
             pet={pet}
-            services={services}
             selectedRows={selectedRows}
             setSelectedRows={setSelectedRows}
         />
@@ -138,7 +115,9 @@ export default function AdminCreateInvoiceTable({
                     </Button>
                     <Button
                         leftSection={<IconInvoice size={20} />}
-                        disabled={noWeightPets.length > 0}
+                        disabled={
+                            noWeightPets.length > 0 || !selectedRows.length
+                        }
                         onClick={handleIssueInvoice}
                     >
                         Issue Invoice

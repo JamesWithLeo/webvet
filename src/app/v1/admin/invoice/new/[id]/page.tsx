@@ -6,7 +6,7 @@ import {
 import { getAllPets } from "@/lib/db/pets";
 import { getServicesGrouped } from "@/lib/db/services";
 import { toTitleCase } from "@/lib/toTitleCase";
-import { Stack, Text, Title } from "@mantine/core";
+import { Avatar, Group, Stack, Text, Title } from "@mantine/core";
 import { notFound } from "next/navigation";
 
 export default async function Page({
@@ -37,13 +37,18 @@ export default async function Page({
     return (
         <div className="w-full h-screen p-16 flex flex-col gap-4">
             <Title>Invoice</Title>
-            <Stack>
-                <Stack gap={0}>
-                    <Text>{toTitleCase(`${firstName} ${lastName}`)}</Text>
-                    <Text c={"dimmed"} size="xs">
-                        {user.id}
-                    </Text>
-                </Stack>
+            <Stack gap={"xl"}>
+                <Group>
+                    <Avatar src={user.photoUrl}>
+                        {firstName ? firstName[0].toUpperCase() : undefined}
+                    </Avatar>
+                    <Stack gap={0}>
+                        <Text>{toTitleCase(`${firstName} ${lastName}`)}</Text>
+                        <Text c={"dimmed"} size="xs">
+                            {user.id}
+                        </Text>
+                    </Stack>
+                </Group>
                 <AdminCreateInvoiceTable
                     appointmentId={id}
                     allPets={allPets}

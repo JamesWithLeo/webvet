@@ -1,33 +1,17 @@
 "use client";
 
-import {
-    Table,
-    Checkbox,
-    Group,
-    Menu,
-    ActionIcon,
-    Stack,
-    Text,
-} from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import { Table, Checkbox, Group, Text } from "@mantine/core";
 import CopyButton from "@/components/common/CopyButton";
-import { getSizeByWeight } from "@/lib/getSizeByWeight";
-import GetIcon from "@/components/common/GetIcon";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
+import PetServiceMerged from "@/types/PetsServiceMerged";
 
 interface PetRowProps {
-    pet: any; // Replace with your Pet type
+    pet: PetServiceMerged; // Replace with your Pet type
     selectedRows: any[];
     setSelectedRows: (rows: any[]) => void;
-    services: any[];
 }
 
-export function PetRow({
-    pet,
-    selectedRows,
-    setSelectedRows,
-    services,
-}: PetRowProps) {
+export function PetRow({ pet, selectedRows, setSelectedRows }: PetRowProps) {
     const isSelected = selectedRows.some((row) => row.id === pet.id);
 
     const handleCheckboxChange = (checked: boolean) => {
@@ -61,7 +45,7 @@ export function PetRow({
             </Table.Td>
 
             <Table.Td>{pet.source}</Table.Td>
-            <Table.Td>{pet.serviceName}</Table.Td>
+            <Table.Td>{pet.title}</Table.Td>
 
             <Table.Td>{CurrencyFormatter(pet.priceAtBooking)}</Table.Td>
         </Table.Tr>

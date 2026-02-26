@@ -1,5 +1,6 @@
 "use client";
 
+import { AppointmentType } from "@/db/schema/appointments";
 import { useQuery } from "@tanstack/react-query";
 
 type Return = {
@@ -7,7 +8,9 @@ type Return = {
         id: string;
         name: string;
         photoUrl: string | null;
-        serviceName: string;
+        title: string;
+        priceAtBooking: string;
+        type: AppointmentType;
     }[];
 };
 export default function useAppointmentToPets(id: string) {

@@ -28,6 +28,7 @@ import { toTitleCase } from "../toTitleCase";
 import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
 import { AppointmentFormInput } from "../validators/newAppointmentSchema";
+import PetServiceMerged from "@/types/PetsServiceMerged";
 
 export class ExistingAppointmentConflictError extends Error {
     public code: string;
@@ -581,9 +582,9 @@ export const getAllAppointmentsAdmin = async (
     const now = new Date().toISOString();
 
     if (scope === "incoming") {
-        filters = gte(appointments.event_datetime, new Date().toISOString());
+        filters = gte(appointments.event_datetime, now);
     } else if (scope === "past") {
-        filters = lt(appointments.event_datetime, new Date().toISOString());
+        filters = lt(appointments.event_datetime, now);
     }
     try {
         const response = await db
@@ -624,19 +625,7 @@ export const getAppointmentToPetsAdmin = async (id: string) => {
     try {
         const response = await db
             .select({
-                pets: sql<
-                    {
-                        id: string;
-                        petId: string;
-                        name: string;
-                        species: "dog" | "cat";
-                        photoUrl: string | null;
-                        weight: number;
-                        serviceName: string;
-                        priceAtBooking: number;
-                        source: BookingSourceType;
-                    }[]
-                >`
+                pets: sql<PetServiceMerged[]>`
                     COALESCE(
                         json_agg(
                             json_build_object(
@@ -644,7 +633,8 @@ export const getAppointmentToPetsAdmin = async (id: string) => {
                                 'petId', ${pets.id}, 
                                 'name', ${pets.name}, 
                                 'photoUrl', ${pets.photoUrl},
-                                'serviceName', ${services.title},
+                                'title', ${services.title},
+                                'type', ${services.type},
                                 'priceAtBooking', ${appointmentsToPets.priceAtBooking},
                                 'species', ${pets.species},
                                 'weight', ${pets.weight},
