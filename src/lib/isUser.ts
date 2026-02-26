@@ -1,6 +1,6 @@
-import { USERTYPE } from "@/db/schema/users";
+import { UserTypeModel } from "@/types/user";
 
-export default function isUser(obj: any): obj is USERTYPE {
+export default function isUser(obj: any): obj is UserTypeModel {
     return (
         obj !== null &&
         typeof obj === "object" &&
