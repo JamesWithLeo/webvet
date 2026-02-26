@@ -4,20 +4,27 @@ import {
     ActionIcon,
     Avatar,
     Box,
-    Button,
     Divider,
     Drawer,
     Flex,
-    Group,
     Stack,
     Text,
     Tooltip,
 } from "@mantine/core";
-import { IconCalendar, IconInvoice, IconTag, IconX } from "@tabler/icons-react";
+import {
+    IconCalendar,
+    IconCurrencyPeso,
+    IconTag,
+    IconX,
+} from "@tabler/icons-react";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useMediaQuery } from "@mantine/hooks";
 import Link from "next/link";
 import DetailRow from "../common/DetailRow";
+import { AppointmentType } from "@/db/schema/appointments";
+import { useMemo } from "react";
+import LongItemFormatter from "@/lib/LongItemFormatter";
+import CurrencyFormatter from "@/lib/CurrencyFormatter";
 
 type Props = {
     opened: boolean;
@@ -26,17 +33,13 @@ type Props = {
         id: string;
         title: string;
         event_datetime: string;
-        serviceType:
-            | "CHECK_UP"
-            | "GROOMING"
-            | "VACCINATION"
-            | "DEWORMING"
-            | null;
-        serviceName: string;
         pets: {
             id: string;
             name: string;
             photoUrl: string | null;
+            priceAtBooking: string;
+            type: AppointmentType;
+            title: string;
         }[];
     };
 };
@@ -44,16 +47,19 @@ type Props = {
 export default function AppointmentDrawer({
     opened,
     close,
-    selectedAppointment: {
-        title,
-        id,
-        event_datetime,
-        pets,
-        serviceType,
-        serviceName,
-    },
+    selectedAppointment: { title, id, event_datetime, pets },
 }: Props) {
     const isMobile = useMediaQuery("(max-width: 64rem)");
+
+    const { allService, totalAmount } = useMemo(() => {
+        const allService = pets.map((p) => toTitleCase(p.type));
+
+        const totalAmount = pets.reduce((acc, pet) => {
+            return acc + (Number(pet.priceAtBooking) || 0);
+        }, 0);
+        return { allService: LongItemFormatter(allService), totalAmount };
+    }, [pets]);
+
     return (
         <Drawer.Root
             opened={opened}
@@ -101,7 +107,6 @@ export default function AppointmentDrawer({
                             <Box>
                                 <Text size="xl" fw={700}>
                                     {toTitleCase(title)}{" "}
-                                    {toTitleCase(serviceName)}
                                 </Text>
                                 <Text size="xs" c={"dimmed"}>
                                     Appointment ID: <br />
@@ -124,43 +129,23 @@ export default function AppointmentDrawer({
                         <Divider w={"100%"} />
 
                         <Stack gap="lg">
-                            {serviceType && (
-                                <DetailRow
-                                    icon={<IconTag size={18} />}
-                                    label="Service Type"
-                                    value={toTitleCase(serviceType)}
-                                />
-                            )}
+                            <DetailRow
+                                icon={<IconTag size={18} />}
+                                label="Service Type"
+                                value={allService}
+                            />
                             <DetailRow
                                 icon={<IconCalendar size={18} />}
                                 label="Scheduled For"
                                 value={new Date(event_datetime).toString()}
                             />
-                        </Stack>
 
-                        {/* <div className="h-full  justify-end  flex-col min-h-full flex grow w-full ">
-                            <Group h={"100%"}>
-                                <Button
-                                    fullWidth
-                                    leftSection={<IconInvoice size={16} />}
-                                    variant="filled"
-                                    // onClick={() => handlePayment(data.id)}
-                                >
-                                    Invoice
-                                </Button>
-                                <Button
-                                    variant="default"
-                                    color="red"
-                                    fullWidth
-                                    // onClick={openCancelConfirm}
-                                    disabled={
-                                        new Date(event_datetime) < new Date()
-                                    }
-                                >
-                                    Cancel Appointment
-                                </Button>
-                            </Group>
-                        </div> */}
+                            <DetailRow
+                                icon={<IconCurrencyPeso size={18} />}
+                                label="Amount"
+                                value={CurrencyFormatter(totalAmount)}
+                            />
+                        </Stack>
                     </Flex>
                 </Drawer.Body>
             </Drawer.Content>

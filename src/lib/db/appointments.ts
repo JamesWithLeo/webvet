@@ -244,17 +244,25 @@ export const getAppointmentsWithType = async ({ id }: { id: string }) => {
                 title: appointments.title,
                 id: appointments.id,
                 event_datetime: appointments.event_datetime,
-                serviceType: services.type,
-                serviceName: services.title,
                 pets: sql<
-                    { id: string; name: string; photoUrl: string | null }[]
+                    {
+                        id: string;
+                        name: string;
+                        photoUrl: string | null;
+                        type: AppointmentType;
+                        title: string;
+                        priceAtBooking: string;
+                    }[]
                 >`
                     COALESCE(
                         json_agg(
                             json_build_object(
                                 'id', ${pets.id}, 
                                 'name', ${pets.name}, 
-                                'photoUrl', ${pets.photoUrl}
+                                'photoUrl', ${pets.photoUrl},
+                                'type', ${services.type},
+                                'title', ${services.title},
+                                'priceAtBooking', ${appointmentsToPets.priceAtBooking}
                             )
                         ) FILTER (WHERE ${pets.id} IS NOT NULL), 
                         '[]'
@@ -265,15 +273,12 @@ export const getAppointmentsWithType = async ({ id }: { id: string }) => {
                 appointmentsToPets,
                 eq(appointments.id, appointmentsToPets.appointmentId)
             )
-            .leftJoin(services, eq(appointmentsToPets.serviceId, services.id))
+            .leftJoin(services, eq(services.id, appointmentsToPets.serviceId))
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
             .where(eq(pets.ownerId, id))
-            // Important: You must group by non-aggregated columns
             .groupBy(
                 appointments.id,
-                services.id, // Grouping by service ensures specific service/type pairs stay together
-                services.type,
-                services.title
+                services.id // Grouping by service ensures specific service/type pairs stay together
             );
 
         return { data: appointmentWithTypes, error: null };
@@ -470,12 +475,7 @@ export const getAppointmentWithDetails = async ({
                 )
             )
             // Group by everything EXCEPT the pets
-            .groupBy(
-                appointments.id,
-                services.id,
-                services.type,
-                services.title
-            )
+            .groupBy(appointments.id, services.id)
             .limit(1);
 
         return { data: result[0] || null, error: null };

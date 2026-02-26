@@ -17,6 +17,7 @@ import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import AppointmentDrawer from "./AppointmentDrawer";
 import { notifications } from "@mantine/notifications";
 import AddNewPetButton from "../common/AddNewPetButton";
+import { AppointmentType } from "@/db/schema/appointments";
 
 export default function CalendarList({
     appointments,
@@ -24,20 +25,16 @@ export default function CalendarList({
 }: {
     appointments:
         | {
-              title: string;
               id: string;
+              title: string;
               event_datetime: string;
-              serviceType:
-                  | "CHECK_UP"
-                  | "GROOMING"
-                  | "VACCINATION"
-                  | "DEWORMING"
-                  | null;
-              serviceName: string | null;
               pets: {
                   id: string;
                   name: string;
                   photoUrl: string | null;
+                  priceAtBooking: string;
+                  type: AppointmentType;
+                  title: string;
               }[];
           }[]
         | null;
@@ -50,17 +47,13 @@ export default function CalendarList({
         id: string;
         title: string;
         event_datetime: string;
-        serviceType:
-            | "CHECK_UP"
-            | "GROOMING"
-            | "VACCINATION"
-            | "DEWORMING"
-            | null;
-        serviceName: string;
         pets: {
             id: string;
             name: string;
             photoUrl: string | null;
+            priceAtBooking: string;
+            type: AppointmentType;
+            title: string;
         }[];
     }>();
     const isMobile = useMediaQuery("(max-width: 64rem)");
@@ -74,17 +67,13 @@ export default function CalendarList({
                 id: string;
                 title: string;
                 event_datetime: string;
-                serviceType:
-                    | "CHECK_UP"
-                    | "GROOMING"
-                    | "VACCINATION"
-                    | "DEWORMING"
-                    | null;
-                serviceName: string;
                 pets: {
                     id: string;
                     name: string;
                     photoUrl: string | null;
+                    priceAtBooking: string;
+                    type: AppointmentType;
+                    title: string;
                 }[];
             }),
         });
@@ -147,9 +136,6 @@ export default function CalendarList({
         }
     }, [error]);
 
-    useEffect(() => {
-        console.log(appointments);
-    }, [appointments]);
     return (
         <>
             <div className="justify-between items-center flex ">

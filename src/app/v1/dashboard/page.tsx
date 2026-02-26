@@ -15,11 +15,7 @@ export default async function dashboard() {
 
     return (
         <div className="w-full gap-4 flex-col h-ful min-h-min flex">
-            <CalendarList
-                appointments={appointments}
-                // pets={pets}
-                error={error}
-            />
+            <CalendarList appointments={appointments} error={error} />
             <BottomPattern />
         </div>
     );
