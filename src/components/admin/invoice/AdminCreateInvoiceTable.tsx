@@ -3,31 +3,59 @@
 import { ServiceMergePriceType } from "@/db/schema/services";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { Button, Checkbox, Group, Stack, Table, Text } from "@mantine/core";
-import { IconInvoice } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { IconCheck, IconInvoice, IconX } from "@tabler/icons-react";
+import {
+    startTransition,
+    useActionState,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import { PetRow } from "./PetRow";
 import PetsSelectModal from "./PetsSelectModal";
 import { useDisclosure } from "@mantine/hooks";
 import { PetTypeModel } from "@/types/pets";
 import PetServiceMerged from "@/types/PetsServiceMerged";
+import { CreateInvoice } from "@/actions/invoice";
+import { useFormState } from "react-dom";
+import { redirect } from "next/navigation";
+import { notifications } from "@mantine/notifications";
 
 type Props = {
     pets: PetServiceMerged[];
     allPets: PetTypeModel[];
     services: ServiceMergePriceType[];
     appointmentId: string;
+    clientId: string;
 };
 export default function AdminCreateInvoiceTable({
     pets,
     services,
     allPets,
     appointmentId,
+    clientId,
 }: Props) {
     const [selectedRows, setSelectedRows] = useState<PetServiceMerged[]>([]);
     const [opened, { close, open }] = useDisclosure();
 
-    const handleIssueInvoice = () => {
-        console.log(selectedRows);
+    const createInvoice = CreateInvoice.bind(null);
+
+    const [formState, formAction, isPending] = useActionState(createInvoice, {
+        success: false,
+        invoiceId: null,
+        error: "",
+    });
+
+    const handleIssueInvoice = async () => {
+        startTransition(() => {
+            formAction({
+                rawInvoice: { userId: clientId, totalAmount: sum.toFixed(2) },
+                items: selectedRows.map((row) => ({
+                    petId: row.id,
+                    priceAtInvoice: row.priceAtBooking.toFixed(2),
+                })),
+            });
+        });
     };
 
     const noWeightPets = useMemo(() => {
@@ -51,6 +79,28 @@ export default function AdminCreateInvoiceTable({
             setSelectedRows={setSelectedRows}
         />
     ));
+
+    useEffect(() => {
+        if (formState.success && formState.invoiceId) {
+            notifications.show({
+                title: "Invoice Created",
+                message: `Invoice #${formState.invoiceId} has been saved successfully.`,
+                color: "green",
+                icon: <IconCheck size={18} />,
+                autoClose: 3000,
+            });
+        }
+
+        if (formState.error) {
+            notifications.show({
+                title: "Action Failed",
+                message: formState.error,
+                color: "red",
+                icon: <IconX size={18} />,
+                autoClose: false, // Keep open so user can read the specific error
+            });
+        }
+    }, [formState]);
 
     return (
         <>
@@ -116,8 +166,11 @@ export default function AdminCreateInvoiceTable({
                     <Button
                         leftSection={<IconInvoice size={20} />}
                         disabled={
-                            noWeightPets.length > 0 || !selectedRows.length
+                            noWeightPets.length > 0 ||
+                            !selectedRows.length ||
+                            isPending
                         }
+                        loading={isPending}
                         onClick={handleIssueInvoice}
                     >
                         Issue Invoice

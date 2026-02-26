@@ -1,4 +1,12 @@
-import { pgEnum, pgTable, timestamp, uuid, integer } from "drizzle-orm/pg-core";
+import {
+    pgEnum,
+    pgTable,
+    timestamp,
+    uuid,
+    integer,
+    decimal,
+} from "drizzle-orm/pg-core";
+import { users } from "./users";
 
 export const paymentStatusTypeValues = ["UNPAID", "PAID", "VOID"] as const;
 export const paymentStatusType = pgEnum(
@@ -9,9 +17,12 @@ export const paymentStatusType = pgEnum(
 export const invoices = pgTable("invoices", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id").notNull(),
-    totalAmount: integer("total_amount").notNull(),
+    totalAmount: decimal("total_amount", { scale: 2, precision: 10 }).notNull(),
     status: paymentStatusType("status").default("PAID"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdById: uuid("created_by_id").references(() => users.id, {
+        onDelete: "set null",
+    }),
 });
 
 export const invoiceItems = pgTable("invoice_items", {
@@ -20,5 +31,8 @@ export const invoiceItems = pgTable("invoice_items", {
         onDelete: "cascade",
     }),
     petId: uuid("pet_id").notNull(),
-    priceAtInvoice: integer("price_at_booking").notNull(), // 800
+    priceAtInvoice: decimal("price_at_booking", {
+        scale: 2,
+        precision: 10,
+    }).notNull(), // 800
 });

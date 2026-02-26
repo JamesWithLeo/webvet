@@ -50,6 +50,7 @@ export default async function Page({
                     </Stack>
                 </Group>
                 <AdminCreateInvoiceTable
+                    clientId={user.id}
                     appointmentId={id}
                     allPets={allPets}
                     pets={petsData.pets}
