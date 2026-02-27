@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
+import { revalidatePath } from "next/cache";
 
 export async function createPaymentInvoice(invoiceId: string) {
     const session = await auth();
@@ -44,7 +45,9 @@ export async function createPaymentInvoice(invoiceId: string) {
     const data = await response.json();
 
     if (response.ok && data.invoice_url) {
-        redirect(data.invoice_url);
+        console.log(data.invoice_url);
+        revalidatePath(`/v1/invoice/${data.invoice_url}`);
+        // redirect(data.invoice_url);
     } else {
         console.error("Xendit Error:", data);
         throw new Error("Failed to create payment");
