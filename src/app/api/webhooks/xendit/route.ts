@@ -53,14 +53,3 @@ export async function POST(req: Request) {
         return new NextResponse("Internal Error", { status: 500 });
     }
 }
-/**
- * Stop the 303/308 Redirects in Browsers
- * By defining a GET handler, Vercel won't try to redirect the browser
- * to a 'clean' URL or a login page when you test the link.
- */
-export async function GET() {
-    return new NextResponse("Webhook Node Active: Waiting for Xendit POST...", {
-        status: 200,
-        headers: { "Content-Type": "text/plain" },
-    });
-}
