@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
         qualities: [50, 75, 100],
     },
     trailingSlash: false,
+    skipTrailingSlashRedirect: false,
     experimental: {
         authInterrupts: true,
     },
