@@ -67,7 +67,7 @@ export default async function Page({
                     </Stack>
                     {data.status === "UNPAID" && (
                         <Stack align="end" w={"1000"}>
-                            <form action={payAction}>
+                            <form action={payAction} method="POST">
                                 <ProcessPaymentButton />
                             </form>
                         </Stack>
