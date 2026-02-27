@@ -4,11 +4,12 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-    const callbackToken = req.headers.get("X-CALLBACK-TOKEN");
+    const callbackToken = req.headers.get("x-callback-token");
 
-    if (callbackToken !== process.env.XENDIT_CALLBACK_TOKEN) {
+    if (!callbackToken)
+        return new NextResponse("Missing token", { status: 401 });
+    if (callbackToken !== process.env.XENDIT_CALLBACK_TOKEN)
         return new NextResponse("Invalid token", { status: 401 });
-    }
 
     try {
         const body = await req.json();
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
                 .update(invoices)
                 .set({ status: "PAID" })
                 .where(eq(invoices.id, external_id));
-            console.log(`✅ Invoice ${external_id} marked as PAID.`);
+            console.log(`Invoice ${external_id} marked as PAID.`);
             return NextResponse.json({ received: true }, { status: 200 });
         }
         return NextResponse.json({ received: false }, { status: 200 });
