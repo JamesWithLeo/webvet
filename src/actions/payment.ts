@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
 import { revalidatePath } from "next/cache";
+import { success } from "zod";
 
 export async function createPaymentInvoice(invoiceId: string) {
     const session = await auth();
@@ -47,6 +48,7 @@ export async function createPaymentInvoice(invoiceId: string) {
     if (response.ok && data.invoice_url) {
         // revalidatePath(`/v1/invoice/${data.invoice_url}`);
         redirect(data.invoice_url);
+        // return { success: true };
         // return { success: true };
     } else {
         console.error("Xendit Error:", data);

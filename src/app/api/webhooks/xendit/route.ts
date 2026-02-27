@@ -24,7 +24,9 @@ export async function POST(req: Request) {
                 const result = await db
                     .update(invoices)
                     .set({ status: "PAID" })
-                    .where(eq(invoices.id, external_id))
+                    .where(
+                        eq(invoices.id, "a4e791e7-b936-4b4d-bad1-830ae9f8ef37")
+                    )
                     .returning();
 
                 if (result.length > 0) {
