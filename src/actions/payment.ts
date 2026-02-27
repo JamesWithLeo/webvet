@@ -6,8 +6,7 @@ import { getInvoiceWithDetails } from "@/lib/db/invoice";
 
 export async function createPaymentInvoice(prevState: any, invoiceId: string) {
     const session = await auth();
-    let checkoutUrl: string | null = null; // 1. Store the URL in a variable
-
+    let checkoutUrl: string | null = null;
     try {
         const invoice = await getInvoiceWithDetails(invoiceId);
 
@@ -18,8 +17,6 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
             };
         }
 
-        // const BASE_URL =
-        //     process.env.NEXT_DEV_APP_URL || "https://www.josephmary.me";
         const secretKey = process.env.XENDIT_SECRET_KEY;
         // Important: Xendit requires the secret key followed by a colon, then Base64 encoded
         const basicAuth = Buffer.from(`${secretKey}:`).toString("base64");
@@ -57,7 +54,7 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
             };
         }
 
-        checkoutUrl = data.invoiceUrl;
+        checkoutUrl = data.invoice_url;
     } catch (error) {
         console.error("Unexpected error during processing", error);
         return { success: false };
