@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-    const callbackToken = req.headers.get("x-callback-token");
+    const callbackToken = req.headers.get("X-CALLBACK-TOKEN");
 
     if (callbackToken !== process.env.XENDIT_CALLBACK_TOKEN) {
         return new NextResponse("Invalid token", { status: 401 });
