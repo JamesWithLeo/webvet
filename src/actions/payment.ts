@@ -31,6 +31,7 @@ export async function createPaymentInvoice(invoiceId: string) {
             payer_email: session.user.email,
             amount: invoice.totalAmount,
             currency: "PHP",
+            callback_url: `${BASE_URL}/api/webhooks/xendit`,
             success_redirect_url: `${BASE_URL}/v1/appointments`,
             failure_redirect_url: `${BASE_URL}/v1/invoices/${encodeURIComponent(invoiceId)}`,
         }),
