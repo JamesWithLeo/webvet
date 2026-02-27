@@ -61,18 +61,11 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
 
         checkoutUrl = data.invoice_url;
 
-        const result = await db
+        await db
             .update(invoices)
             .set({ status: "PAID" })
             .where(eq(invoices.id, invoice.id))
             .returning();
-
-        if (result.length > 0) {
-            // This refreshes the page data so you see the change immediately
-            revalidatePath(`/v1/invoices/${invoiceId}`);
-            revalidatePath(`/v1/appointments`);
-            return { success: true };
-        }
 
         // return { success: false, error: "Invoice ID not found in database" };
     } catch (error) {
