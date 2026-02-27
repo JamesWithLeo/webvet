@@ -29,6 +29,7 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
             method: "POST",
             headers: {
                 Authorization: `Basic ${basicAuth}`,
+                "x-callback-token": process.env.XENDIT_CALLBACK_TOKEN!,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
