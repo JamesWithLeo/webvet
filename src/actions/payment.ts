@@ -47,8 +47,7 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
 
     if (response.ok && data.invoice_url) {
         // revalidatePath(`/v1/invoice/${data.invoice_url}`);
-        return { success: true };
-        // redirect(data.invoice_url);
+        redirect(data.invoice_url);
         // return { success: true };
         // return { success: true };
     } else {
