@@ -3,6 +3,8 @@
 // import { eq } from "drizzle-orm";
 // import { NextResponse } from "next/server";
 
+import { NextResponse } from "next/server";
+
 // export async function POST(req: Request) {
 //     const callbackToken = req.headers.get("x-callback-token");
 
@@ -57,5 +59,5 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("XENDIT WEBHOOK RECEIVED:", body);
 
-    return new Response("OK", { status: 200 });
+    return new NextResponse("OK", { status: 200 });
 }
