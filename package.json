@@ -50,6 +50,7 @@
         "embla-carousel-react": "^8.6.0",
         "googleapis": "^170.1.0",
         "gsap": "^3.13.0",
+        "ip-range-check": "^0.2.0",
         "lodash": "^4.17.23",
         "lottie-react": "^2.4.1",
         "mantine-datatable": "^8.3.7",
