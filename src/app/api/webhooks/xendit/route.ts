@@ -6,26 +6,39 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
     const callbackToken = req.headers.get("x-callback-token");
 
-    if (!callbackToken)
-        return new NextResponse("Missing token", { status: 401 });
-    if (callbackToken !== process.env.XENDIT_CALLBACK_TOKEN)
-        return new NextResponse("Invalid token", { status: 401 });
+    if (!callbackToken || callbackToken !== process.env.XENDIT_CALLBACK_TOKEN) {
+        return new NextResponse("Unauthorized", { status: 401 });
+    }
 
     try {
-        const body = await req.json();
+        const body = await req.json().catch(() => null);
+
+        if (!body) {
+            return NextResponse.json(
+                { error: "Invalid payload" },
+                { status: 400 }
+            );
+        }
+
         const { external_id, status } = body;
 
-        if (status === "PAID") {
-            await db
+        if (status === "PAID" && external_id) {
+            const result = await db
                 .update(invoices)
                 .set({ status: "PAID" })
-                .where(eq(invoices.id, external_id));
-            console.log(`Invoice ${external_id} marked as PAID.`);
-            return NextResponse.json({ received: true }, { status: 200 });
+                .where(eq(invoices.id, external_id))
+                .returning()
+                .then((v) => v[0]);
+
+            if (result) {
+                console.log(`✅ Invoice ${external_id} processed.`);
+                return NextResponse.json({ received: true }, { status: 200 });
+            }
         }
+
         return NextResponse.json({ received: false }, { status: 200 });
     } catch (error) {
-        console.error("Webhook processing failed:", error);
-        return new NextResponse("Internal Server Error", { status: 500 });
+        console.error("Webhook Error:", error);
+        return new NextResponse("Internal Error", { status: 500 });
     }
 }
