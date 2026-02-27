@@ -3,6 +3,10 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
+import { db } from "@/db";
+import { invoices } from "@/db/schema/invoice";
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 export async function createPaymentInvoice(prevState: any, invoiceId: string) {
     const session = await auth();
@@ -48,6 +52,7 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
 
         if (!response.ok) {
             console.error("Xendit API Error:", data);
+
             return {
                 success: false,
                 error: data.message || "Failed to create invoice",
@@ -55,6 +60,21 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
         }
 
         checkoutUrl = data.invoice_url;
+
+        const result = await db
+            .update(invoices)
+            .set({ status: "PAID" })
+            .where(eq(invoices.id, invoice.id))
+            .returning();
+
+        if (result.length > 0) {
+            // This refreshes the page data so you see the change immediately
+            revalidatePath(`/v1/invoices/${invoiceId}`);
+            revalidatePath(`/v1/appointments`);
+            return { success: true };
+        }
+
+        // return { success: false, error: "Invoice ID not found in database" };
     } catch (error) {
         console.error("Unexpected error during processing", error);
         return { success: false };
