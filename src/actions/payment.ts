@@ -3,27 +3,28 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
-import { revalidatePath } from "next/cache";
 
 export async function createPaymentInvoice(prevState: any, invoiceId: string) {
     const session = await auth();
+    let checkoutUrl: string | null = null; // 1. Store the URL in a variable
+
     try {
         const invoice = await getInvoiceWithDetails(invoiceId);
 
         if (!invoice || !session) {
-            throw new Error("Unauthorized or Invoice not found");
+            return {
+                success: false,
+                error: "Unauthorized or Invoice not found",
+            };
         }
-        console.log("Invoice.id", invoice.id);
 
         const secretKey = process.env.XENDIT_SECRET_KEY;
         const basicAuth = Buffer.from(`${secretKey}:`).toString("base64");
 
         const BASE_URL =
             process.env.NEXT_DEV_APP_URL || "https://www.josephmary.me";
-
         const cleanCallbackUrl = `${BASE_URL.replace(/\/$/, "")}/api/webhooks/xendit`;
 
-        // 2. Use the data from your DATABASE, not from the form
         const response = await fetch("https://api.xendit.co/v2/invoices", {
             method: "POST",
             headers: {
@@ -36,29 +37,28 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
                 amount: invoice.totalAmount,
                 currency: "PHP",
                 callback_url: cleanCallbackUrl,
-                // callback_url: `${BASE_URL}/api/webhooks/xendit`,
                 success_redirect_url: `${BASE_URL}/v1/appointments`,
                 failure_redirect_url: `${BASE_URL}/v1/invoices/${encodeURIComponent(invoiceId)}`,
             }),
         });
+
         const data = await response.json();
 
         if (response.ok && data.invoice_url) {
-            // revalidatePath(`/v1/invoice/${data.invoice_url}`);
-            redirect(data.invoice_url);
-            // return { success: true };
-            // return { success: true };
+            checkoutUrl = data.invoice_url; // 2. Assign the URL
         } else {
+            console.error("Xendit Error:", data);
             return { success: false };
         }
     } catch (error) {
-        console.error("Unexpected error", error);
+        console.error("Unexpected error during processing", error);
         return { success: false };
-        throw new Error("Failed to create payment");
     }
-    // } else {
-    //     console.error("Xendit Error:", data);
-    //     return { success: false };
-    //     throw new Error("Failed to create payment");
-    // }
+
+    // 3. 🏆 Redirect outside the try-catch block
+    if (checkoutUrl) {
+        redirect(checkoutUrl);
+    }
+
+    return { success: false };
 }
