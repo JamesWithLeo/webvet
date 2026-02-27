@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
-import Xendit from "xendit-node";
+import { Xendit } from "xendit-node";
 
 const xenditClient = new Xendit({
     secretKey: process.env.XENDIT_SECRET_KEY!,
@@ -24,11 +24,9 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
         }
 
         const secretKey = process.env.XENDIT_SECRET_KEY;
-        const basicAuth = Buffer.from(`${secretKey}:`).toString("base64");
 
         const BASE_URL =
             process.env.NEXT_DEV_APP_URL || "https://www.josephmary.me";
-        const cleanCallbackUrl = `${BASE_URL.replace(/\/$/, "")}/api/webhooks/xendit`;
 
         const response = await xenditClient.Invoice.createInvoice({
             data: {
@@ -40,23 +38,6 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
                 failureRedirectUrl: `${BASE_URL}/v1/invoices/${invoiceId}`,
             },
         });
-
-        // const response = await fetch("https://api.xendit.co/v2/invoices", {
-        //     method: "POST",
-        //     headers: {
-        //         Authorization: `Basic ${basicAuth}`,
-        //         "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify({
-        //         external_id: invoice.id,
-        //         payer_email: session.user.email,
-        //         amount: Number(invoice.totalAmount).toFixed(2),
-        //         currency: "PHP",
-        //         callback_url: cleanCallbackUrl,
-        //         success_redirect_url: `${BASE_URL}/v1/appointments`,
-        //         failure_redirect_url: `${BASE_URL}/v1/invoices/${encodeURIComponent(invoiceId)}`,
-        //     }),
-        // });
 
         checkoutUrl = response.invoiceUrl;
     } catch (error) {
