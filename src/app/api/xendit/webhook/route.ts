@@ -17,9 +17,7 @@ export async function POST(req: Request) {
 
         const { external_id, status } = body;
 
-        // 1. Basic Validation
         if (status === "PAID" && external_id) {
-            // 2. Wrap DB call to catch UUID format errors
             try {
                 const result = await db
                     .update(invoices)
