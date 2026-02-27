@@ -46,7 +46,7 @@ export async function createPaymentInvoice(invoiceId: string) {
 
     if (response.ok && data.invoice_url) {
         // revalidatePath(`/v1/invoice/${data.invoice_url}`);
-        redirect("/v1/appointments");
+        redirect(data.invoice_url);
         // return { success: true };
     } else {
         console.error("Xendit Error:", data);
