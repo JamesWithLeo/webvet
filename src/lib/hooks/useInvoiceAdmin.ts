@@ -1,9 +1,15 @@
 "use client";
 
-import { InvoiceTypeModel } from "@/db/schema/invoice";
+import { InvoiceTypeModel, paymentStatusType } from "@/db/schema/invoice";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 export default function useInvoiceAdmin() {
+    const [queryId, setQueryId] = useState<string>("");
+    const [paymentStatus, setPaymentStatus] = useState<
+        (typeof paymentStatusType.enumValues)[number] | "all"
+    >("all");
+
     const query = useQuery<InvoiceTypeModel[], Error>({
         queryKey: ["invoices", "admin"],
 
@@ -18,7 +24,25 @@ export default function useInvoiceAdmin() {
             return data as InvoiceTypeModel[];
         },
         staleTime: 1000 * 60 * 5,
+
+        select: (data) => {
+            const lowerQueryId = queryId.toLowerCase();
+
+            let filtered = data;
+            filtered = data.filter((inv) => {
+                const matchQueryId =
+                    !queryId || inv.id.toLowerCase().includes(lowerQueryId);
+
+                const matchesStatus =
+                    paymentStatus === "all" ||
+                    inv.status?.toLowerCase() === paymentStatus.toLowerCase();
+
+                return matchQueryId && matchesStatus;
+            });
+
+            return filtered;
+        },
     });
 
-    return { ...query };
+    return { ...query, queryId, setQueryId, paymentStatus, setPaymentStatus };
 }

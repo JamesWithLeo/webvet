@@ -18,6 +18,7 @@ import {
 } from "@/db/schema/appointments";
 import { useMemo } from "react";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
+import { invoiceItems } from "@/db/schema/invoice";
 
 const PawSvg = () => {
     return (
@@ -48,12 +49,14 @@ export default function AppointmentCard({
     pets,
     id,
     event_datetime,
+    invoiceId,
+    invoiceStatus,
 }: JoinedAppointmentType) {
     const passed = isPast(event_datetime);
     const date = new Date(event_datetime);
     const router = useRouter();
     const handleInvoiceClick = async () => {
-        router.push("/v1/invoice");
+        router.push(`/v1/invoice/${invoiceId}`);
     };
 
     const sum = useMemo(() => {
@@ -109,14 +112,26 @@ export default function AppointmentCard({
                 <Divider label={"Amount"} />
                 <Flex c={"dimmed"} align={"center"} justify="space-between">
                     <Text>{CurrencyFormatter(sum)}</Text>
-                    {true ? (
-                        <Button variant="default" onClick={handleInvoiceClick}>
-                            Invoice
-                        </Button>
-                    ) : (
+
+                    {!invoiceId ? (
                         <Text c={"dimmed"} size="sm">
-                            PAID
+                            Not yet billed.
                         </Text>
+                    ) : (
+                        <>
+                            {invoiceStatus === "UNPAID" ? (
+                                <Button
+                                    variant="default"
+                                    onClick={handleInvoiceClick}
+                                >
+                                    Pay now
+                                </Button>
+                            ) : (
+                                <Text c={"dimmed"} size="sm">
+                                    View Reciept
+                                </Text>
+                            )}
+                        </>
                     )}
                 </Flex>
             </Card.Section>

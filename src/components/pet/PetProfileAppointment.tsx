@@ -31,7 +31,6 @@ type Props = {
         created_at: Date;
         expiredNotification: boolean;
         incomingNotification: boolean;
-        invoiceId: string | null;
     }[];
 };
 

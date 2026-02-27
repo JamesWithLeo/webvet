@@ -1,76 +1,52 @@
 "use client";
 
+import CurrencyFormatter from "@/lib/CurrencyFormatter";
+import { toTitleCase } from "@/lib/toTitleCase";
 import { Table } from "@mantine/core";
-const elements = [
-    // {
-    //     code: "EXAM01",
-    //     description: "Annual Wellness Examination (Mandatory Professional Fee)",
-    //     category: "Professional Fee",
-    //     quantity: 0,
-    //     unitPrice: 75,
-    //     total: 0,
-    // },
-    {
-        code: "VACC-R",
-        description: "Rabies Vaccine (3-Year)",
-        category: "Vaccine",
-        quantity: 1,
-        unitPrice: 200,
-        total: 200,
-    },
-    {
-        code: "VACC-DHP",
-        description: "DA2PP/DHPP Vaccine",
-        category: "Vaccine",
-        quantity: 1,
-        unitPrice: 300,
-        total: 300,
-    },
-    {
-        code: "SUPP-D",
-        description: "Medical Waste/Sharps Disposal Fee",
-        category: "Ancillary Fee",
-        quantity: 2,
-        unitPrice: 8,
-        total: 16,
-    },
-];
-export default function InvoiceTable() {
-    const rows = elements.map((element) => (
-        <Table.Tr key={element.code}>
-            <Table.Td>{element.code}</Table.Td>
-            <Table.Td>{element.description}</Table.Td>
-            <Table.Td>{element.quantity}</Table.Td>
-            <Table.Td>{element.category}</Table.Td>
-            <Table.Td>{element.unitPrice}</Table.Td>
-            <Table.Td>{element.total}</Table.Td>
+
+type Props = {
+    items: {
+        petName: string | null;
+        serviceTitle: string | null;
+        id?: string | undefined;
+        invoiceId?: string | null | undefined;
+        petId?: string | null | undefined;
+        serviceId?: string | null | undefined;
+        priceAtInvoice?: string | undefined;
+    }[];
+    total: string;
+};
+export default function InvoiceTable({ items, total }: Props) {
+    const rows = items.map((item) => (
+        <Table.Tr key={item.id}>
+            <Table.Td>{item.id}</Table.Td>
+            <Table.Td>
+                {item.petName ? toTitleCase(item.petName) : item.id}
+            </Table.Td>
+            <Table.Td>{item.serviceTitle}</Table.Td>
+            <Table.Td>{item.priceAtInvoice}</Table.Td>
         </Table.Tr>
     ));
 
     const ths = (
-        <Table.Tr>
-            <Table.Th>Subtotal</Table.Th>
+        <Table.Tr key={"footer"}>
+            <Table.Th>Total</Table.Th>
             <Table.Th></Table.Th>
             <Table.Th></Table.Th>
-            <Table.Th></Table.Th>
-            <Table.Th></Table.Th>
-            <Table.Th>516.00</Table.Th>
+            <Table.Th>{CurrencyFormatter(total)}</Table.Th>
         </Table.Tr>
     );
     return (
         <Table highlightOnHover withTableBorder stickyHeader>
             <Table.Thead>
                 <Table.Tr>
-                    <Table.Th>Item Code</Table.Th>
-                    <Table.Th>Description</Table.Th>
-                    <Table.Th>Category</Table.Th>
-                    <Table.Th>Quantity</Table.Th>
-                    <Table.Th>Unit Price</Table.Th>
-                    <Table.Th>Total</Table.Th>
+                    <Table.Th>Id</Table.Th>
+                    <Table.Th>Pet Id</Table.Th>
+                    <Table.Th>service Id</Table.Th>
+                    <Table.Th>Price</Table.Th>
                 </Table.Tr>
             </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-            <Table.Tfoot>{ths}</Table.Tfoot>
+            <Table.Tbody>{rows.concat(ths)}</Table.Tbody>
         </Table>
     );
 }

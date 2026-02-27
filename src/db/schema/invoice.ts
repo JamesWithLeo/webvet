@@ -1,12 +1,8 @@
-import {
-    pgEnum,
-    pgTable,
-    timestamp,
-    uuid,
-    integer,
-    decimal,
-} from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, timestamp, uuid, decimal } from "drizzle-orm/pg-core";
 import { users } from "./users";
+import { services } from "./services";
+import { appointments } from "./appointments";
+import { pets } from "./pets";
 
 export const paymentStatusTypeValues = ["UNPAID", "PAID", "VOID"] as const;
 export const paymentStatusType = pgEnum(
@@ -17,6 +13,9 @@ export const paymentStatusType = pgEnum(
 export const invoices = pgTable("invoices", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id").notNull(),
+    appointmentId: uuid("appointment_id").references(() => appointments.id, {
+        onDelete: "set null",
+    }),
     totalAmount: decimal("total_amount", { scale: 2, precision: 10 }).notNull(),
     status: paymentStatusType("status").default("PAID"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -32,9 +31,14 @@ export const invoiceItems = pgTable("invoice_items", {
     invoiceId: uuid("invoice_id").references(() => invoices.id, {
         onDelete: "cascade",
     }),
-    petId: uuid("pet_id").notNull(),
+    petId: uuid("pet_id").references(() => pets.id, { onDelete: "set null" }),
+    serviceId: uuid("service_id").references(() => services.id, {
+        onDelete: "set null",
+    }),
     priceAtInvoice: decimal("price_at_booking", {
         scale: 2,
         precision: 10,
     }).notNull(), // 800
 });
+
+export type InvoiceItemsTypeModel = typeof invoiceItems.$inferSelect;

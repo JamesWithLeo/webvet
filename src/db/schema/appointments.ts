@@ -31,18 +31,20 @@ export type AppointmentPetMergeType = {
 };
 
 export type JoinedAppointmentType = {
-    id: string;
-    title: string | null;
-    event_datetime: string;
-    created_at: Date;
-    expiredNotification: boolean;
-    incomingNotification: boolean;
+    invoiceStatus: "UNPAID" | "PAID" | "VOID" | null;
+    invoiceId: string | null;
     pets: {
         id: string;
         name: string;
         photoUrl: string | null;
         priceAtBooking: string;
     }[];
+    id: string;
+    title: string;
+    event_datetime: string;
+    created_at: Date;
+    expiredNotification: boolean;
+    incomingNotification: boolean;
 };
 
 export const monthAbbreviations = [
@@ -79,10 +81,6 @@ export const appointments = pgTable("appointments", {
     incomingNotification: boolean("incoming_notification")
         .default(false)
         .notNull(),
-
-    invoiceId: uuid("invoice_id").references(() => invoices.id, {
-        onDelete: "set null",
-    }),
 });
 
 export const bookingSourceEnum = pgEnum("booking_source", [

@@ -29,6 +29,7 @@ import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
 import { AppointmentFormInput } from "../validators/newAppointmentSchema";
 import PetServiceMerged from "@/types/PetsServiceMerged";
+import { invoices } from "@/db/schema/invoice";
 
 export class ExistingAppointmentConflictError extends Error {
     public code: string;
@@ -191,6 +192,9 @@ export const getAppointments = async ({ id }: { id: string }) => {
             .select({
                 ...getTableColumns(appointments),
                 // Squash the pet data into a single JSON array column
+
+                invoiceStatus: invoices.status,
+                invoiceId: invoices.id,
                 pets: sql<
                     {
                         id: string;
@@ -217,17 +221,9 @@ export const getAppointments = async ({ id }: { id: string }) => {
                 eq(appointments.id, appointmentsToPets.appointmentId)
             )
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            .leftJoin(invoices, eq(invoices.appointmentId, appointments.id))
             .where(eq(pets.ownerId, id))
-            .groupBy(
-                appointments.id,
-                appointments.title,
-                appointments.event_datetime,
-                // appointments.type,
-                appointments.created_at,
-                appointments.expiredNotification,
-                appointments.incomingNotification,
-                appointments.invoiceId
-            )
+            .groupBy(appointments.id, invoices.id)
             .orderBy(desc(appointments.event_datetime));
         return { data: response, error: null };
     } catch (error) {
@@ -414,8 +410,7 @@ export const getAppointment = async ({
                 appointments.event_datetime,
                 appointments.created_at,
                 appointments.expiredNotification,
-                appointments.incomingNotification,
-                appointments.invoiceId
+                appointments.incomingNotification
             )
             .limit(1)
             .then((v) => v[0]);
@@ -635,6 +630,7 @@ export const getAppointmentToPetsAdmin = async (id: string) => {
                                 'photoUrl', ${pets.photoUrl},
                                 'title', ${services.title},
                                 'type', ${services.type},
+                                'serviceId', ${services.id},
                                 'priceAtBooking', ${appointmentsToPets.priceAtBooking},
                                 'species', ${pets.species},
                                 'weight', ${pets.weight},

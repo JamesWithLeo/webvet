@@ -27,6 +27,7 @@ import PetServiceMerged from "@/types/PetsServiceMerged";
 import { CreateInvoice } from "@/actions/invoice";
 import { notifications } from "@mantine/notifications";
 import { paymentStatusType } from "@/db/schema/invoice";
+import { useRouter } from "next/navigation";
 
 type Props = {
     pets: PetServiceMerged[];
@@ -45,9 +46,7 @@ export default function AdminCreateInvoiceTable({
 }: Props) {
     const [selectedRows, setSelectedRows] = useState<PetServiceMerged[]>([]);
 
-    const [paymentStatus, setPaymentStatus] = useState<
-        (typeof paymentStatusType.enumValues)[number] | null
-    >(null);
+    const router = useRouter();
 
     const [opened, { close, open }] = useDisclosure();
 
@@ -74,10 +73,12 @@ export default function AdminCreateInvoiceTable({
                     userId: clientId,
                     totalAmount: sum.toFixed(2),
                     status: paymentStatus,
+                    appointmentId: appointmentId,
                 },
                 items: selectedRows.map((row) => ({
-                    petId: row.id,
+                    petId: row.petId,
                     priceAtInvoice: row.priceAtBooking.toFixed(2),
+                    serviceId: row.serviceId,
                 })),
             });
         });
@@ -114,6 +115,7 @@ export default function AdminCreateInvoiceTable({
                 icon: <IconCheck size={18} />,
                 autoClose: 3000,
             });
+            router.push("/v1/admin/invoice");
         }
 
         if (formState.error) {

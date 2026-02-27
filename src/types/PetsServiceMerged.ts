@@ -7,6 +7,7 @@ type PetServiceMerged = {
     photoUrl: string | null;
     species: "dog" | "cat";
     title: string;
+    serviceId: string;
     type: AppointmentType;
     priceAtBooking: number;
     weight: number;
