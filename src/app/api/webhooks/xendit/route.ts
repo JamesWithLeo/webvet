@@ -36,12 +36,18 @@ export async function POST(req: Request) {
                 }
             } catch (dbError) {
                 // This catches the "invalid input syntax for type uuid" error
-                console.error("Database Update Failed:", dbError);
+                return NextResponse.json(
+                    { received: true, updated: false, body: body },
+                    { status: 200 }
+                );
             }
         }
 
         // 3. Always return 200 to Xendit if the token was valid
-        return NextResponse.json({ received: true }, { status: 200 });
+        return NextResponse.json(
+            { received: true, body: body },
+            { status: 200 }
+        );
     } catch (error) {
         console.error("Webhook Global Error:", error);
         return new NextResponse("Internal Error", { status: 500 });
