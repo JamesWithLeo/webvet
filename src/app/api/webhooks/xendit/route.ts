@@ -20,9 +20,9 @@ export async function POST(req: Request) {
                 .set({ status: "PAID" })
                 .where(eq(invoices.id, external_id));
             console.log(`✅ Invoice ${external_id} marked as PAID.`);
-            return NextResponse.json({ received: true });
+            return NextResponse.json({ received: true }, { status: 200 });
         }
-        return NextResponse.json({ received: false });
+        return NextResponse.json({ received: false }, { status: 200 });
     } catch (error) {
         console.error("Webhook processing failed:", error);
         return new NextResponse("Internal Server Error", { status: 500 });
