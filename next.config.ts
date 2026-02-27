@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
         ],
         qualities: [50, 75, 100],
     },
+    trailingSlash: false,
     experimental: {
         authInterrupts: true,
     },
