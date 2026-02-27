@@ -34,7 +34,7 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
             body: JSON.stringify({
                 external_id: invoice.id,
                 payer_email: session.user.email,
-                amount: invoice.totalAmount,
+                amount: Number(invoice.totalAmount).toFixed(2),
                 currency: "PHP",
                 callback_url: cleanCallbackUrl,
                 success_redirect_url: `${BASE_URL}/v1/appointments`,
