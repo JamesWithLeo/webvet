@@ -12,12 +12,15 @@ export async function createPaymentInvoice(invoiceId: string) {
     if (!invoice || !session) {
         throw new Error("Unauthorized or Invoice not found");
     }
+    console.log("Invoice.id", invoice.id);
 
     const secretKey = process.env.XENDIT_SECRET_KEY;
     const basicAuth = Buffer.from(`${secretKey}:`).toString("base64");
 
     const BASE_URL =
         process.env.NEXT_DEV_APP_URL || "https://www.josephmary.me";
+
+    const cleanCallbackUrl = `${BASE_URL.replace(/\/$/, "")}/api/webhooks/xendit`;
 
     // 2. Use the data from your DATABASE, not from the form
     const response = await fetch("https://api.xendit.co/v2/invoices", {
@@ -31,7 +34,8 @@ export async function createPaymentInvoice(invoiceId: string) {
             payer_email: session.user.email,
             amount: invoice.totalAmount,
             currency: "PHP",
-            callback_url: `${BASE_URL}/api/webhooks/xendit`,
+            callback_url: cleanCallbackUrl,
+            // callback_url: `${BASE_URL}/api/webhooks/xendit`,
             success_redirect_url: `${BASE_URL}/v1/appointments`,
             failure_redirect_url: `${BASE_URL}/v1/invoices/${encodeURIComponent(invoiceId)}`,
         }),
