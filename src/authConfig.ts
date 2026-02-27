@@ -32,10 +32,10 @@ export const authConfig = {
                 params: {
                     scope: "openid email profile https://www.googleapis.com/auth/calendar.events.owned",
                     access_type: "offline", // Essential to get a refresh_token
-                    prompt: "consent select_account",
-                    response_type: "code",
+                    prompt: "consent ",
                 },
             },
+            checks: ["pkce", "state"],
             allowDangerousEmailAccountLinking: true,
         }),
 
