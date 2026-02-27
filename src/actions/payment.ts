@@ -3,11 +3,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
-import { Xendit } from "xendit-node";
-
-const xenditClient = new Xendit({
-    secretKey: process.env.XENDIT_SECRET_KEY!,
-});
 
 export async function createPaymentInvoice(prevState: any, invoiceId: string) {
     const session = await auth();
@@ -23,23 +18,46 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
             };
         }
 
+        // const BASE_URL =
+        //     process.env.NEXT_DEV_APP_URL || "https://www.josephmary.me";
         const secretKey = process.env.XENDIT_SECRET_KEY;
+        // Important: Xendit requires the secret key followed by a colon, then Base64 encoded
+        const basicAuth = Buffer.from(`${secretKey}:`).toString("base64");
 
         const BASE_URL =
             process.env.NEXT_DEV_APP_URL || "https://www.josephmary.me";
 
-        const response = await xenditClient.Invoice.createInvoice({
-            data: {
-                externalId: invoice.id,
+        // Ensure no trailing slash on the base URL for the webhook
+        const cleanWebhookUrl = `${BASE_URL.replace(/\/$/, "")}/api/webhooks/xendit`;
+        const response = await fetch("https://api.xendit.co/v2/invoices", {
+            method: "POST",
+            headers: {
+                Authorization: `Basic ${basicAuth}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                external_id: invoice.id,
                 amount: Number(invoice.totalAmount),
                 currency: "PHP",
-                payerEmail: session.user.email ?? undefined,
-                successRedirectUrl: `${BASE_URL}/v1/appointments`,
-                failureRedirectUrl: `${BASE_URL}/v1/invoices/${invoiceId}`,
-            },
+                payer_email: session.user.email,
+                // 💡 This "callback_url" is what tells Xendit where to send the "PAID" update
+                callback_url: cleanWebhookUrl,
+                success_redirect_url: `${BASE_URL}/v1/appointments`,
+                failure_redirect_url: `${BASE_URL}/v1/invoices/${invoiceId}`,
+            }),
         });
 
-        checkoutUrl = response.invoiceUrl;
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error("Xendit API Error:", data);
+            return {
+                success: false,
+                error: data.message || "Failed to create invoice",
+            };
+        }
+
+        checkoutUrl = data.invoiceUrl;
     } catch (error) {
         console.error("Unexpected error during processing", error);
         return { success: false };
