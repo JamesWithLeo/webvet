@@ -9,6 +9,7 @@ import {
     IconChevronLeft,
     IconListSearch,
     IconCategory2,
+    IconFileInvoice,
 } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -34,6 +35,11 @@ const data = [
         link: "/v1/admin/appointments",
         label: "Appointments",
         icon: <IconListSearch stroke={1.5} />,
+    },
+    {
+        link: "/v1/admin/invoice",
+        label: "Invoices",
+        icon: <IconFileInvoice stroke={1.5} />,
     },
     {
         link: "/v1/admin/accounts",

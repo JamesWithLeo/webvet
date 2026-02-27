@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+"use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { AdminUserSummary, Role, UserGender } from "@/types/user";
 import { useState } from "react";
 import { sortBy } from "lodash";

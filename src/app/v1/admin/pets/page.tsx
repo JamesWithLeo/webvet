@@ -7,9 +7,9 @@ import {
     QueryClient,
 } from "@tanstack/react-query";
 
-export default function Pets() {
+export default async function Pets() {
     const queryClient = new QueryClient();
-    queryClient.prefetchQuery({
+    await queryClient.prefetchQuery({
         queryKey: ["pets", "admin"],
         queryFn: async () => {
             const { data } = await getAllPetsAdmin();

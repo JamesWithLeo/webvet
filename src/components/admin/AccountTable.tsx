@@ -7,26 +7,13 @@ import {
 } from "mantine-datatable";
 import {
     ActionIcon,
-    Flex,
     Stack,
-    Text,
     Group,
-    Box,
     Button,
-    Menu,
-    Kbd,
     NativeSelect,
     TextInput,
 } from "@mantine/core";
-import {
-    IconDog,
-    IconDots,
-    IconDotsVertical,
-    IconEdit,
-    IconSearch,
-    IconTrash,
-    IconX,
-} from "@tabler/icons-react";
+import { IconDots, IconSearch, IconX } from "@tabler/icons-react";
 import { useMemo } from "react";
 import useUserAdmin from "@/lib/hooks/useUserAdmin";
 import {

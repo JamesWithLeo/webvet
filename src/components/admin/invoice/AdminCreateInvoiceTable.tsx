@@ -2,7 +2,15 @@
 
 import { ServiceMergePriceType } from "@/db/schema/services";
 import { toTitleCase } from "@/lib/toTitleCase";
-import { Button, Checkbox, Group, Stack, Table, Text } from "@mantine/core";
+import {
+    Button,
+    Checkbox,
+    Group,
+    Modal,
+    Stack,
+    Table,
+    Text,
+} from "@mantine/core";
 import { IconCheck, IconInvoice, IconX } from "@tabler/icons-react";
 import {
     startTransition,
@@ -17,9 +25,8 @@ import { useDisclosure } from "@mantine/hooks";
 import { PetTypeModel } from "@/types/pets";
 import PetServiceMerged from "@/types/PetsServiceMerged";
 import { CreateInvoice } from "@/actions/invoice";
-import { useFormState } from "react-dom";
-import { redirect } from "next/navigation";
 import { notifications } from "@mantine/notifications";
+import { paymentStatusType } from "@/db/schema/invoice";
 
 type Props = {
     pets: PetServiceMerged[];
@@ -28,6 +35,7 @@ type Props = {
     appointmentId: string;
     clientId: string;
 };
+
 export default function AdminCreateInvoiceTable({
     pets,
     services,
@@ -36,7 +44,17 @@ export default function AdminCreateInvoiceTable({
     clientId,
 }: Props) {
     const [selectedRows, setSelectedRows] = useState<PetServiceMerged[]>([]);
+
+    const [paymentStatus, setPaymentStatus] = useState<
+        (typeof paymentStatusType.enumValues)[number] | null
+    >(null);
+
     const [opened, { close, open }] = useDisclosure();
+
+    const [
+        openedPaymentStatus,
+        { close: closePaymentStatus, open: openPaymentStatus },
+    ] = useDisclosure();
 
     const createInvoice = CreateInvoice.bind(null);
 
@@ -46,10 +64,17 @@ export default function AdminCreateInvoiceTable({
         error: "",
     });
 
-    const handleIssueInvoice = async () => {
+    const handleIssueInvoice = async (
+        paymentStatus: (typeof paymentStatusType.enumValues)[number]
+    ) => {
+        closePaymentStatus();
         startTransition(() => {
             formAction({
-                rawInvoice: { userId: clientId, totalAmount: sum.toFixed(2) },
+                rawInvoice: {
+                    userId: clientId,
+                    totalAmount: sum.toFixed(2),
+                    status: paymentStatus,
+                },
                 items: selectedRows.map((row) => ({
                     petId: row.id,
                     priceAtInvoice: row.priceAtBooking.toFixed(2),
@@ -97,7 +122,7 @@ export default function AdminCreateInvoiceTable({
                 message: formState.error,
                 color: "red",
                 icon: <IconX size={18} />,
-                autoClose: false, // Keep open so user can read the specific error
+                autoClose: false,
             });
         }
     }, [formState]);
@@ -171,7 +196,7 @@ export default function AdminCreateInvoiceTable({
                             isPending
                         }
                         loading={isPending}
-                        onClick={handleIssueInvoice}
+                        onClick={() => openPaymentStatus()}
                     >
                         Issue Invoice
                     </Button>
@@ -184,6 +209,32 @@ export default function AdminCreateInvoiceTable({
                 opened={opened}
                 allPets={allPets}
             />
+
+            <Modal
+                title="Payment Status"
+                centered
+                withCloseButton
+                opened={openedPaymentStatus}
+                onClose={closePaymentStatus}
+                radius={"lg"}
+                size={"md"}
+                shadow="xl"
+            >
+                <Group justify="center">
+                    <Button
+                        size="md"
+                        onClick={() => handleIssueInvoice("PAID")}
+                    >
+                        Save & mark as paid
+                    </Button>
+                    <Button
+                        size="md"
+                        onClick={() => handleIssueInvoice("UNPAID")}
+                    >
+                        Save as unpaid
+                    </Button>
+                </Group>
+            </Modal>
         </>
     );
 }

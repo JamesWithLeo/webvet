@@ -1,27 +1,27 @@
-import AccountTable from "@/components/admin/AccountTable";
-import { getAllUsersAdmin } from "@/lib/db/users";
-import { Title, Stack } from "@mantine/core";
+import AdminInvoiceTable from "@/components/admin/invoice/AdminInvoiceTable";
+import { getInvoiceAdmin } from "@/lib/db/invoice";
+import { Stack, Title } from "@mantine/core";
 import {
     dehydrate,
     HydrationBoundary,
     QueryClient,
 } from "@tanstack/react-query";
 
-export default async function Users() {
+export default async function Page() {
     const queryClient = new QueryClient();
-
     await queryClient.prefetchQuery({
-        queryKey: ["user", "admin"],
+        queryKey: ["invoices", "admin"],
         queryFn: async () => {
-            const { data } = await getAllUsersAdmin();
-            return data;
+            const invoices = await getInvoiceAdmin();
+            return invoices ?? [];
         },
     });
     return (
         <Stack className="w-full h-screen gap-4 p-16 light:bg-gray-50">
-            <Title>Account</Title>
+            <Title>Invoice</Title>
+
             <HydrationBoundary state={dehydrate(queryClient)}>
-                <AccountTable />
+                <AdminInvoiceTable />
             </HydrationBoundary>
         </Stack>
     );

@@ -2,12 +2,13 @@
 
 import { auth } from "@/auth";
 import { dbTx } from "@/db";
-import { invoiceItems, invoices } from "@/db/schema/invoice";
+import { invoiceItems, invoices, paymentStatusType } from "@/db/schema/invoice";
 import { unauthorized } from "next/navigation";
 
 type SavePropType = {
     userId: string;
     totalAmount: string;
+    status: (typeof paymentStatusType.enumValues)[number];
 };
 
 type ItemPropType = {

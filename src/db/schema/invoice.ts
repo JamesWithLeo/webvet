@@ -25,6 +25,8 @@ export const invoices = pgTable("invoices", {
     }),
 });
 
+export type InvoiceTypeModel = typeof invoices.$inferSelect;
+
 export const invoiceItems = pgTable("invoice_items", {
     id: uuid("id").primaryKey().defaultRandom(),
     invoiceId: uuid("invoice_id").references(() => invoices.id, {
