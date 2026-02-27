@@ -1,3 +1,5 @@
+"use client";
+
 import { createPaymentInvoice } from "@/actions/payment";
 import { Button } from "@mantine/core";
 import { startTransition, useActionState } from "react";
