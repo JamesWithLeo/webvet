@@ -1,6 +1,7 @@
 import { createPaymentInvoice } from "@/actions/payment";
 import { auth } from "@/auth";
 import InvoiceTable from "@/components/InvoiceTable";
+import ProcessPayment from "@/components/ProcessPayment";
 import { ProcessPaymentButton } from "@/components/ProcessPaymentButton";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
 import { Stack, Text, Title, Button, Group } from "@mantine/core";
@@ -19,7 +20,7 @@ export default async function Page({
     const data = await getInvoiceWithDetails(invoiceId);
     if (!data || !session) notFound();
 
-    const payAction = createPaymentInvoice.bind(null, invoiceId);
+    // const payAction = createPaymentInvoice.bind(null, invoiceId);
 
     return (
         <div className="flex items-center flex-col w-full">
@@ -67,9 +68,11 @@ export default async function Page({
                     </Stack>
                     {data.status === "UNPAID" && (
                         <Stack align="end" w={"1000"}>
-                            <form action={payAction} method="POST">
+                            {/* <Button>Process Payment</Button> */}
+                            <ProcessPayment invoiceId={invoiceId} />
+                            {/* <form action={payAction} method="POST">
                                 <ProcessPaymentButton />
-                            </form>
+                            </form> */}
                         </Stack>
                     )}
                 </Stack>
