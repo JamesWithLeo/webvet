@@ -1,3 +1,5 @@
+import { NextRequest, NextResponse } from "next/server";
+
 export const config = {
     matcher: [
         /*
@@ -7,3 +9,7 @@ export const config = {
         "/((?!api/webhooks/xendit|_next/static|_next/image|favicon.ico).*)",
     ],
 };
+
+export function proxy(request: NextRequest) {
+    return NextResponse.next();
+}
