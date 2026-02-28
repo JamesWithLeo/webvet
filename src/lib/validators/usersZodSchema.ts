@@ -7,7 +7,7 @@ export const userSetupSchema = z.object({
         .nonempty("Missing first name")
         .min(2, { message: "First name must be at least 2 characters" })
         .max(25, { message: "First name is too long" })
-        .regex(/^[a-zA-Z]*$/, "Only letters are allowed")
+        .regex(/^[a-zA-Z ]*$/, "Only letters are allowed")
         .toLowerCase(),
     lastName: z
         .string("Missing Last name")
