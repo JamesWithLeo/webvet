@@ -119,23 +119,14 @@ export default function AppointmentCard({
                         </Text>
                     ) : (
                         <>
-                            {invoiceStatus === "UNPAID" && (
+                            {invoiceStatus !== "VOID" && (
                                 <Button
                                     variant="default"
                                     onClick={handleInvoiceClick}
                                 >
-                                    Pay now
+                                    {invoiceStatus === "UNPAID" && "Pay now"}
+                                    {invoiceStatus === "PAID" && "View Invoice"}
                                 </Button>
-                            )}
-
-                            {invoiceStatus === "PAID" && (
-                                <Text
-                                    c={"dimmed"}
-                                    size="sm"
-                                    onClick={handleInvoiceClick}
-                                >
-                                    View invoice
-                                </Text>
                             )}
                         </>
                     )}
