@@ -6,7 +6,6 @@ import { getInvoiceWithDetails } from "@/lib/db/invoice";
 import { db } from "@/db";
 import { invoices } from "@/db/schema/invoice";
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 
 export async function createPaymentInvoice(prevState: any, invoiceId: string) {
     const session = await auth();

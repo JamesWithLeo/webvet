@@ -1,42 +1,77 @@
 "use client";
 
-import { Group, Paper, SimpleGrid } from "@mantine/core";
+import { Paper, SimpleGrid } from "@mantine/core";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { Sparkline } from "@mantine/charts";
-export const data = [
-    {
-        date: "Mar 22",
-        Apples: 2890,
-        Oranges: 2338,
-        Tomatoes: 2452,
-    },
-    {
-        date: "Mar 23",
-        Apples: 2756,
-        Oranges: 2103,
-        Tomatoes: 2402,
-    },
-    {
-        date: "Mar 24",
-        Apples: 3322,
-        Oranges: 986,
-        Tomatoes: 1821,
-    },
-    {
-        date: "Mar 25",
-        Apples: 3470,
-        Oranges: 2108,
-        Tomatoes: 2809,
-    },
-    {
-        date: "Mar 26",
-        Apples: 3129,
-        Oranges: 1726,
-        Tomatoes: 2290,
-    },
-];
+import useUserAdmin from "@/lib/hooks/useUserAdmin";
+import { useMemo } from "react";
+import dayjs from "dayjs";
 
 export default function UserPanel() {
+    const { data } = useUserAdmin();
+    const analytics = useMemo(() => {
+        const monthsTemplate = [
+            { name: "Jan", total: 0 },
+            { name: "Feb", total: 0 },
+            { name: "Mar", total: 0 },
+            { name: "Apr", total: 0 },
+            { name: "May", total: 0 },
+            { name: "Jun", total: 0 },
+            { name: "Jul", total: 0 },
+            { name: "Aug", total: 0 },
+            { name: "Sep", total: 0 },
+            { name: "Oct", total: 0 },
+            { name: "Nov", total: 0 },
+            { name: "Dec", total: 0 },
+        ];
+
+        const result = {
+            chartData: monthsTemplate.map((m) => ({ ...m })), // Deep copy
+            thisMonth: 0,
+            lastMonth: 0,
+            diff: "0",
+        };
+
+        if (!data) return result;
+
+        const now = dayjs();
+        const currentYear = now.year();
+        const startOfThisMonth = now.startOf("month");
+        const startOfLastMonth = now.subtract(1, "month").startOf("month");
+        const endOfLastMonth = now.subtract(1, "month").endOf("month");
+
+        // 2. Single Loop Logic
+        data.forEach((user) => {
+            const created = dayjs(user.created_at);
+
+            // Logic for Chart (Current Year Only)
+            if (created.year() === currentYear) {
+                const monthIndex = created.month();
+                result.chartData[monthIndex].total += 1;
+            }
+
+            // Logic for Stats (This Month vs Last Month)
+            if (created.isAfter(startOfThisMonth)) {
+                result.thisMonth++;
+            } else if (
+                created.isAfter(startOfLastMonth) &&
+                created.isBefore(endOfLastMonth)
+            ) {
+                result.lastMonth++;
+            }
+        });
+
+        // 3. Final Calculation
+        const diffValue =
+            result.lastMonth === 0
+                ? result.thisMonth * 100
+                : ((result.thisMonth - result.lastMonth) / result.lastMonth) *
+                  100;
+
+        result.diff = diffValue.toFixed(0);
+
+        return result;
+    }, [data]);
     return (
         <Paper withBorder className="w-full flex p-4 col-span-1 row-span-1">
             <SimpleGrid
@@ -50,31 +85,35 @@ export default function UserPanel() {
                             TOTAL USERS
                         </h1>
                         <h1 className="text-5xl font-bold text-blue-500">
-                            844
+                            {data?.length}
                         </h1>
                     </div>
                     <div>
                         <h1 className="font-bold text-sm text-gray-500">
                             LAST MONTH
                         </h1>
-                        <h1 className="text-xl font-bold ">12</h1>
+                        <h1 className="text-xl font-bold ">
+                            {analytics.lastMonth}
+                        </h1>
                     </div>
                     <div>
                         <h1 className="font-bold text-sm text-gray-500">
                             THIS MONTH
                         </h1>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-xl font-bold ">20</h1>
+                            <h1 className="text-xl font-bold ">
+                                {analytics.thisMonth}
+                            </h1>
                             <IconArrowUpRight color="green" />
                         </div>
                     </div>
                 </div>
                 <div className="w-full col-span-2  flex items-end  h-full">
                     <Sparkline
-                        w={"100%"}
-                        h={200}
-                        data={[10, 20, 40, 20, 40, 10, 50]}
-                        // curveType="bump"
+                        h={"200px"}
+                        w={"200px"}
+                        data={analytics.chartData.map((v) => v.total)}
+                        curveType="bump"
                         withGradient
                         color="blue"
                         fillOpacity={0.6}

@@ -18,4 +18,5 @@ export type AdminUserSummary = Pick<
     | "lastName"
     | "dateOfBirth"
     | "gender"
+    | "created_at"
 >;

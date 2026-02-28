@@ -1,11 +1,10 @@
 import { createPaymentInvoice } from "@/actions/payment";
 import { auth } from "@/auth";
+import BackToAppointment from "@/components/common/BackToAppointment";
 import InvoiceTable from "@/components/InvoiceTable";
 import ProcessPayment from "@/components/ProcessPayment";
-import { ProcessPaymentButton } from "@/components/ProcessPaymentButton";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
 import { Stack, Text, Title, Button, Group } from "@mantine/core";
-import { IconCornerLeftUp } from "@tabler/icons-react";
 import { notFound } from "next/navigation";
 
 export default async function Page({
@@ -26,23 +25,16 @@ export default async function Page({
         <div className="flex items-center flex-col w-full">
             <Stack className="w-full max-w-7xl h-screen gap-8 p-16 light:bg-gray-50">
                 <Group justify="left">
-                    <Button
-                        variant="transparent"
-                        c={"gray"}
-                        size="xs"
-                        leftSection={<IconCornerLeftUp size={18} />}
-                    >
-                        Back to appointments{" "}
-                    </Button>
+                    <BackToAppointment />
                 </Group>
                 <Stack gap={"xl"}>
                     <Group w={"1000"} justify="space-between">
                         <Title c={"primary"}>Invoice</Title>
-                        {data.status === "PAID" && (
+                        {/* {data.status === "PAID" && (
                             <Button variant="default" disabled>
                                 Download
                             </Button>
-                        )}
+                        )} */}
                     </Group>
 
                     <Stack gap={0}>
@@ -75,6 +67,24 @@ export default async function Page({
                             </form> */}
                         </Stack>
                     )}
+                    {data.status === "PAID" && (
+                        <Stack gap={0} align="end" w={"1000"}>
+                            <Text c={"gray"} size="xs">
+                                Payment status
+                            </Text>
+                            <Text c={"primary"} size="xl" fw={"bolder"}>
+                                PAID
+                            </Text>
+                        </Stack>
+                        // <Button variant="default" disabled>
+                        //     Download
+                        // </Button>
+                    )}
+                    {/* {data.status === "PAID" && (
+                        <Stack align="end" w={"1000"}>
+                            <Button>PAID</Button>
+                        </Stack>
+                    )} */}
                 </Stack>
             </Stack>
         </div>

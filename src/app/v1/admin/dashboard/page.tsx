@@ -3,56 +3,21 @@ import UsersPanels from "@/components/admin/UserPanel";
 import AppointmentPanels from "@/components/admin/AppointmentPanels";
 import PetPanels from "@/components/admin/PetPanel";
 import AdminServiceOpertations from "@/components/admin/AdminServiceOperations";
-import AdminNotificatons from "@/components/admin/AdminNotifications";
+import { getGrossRevenue, getSalesByService } from "@/lib/db/invoice";
+// import AdminNotificatons from "@/components/admin/AdminNotifications";
 
-export const donutData = [
-    { name: "USA", value: 400, color: "indigo.6" },
-    { name: "India", value: 300, color: "yellow.6" },
-    { name: "Japan", value: 100, color: "teal.6" },
-    { name: "Other", value: 200, color: "gray.6" },
-];
-export const data = [
-    {
-        date: "Mar 22",
-        Apples: 2890,
-        Oranges: 2338,
-        Tomatoes: 2452,
-    },
-    {
-        date: "Mar 23",
-        Apples: 2756,
-        Oranges: 2103,
-        Tomatoes: 2402,
-    },
-    {
-        date: "Mar 24",
-        Apples: 3322,
-        Oranges: 986,
-        Tomatoes: 1821,
-    },
-    {
-        date: "Mar 25",
-        Apples: 3470,
-        Oranges: 2108,
-        Tomatoes: 2809,
-    },
-    {
-        date: "Mar 26",
-        Apples: 3129,
-        Oranges: 1726,
-        Tomatoes: 2290,
-    },
-];
-export default function Dashboard() {
+export default async function Dashboard() {
+    const gross = await getGrossRevenue();
+    const sales = await getSalesByService();
     return (
         <div className="w-full h-screen p-16 ">
-            <section className=" grid h-full  gap-4 grid-cols-3 grid-rows-4">
-                <AdminGreet />
-                <AppointmentPanels />
+            <section className=" grid h-full  gap-4 grid-cols-3 grid-rows-3">
+                <AdminGreet gross={gross} sales={sales} />
                 <AdminServiceOpertations />
-                <AdminNotificatons />
+                {/* <AdminNotificatons /> */}
                 <UsersPanels />
                 <PetPanels />
+                <AppointmentPanels />
 
                 {/* <Paper withBorder className="p-4 row-span-2 ">
                     <h1 className="text-md text-gray-400 font-medium">

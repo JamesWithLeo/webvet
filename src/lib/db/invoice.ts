@@ -3,7 +3,7 @@ import { appointments } from "@/db/schema/appointments";
 import { invoiceItems, invoices } from "@/db/schema/invoice";
 import { pets } from "@/db/schema/pets";
 import { services } from "@/db/schema/services";
-import { eq } from "drizzle-orm";
+import { eq, sum } from "drizzle-orm";
 
 export const getInvoiceAdmin = async () => {
     return await db.select().from(invoices);
@@ -64,4 +64,27 @@ export const getInvoiceWithDetails = async (id: string) => {
         appointmentTitle,
         items,
     };
+};
+
+export const getGrossRevenue = async () => {
+    const [result] = await db
+        .select({
+            total: sum(invoices.totalAmount),
+        })
+        .from(invoices)
+        .where(eq(invoices.status, "PAID")); // Only count actual money received
+
+    // result.total will be a string (e.g. "1250.50") or null
+    return Number(result?.total || 0);
+};
+
+export const getSalesByService = async () => {
+    return await db
+        .select({
+            serviceType: services.type, // Grouping by 'grooming', 'vaccination', etc.
+            revenue: sum(invoiceItems.priceAtInvoice),
+        })
+        .from(invoiceItems)
+        .innerJoin(services, eq(invoiceItems.serviceId, services.id))
+        .groupBy(services.type);
 };

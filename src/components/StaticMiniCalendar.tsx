@@ -10,7 +10,7 @@ function StaticMiniCalendar() {
     return (
         <Calendar
             static
-            size={"xs"}
+            size={"sm"}
             defaultValue={new Date().toDateString()}
             renderDay={(date) => {
                 const day = dayjs(date).date();
