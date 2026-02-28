@@ -12,6 +12,7 @@ import {
     Button,
     NativeSelect,
     TextInput,
+    Title,
 } from "@mantine/core";
 import { IconDots, IconSearch, IconX } from "@tabler/icons-react";
 import { useMemo } from "react";
@@ -23,6 +24,7 @@ import {
     userGenderValue,
 } from "@/types/user";
 import { role } from "@/db/schema/users";
+import AdminAccountPetTable from "./AdminAccountTablePet";
 
 export default function AccountTable() {
     const {
@@ -243,6 +245,12 @@ export default function AccountTable() {
                 recordsPerPage={10}
                 onPageChange={() => {}}
                 columns={effectiveColumns}
+                // rowExpansion={{
+                //     allowMultiple: false,
+                //     content: ({ record }) => (
+                //         <AdminAccountPetTable ownerId={record.id} />
+                //     ),
+                // }}
                 // selectedRecords={selectedRecords}
                 // onSelectedRecordsChange={SetSelectedRecords}
             />

@@ -412,6 +412,7 @@ export default function AppointmentStepper({
                     centered
                     title="Appointment confirmation"
                     size={"lg"}
+                    radius={"lg"}
                 >
                     <Box className="flex flex-col gap-6 p-4">
                         <Text size="sm">
@@ -444,6 +445,7 @@ export default function AppointmentStepper({
                     centered
                     withCloseButton={false}
                     size={"lg"}
+                    radius={"lg"}
                 >
                     <Box className="flex flex-col gap-6 p-4">
                         <Box>
