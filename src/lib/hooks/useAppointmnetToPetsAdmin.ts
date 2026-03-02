@@ -1,20 +1,10 @@
 "use client";
 
-import { AppointmentType } from "@/db/schema/appointments";
+import PetServiceMerged from "@/types/PetsServiceMerged";
 import { useQuery } from "@tanstack/react-query";
 
-type Return = {
-    pets: {
-        id: string;
-        name: string;
-        photoUrl: string | null;
-        title: string;
-        priceAtBooking: string;
-        type: AppointmentType;
-    }[];
-};
-export default function useAppointmentToPets(id: string) {
-    return useQuery<Return>({
+export default function useAppointmentToPets(id: string | null) {
+    return useQuery<{ pets: PetServiceMerged[] }>({
         queryKey: ["appointments", id],
         queryFn: async () => {
             if (!id) throw new Error("No Appointment ID provided");
@@ -30,8 +20,9 @@ export default function useAppointmentToPets(id: string) {
             }
 
             const data = await res.json();
-            return data as Return;
+            return data as { pets: PetServiceMerged[] };
         },
+        enabled: !!id,
         staleTime: 1000 * 60 * 5,
     });
 }

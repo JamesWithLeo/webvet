@@ -14,7 +14,7 @@ export const userSetupSchema = z.object({
         .nonempty("Missing last name")
         .min(2, { message: "Last name must be at least 2 characters" })
         .max(25, { message: "Last name is too long" })
-        .regex(/^[a-zA-Z]*$/, "Only letters are allowed")
+        .regex(/^[a-zA-Z ]*$/, "Only letters are allowed")
         .toLowerCase(),
     gender: z.enum(userGenderValueTuple, { message: "Invalid gender" }),
     dateOfBirth: z

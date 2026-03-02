@@ -58,7 +58,7 @@ export default async function Page({
                             total={data.totalAmount}
                         />
                     </Stack>
-                    {data.status === "UNPAID" && (
+                    {data.paymentStatus === "UNPAID" && (
                         <Stack align="end" w={"1000"}>
                             {/* <Button>Process Payment</Button> */}
                             <ProcessPayment invoiceId={invoiceId} />
@@ -67,7 +67,7 @@ export default async function Page({
                             </form> */}
                         </Stack>
                     )}
-                    {data.status === "PAID" && (
+                    {data.paymentStatus === "PAID" && (
                         <Stack gap={0} align="end" w={"1000"}>
                             <Text c={"gray"} size="xs">
                                 Payment status

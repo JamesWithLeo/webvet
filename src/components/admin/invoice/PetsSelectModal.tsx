@@ -29,7 +29,7 @@ type Props = {
     onClose: () => void;
     allPets: PetTypeModel[];
     services: ServiceMergePriceType[];
-    appointmentId: string;
+    appointmentId: string | null;
 };
 
 export default function PetsSelectModal({
@@ -210,6 +210,7 @@ export default function PetsSelectModal({
                                                 //         <Loader />
                                                 //     ) : undefined }
                                                 onClick={() => {
+                                                    if (!appointmentId) return;
                                                     const body = {
                                                         appointmentId,
                                                         serviceId:

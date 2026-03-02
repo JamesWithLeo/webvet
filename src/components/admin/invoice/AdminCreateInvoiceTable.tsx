@@ -24,25 +24,23 @@ import PetsSelectModal from "./PetsSelectModal";
 import { useDisclosure } from "@mantine/hooks";
 import { PetTypeModel } from "@/types/pets";
 import PetServiceMerged from "@/types/PetsServiceMerged";
-import { CreateInvoice } from "@/actions/invoice";
+import { UpdateInvoice } from "@/actions/invoice";
 import { notifications } from "@mantine/notifications";
-import { paymentStatusType } from "@/db/schema/invoice";
+import { InvoiceTypeModel, paymentStatusType } from "@/db/schema/invoice";
 import { useRouter } from "next/navigation";
 
 type Props = {
     pets: PetServiceMerged[];
     allPets: PetTypeModel[];
     services: ServiceMergePriceType[];
-    appointmentId: string;
-    clientId: string;
+    invoice: InvoiceTypeModel;
 };
 
 export default function AdminCreateInvoiceTable({
+    invoice,
     pets,
     services,
     allPets,
-    appointmentId,
-    clientId,
 }: Props) {
     const [selectedRows, setSelectedRows] = useState<PetServiceMerged[]>([]);
 
@@ -55,7 +53,7 @@ export default function AdminCreateInvoiceTable({
         { close: closePaymentStatus, open: openPaymentStatus },
     ] = useDisclosure();
 
-    const createInvoice = CreateInvoice.bind(null);
+    const createInvoice = UpdateInvoice.bind(null);
 
     const [formState, formAction, isPending] = useActionState(createInvoice, {
         success: false,
@@ -70,10 +68,12 @@ export default function AdminCreateInvoiceTable({
         startTransition(() => {
             formAction({
                 rawInvoice: {
-                    userId: clientId,
+                    invoiceId: invoice.id,
+                    userId: invoice.userId,
+                    appointmentId: invoice.appointmentId,
                     totalAmount: sum.toFixed(2),
-                    status: paymentStatus,
-                    appointmentId: appointmentId,
+                    paymentStatus: paymentStatus,
+                    status: "COMPLETED",
                 },
                 items: selectedRows.map((row) => ({
                     petId: row.petId,
@@ -205,7 +205,7 @@ export default function AdminCreateInvoiceTable({
                 </Group>
             </Stack>
             <PetsSelectModal
-                appointmentId={appointmentId}
+                appointmentId={invoice.appointmentId}
                 services={services}
                 onClose={close}
                 opened={opened}

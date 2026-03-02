@@ -170,5 +170,11 @@ export type AdminAppointment = {
     created_at: Date;
     expiredNotification: boolean;
     incomingNotification: boolean;
-    invoiceId: string | null;
+    invoice: {
+        id: string;
+        totalAmount: string;
+        paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
+        createdAt: Date;
+        status: "PENDING" | "ARRIVED" | "COMPLETED" | "CANCELLED" | null;
+    } | null;
 };

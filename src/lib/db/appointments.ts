@@ -193,7 +193,7 @@ export const getAppointments = async ({ id }: { id: string }) => {
                 ...getTableColumns(appointments),
                 // Squash the pet data into a single JSON array column
 
-                invoiceStatus: invoices.status,
+                invoiceStatus: invoices.paymentStatus,
                 invoiceId: invoices.id,
                 pets: sql<
                     {
@@ -594,6 +594,13 @@ export const getAllAppointmentsAdmin = async (
                     contactNumber: users.contactNumber,
                     email: users.email,
                 },
+                invoice: {
+                    id: invoices.id,
+                    totalAmount: invoices.totalAmount,
+                    paymentStatus: invoices.paymentStatus,
+                    createdAt: invoices.createdAt,
+                    status: invoices.status,
+                },
             })
             .from(appointments)
             .innerJoin(
@@ -602,9 +609,10 @@ export const getAllAppointmentsAdmin = async (
             )
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
             .innerJoin(users, eq(pets.ownerId, users.id))
+            .leftJoin(invoices, eq(appointments.id, invoices.appointmentId))
             .where(filters)
             .orderBy(desc(appointments.event_datetime))
-            .groupBy(appointments.id, users.id);
+            .groupBy(appointments.id, users.id, invoices.id);
 
         return { data: response, error: null };
     } catch (error) {

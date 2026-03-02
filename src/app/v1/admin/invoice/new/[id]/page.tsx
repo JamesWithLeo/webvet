@@ -1,8 +1,8 @@
 import AdminCreateInvoiceTable from "@/components/admin/invoice/AdminCreateInvoiceTable";
 import {
-    getAppointmentAdmin,
-    getAppointmentToPetsAdmin,
-} from "@/lib/db/appointments";
+    getInvoiceAdminV2,
+    getInvoiceFullDetailsAdmin,
+} from "@/lib/db/invoice";
 import { getAllPets } from "@/lib/db/pets";
 import { getServicesGrouped } from "@/lib/db/services";
 import { toTitleCase } from "@/lib/toTitleCase";
@@ -14,24 +14,18 @@ export default async function Page({
 }: {
     params: Promise<{ id: string }>;
 }) {
-    const { id } = await params;
-    if (!id) notFound();
+    const { id } = await params; // Invoice ID from URL
 
-    const [appointmentRes, petsRes, services] = await Promise.all([
-        getAppointmentAdmin(id),
-        getAppointmentToPetsAdmin(id),
+    const [invoiceRes, servicesGrouped] = await Promise.all([
+        getInvoiceFullDetailsAdmin(id),
         getServicesGrouped(),
     ]);
 
-    const { data: appointment, error: errorAppointment } = appointmentRes;
-    const { data: petsData, error: errorPets } = petsRes;
+    const { data, error } = invoiceRes;
+    if (error || !data) notFound();
 
-    if (errorAppointment || errorPets || !appointment || !petsData) {
-        notFound();
-    }
-
-    const { firstName, lastName, ...user } = appointment.user;
-
+    // Everything is here in one object!
+    const { invoice, user, pets } = data;
     const allPets = await getAllPets(user.id);
 
     return (
@@ -40,23 +34,26 @@ export default async function Page({
             <Stack gap={"xl"}>
                 <Group>
                     <Avatar src={user.photoUrl}>
-                        {firstName ? firstName[0].toUpperCase() : undefined}
+                        {user.firstName
+                            ? user.firstName[0].toUpperCase()
+                            : undefined}
                     </Avatar>
                     <Stack gap={0}>
-                        <Text>{toTitleCase(`${firstName} ${lastName}`)}</Text>
+                        <Text>
+                            {toTitleCase(`${user.firstName} ${user.lastName}`)}
+                        </Text>
                         <Text c={"dimmed"} size="xs">
                             {user.id}
                         </Text>
                     </Stack>
                 </Group>
-                <AdminCreateInvoiceTable
-                    clientId={user.id}
-                    appointmentId={id}
-                    allPets={allPets}
-                    pets={petsData.pets}
-                    services={services}
-                />
             </Stack>
+            <AdminCreateInvoiceTable
+                invoice={invoice}
+                allPets={allPets}
+                pets={pets} // This comes directly from our joined query
+                services={servicesGrouped}
+            />
         </div>
     );
 }

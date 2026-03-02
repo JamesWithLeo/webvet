@@ -1,10 +1,13 @@
 "use client";
 
+import multiMonthPlugin from "@fullcalendar/multimonth";
+import dayMonthPlugin from "@fullcalendar/daygrid";
 import { AdminAppointment } from "@/db/schema/appointments";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import useAppointmentAdmin from "@/lib/hooks/useAppointmentAdmin";
 import useAppointmentToPetsAdmin from "@/lib/hooks/useAppointmnetToPetsAdmin";
 import { toTitleCase } from "@/lib/toTitleCase";
+import FullCalendar from "@fullcalendar/react";
 import {
     ActionIcon,
     Avatar,
@@ -14,16 +17,43 @@ import {
     Stack,
     Text,
     TextInput,
+    Title,
 } from "@mantine/core";
-import { IconSearch, IconX } from "@tabler/icons-react";
+import {
+    IconCalendarEvent,
+    IconChevronLeft,
+    IconChevronRight,
+    IconSearch,
+    IconTable,
+    IconX,
+} from "@tabler/icons-react";
 import { formatDistance, subDays } from "date-fns";
 import {
     DataTable,
     DataTableColumn,
+    getRecordId,
     useDataTableColumns,
 } from "mantine-datatable";
-import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+    startTransition,
+    useActionState,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import {
+    DatesSetArg,
+    EventClickArg,
+    EventSourceInput,
+} from "@fullcalendar/core/index.js";
+import { throttle } from "lodash";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMarkAsArrived } from "@/lib/hooks/useMarkAsArrived";
+import AppointmentDrawerAdmin from "../appointment/AppointmentDrawerAdmin";
 
 export default function AdminAppointmentTable({
     scope,
@@ -31,6 +61,17 @@ export default function AdminAppointmentTable({
     scope: "all" | "incoming" | "past";
 }) {
     const router = useRouter();
+    const [now, setNow] = useState(new Date());
+    const [currentTitle, setCurrentTitle] = useState("");
+    const calendarRef = useRef<FullCalendar>(null);
+    const [openedDrawer, { open, close }] = useDisclosure(false);
+    const isMobile = useMediaQuery("(max-width: 64rem)", false, {
+        getInitialValueInEffect: true,
+    });
+    const isMedium = useMediaQuery("(max-width: 80rem)", false, {
+        getInitialValueInEffect: true,
+    });
+
     const {
         data,
         isLoading,
@@ -39,6 +80,14 @@ export default function AdminAppointmentTable({
         searchName,
         setSearchName,
     } = useAppointmentAdmin(scope);
+    const [selectedRecord, setSelectedRecord] =
+        useState<AdminAppointment | null>(null);
+
+    const { handleMarkAsArrived, isPending, isSuccess, state } =
+        useMarkAsArrived(() => {
+            close();
+            setSelectedRecord(null);
+        });
 
     const columns = useMemo<DataTableColumn<AdminAppointment>[]>(
         () => [
@@ -126,17 +175,57 @@ export default function AdminAppointmentTable({
                 textAlign: "right",
                 render: (record) => (
                     <Group justify="right">
-                        <Button
-                            size="xs"
-                            variant="default"
-                            onClick={() => {
-                                router.push(
-                                    `/v1/admin/invoice/new/${record.id}`
-                                );
-                            }}
-                        >
-                            Invoice
-                        </Button>
+                        {!record?.invoice && !record.invoice?.id ? (
+                            <Button
+                                fullWidth
+                                variant="default"
+                                size="xs"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMarkAsArrived(record);
+                                }}
+                                disabled={isPending}
+                                loading={isPending}
+                            >
+                                Mark as arrived
+                            </Button>
+                        ) : (
+                            /* 2. TypeScript now knows 'record.invoice' IS NOT NULL here */
+                            <>
+                                {record.invoice.paymentStatus === "PAID" && (
+                                    <Button
+                                        variant="default"
+                                        size="xs"
+                                        fullWidth
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            router.push(`/v1/admin/invoice`);
+                                        }}
+                                    >
+                                        View Invoice
+                                    </Button>
+                                )}
+
+                                {record.invoice.paymentStatus === "UNPAID" && (
+                                    <Button
+                                        size="xs"
+                                        fullWidth
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (
+                                                record.invoice &&
+                                                record.invoice.id
+                                            )
+                                                router.push(
+                                                    `/v1/admin/invoice/new/${record.invoice.id}`
+                                                );
+                                        }}
+                                    >
+                                        Generate Invoice
+                                    </Button>
+                                )}
+                            </>
+                        )}
                     </Group>
                 ),
             },
@@ -144,44 +233,188 @@ export default function AdminAppointmentTable({
         []
     );
 
+    const onEventClick = useCallback(
+        throttle(
+            (info: EventClickArg) => {
+                setSelectedRecord(info.event.extendedProps as AdminAppointment);
+                open();
+            },
+            3000,
+            { trailing: false }
+        ), // { trailing: false } ensures it fires immediately on the first click
+        []
+    );
+
+    const getEventClassnames = useCallback((arg: string) => {
+        const event_datetime = new Date(arg);
+        if (event_datetime && event_datetime < now) return "fc-past-event";
+        return "";
+    }, []);
+
+    const getEvent = (): EventSourceInput | undefined => {
+        const events =
+            data && data.length > 0
+                ? data.map((event) => ({
+                      title: event.title,
+                      start: new Date(event.event_datetime).toISOString(),
+                      end: new Date(event.event_datetime).toISOString(),
+                      display: "block",
+                      extendedProps: {
+                          ...event,
+                      },
+                      className: getEventClassnames(event.event_datetime),
+                  }))
+                : undefined;
+
+        return events;
+    };
+
+    const handleDatesSet = (dateInfo: DatesSetArg) => {
+        const calendarApi = calendarRef.current?.getApi();
+        if (calendarApi) {
+            const title = calendarApi.view.title;
+            setCurrentTitle(title);
+        }
+    };
+
+    const searchParams = useSearchParams();
+    const view = searchParams.get("view") || "table";
+
+    // 2. To change the view, just update the URL
+    const toggleView = () => {
+        const params = new URLSearchParams(searchParams);
+        params.set("view", view === "table" ? "calendar" : "table");
+        router.push(`?${params.toString()}`);
+    };
+
     const key = `admin-appointment-table-${scope}`;
     const { effectiveColumns } = useDataTableColumns<AdminAppointment>({
         key,
         columns: columns,
     });
 
+    useEffect(() => {
+        const calendar = calendarRef.current?.getApi();
+        const timer = setInterval(() => setNow(new Date()), 60000);
+
+        if (calendar && view === "calendar") {
+            setCurrentTitle(calendar.view.title);
+        }
+
+        return () => clearInterval(timer);
+    }, [view]);
+
     return (
-        <Stack>
-            <DataTable
-                key={`${scope}-appointment-table`}
-                idAccessor={"id"}
-                withTableBorder={false}
-                withColumnBorders={true}
-                withRowBorders
-                verticalSpacing={"xs"}
-                horizontalSpacing={"xs"}
-                borderRadius="xl"
-                striped
-                pinFirstColumn
-                highlightOnHover={true}
-                fetching={isLoading}
-                minHeight={250}
-                columns={effectiveColumns}
-                pinLastColumn={true}
-                rowExpansion={{
-                    allowMultiple: true,
-                    content: ({ record, index, collapse }) => (
-                        <AppointmentToPetsTable id={record.id} />
-                    ),
-                }}
-                records={data}
-                totalRecords={data && data.length ? data.length : 0}
-                page={1}
-                onPageChange={() => {}}
-                recordsPerPage={10}
-                onSortStatusChange={setSortStatus}
-                sortStatus={sortStatus}
-            />
+        <Stack gap={"xl"}>
+            <Stack>
+                <Group justify="space-between">
+                    <Title order={isMobile ? 3 : 1}>Appointment</Title>
+                </Group>
+                <Group
+                    justify={view === "calendar" ? "space-between" : "flex-end"}
+                >
+                    <label
+                        className="lg:text-2xl flex-1 text-lg "
+                        hidden={view !== "calendar" && !!currentTitle}
+                    >
+                        {currentTitle}
+                    </label>
+                    <div className="flex gap-2" hidden={view !== "calendar"}>
+                        <Button.Group>
+                            <Button
+                                onClick={() =>
+                                    calendarRef.current?.getApi().prev()
+                                }
+                                radius={"md"}
+                                size={isMobile ? "xs" : "sm"}
+                                variant="default"
+                                c="gray.7"
+                            >
+                                <IconChevronLeft size={20} />
+                            </Button>
+                            <Button
+                                onClick={() =>
+                                    calendarRef.current?.getApi().next()
+                                }
+                                radius={"md"}
+                                size={isMobile ? "xs" : "sm"}
+                                variant="default"
+                                c="gray.7"
+                            >
+                                <IconChevronRight size={20} />
+                            </Button>
+                        </Button.Group>
+                    </div>
+                    <Button
+                        variant="default"
+                        radius={"md"}
+                        size={isMobile ? "xs" : "sm"}
+                        onClick={() => {
+                            toggleView();
+                        }}
+                    >
+                        {view === "calendar" ? "Table view" : "Calendar view"}
+                    </Button>
+                </Group>
+            </Stack>
+            {view === "table" ? (
+                <div className="block">
+                    <DataTable
+                        key={`${scope}-appointment-table`}
+                        idAccessor={"id"}
+                        withTableBorder={false}
+                        withColumnBorders={true}
+                        withRowBorders
+                        verticalSpacing={"xs"}
+                        horizontalSpacing={"xs"}
+                        borderRadius="xl"
+                        striped
+                        pinFirstColumn
+                        highlightOnHover={true}
+                        fetching={isLoading}
+                        minHeight={250}
+                        columns={effectiveColumns}
+                        pinLastColumn={true}
+                        rowExpansion={{
+                            allowMultiple: true,
+                            content: ({ record, index, collapse }) => (
+                                <AppointmentToPetsTable id={record.id} />
+                            ),
+                        }}
+                        records={data}
+                        totalRecords={data && data.length ? data.length : 0}
+                        page={1}
+                        onPageChange={() => {}}
+                        recordsPerPage={10}
+                        onSortStatusChange={setSortStatus}
+                        sortStatus={sortStatus}
+                    />
+                </div>
+            ) : (
+                <div className="block">
+                    <FullCalendar
+                        ref={calendarRef}
+                        plugins={[multiMonthPlugin, dayMonthPlugin]}
+                        multiMonthMaxColumns={isMedium ? 1 : 2}
+                        aspectRatio={isMobile ? 0.8 : 1.9}
+                        events={getEvent()}
+                        headerToolbar={false}
+                        datesSet={handleDatesSet}
+                        eventClick={onEventClick}
+                        viewClassNames={"cursor-pointer"}
+                        dayMaxEventRows={1}
+                        dayMaxEvents={1}
+                    />
+                </div>
+            )}
+
+            {selectedRecord && (
+                <AppointmentDrawerAdmin
+                    selectedRow={selectedRecord}
+                    opened={openedDrawer}
+                    close={close}
+                />
+            )}
         </Stack>
     );
 }

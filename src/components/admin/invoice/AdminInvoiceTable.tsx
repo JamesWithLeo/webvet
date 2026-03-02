@@ -95,6 +95,11 @@ export default function AdminInvoiceTable() {
             },
             {
                 accessor: "status",
+                title: "Status",
+                width: "10%",
+            },
+            {
+                accessor: "paymentStatus",
                 title: "Payment Status",
                 width: "10%",
                 filter: () => (
@@ -142,7 +147,7 @@ export default function AdminInvoiceTable() {
                 ),
                 render: (record) => (
                     <Group justify="center" w={"100%"}>
-                        {record.status !== "PAID" && (
+                        {record.paymentStatus !== "PAID" && (
                             <Button
                                 size="xs"
                                 variant="default"
@@ -162,7 +167,15 @@ export default function AdminInvoiceTable() {
         []
     );
     const key = `admin-invoice-table`;
-    const { effectiveColumns } = useDataTableColumns({ key, columns: columns });
+    const {
+        effectiveColumns,
+        resetColumnsOrder,
+        resetColumnsToggle,
+        resetColumnsWidth,
+    } = useDataTableColumns({
+        key,
+        columns: columns,
+    });
 
     useEffect(() => {
         if (formState.success && formState.id && formState.status) {
@@ -191,8 +204,24 @@ export default function AdminInvoiceTable() {
     }, [formState]);
     return (
         <Stack>
+            <Group justify="flex-end">
+                <Button
+                    size="xs"
+                    onClick={resetColumnsToggle}
+                    variant="default"
+                >
+                    Reset column Toggle
+                </Button>
+
+                <Button size="xs" onClick={resetColumnsOrder} variant="default">
+                    Reset Column Order
+                </Button>
+                <Button size="xs" onClick={resetColumnsWidth} variant="default">
+                    Reset Column Width
+                </Button>
+            </Group>
             <DataTable
-                minHeight={200}
+                minHeight={400}
                 withTableBorder={false}
                 withColumnBorders
                 striped

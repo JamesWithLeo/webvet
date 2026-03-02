@@ -2,16 +2,24 @@
 
 import { auth } from "@/auth";
 import { dbTx } from "@/db";
-import { invoiceItems, invoices, paymentStatusType } from "@/db/schema/invoice";
+import {
+    invoiceItems,
+    invoices,
+    invoiceStatus,
+    paymentStatusType,
+} from "@/db/schema/invoice";
 import { markAsPaidInvoiceAdmin } from "@/lib/db/invoice";
 import { unauthorized } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
 
 type SavePropType = {
     userId: string;
+    invoiceId: string;
     totalAmount: string;
-    status: (typeof paymentStatusType.enumValues)[number];
-    appointmentId: string;
+    paymentStatus: (typeof paymentStatusType.enumValues)[number];
+    appointmentId: string | null;
+    status: (typeof invoiceStatus.enumValues)[number];
 };
 
 type ItemPropType = {
@@ -24,7 +32,7 @@ type SaveInvoiceResponse =
     | { success: true; invoiceId: string; error: null }
     | { success: false; invoiceId: null; error: string };
 
-export const CreateInvoice = async (
+export const UpdateInvoice = async (
     prevState: any,
     data: {
         rawInvoice: SavePropType;
@@ -47,20 +55,17 @@ export const CreateInvoice = async (
 
     try {
         return await dbTx.transaction(async (tx) => {
-            const [insertedInvoice] = await tx
-                .insert(invoices)
-                .values({
-                    createdById: session.user.id,
-                    ...data.rawInvoice,
-                })
-                .returning({ id: invoices.id });
-
-            if (!insertedInvoice) {
-                throw new Error("Failed to create invoice header.");
+            const [invoice] = await tx
+                .select()
+                .from(invoices)
+                .where(eq(invoices.id, data.rawInvoice.invoiceId))
+                .limit(1);
+            if (!invoice) {
+                throw new Error("Invoice doesn't exist");
             }
 
             const itemsToInsert = data.items.map((item) => ({
-                invoiceId: insertedInvoice.id,
+                invoiceId: invoice.id,
                 petId:
                     item.petId && item.petId.trim() !== "" ? item.petId : null,
                 priceAtInvoice: item.priceAtInvoice,
@@ -68,10 +73,18 @@ export const CreateInvoice = async (
             }));
 
             await tx.insert(invoiceItems).values(itemsToInsert);
+            await tx
+                .update(invoices)
+                .set({
+                    status: data.rawInvoice.status, // The bill is now finalized
+                    paymentStatus: data.rawInvoice.paymentStatus,
+                    totalAmount: data.rawInvoice.totalAmount,
+                })
+                .where(eq(invoices.id, invoice.id));
 
             return {
                 success: true,
-                invoiceId: insertedInvoice.id,
+                invoiceId: invoice.id,
                 error: null,
             };
         });
@@ -135,3 +148,48 @@ export const MarkAsPaidInvoiceAdmin = async (
         };
     }
 };
+
+export async function markAsArrivedAction(
+    prevState: any,
+    data: {
+        appointmentId: string;
+        userId: string;
+    }
+) {
+    const { appointmentId, userId } = data;
+    const session = await auth();
+    if (
+        !session ||
+        (session.user.role !== "admin" && session.user.role !== "staff")
+    ) {
+        unauthorized();
+    }
+    try {
+        await dbTx.transaction(async (tx) => {
+            const [invoice] = await tx
+                .select()
+                .from(invoices)
+                .where(eq(invoices.appointmentId, appointmentId))
+                .limit(1);
+
+            if (invoice) throw new Error("Invoice Exist");
+
+            await tx
+                .insert(invoices)
+                .values({
+                    appointmentId: appointmentId,
+                    userId: userId,
+                    status: "ARRIVED",
+                    paymentStatus: "UNPAID",
+                    createdById: session.user.id,
+                })
+                .returning();
+        });
+
+        revalidatePath("/v0/admin/appointments/");
+        return { success: true };
+    } catch (error) {
+        console.error("Check-in error:", error);
+        return { success: false, error: "Failed to process arrival" };
+    }
+}

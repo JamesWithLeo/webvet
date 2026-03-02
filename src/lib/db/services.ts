@@ -7,9 +7,10 @@ import {
     services,
     ServiceTypeModel,
 } from "@/db/schema/services";
-import { eq, getTableColumns, sql } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, gte, lte, sql } from "drizzle-orm";
 import { AppointmentType } from "@/db/schema/appointments";
 import { ServiceVariantFormOutput } from "../validators/serviceVariantSchema";
+import { invoiceItems, invoices } from "@/db/schema/invoice";
 
 export async function saveServiceToDb({
     serviceData,
@@ -181,4 +182,129 @@ export const getServicesGrouped = async (): Promise<
     );
 
     return Object.values(grouped);
+};
+
+type ChartRow = {
+    month: string;
+    matchKey?: string;
+    [key: string]: string | number | undefined;
+};
+
+export const salesPerService = async (fromStr?: string, toStr?: string) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    // 1. Setup Date Range
+    const startRange = fromStr
+        ? new Date(fromStr)
+        : new Date(currentYear, 0, 1);
+    const endRange = toStr
+        ? new Date(toStr)
+        : new Date(currentYear, 11, 31, 23, 59, 59);
+
+    // Normalize to midnight for consistent comparisons
+    startRange.setHours(0, 0, 0, 0);
+    endRange.setHours(23, 59, 59, 999);
+
+    // 2. Determine Scale (Daily vs Monthly)
+    const diffDays = Math.ceil(
+        Math.abs(endRange.getTime() - startRange.getTime()) /
+            (1000 * 60 * 60 * 24)
+    );
+    const isDaily = diffDays <= 31;
+    const interval = isDaily ? "day" : "month";
+
+    // 3. Get raw data from DB
+    const rawData = await db
+        .select({
+            // We use sql.raw because date_trunc interval cannot be a bound parameter ($1)
+            dateKey:
+                sql<string>`date_trunc(${sql.raw(`'${interval}'`)}, ${invoices.createdAt})`.as(
+                    "dateKey"
+                ),
+            serviceTitle: services.title,
+            totalRevenue:
+                sql<number>`sum(${invoiceItems.priceAtInvoice})`.mapWith(
+                    Number
+                ),
+            quantity: sql<number>`count(${invoiceItems.id})`.mapWith(Number),
+        })
+        .from(invoiceItems)
+        .innerJoin(invoices, eq(invoiceItems.invoiceId, invoices.id))
+        .innerJoin(services, eq(invoiceItems.serviceId, services.id))
+        .where(
+            and(
+                eq(invoices.paymentStatus, "PAID"),
+                gte(invoices.createdAt, startRange),
+                lte(invoices.createdAt, endRange)
+            )
+        )
+        .groupBy(sql`"dateKey"`, services.id, services.title);
+
+    // 4. Generate the Skeleton
+    const chartData: ChartRow[] = [];
+    const allServiceTitles = new Set<string>();
+    let current = new Date(startRange);
+
+    while (current <= endRange) {
+        const label = isDaily
+            ? current.toLocaleDateString("default", {
+                  month: "short",
+                  day: "numeric",
+              }) // "Mar 1"
+            : current.toLocaleDateString("default", {
+                  month: "short",
+                  year: "numeric",
+              }); // "Mar 26"
+
+        const matchKey = isDaily
+            ? current.toISOString().split("T")[0] // "2026-03-01"
+            : `${current.getMonth()}-${current.getFullYear()}`; // "2-2026"
+
+        chartData.push({
+            month: label,
+            matchKey: matchKey,
+        });
+
+        // Increment logic
+        if (isDaily) {
+            current.setDate(current.getDate() + 1);
+        } else {
+            current.setMonth(current.getMonth() + 1);
+        }
+    }
+
+    // 5. Merge DB Data into Skeleton
+    rawData.forEach((row) => {
+        const d = new Date(row.dateKey);
+        const rowMatchKey = isDaily
+            ? d.toISOString().split("T")[0]
+            : `${d.getMonth()}-${d.getFullYear()}`;
+
+        const monthEntry = chartData.find((m) => m.matchKey === rowMatchKey);
+
+        if (monthEntry) {
+            monthEntry[row.serviceTitle] = row.totalRevenue;
+            monthEntry[`${row.serviceTitle}_qty`] = row.quantity;
+            allServiceTitles.add(row.serviceTitle);
+        }
+    });
+
+    // 6. Final Formatting (Add 0s and remove internal keys)
+    const finalData = chartData.map((row) => {
+        const { matchKey, ...rest } = row;
+        const cleanedRow: any = { ...rest };
+
+        allServiceTitles.forEach((title) => {
+            if (!(title in cleanedRow)) cleanedRow[title] = 0;
+            if (!(`${title}_qty` in cleanedRow)) cleanedRow[`${title}_qty`] = 0;
+        });
+
+        return cleanedRow;
+    });
+
+    return {
+        data: finalData,
+        keys: Array.from(allServiceTitles),
+    };
 };

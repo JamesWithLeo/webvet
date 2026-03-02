@@ -10,6 +10,9 @@ import {
     IconListSearch,
     IconCategory2,
     IconFileInvoice,
+    IconReport,
+    IconReportMedical,
+    IconChartHistogram,
 } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -40,6 +43,11 @@ const data = [
         link: "/v1/admin/invoice",
         label: "Invoices",
         icon: <IconFileInvoice stroke={1.5} />,
+    },
+    {
+        link: "/v1/admin/sales",
+        label: "Sales",
+        icon: <IconChartHistogram stroke={1.5} />,
     },
     {
         link: "/v1/admin/accounts",

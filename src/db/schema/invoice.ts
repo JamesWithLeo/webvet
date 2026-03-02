@@ -4,6 +4,14 @@ import { services } from "./services";
 import { appointments } from "./appointments";
 import { pets } from "./pets";
 
+export const invoiceStatus = pgEnum("invoiceStatus", [
+    "PENDING",
+    "ARRIVED",
+    "COMPLETED",
+    "CANCELLED",
+    "MISSED",
+]);
+
 export const paymentStatusTypeValues = ["UNPAID", "PAID", "VOID"] as const;
 export const paymentStatusType = pgEnum(
     "payment_status",
@@ -13,11 +21,16 @@ export const paymentStatusType = pgEnum(
 export const invoices = pgTable("invoices", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id").notNull(),
-    appointmentId: uuid("appointment_id").references(() => appointments.id, {
-        onDelete: "set null",
-    }),
-    totalAmount: decimal("total_amount", { scale: 2, precision: 10 }).notNull(),
-    status: paymentStatusType("status").default("PAID"),
+    appointmentId: uuid("appointment_id")
+        .references(() => appointments.id, {
+            onDelete: "set null",
+        })
+        .unique(),
+    status: invoiceStatus("invoice_status").default("PENDING"),
+    totalAmount: decimal("total_amount", { scale: 2, precision: 10 })
+        .notNull()
+        .default("0.00"),
+    paymentStatus: paymentStatusType("status").default("UNPAID"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     createdById: uuid("created_by_id").references(() => users.id, {
         onDelete: "set null",
@@ -38,7 +51,7 @@ export const invoiceItems = pgTable("invoice_items", {
     priceAtInvoice: decimal("price_at_booking", {
         scale: 2,
         precision: 10,
-    }).notNull(), // 800
+    }).notNull(),
 });
 
 export type InvoiceItemsTypeModel = typeof invoiceItems.$inferSelect;

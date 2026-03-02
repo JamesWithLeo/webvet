@@ -1,12 +1,101 @@
 import { db } from "@/db";
-import { appointments } from "@/db/schema/appointments";
+import { appointments, appointmentsToPets } from "@/db/schema/appointments";
 import { invoiceItems, invoices } from "@/db/schema/invoice";
 import { pets } from "@/db/schema/pets";
 import { services } from "@/db/schema/services";
-import { eq, sum } from "drizzle-orm";
+import { users } from "@/db/schema/users";
+import PetServiceMerged from "@/types/PetsServiceMerged";
+import { eq, getTableColumns, sql, sum } from "drizzle-orm";
 
 export const getInvoiceAdmin = async () => {
     return await db.select().from(invoices);
+};
+
+export const getInvoiceFullDetailsAdmin = async (invoiceId: string) => {
+    try {
+        const result = await db
+            .select({
+                invoice: getTableColumns(invoices),
+                appointmentId: appointments.id,
+                user: {
+                    id: users.id,
+                    firstName: users.firstName,
+                    lastName: users.lastName,
+                    photoUrl: users.photoUrl,
+                },
+                pets: sql<PetServiceMerged[]>`
+                    COALESCE(
+                        json_agg(
+                            json_build_object(
+                                'id', ${appointmentsToPets.id},
+                                'petId', ${pets.id}, 
+                                'name', ${pets.name}, 
+                                'photoUrl', ${pets.photoUrl},
+                                'title', ${services.title},
+                                'type', ${services.type},
+                                'serviceId', ${services.id},
+                                'priceAtBooking', ${appointmentsToPets.priceAtBooking},
+                                'species', ${pets.species},
+                                'weight', ${pets.weight},
+                                'source', ${appointmentsToPets.source}
+                            )
+                        ) FILTER (WHERE ${pets.id} IS NOT NULL), 
+                        '[]'
+                    )`.as("pets"),
+            })
+            .from(invoices)
+            .innerJoin(
+                appointments,
+                eq(invoices.appointmentId, appointments.id)
+            )
+            .innerJoin(
+                appointmentsToPets,
+                eq(appointments.id, appointmentsToPets.appointmentId)
+            )
+            .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            .innerJoin(users, eq(pets.ownerId, users.id))
+            .innerJoin(services, eq(services.id, appointmentsToPets.serviceId))
+            .where(eq(invoices.id, invoiceId))
+            .groupBy(invoices.id, appointments.id, users.id)
+            .then((res) => res[0]);
+
+        return {
+            data: result ?? null,
+            error: result ? null : "Invoice not found",
+        };
+    } catch (error) {
+        console.error(error);
+        return { data: null, error: "Failed to fetch invoice details" };
+    }
+};
+
+export const getInvoiceAdminV2 = async (invoiceId: string) => {
+    const result = await db
+        .select({
+            invoice: getTableColumns(invoices),
+            appointment: getTableColumns(appointments),
+            user: {
+                id: users.id,
+                firstName: users.firstName,
+                lastName: users.lastName,
+                photoUrl: users.photoUrl,
+            },
+        })
+        .from(invoices)
+        .innerJoin(appointments, eq(invoices.appointmentId, appointments.id))
+        .innerJoin(
+            appointmentsToPets,
+            eq(appointments.id, appointmentsToPets.appointmentId)
+        )
+        .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+        .innerJoin(users, eq(pets.ownerId, users.id))
+        .where(eq(invoices.id, invoiceId))
+        .limit(1);
+
+    return {
+        data: result[0] ?? null,
+        error: result[0] ? null : "Invoice not found",
+    };
 };
 
 export const getInvoiceItemAdmin = async (id: string) => {
@@ -19,9 +108,9 @@ export const getInvoiceItemAdmin = async (id: string) => {
 export const markAsPaidInvoiceAdmin = async (id: string) => {
     return await db
         .update(invoices)
-        .set({ status: "PAID" })
+        .set({ paymentStatus: "PAID", status: "COMPLETED" })
         .where(eq(invoices.id, id))
-        .returning({ id: invoices.id, status: invoices.status })
+        .returning({ id: invoices.id, status: invoices.paymentStatus })
         .then((v) => v[0]);
 };
 
@@ -72,7 +161,7 @@ export const getGrossRevenue = async () => {
             total: sum(invoices.totalAmount),
         })
         .from(invoices)
-        .where(eq(invoices.status, "PAID")); // Only count actual money received
+        .where(eq(invoices.paymentStatus, "PAID")); // Only count actual money received
 
     // result.total will be a string (e.g. "1250.50") or null
     return Number(result?.total || 0);
