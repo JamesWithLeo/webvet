@@ -62,7 +62,7 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
 
         await db
             .update(invoices)
-            .set({ status: "PAID" })
+            .set({ paymentStatus: "PAID", status: "COMPLETED" })
             .where(eq(invoices.id, invoice.id))
             .returning();
 
