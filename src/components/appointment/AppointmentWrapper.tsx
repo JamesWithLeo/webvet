@@ -250,7 +250,7 @@ export default function AppointmentWrapper({
                     label="Amount"
                     value={CurrencyFormatter(totalAmount)}
                 />
-                {invoice?.status && (
+                {invoice && invoice.status && (
                     <DetailRow
                         icon={<IconStatusChange size={18} />}
                         label={"Status"}

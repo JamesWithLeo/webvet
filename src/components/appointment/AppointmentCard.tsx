@@ -19,6 +19,7 @@ import {
 import { useMemo } from "react";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import { invoiceItems } from "@/db/schema/invoice";
+import { AppointmentWithInvoice } from "@/types/appointments";
 
 const PawSvg = () => {
     return (
@@ -49,14 +50,15 @@ export default function AppointmentCard({
     pets,
     id,
     event_datetime,
-    invoiceId,
-    invoiceStatus,
-}: JoinedAppointmentType) {
+    invoice,
+    // invoiceId,
+    // invoiceStatus,
+}: AppointmentWithInvoice) {
     const passed = isPast(event_datetime);
     const date = new Date(event_datetime);
     const router = useRouter();
     const handleInvoiceClick = async () => {
-        router.push(`/v1/invoice/${invoiceId}`);
+        if (invoice) router.push(`/v1/invoice/${invoice.id}`);
     };
 
     const sum = useMemo(() => {
@@ -113,20 +115,22 @@ export default function AppointmentCard({
                 <Flex c={"dimmed"} align={"center"} justify="space-between">
                     <Text>{CurrencyFormatter(sum)}</Text>
 
-                    {!invoiceId ? (
+                    {!invoice ? (
                         <Text c={"dimmed"} size="sm">
                             Not yet billed.
                         </Text>
                     ) : (
                         <>
-                            {invoiceStatus !== "VOID" && (
+                            {invoice.paymentStatus !== "VOID" && (
                                 <Button
                                     radius={"md"}
                                     variant="default"
                                     onClick={handleInvoiceClick}
                                 >
-                                    {invoiceStatus === "UNPAID" && "Pay now"}
-                                    {invoiceStatus === "PAID" && "View Invoice"}
+                                    {invoice.paymentStatus === "UNPAID" &&
+                                        "Pay now"}
+                                    {invoice.paymentStatus === "PAID" &&
+                                        "View Invoice"}
                                 </Button>
                             )}
                         </>

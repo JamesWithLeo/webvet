@@ -2,22 +2,18 @@
 
 import { JoinedAppointmentType } from "@/db/schema/appointments";
 import { Group, Stack, Text, Title } from "@mantine/core";
-import { IconAlertTriangleFilled, IconMoodSad } from "@tabler/icons-react";
-import { useEffect, useMemo } from "react";
+import { IconMoodSad } from "@tabler/icons-react";
+import { useMemo } from "react";
 import AppointmentCard from "./AppointmentCard";
-import { notifications } from "@mantine/notifications";
+import useApointmentsClient from "@/lib/hooks/useAppointmentsClient";
+import { AppointmentWithInvoice } from "@/types/appointments";
 
-export default function AppointmentListWrapper({
-    data,
-    error,
-}: {
-    data: JoinedAppointmentType[] | null;
-    error: string | null;
-}) {
+export default function AppointmentListWrapper({ id }: { id: string }) {
+    const { data } = useApointmentsClient(id);
     const groupedAppointments = useMemo(() => {
         if (!data) return null;
 
-        return data.reduce<Record<number, JoinedAppointmentType[]>>(
+        return data.reduce<Record<number, AppointmentWithInvoice[]>>(
             (acc, appt) => {
                 const year = new Date(appt.event_datetime).getFullYear();
                 if (!acc[year]) {
@@ -36,17 +32,6 @@ export default function AppointmentListWrapper({
             (a, b) => Number(b) - Number(a)
         );
     }, [groupedAppointments]);
-
-    useEffect(() => {
-        if (error) {
-            notifications.show({
-                message: error,
-                icon: <IconAlertTriangleFilled size={20} />,
-                color: "red",
-                autoClose: 6000,
-            });
-        }
-    }, [error]);
 
     return (
         <>

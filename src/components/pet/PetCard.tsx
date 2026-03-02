@@ -63,6 +63,7 @@ export default function PetCard({ pet }: Props) {
                     appear in your active list.
                 </Text>
             ),
+            radius: "md",
             labels: { confirm: "Archive", cancel: "Cancel" },
             confirmProps: {
                 color: "orange",
@@ -85,6 +86,7 @@ export default function PetCard({ pet }: Props) {
                     Are you sure you want to unarchive this pet?
                 </Text>
             ),
+            radius: "md",
             labels: { confirm: "confirm", cancel: "Cancel" },
             confirmProps: {
                 color: "orange",
@@ -137,13 +139,13 @@ export default function PetCard({ pet }: Props) {
                     </Stack>
 
                     <Group gap={0}>
-                        <ActionIcon variant="transparent" size={"xl"}>
+                        {/* <ActionIcon variant="transparent" size={"xl"}>
                             {heart ? (
                                 <IconHeartFilled size={20} color="red" />
                             ) : (
                                 <IconHeart size={20} />
                             )}
-                        </ActionIcon>
+                        </ActionIcon> */}
 
                         <Menu shadow="md" width={200} position="bottom-end">
                             <Menu.Target>

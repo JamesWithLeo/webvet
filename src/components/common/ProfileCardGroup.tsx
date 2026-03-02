@@ -37,6 +37,7 @@ export default function ProfileCardGroup(user: {
     photoUrl?: string | null;
     dateOfBirth?: string | null;
     email?: string | null;
+    id: string;
     gender: (typeof userGenderValue)[number];
 }) {
     const gender = () => {
@@ -56,8 +57,8 @@ export default function ProfileCardGroup(user: {
 
             <div className="items-center flex gap-4 h-full">
                 <Avatar radius={120} size={120} src={user.photoUrl}>
-                    {user.firstName?.at(0)}
-                    {user.lastName?.at(0)}
+                    {user.firstName?.at(0)?.toUpperCase()}
+                    {user.lastName?.at(0)?.toUpperCase()}
                 </Avatar>
                 <Space />
                 <Stack

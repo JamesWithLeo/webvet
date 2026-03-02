@@ -194,8 +194,13 @@ export const getAppointments = async ({ id }: { id: string }) => {
                 ...getTableColumns(appointments),
                 // Squash the pet data into a single JSON array column
 
-                invoiceStatus: invoices.paymentStatus,
-                invoiceId: invoices.id,
+                invoice: {
+                    id: invoices.id,
+                    paymentStatus: invoices.paymentStatus,
+                    status: invoices.status,
+                    totalAmount: invoices.totalAmount,
+                    createdAt: invoices.createdAt,
+                },
                 pets: sql<
                     {
                         id: string;

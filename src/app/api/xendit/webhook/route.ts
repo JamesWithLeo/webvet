@@ -21,7 +21,7 @@ export async function POST(req: Request) {
             try {
                 const result = await db
                     .update(invoices)
-                    .set({ status: "PAID" })
+                    .set({ paymentStatus: "PAID" })
                     .where(eq(invoices.id, external_id))
                     .returning();
 
