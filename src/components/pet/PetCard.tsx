@@ -2,7 +2,6 @@
 
 import {
     ActionIcon,
-    BackgroundImage,
     Card,
     Stack,
     Title,
@@ -10,6 +9,7 @@ import {
     Text,
     Menu,
     Center,
+    Image,
 } from "@mantine/core";
 
 import {
@@ -34,6 +34,7 @@ import { useUpdatePetArchive } from "@/lib/hooks/usePets";
 type Props = {
     pet: PetTypeModelWithBreed;
 };
+
 export default function PetCard({ pet }: Props) {
     const {
         dateOfBirth,
@@ -48,7 +49,7 @@ export default function PetCard({ pet }: Props) {
         archivedAt,
     } = pet;
 
-    const { years } = calculatePetAge(dateOfBirth);
+    const { displayAge } = calculatePetAge(dateOfBirth);
     const router = useRouter();
 
     const { mutateAsync: updateArchive, isPending } = useUpdatePetArchive();
@@ -75,6 +76,7 @@ export default function PetCard({ pet }: Props) {
             },
         });
     };
+
     const handleUnarchive = () => {
         modals.openConfirmModal({
             title: `Unarchive ${name}?`,
@@ -96,126 +98,164 @@ export default function PetCard({ pet }: Props) {
             },
         });
     };
+
     return (
-        <Card withBorder className="group w-96 h-125" radius={"md"}>
-            <Card.Section withBorder p={"sm"}>
-                <Group justify="space-between">
+        <Card
+            withBorder
+            className="group w-80 h-100 flex flex-col overflow-hidden"
+            radius={"md"}
+            p="0" // Remove padding so Card.Section touches the borders
+        >
+            {/* Header Section */}
+            <Card.Section
+                withBorder
+                style={{
+                    paddingLeft: "2rem",
+                    paddingRight: "2rem",
+                    paddingTop: "2rem",
+                    paddingBottom: "1rem",
+                }}
+            >
+                <Group justify="space-between" wrap="nowrap">
                     <Stack gap={1}>
                         <Title
                             c="primary"
                             order={1}
-                            className="text-2xl font-bold"
+                            className="text-2xl font-bold line-clamp-1"
                         >
                             {name ? toTitleCase(name) : "Unknown pet name"}
                         </Title>
-                        <Title c={"dimmed"} order={6} className=" font-bold">
+                        <Title
+                            c={"dimmed"}
+                            order={6}
+                            className="font-bold line-clamp-1"
+                        >
                             {breed
                                 ? toTitleCase(breed)
                                 : (breedSpecification ?? "Unknown breed")}
                         </Title>
                     </Stack>
-                    <Group justify="center" gap={0}>
+
+                    <Group gap={0}>
                         <ActionIcon variant="transparent" size={"xl"}>
                             {heart ? (
-                                <IconHeartFilled size={20} />
+                                <IconHeartFilled size={20} color="red" />
                             ) : (
                                 <IconHeart size={20} />
                             )}
                         </ActionIcon>
-                        <ActionIcon variant="transparent" size={"xl"}>
-                            <Menu
-                                shadow="md"
-                                width={200}
-                                position="bottom-start"
-                            >
-                                <Menu.Target>
+
+                        <Menu shadow="md" width={200} position="bottom-end">
+                            <Menu.Target>
+                                <ActionIcon variant="transparent" size={"xl"}>
                                     <IconDotsVertical size={24} stroke={1.5} />
-                                </Menu.Target>
-                                <Menu.Dropdown>
-                                    <Menu.Label>Pet Menu</Menu.Label>
-                                    <Menu.Item
-                                        leftSection={
-                                            <IconCat size={20} stroke={1.5} />
-                                        }
-                                        onClick={() => {
-                                            router.push(`/v1/pets/${id}`);
-                                        }}
-                                    >
-                                        Profile
-                                    </Menu.Item>
-                                    <Menu.Divider />
-                                    <Menu.Label>Action</Menu.Label>
-                                    <Menu.Item
-                                        color="primary"
-                                        leftSection={
-                                            <IconPlus size={20} stroke={1.5} />
-                                        }
-                                        onClick={() => {
-                                            router.push("/v1/appointments/new");
-                                        }}
-                                    >
-                                        New Appointment
-                                    </Menu.Item>
-                                    {!archivedAt ? (
-                                        <Menu.Item
-                                            color="orange"
-                                            leftSection={
-                                                <IconArchive
-                                                    size={20}
-                                                    stroke={1.5}
-                                                />
-                                            }
-                                            onClick={handleArchieve}
-                                        >
-                                            Archieve
-                                        </Menu.Item>
-                                    ) : (
-                                        <Menu.Item
-                                            color="orange"
-                                            leftSection={
-                                                <IconArchiveOff
-                                                    size={20}
-                                                    stroke={1.5}
-                                                />
-                                            }
-                                            onClick={handleUnarchive}
-                                        >
-                                            Unarchive
-                                        </Menu.Item>
-                                    )}
-                                </Menu.Dropdown>
-                            </Menu>
-                        </ActionIcon>
+                                </ActionIcon>
+                            </Menu.Target>
+
+                            <Menu.Dropdown>
+                                <Menu.Label>Pet Menu</Menu.Label>
+                                <Menu.Item
+                                    leftSection={
+                                        <IconCat size={20} stroke={1.5} />
+                                    }
+                                    onClick={() =>
+                                        router.push(`/v1/pets/${id}`)
+                                    }
+                                >
+                                    Profile
+                                </Menu.Item>
+                                <Menu.Divider />
+                                <Menu.Label>Action</Menu.Label>
+                                <Menu.Item
+                                    color="primary"
+                                    leftSection={
+                                        <IconPlus size={20} stroke={1.5} />
+                                    }
+                                    onClick={() =>
+                                        router.push("/v1/appointments/new")
+                                    }
+                                >
+                                    New Appointment
+                                </Menu.Item>
+
+                                <Menu.Item
+                                    color="orange"
+                                    leftSection={
+                                        archivedAt ? (
+                                            <IconArchiveOff
+                                                size={20}
+                                                stroke={1.5}
+                                            />
+                                        ) : (
+                                            <IconArchive
+                                                size={20}
+                                                stroke={1.5}
+                                            />
+                                        )
+                                    }
+                                    onClick={
+                                        archivedAt
+                                            ? handleUnarchive
+                                            : handleArchieve
+                                    }
+                                >
+                                    {archivedAt ? "Unarchive" : "Archive"}
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
                     </Group>
                 </Group>
 
-                <Group gap={1} c={"dimmed"}>
-                    <Title order={6}>
-                        {gender[0].toUpperCase()} / {years} years old
-                    </Title>
+                <Group gap={4} c={"dimmed"} mt={4}>
+                    <Text size="xs" fw={700}>
+                        {gender ? toTitleCase(gender) : "N/A"}
+                    </Text>
+                    <Text size="xs" c="gray.4">
+                        •
+                    </Text>
+                    <Text size="xs" fw={700}>
+                        {displayAge}
+                        {/* {years} {years === 1 ? "year" : "years"} old */}
+                    </Text>
                 </Group>
             </Card.Section>
-            <Card.Section className="relative">
+
+            {/* Image Section - Expands to fill the rest of h-120 */}
+            <Card.Section className="relative flex-1 bg-gray-50 overflow-hidden">
                 {imageUrl ? (
-                    <BackgroundImage
-                        className="ease-in-out duration-300s delay-200"
-                        src={imageUrl}
-                        mah={"200"}
-                        mih={"300"}
-                    ></BackgroundImage>
+                    <>
+                        <Image
+                            src={imageUrl}
+                            alt=""
+                            h="100%"
+                            w="100%"
+                            fit="cover"
+                            // Apply a heavy blur and darken it slightly
+                            style={{
+                                filter: "blur(20px) brightness(0.7)",
+                                transform: "scale(1.1)", // Prevents white edges from the blur
+                            }}
+                            className="absolute inset-0"
+                        />
+
+                        <Image
+                            src={imageUrl}
+                            alt={name}
+                            h="100%"
+                            w="100%"
+                            fit="contain" // Ensures the whole pet is visible
+                            className="relative z-10 transition-transform duration-700 group-hover:scale-105"
+                        />
+                    </>
                 ) : (
-                    <Center mah={"200"} bg={"gray.0"} c={"gray.3"} mih={"300"}>
-                        {species === "cat" ? (
+                    <Center h="100%" c={"gray.3"}>
+                        {species?.toLowerCase() === "cat" ? (
                             <CatPlaceholder />
                         ) : (
                             <DogPlaceholder />
                         )}
                     </Center>
                 )}
-            </Card.Section>
-            <Card.Section withBorder p={"sm"}>
-                <Text c={"dimmed"}>Next Appointment: None</Text>
-                <Text c={"dimmed"}>Last Appointment: Nov 10, 2025</Text>
             </Card.Section>
         </Card>
     );

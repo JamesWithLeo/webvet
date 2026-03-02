@@ -14,6 +14,7 @@ import {
     Avatar,
     AvatarGroup,
     Button,
+    Group,
     Stack,
     Text,
     Title,
@@ -26,6 +27,7 @@ import {
     IconCheck,
     IconChevronLeft,
     IconCurrencyPeso,
+    IconStatusChange,
     IconTag,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
@@ -74,28 +76,46 @@ type Props = {
         id: string;
         title: string;
         event_datetime: string;
+        invoice: {
+            id: string;
+            paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
+            status:
+                | "PENDING"
+                | "ARRIVED"
+                | "COMPLETED"
+                | "CANCELLED"
+                | "MISSED"
+                | null;
+            totalAmount: string;
+            createdAt: Date;
+        } | null;
         pets: {
             id: string;
             name: string;
             photoUrl: string | null;
             priceAtBooking: string;
-            type: AppointmentType;
+            type: "CHECK_UP" | "GROOMING" | "VACCINATION" | "DEWORMING";
             title: string;
         }[];
     };
 };
 
 export default function AppointmentWrapper({
-    data: { pets, title, event_datetime, id },
+    data: { pets, title, event_datetime, id, invoice },
 }: Props) {
     const router = useRouter();
     const { nameOfAllPets, totalAmount } = useMemo(() => {
-        const nameOfAllPets = pets.map((c) => toTitleCase(c.name)).join(", ");
-
         const totalAmount = pets.reduce((acc, pet) => {
             return acc + (Number(pet.priceAtBooking) || 0);
         }, 0);
-        return { nameOfAllPets, totalAmount };
+        const uniquePets = Array.from(
+            new Map(pets.map((pet) => [pet.id, pet])).values()
+        );
+        const nameOfAllPets = uniquePets
+            .map((c) => toTitleCase(c.name))
+            .join(", ");
+
+        return { nameOfAllPets, totalAmount, uniquePets };
     }, [pets]);
     const expired = new Date() > new Date(event_datetime);
 
@@ -104,6 +124,13 @@ export default function AppointmentWrapper({
         useState<boolean>(false);
 
     const longService = LongItemFormatter(pets.map((p) => toTitleCase(p.type)));
+
+    const uniquePets = useMemo(() => {
+        if (!pets) return [];
+
+        return Array.from(new Map(pets.map((pet) => [pet.id, pet])).values());
+    }, [pets]);
+
     const handleBooking = async () => {
         setLoading(true);
         const result = await addAppointmentToCalendar({
@@ -128,6 +155,9 @@ export default function AppointmentWrapper({
                     "You can now view this appointment to your google calendar.",
             });
         }
+    };
+    const handleInvoiceClick = async () => {
+        if (invoice) router.push(`/v1/invoice/${invoice.id}`);
     };
 
     const checkGoogleCalendar = async () => {
@@ -175,14 +205,36 @@ export default function AppointmentWrapper({
                 )}
             </div>
             <div className="flex gap-4 flex-col">
-                <div>
-                    <Title c={"primary"}>
-                        {toTitleCase(title ?? nameOfAllPets)}
-                    </Title>
-                    <Text c={"dimmed"} size="xs">
-                        {id}
-                    </Text>
-                </div>
+                <Group justify="space-between">
+                    <Stack gap={0}>
+                        <Title c={"primary"}>
+                            {toTitleCase(title ?? nameOfAllPets)}
+                        </Title>
+                        <Text c={"dimmed"} size="xs">
+                            {id}
+                        </Text>
+                    </Stack>
+                    {!invoice?.id ? (
+                        <Text c={"dimmed"} size="sm">
+                            Not yet billed.
+                        </Text>
+                    ) : (
+                        <>
+                            {invoice?.paymentStatus !== "VOID" && (
+                                <Button
+                                    radius={"md"}
+                                    variant="default"
+                                    onClick={handleInvoiceClick}
+                                >
+                                    {invoice?.paymentStatus === "UNPAID" &&
+                                        "Pay now"}
+                                    {invoice?.paymentStatus === "PAID" &&
+                                        "View Invoice"}
+                                </Button>
+                            )}
+                        </>
+                    )}
+                </Group>
                 <DetailRow
                     label="Title / Reason"
                     value={longService}
@@ -198,13 +250,22 @@ export default function AppointmentWrapper({
                     label="Amount"
                     value={CurrencyFormatter(totalAmount)}
                 />
+                {invoice?.status && (
+                    <DetailRow
+                        icon={<IconStatusChange size={18} />}
+                        label={"Status"}
+                        value={invoice.status}
+                    />
+                )}
 
                 <div>
-                    <Text>
-                        Please bring your lovely pet(s): {nameOfAllPets}
-                    </Text>
+                    {!invoice && (
+                        <Text>
+                            Please bring your lovely pet(s): {nameOfAllPets}
+                        </Text>
+                    )}
                     <AvatarGroup mt={"sm"}>
-                        {pets.map((v) => (
+                        {uniquePets.map((v) => (
                             <Tooltip
                                 key={`${v.id}`}
                                 label={toTitleCase(v.name)}
@@ -224,9 +285,11 @@ export default function AppointmentWrapper({
                         ))}
                     </AvatarGroup>
                 </div>
-                <Text c={"red"} size="sm">
-                    Note: Please arrived on time or 5 minutes early
-                </Text>
+                {!invoice && (
+                    <Text c={"red"} size="sm">
+                        Note: Please arrived on time or 5 minutes early
+                    </Text>
+                )}
             </div>
         </div>
     );

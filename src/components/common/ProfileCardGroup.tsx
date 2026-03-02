@@ -29,6 +29,7 @@ import {
 
 import EditProfileModal from "../user/EditProfileModal";
 import { signOut } from "next-auth/react";
+import { toTitleCase } from "@/lib/toTitleCase";
 
 export default function ProfileCardGroup(user: {
     firstName?: string | null;
@@ -67,7 +68,7 @@ export default function ProfileCardGroup(user: {
                     gap={0}
                 >
                     <Title>
-                        {user.firstName} {user.lastName}
+                        {toTitleCase(`${user.firstName} ${user.lastName}`)}
                     </Title>
                     <Text>{user.email}</Text>
                     <Group>

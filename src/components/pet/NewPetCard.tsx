@@ -10,7 +10,7 @@ export default function NewPetCard() {
         <Paper
             withBorder
             bg={"white"}
-            className=" z-10 w-96 group flex items-center flex-col justify-center h-125"
+            className=" z-10 w-80 group flex items-center flex-col justify-center h-100"
             p={{ base: "sm", lg: "lg" }}
         >
             <Center className="h-full">

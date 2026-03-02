@@ -23,21 +23,10 @@ export default function PetProfile({
         archivedAt,
     },
 }: Props) {
-    const age = calculatePetAge(dateOfBirth);
+    const { displayAge } = calculatePetAge(dateOfBirth);
     const router = useRouter();
     return (
         <>
-            {/* <Grid.Col span={12}>
-                <Alert
-                    variant="light"
-                    color="red"
-                    withCloseButton
-                    w={"100%"}
-                    title="Unsettled Payment"
-                    closeButtonLabel="Dismiss payment remainder"
-                    icon={<IconInfoCircle />}
-                />
-            </Grid.Col> */}
             <div className="flex w-full  justify-between">
                 <div className="flex gap-2 ">
                     <ActionIcon
@@ -72,8 +61,7 @@ export default function PetProfile({
                         <Stack h={"100%"} w={"100%"} gap={3} justify="center">
                             <Title c={"primary"}>{toTitleCase(name)}</Title>
                             <Title order={6} c={"dimmed"}>
-                                {toTitleCase(gender)} /{" "}
-                                {age.years ? age.years : age.months} years old
+                                {toTitleCase(gender)} / {displayAge}
                             </Title>
                             <Title order={6} c={"dimmed"}>
                                 Weight: {weight ? weight : "To be assigned"}

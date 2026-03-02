@@ -67,7 +67,7 @@ export default function AppointmentCard({
     }, [pets]);
 
     return (
-        <Card withBorder w={500} h={200} p={"md"} radius={"md"}>
+        <Card withBorder w={500} h={180} p={"md"} radius={"md"}>
             <Card.Section
                 p={"md"}
                 className="group"
@@ -121,6 +121,7 @@ export default function AppointmentCard({
                         <>
                             {invoiceStatus !== "VOID" && (
                                 <Button
+                                    radius={"md"}
                                     variant="default"
                                     onClick={handleInvoiceClick}
                                 >

@@ -30,6 +30,7 @@ import {
     DataTableColumn,
     useDataTableColumns,
 } from "mantine-datatable";
+import { useRouter } from "next/navigation";
 import {
     startTransition,
     useActionState,
@@ -45,6 +46,7 @@ export default function AdminInvoiceTable() {
         openedUpdatePayment,
         { open: openUpdatePayment, close: closeUpdatePayment },
     ] = useDisclosure();
+    const router = useRouter();
 
     const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null);
     const queryClient = useQueryClient();
@@ -151,6 +153,7 @@ export default function AdminInvoiceTable() {
                             <Button
                                 size="xs"
                                 variant="default"
+                                radius={"md"}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedInvoice(record.id);
@@ -159,6 +162,23 @@ export default function AdminInvoiceTable() {
                             >
                                 Update Payment
                             </Button>
+                        )}
+                        {record.paymentStatus === "PAID" && (
+                            <>
+                                <Button
+                                    size="xs"
+                                    variant="default"
+                                    radius={"md"}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        router.push(
+                                            `/v1/admin/invoice/${record.id}`
+                                        );
+                                    }}
+                                >
+                                    View Invoice
+                                </Button>
+                            </>
                         )}
                     </Group>
                 ),

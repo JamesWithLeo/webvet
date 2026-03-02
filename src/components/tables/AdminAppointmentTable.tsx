@@ -147,7 +147,8 @@ export default function AdminAppointmentTable({
                         {" -> "}
                         {formatDistance(
                             new Date(),
-                            new Date(data.event_datetime)
+                            new Date(data.event_datetime),
+                            { addSuffix: true }
                         )}
                     </Text>
                 ),

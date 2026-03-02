@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import PetProfile from "@/components/pet/PetProfile";
 import PetProfileAppointment from "@/components/pet/PetProfileAppointment";
-import { getAppointmentsByPet } from "@/lib/db/appointments";
+import { getAppointmentHistoryByPet } from "@/lib/db/appointments";
 import { getPet } from "@/lib/db/pets";
 import {
     notFound,
@@ -21,7 +21,7 @@ export default async function Page({
 
     const [pet, appointment] = await Promise.all([
         getPet(petId, session.user.id),
-        getAppointmentsByPet(petId),
+        getAppointmentHistoryByPet(petId),
     ]);
     if (!pet || !appointment) notFound();
     return (

@@ -21,6 +21,7 @@ import {
     gte,
     inArray,
     lt,
+    lte,
     sql,
 } from "drizzle-orm";
 import { PgTransaction } from "drizzle-orm/pg-core";
@@ -332,29 +333,37 @@ export const getNearestAppointment = async ({ id }: { id: string }) => {
         .then((v) => v[0] ?? null);
 };
 
-export const getAppointmentsByPet = async (petId: string) => {
+export const getAppointmentHistoryByPet = async (petId: string) => {
     try {
+        const now = new Date().toISOString();
+
         return await db
             .select({
                 ...getTableColumns(appointments),
-                serviceType: services.type,
                 serviceName: services.title,
+                serviceType: services.type,
+                paymentStatus: invoices.paymentStatus,
+                invoiceId: invoices.id,
             })
             .from(appointments)
-            // 1. Join the junction table to the appointment
             .innerJoin(
                 appointmentsToPets,
                 eq(appointments.id, appointmentsToPets.appointmentId)
             )
-            // 2. Join services from the junction table
             .innerJoin(services, eq(appointmentsToPets.serviceId, services.id))
-            // 3. Join pets from the junction table
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
-            // 4. Filter for the specific pet ID here
-            .where(eq(pets.id, petId))
+            // Use leftJoin so medical history isn't hidden if an invoice is missing
+            .leftJoin(invoices, eq(appointments.id, invoices.appointmentId))
+            .where(
+                and(
+                    eq(pets.id, petId),
+                    // Strictly filters for timestamps before or equal to right now
+                    lte(appointments.event_datetime, now)
+                )
+            )
             .orderBy(desc(appointments.event_datetime));
     } catch (error) {
-        console.error("Query Error:", error);
+        console.error("Database Error:", error);
         return null;
     }
 };
@@ -418,7 +427,6 @@ export const getAppointment = async ({
         return null;
     }
 };
-
 export const getAppointmentWithDetails = async ({
     appointmentId,
     ownerId,
@@ -432,6 +440,14 @@ export const getAppointmentWithDetails = async ({
                 id: appointments.id,
                 title: appointments.title,
                 event_datetime: appointments.event_datetime,
+                // Invoice details (will be null if no invoice exists)
+                invoice: {
+                    id: invoices.id,
+                    paymentStatus: invoices.paymentStatus,
+                    status: invoices.status,
+                    totalAmount: invoices.totalAmount,
+                    createdAt: invoices.createdAt,
+                },
                 pets: sql<
                     {
                         id: string;
@@ -463,15 +479,16 @@ export const getAppointmentWithDetails = async ({
             )
             .innerJoin(services, eq(appointmentsToPets.serviceId, services.id))
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            // 1. Add Left Join for Invoice
+            .leftJoin(invoices, eq(appointments.id, invoices.appointmentId))
             .where(
                 and(
                     eq(appointments.id, appointmentId),
-                    // Filter by the owner of the pet
                     eq(pets.ownerId, ownerId)
                 )
             )
-            // Group by everything EXCEPT the pets
-            .groupBy(appointments.id, services.id)
+            // 2. Add invoices.id to groupBy
+            .groupBy(appointments.id, invoices.id)
             .limit(1);
 
         return { data: result[0] || null, error: null };

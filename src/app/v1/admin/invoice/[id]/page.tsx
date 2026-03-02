@@ -7,6 +7,7 @@ import { Stack, Text, Title, Group } from "@mantine/core";
 import { notFound } from "next/navigation";
 import InvoiceDocumentWrapper from "@/components/common/InvoiceDocumentWrapper";
 import { toTitleCase } from "@/lib/toTitleCase";
+import { getUserById } from "@/lib/db/users";
 
 export default async function Page({
     params,
@@ -15,17 +16,14 @@ export default async function Page({
 }) {
     const invoiceId = (await params).id;
 
-    const session = await auth();
-
     const data = await getInvoiceWithDetails(invoiceId);
-    if (!data || !session) notFound();
+    if (!data) notFound();
+    const [user] = await getUserById(data.userId);
+    if (!user) notFound();
 
     return (
         <div className="flex items-center flex-col w-full">
             <Stack className="w-full max-w-7xl h-screen gap-8 p-16 light:bg-gray-50">
-                <Group justify="left">
-                    <BackToAppointment />
-                </Group>
                 <Stack gap={"xl"}>
                     <Group w={"1000"} justify="space-between">
                         <Title c={"primary"}>Invoice</Title>
@@ -33,7 +31,7 @@ export default async function Page({
                             <InvoiceDocumentWrapper
                                 data={data}
                                 fullName={toTitleCase(
-                                    `${session.user.firstName} ${session.user.lastName}`
+                                    `${user.firstName} ${user.lastName}`
                                 )}
                             />
                         )}
@@ -47,9 +45,7 @@ export default async function Page({
                         <Text>{new Date(data.createdAt).toLocaleString()}</Text>
                         <Text>
                             Client:{" "}
-                            {toTitleCase(
-                                `${session.user.firstName} ${session.user.lastName}`
-                            )}
+                            {toTitleCase(`${user.firstName} ${user.lastName}`)}
                         </Text>
                     </Stack>
 

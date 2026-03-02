@@ -20,6 +20,7 @@ import LogoutButton from "../common/LogoutButton";
 import { Tooltip, UnstyledButton } from "@mantine/core";
 import { Baskervville_SC } from "next/font/google";
 import { LogoSvg } from "../common/LogoSvg";
+import Link from "next/link";
 
 const baskerville = Baskervville_SC({
     subsets: ["latin"],
@@ -160,12 +161,14 @@ export default function AdminNav() {
                 className={`
                     flex gap-2 md:gap-4  text-[#14678f] text-xl lg:text-2xl w-full  items-center justify-start  border-b   ${isCollapsed ? " p-4 " : " p-4 "}`}
             >
-                <LogoSvg className="text-xl fill-current lg:max-h-8 h-full max-w-7 max-h-7 lg:max-w-8 w-full  min-w-10" />
-                {!isCollapsed && (
-                    <h1 className={`${baskerville.className} text-nowrap `}>
-                        Joseph & Mary
-                    </h1>
-                )}
+                <Link href={"/v1/dashboard"} className="flex gap-2 md:gap-4">
+                    <LogoSvg className="text-xl fill-current lg:max-h-8 h-full max-w-7 max-h-7 lg:max-w-8 w-full  min-w-10" />
+                    {!isCollapsed && (
+                        <h1 className={`${baskerville.className} text-nowrap `}>
+                            Joseph & Mary
+                        </h1>
+                    )}
+                </Link>
             </div>
 
             <div
