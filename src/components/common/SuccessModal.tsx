@@ -3,15 +3,16 @@
 import { Modal } from "@mantine/core";
 import { useEffect, useRef } from "react";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
-import successAnim from "@/../public/lottie/Success-Animation.json";
 
 export default function SuccessModal({
     opened,
     timeOut,
     onClose,
+    animData,
     title,
     body,
 }: {
+    animData: any;
     opened: boolean;
     onClose: () => void;
     timeOut: number;
@@ -44,6 +45,7 @@ export default function SuccessModal({
                 backgroundOpacity: 0.55,
                 blur: 4,
             }}
+            centered
             styles={{
                 content: {
                     backgroundColor: "transparent",
@@ -62,7 +64,7 @@ export default function SuccessModal({
                 <div className="w-sm h-auto   max-w-md">
                     <Lottie
                         lottieRef={lottieRef}
-                        animationData={successAnim}
+                        animationData={animData}
                         // loop={false}
                         // initialSegment={[0, 95]}
                     />

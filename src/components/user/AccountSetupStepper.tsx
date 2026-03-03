@@ -1,6 +1,7 @@
 "use client";
 
 import { userGenderValue } from "@/types/user";
+import successAnimation from "@/../public/lottie/Cat Coding.json";
 import {
     Box,
     TextInput,
@@ -229,19 +230,20 @@ export default function AccountStepper({
                 centered
                 onClose={close}
                 withCloseButton={false}
+                radius={"md"}
                 size={"lg"}
             >
                 <Box className="flex flex-col gap-6 p-4">
                     <span>
-                        <h1 className="text-3xl">
+                        <h1 className="text-lg md:text-3xl">
                             Save your personal details?
                         </h1>
-                        <h1>
+                        <h1 className="text-sm">
                             Your details will be stored safely. You can update
                             them anytime.
                         </h1>
                     </span>
-                    <span className="w-full flex justify-end gap-4">
+                    <span className="w-full  flex justify-end gap-4">
                         <Button
                             disabled={isPending}
                             loading={isPending}
@@ -260,6 +262,7 @@ export default function AccountStepper({
 
             {isSuccesful && (
                 <SuccessModal
+                    animData={successAnimation}
                     opened={isSuccesful}
                     timeOut={3000}
                     onClose={() => {

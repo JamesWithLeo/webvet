@@ -22,7 +22,7 @@ export default async function LayoutContent({
                 style={{ borderTop: 0, borderLeft: 0, borderRight: 0 }}
                 className="h-16  z-20 sticky top-0 "
             >
-                <div className="grid-cols-3 items-center grid w-full justify-between px-10 md:px-20 h-full">
+                <div className="grid-cols-3 items-center grid w-full justify-between px-4 md:px-20 h-full">
                     <div className="w-full flex ">
                         <LogoWithText
                             href={session?.user ? "/v1/dashboard" : "/"}

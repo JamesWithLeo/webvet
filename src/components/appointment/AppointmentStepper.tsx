@@ -1,18 +1,16 @@
 "use client";
 
+import successAnim from "@/../public/lottie/Success-Animation.json";
 import {
     Stepper,
     TextInput,
     Button,
     Modal,
     Box,
-    NativeSelect,
     em,
     Text,
     Alert,
-    MultiSelect,
     Group,
-    Avatar,
     Title,
     useModalsStack,
     Accordion,
@@ -21,13 +19,7 @@ import {
 
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import {
-    useActionState,
-    useEffect,
-    useMemo,
-    useState,
-    useTransition,
-} from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import SelectDateCal from "../calendars/SelectDateCal";
 import SelectTimeCal from "../calendars/SelectTimeCal";
 import {
@@ -36,7 +28,6 @@ import {
 } from "@/lib/validators/newAppointmentSchema";
 
 import {
-    IconArrowRight,
     IconArrowRightDashed,
     IconChevronLeft,
     IconInfoCircle,
@@ -401,6 +392,7 @@ export default function AppointmentStepper({
             </form>
 
             <SuccessModal
+                animData={successAnim}
                 opened={isOpenedSuccessModal}
                 onClose={closeSuccessModal}
                 timeOut={successTimeOut}
