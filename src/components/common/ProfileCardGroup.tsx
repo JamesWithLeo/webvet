@@ -10,25 +10,12 @@ import {
     Text,
     Title,
     ActionIcon,
-    Menu,
-    MenuTarget,
-    MenuDropdown,
-    MenuItem,
-    MenuDivider,
 } from "@mantine/core";
 
-import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { useMediaQuery } from "@mantine/hooks";
 
-import {
-    IconGenderMale,
-    IconDotsVertical,
-    IconEdit,
-    IconLogout,
-    IconGenderFemale,
-} from "@tabler/icons-react";
+import { IconGenderMale, IconGenderFemale } from "@tabler/icons-react";
 
-import EditProfileModal from "../user/EditProfileModal";
-import { signOut } from "next-auth/react";
 import { toTitleCase } from "@/lib/toTitleCase";
 
 export default function ProfileCardGroup(user: {
@@ -51,11 +38,8 @@ export default function ProfileCardGroup(user: {
                 return <></>;
         }
     };
-    const [opened, { open, close }] = useDisclosure();
     return (
         <>
-            <EditProfileModal opened={opened} close={close} />
-
             <div
                 className={`items-center flex ${isMobile ? "gap-2" : "gap-4"} h-full`}
             >
@@ -86,7 +70,8 @@ export default function ProfileCardGroup(user: {
                         </ActionIcon>
                     </Group>
                 </Stack>
-                <div className=" flex justify-end flex-1 h-28">
+
+                {/* <div className=" flex justify-end flex-1 h-28">
                     <Menu shadow="md" width={180}>
                         <MenuTarget>
                             <ActionIcon variant="transparent">
@@ -118,7 +103,7 @@ export default function ProfileCardGroup(user: {
                             </MenuItem>
                         </MenuDropdown>
                     </Menu>
-                </div>
+                </div> */}
             </div>
         </>
     );

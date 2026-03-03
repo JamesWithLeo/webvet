@@ -4,6 +4,7 @@ import ProfileCardGroup from "@/components/common/ProfileCardGroup";
 import { auth } from "@/auth";
 import { SessionProvider } from "next-auth/react";
 import ProfileStats from "@/components/user/ProfileStats";
+import ProfileAction from "@/components/user/ProfileAction";
 
 export default async function ProfilePage() {
     const session = await auth();
@@ -34,6 +35,7 @@ export default async function ProfilePage() {
                         />
                     </Paper>
                     <ProfileStats id={session.user.id} />
+                    <ProfileAction />
                 </div>
             </div>
         </SessionProvider>
