@@ -78,7 +78,6 @@ export const UpdateInvoice = async (
                 .set({
                     status: data.rawInvoice.status, // The bill is now finalized
                     paymentStatus: data.rawInvoice.paymentStatus,
-                    totalAmount: data.rawInvoice.totalAmount,
                 })
                 .where(eq(invoices.id, invoice.id));
 
