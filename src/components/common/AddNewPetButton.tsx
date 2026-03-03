@@ -13,6 +13,7 @@ export default function AddNewPetButton({ size }: Props) {
         <Button
             size={size}
             variant="default"
+            radius={"md"}
             onClick={() => {
                 router.push("/v1/pets/new");
             }}

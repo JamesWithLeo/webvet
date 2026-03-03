@@ -31,6 +31,7 @@ import { users } from "@/db/schema/users";
 import { AppointmentFormInput } from "../validators/newAppointmentSchema";
 import PetServiceMerged from "@/types/PetsServiceMerged";
 import { invoiceItems, invoices } from "@/db/schema/invoice";
+import { medicalLogs } from "@/db/schema/medicalLogs";
 
 export class ExistingAppointmentConflictError extends Error {
     public code: string;
@@ -359,12 +360,24 @@ export const getAppointmentHistoryByPet = async (petId: string) => {
         const now = new Date().toISOString();
 
         return await db
-            .select({
-                ...getTableColumns(appointments),
+            .selectDistinctOn([appointments.id, services.id], {
+                // Still distinct on both
+                id: appointments.id,
+                title: appointments.title,
+                event_datetime: appointments.event_datetime,
+                serviceId: services.id,
                 serviceName: services.title,
                 serviceType: services.type,
                 paymentStatus: invoices.paymentStatus,
-                invoiceId: invoices.id,
+                priceAtInvoice: invoiceItems.priceAtInvoice,
+                medicalRecord: {
+                    weight: medicalLogs.weight,
+                    symptoms: medicalLogs.symptoms,
+                    diagnosis: medicalLogs.diagnosis,
+                    prescription: medicalLogs.prescription,
+                    notes: medicalLogs.notes,
+                    temperature: medicalLogs.temperature,
+                },
             })
             .from(appointments)
             .innerJoin(
@@ -373,16 +386,29 @@ export const getAppointmentHistoryByPet = async (petId: string) => {
             )
             .innerJoin(services, eq(appointmentsToPets.serviceId, services.id))
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
-            // Use leftJoin so medical history isn't hidden if an invoice is missing
             .leftJoin(invoices, eq(appointments.id, invoices.appointmentId))
-            .where(
+            .leftJoin(
+                invoiceItems,
                 and(
-                    eq(pets.id, petId),
-                    // Strictly filters for timestamps before or equal to right now
-                    lte(appointments.event_datetime, now)
+                    eq(invoiceItems.invoiceId, invoices.id),
+                    eq(invoiceItems.serviceId, services.id)
                 )
             )
-            .orderBy(desc(appointments.event_datetime));
+            .leftJoin(
+                medicalLogs,
+                and(
+                    eq(medicalLogs.appointmentId, appointments.id),
+                    eq(medicalLogs.petId, petId)
+                )
+            )
+            .where(
+                and(eq(pets.id, petId), lte(appointments.event_datetime, now))
+            )
+            .orderBy(
+                appointments.id,
+                services.id,
+                desc(appointments.event_datetime)
+            );
     } catch (error) {
         console.error("Database Error:", error);
         return null;

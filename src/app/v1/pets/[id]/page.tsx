@@ -1,14 +1,10 @@
 import { auth } from "@/auth";
+import TopRightPattern from "@/components/common/TopRightPattern";
 import PetProfile from "@/components/pet/PetProfile";
 import PetProfileAppointment from "@/components/pet/PetProfileAppointment";
 import { getAppointmentHistoryByPet } from "@/lib/db/appointments";
 import { getPet } from "@/lib/db/pets";
-import {
-    notFound,
-    redirect,
-    RedirectType,
-    unauthorized,
-} from "next/navigation";
+import { notFound, unauthorized } from "next/navigation";
 
 export default async function Page({
     params,
@@ -29,6 +25,7 @@ export default async function Page({
             <div className="flex items-center gap-4 max-w-7xl w-full lg:gap-8 flex-col">
                 <PetProfile data={pet} />
                 <PetProfileAppointment data={appointment} />
+                <TopRightPattern />
             </div>
         </div>
     );

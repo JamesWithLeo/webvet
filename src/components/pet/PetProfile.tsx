@@ -67,8 +67,8 @@ export default function PetProfile({
                                 Weight: {weight ? weight : "To be assigned"}
                             </Title>
                             <Space h={"sm"} />
-                            <Text>Last Vaccination: Null</Text>
-                            <Text>Last Grooming: Null</Text>
+                            {/* <Text>Last Vaccination: Null</Text>
+                            <Text>Last Grooming: Null</Text> */}
                             <Text>Descriptive Features</Text>
 
                             <List listStyleType="disc">
