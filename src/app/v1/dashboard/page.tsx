@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import CalendarList from "@/components/appointment/CalendarList";
-import BottomPattern from "@/components/common/BottomPattern";
 import checkSetup from "@/lib/checkSetup";
 import { getAppointmentsWithType } from "@/lib/db/appointments";
 import { redirect } from "next/navigation";
@@ -16,7 +15,6 @@ export default async function dashboard() {
     return (
         <div className="w-full gap-4 flex-col h-ful min-h-min flex">
             <CalendarList appointments={appointments} error={error} />
-            <BottomPattern />
         </div>
     );
 }

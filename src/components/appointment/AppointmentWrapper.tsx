@@ -87,7 +87,6 @@ type Props = {
                 | "MISSED"
                 | "IN_PROGRESS"
                 | null;
-            totalAmount: string;
             createdAt: Date;
         } | null;
         pets: {
