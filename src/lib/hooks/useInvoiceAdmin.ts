@@ -1,6 +1,7 @@
 "use client";
 
 import { InvoiceTypeModel, paymentStatusType } from "@/db/schema/invoice";
+import { InvoiceTypeModelWithTotal } from "@/types/invoice";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -10,7 +11,7 @@ export default function useInvoiceAdmin() {
         (typeof paymentStatusType.enumValues)[number] | "all"
     >("all");
 
-    const query = useQuery<InvoiceTypeModel[], Error>({
+    const query = useQuery<InvoiceTypeModelWithTotal[], Error>({
         queryKey: ["invoices", "admin"],
 
         queryFn: async () => {
@@ -21,7 +22,7 @@ export default function useInvoiceAdmin() {
             }
 
             const data = await res.json();
-            return data as InvoiceTypeModel[];
+            return data as InvoiceTypeModelWithTotal[];
         },
         staleTime: 1000 * 60 * 5,
 

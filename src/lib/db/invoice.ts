@@ -11,12 +11,25 @@ import { medicalLogs } from "@/db/schema/medicalLogs";
 import { pets } from "@/db/schema/pets";
 import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
+import { InvoiceTypeModelWithTotal } from "@/types/invoice";
 import PetServiceMerged from "@/types/PetsServiceMerged";
 import { endOfDay, startOfDay } from "date-fns";
 import { and, eq, getTableColumns, gte, lte, sql, sum } from "drizzle-orm";
 
-export const getInvoiceAdmin = async () => {
-    return await db.select().from(invoices);
+export const getInvoiceAdmin = async (): Promise<
+    InvoiceTypeModelWithTotal[]
+> => {
+    return await db
+        .select({
+            ...getTableColumns(invoices),
+            totalAmount:
+                sql<number>`sum(${invoiceItems.priceAtInvoice})`.mapWith(
+                    Number
+                ),
+        })
+        .from(invoices)
+        .leftJoin(invoiceItems, eq(invoices.id, invoiceItems.invoiceId))
+        .groupBy(invoices.id);
 };
 
 export const getInvoiceFullDetailsAdmin = async (invoiceId: string) => {

@@ -9,6 +9,7 @@ import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import useInvoiceAdmin from "@/lib/hooks/useInvoiceAdmin";
 import useInvoiceItemAdmin from "@/lib/hooks/useInvoiceItemAdmin";
 import { toTitleCase } from "@/lib/toTitleCase";
+import { InvoiceTypeModelWithTotal } from "@/types/invoice";
 import {
     Button,
     Group,
@@ -41,7 +42,7 @@ export default function AdminInvoiceTable() {
         paymentStatus,
         setPaymentStatus,
     } = useInvoiceAdmin();
-    const columns = useMemo<DataTableColumn<InvoiceTypeModel>[]>(
+    const columns = useMemo<DataTableColumn<InvoiceTypeModelWithTotal>[]>(
         () => [
             {
                 accessor: "id",

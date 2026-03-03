@@ -20,7 +20,7 @@ export default function NewAppointmentButton({
             }}
             leftSection={<IconCalendarPlus size={20} stroke={1.5} />}
         >
-            Add new appointment
+            Add appointment
         </Button>
     );
 }

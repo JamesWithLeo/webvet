@@ -18,7 +18,7 @@ export default function AddNewPetButton({ size }: Props) {
             }}
             leftSection={<IconDog size={20} stroke={1.5} />}
         >
-            Add new Pet
+            Add Pet
         </Button>
     );
 }

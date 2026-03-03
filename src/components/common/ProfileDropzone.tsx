@@ -41,6 +41,7 @@ export default function ProfileDropzone({
             onReject={onReject}
             maxSize={maxSize ?? 4 * 1024 ** 2}
             accept={accept}
+            radius={"md"}
             onDrop={onDrop}
             multiple={multiple ?? false}
         >

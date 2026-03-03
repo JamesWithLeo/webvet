@@ -254,55 +254,63 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
             <form className="h-full w-full max-w-2xl relative md:px-16 pb-16 px-4 py-4 flex gap-8 flex-col">
                 <div>
                     {!previewUrl ? (
-                        <ProfileDropzone
-                            disabled={
-                                isPending || isPendingTransition || isUploading
-                            }
-                            accept={IMAGE_MIME_TYPE}
-                            iconAccept={
-                                <IconUpload
-                                    size={52}
-                                    stroke={1.5}
-                                    color="var(--mantine-color-blue-6)"
-                                />
-                            }
-                            iconIdle={
-                                <IconDog
-                                    size={52}
-                                    stroke={1.5}
-                                    color="var(--mantine-color-dimmed)"
-                                />
-                            }
-                            iconReject={
-                                <IconX
-                                    size={52}
-                                    stroke={1.5}
-                                    color="var(--mantine-color-blue-6)"
-                                />
-                            }
-                            label={"Pet profile picture"}
-                            description={
-                                <>
-                                    Drag image here or click to select file{" "}
-                                    <br />
-                                    Image should not exceed 5mb
-                                </>
-                            }
-                            gap={"xl"}
-                            mih={"220"}
-                            multiple={false}
-                            onDrop={(files) => {
-                                setImportedFile(files[0]);
-                                form.clearFieldError("photoUrl");
-                            }}
-                            onReject={(files) => {
-                                (form.setFieldError(
-                                    "photoUrl",
-                                    "Invalid image, Please try again or select different image."
-                                ),
-                                    console.log("rejected files", files));
-                            }}
-                        />
+                        <>
+                            <Text mb={4} size="sm" fw={500}>
+                                Pet picture{" "}
+                                <span style={{ color: "red" }}>*</span>
+                            </Text>
+                            <ProfileDropzone
+                                disabled={
+                                    isPending ||
+                                    isPendingTransition ||
+                                    isUploading
+                                }
+                                accept={IMAGE_MIME_TYPE}
+                                iconAccept={
+                                    <IconUpload
+                                        size={52}
+                                        stroke={1.5}
+                                        color="var(--mantine-color-blue-6)"
+                                    />
+                                }
+                                iconIdle={
+                                    <IconDog
+                                        size={52}
+                                        stroke={1.5}
+                                        color="var(--mantine-color-dimmed)"
+                                    />
+                                }
+                                iconReject={
+                                    <IconX
+                                        size={52}
+                                        stroke={1.5}
+                                        color="var(--mantine-color-blue-6)"
+                                    />
+                                }
+                                label={"Pet profile picture"}
+                                description={
+                                    <>
+                                        Drag image here or click to select file{" "}
+                                        <br />
+                                        Image should not exceed 5mb
+                                    </>
+                                }
+                                gap={"xl"}
+                                mih={"220"}
+                                multiple={false}
+                                onDrop={(files) => {
+                                    setImportedFile(files[0]);
+                                    form.clearFieldError("photoUrl");
+                                }}
+                                onReject={(files) => {
+                                    (form.setFieldError(
+                                        "photoUrl",
+                                        "Invalid image, Please try again or select different image."
+                                    ),
+                                        console.log("rejected files", files));
+                                }}
+                            />
+                        </>
                     ) : (
                         <Card withBorder>
                             <div className="aspect-square h-55 flex  flex-col items-center  ">
@@ -370,6 +378,7 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                         <DateInput
                             valueFormat="YYYY-MM-DD"
                             w={"100%"}
+                            withAsterisk
                             clearable
                             // required
                             label="Date of birth"
