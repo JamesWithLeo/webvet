@@ -51,8 +51,7 @@ export default function AppointmentCard({
     id,
     event_datetime,
     invoice,
-    // invoiceId,
-    // invoiceStatus,
+    invoiceItems,
 }: AppointmentWithInvoice) {
     const passed = isPast(event_datetime);
     const date = new Date(event_datetime);
@@ -61,12 +60,68 @@ export default function AppointmentCard({
         if (invoice) router.push(`/v1/invoice/${invoice.id}`);
     };
 
-    const sum = useMemo(() => {
-        return pets.reduce((pet, row) => {
+    const { totalAmount, expectedAmount } = useMemo(() => {
+        const totalAmount = invoiceItems.reduce((accumulated, item) => {
+            const price = Number(item.priceAtInvoice) || 0;
+            return accumulated + price;
+        }, 0);
+        const expectedAmount = pets.reduce((pet, row) => {
             const price = Number(row.priceAtBooking) || 0;
             return pet + price;
         }, 0);
+        {
+            return { totalAmount, expectedAmount };
+        }
     }, [pets]);
+
+    const renderAmount = () => {
+        if (invoice && invoiceItems.length > 0) {
+            return CurrencyFormatter(totalAmount);
+        }
+
+        const isExpired = new Date(event_datetime) < new Date();
+        if (isExpired) return "Expired";
+
+        return `Expected amount: ${CurrencyFormatter(expectedAmount)}`;
+    };
+    const renderAction = () => {
+        if (!invoice)
+            return (
+                <Text c="dimmed" size="sm">
+                    Not yet billed.
+                </Text>
+            );
+        if (invoice.paymentStatus === "VOID") return null;
+
+        // Buttons for Completed Services
+        if (invoice.status === "COMPLETED") {
+            return (
+                <Button
+                    radius="md"
+                    variant="default"
+                    onClick={handleInvoiceClick}
+                >
+                    {invoice.paymentStatus === "PAID"
+                        ? "View Invoice"
+                        : "Pay now"}
+                </Button>
+            );
+        }
+
+        // Text labels for In-Progress states
+        const labels: Record<string, string> = {
+            PENDING: "Pending",
+            ARRIVED: "Arrived",
+            IN_PROGRESS: "In progress",
+        };
+
+        // Or wrap the logic
+        if (invoice?.status && labels[invoice.status]) {
+            return <Text>{labels[invoice.status]}</Text>;
+        }
+
+        return null;
+    };
 
     return (
         <Card withBorder w={500} h={180} p={"md"} radius={"md"}>
@@ -113,28 +168,8 @@ export default function AppointmentCard({
             <Card.Section px={"md"}>
                 <Divider label={"Amount"} />
                 <Flex c={"dimmed"} align={"center"} justify="space-between">
-                    <Text>{CurrencyFormatter(sum)}</Text>
-
-                    {!invoice ? (
-                        <Text c={"dimmed"} size="sm">
-                            Not yet billed.
-                        </Text>
-                    ) : (
-                        <>
-                            {invoice.paymentStatus !== "VOID" && (
-                                <Button
-                                    radius={"md"}
-                                    variant="default"
-                                    onClick={handleInvoiceClick}
-                                >
-                                    {invoice.paymentStatus === "UNPAID" &&
-                                        "Pay now"}
-                                    {invoice.paymentStatus === "PAID" &&
-                                        "View Invoice"}
-                                </Button>
-                            )}
-                        </>
-                    )}
+                    {renderAmount()}
+                    {renderAction()}
                 </Flex>
             </Card.Section>
         </Card>

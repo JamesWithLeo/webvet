@@ -3,11 +3,12 @@ import BackToAppointment from "@/components/common/BackToAppointment";
 import InvoiceTable from "@/components/InvoiceTable";
 import ProcessPayment from "@/components/ProcessPayment";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
-import { Stack, Text, Title, Group } from "@mantine/core";
+import { Stack, Text, Title, Group, Button } from "@mantine/core";
 import { notFound } from "next/navigation";
 import InvoiceDocumentWrapper from "@/components/common/InvoiceDocumentWrapper";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { getUserById } from "@/lib/db/users";
+import ProcessCashButton from "@/components/admin/invoice/ProcessCashButton";
 
 export default async function Page({
     params,
@@ -53,14 +54,12 @@ export default async function Page({
                         <Title order={4} c={"dimmed"}>
                             Billing Breakdown
                         </Title>
-                        <InvoiceTable
-                            items={data.items}
-                            total={data.totalAmount}
-                        />
+                        <InvoiceTable items={data.items} />
                     </Stack>
                     {data.paymentStatus === "UNPAID" && (
                         <Stack align="end" w={"1000"}>
-                            <ProcessPayment invoiceId={invoiceId} />
+                            <ProcessCashButton invoiceId={data.id} />
+                            {/* <ProcessPayment invoiceId={invoiceId} /> */}
                         </Stack>
                     )}
                     {data.paymentStatus === "PAID" && (

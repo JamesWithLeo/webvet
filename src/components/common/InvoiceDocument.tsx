@@ -104,8 +104,10 @@ const styles = StyleSheet.create({
 export const InvoiceDocument = ({
     data,
     fullName,
+    totalAmount,
 }: {
     data: any;
+    totalAmount: number;
     fullName: string;
 }) => (
     <Document>

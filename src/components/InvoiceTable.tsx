@@ -3,6 +3,7 @@
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { Table } from "@mantine/core";
+import { useMemo } from "react";
 
 type Props = {
     items: {
@@ -14,9 +15,19 @@ type Props = {
         serviceId?: string | null | undefined;
         priceAtInvoice?: string | undefined;
     }[];
-    total: string;
 };
-export default function InvoiceTable({ items, total }: Props) {
+export default function InvoiceTable({ items }: Props) {
+    const totalAmount = useMemo(() => {
+        // 1. Ensure items exist
+        if (!items.length) return 0;
+
+        // 2. Sum up the prices
+        return items.reduce((sum, item) => {
+            // Convert string decimal to number safely
+            const price = parseFloat(item.priceAtInvoice ?? "0");
+            return sum + price;
+        }, 0);
+    }, [items]);
     const rows = items.map((item) => (
         <Table.Tr key={item.id}>
             <Table.Td>{item.id}</Table.Td>
@@ -33,7 +44,7 @@ export default function InvoiceTable({ items, total }: Props) {
             <Table.Th>Total</Table.Th>
             <Table.Th></Table.Th>
             <Table.Th></Table.Th>
-            <Table.Th>{CurrencyFormatter(total)}</Table.Th>
+            <Table.Th>{CurrencyFormatter(totalAmount)}</Table.Th>
         </Table.Tr>
     );
     return (

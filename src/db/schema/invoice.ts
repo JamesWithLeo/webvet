@@ -10,6 +10,7 @@ export const invoiceStatus = pgEnum("invoiceStatus", [
     "COMPLETED",
     "CANCELLED",
     "MISSED",
+    "IN_PROGRESS",
 ]);
 
 export const paymentStatusTypeValues = ["UNPAID", "PAID", "VOID"] as const;
@@ -27,9 +28,9 @@ export const invoices = pgTable("invoices", {
         })
         .unique(),
     status: invoiceStatus("invoice_status").default("PENDING"),
-    totalAmount: decimal("total_amount", { scale: 2, precision: 10 })
-        .notNull()
-        .default("0.00"),
+    // totalAmount: decimal("total_amount", { scale: 2, precision: 10 })
+    //     .notNull()
+    //     .default("0.00"),
     paymentStatus: paymentStatusType("status").default("UNPAID"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     createdById: uuid("created_by_id").references(() => users.id, {

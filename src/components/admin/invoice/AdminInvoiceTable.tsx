@@ -1,6 +1,5 @@
 "use client";
 
-import { MarkAsPaidInvoiceAdmin } from "@/actions/invoice";
 import {
     InvoiceTypeModel,
     paymentStatusTypeValues,
@@ -12,17 +11,13 @@ import useInvoiceItemAdmin from "@/lib/hooks/useInvoiceItemAdmin";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
     Button,
-    Divider,
     Group,
     Loader,
-    Modal,
     NativeSelect,
     Stack,
     Text,
     TextInput,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
 import { IconCheck, IconPointerCode, IconX } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -31,37 +26,12 @@ import {
     useDataTableColumns,
 } from "mantine-datatable";
 import { useRouter } from "next/navigation";
-import {
-    startTransition,
-    useActionState,
-    useEffect,
-    useMemo,
-    useState,
-} from "react";
+import { useMemo, useState } from "react";
 
 type FilterStatus = "all" | (typeof paymentStatusType.enumValues)[number];
 
 export default function AdminInvoiceTable() {
-    const [
-        openedUpdatePayment,
-        { open: openUpdatePayment, close: closeUpdatePayment },
-    ] = useDisclosure();
     const router = useRouter();
-
-    const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null);
-    const queryClient = useQueryClient();
-
-    const markAsPaid = MarkAsPaidInvoiceAdmin.bind(null);
-    const [formState, formAction, isMarkingAsPaid] = useActionState(
-        markAsPaid,
-        { success: false, id: null, error: "", status: null }
-    );
-
-    const handleMarkAsPaid = () => {
-        startTransition(() => {
-            formAction(selectedInvoice);
-        });
-    };
 
     const {
         data,
@@ -149,21 +119,7 @@ export default function AdminInvoiceTable() {
                 ),
                 render: (record) => (
                     <Group justify="center" w={"100%"}>
-                        {record.paymentStatus !== "PAID" && (
-                            <Button
-                                size="xs"
-                                variant="default"
-                                radius={"md"}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedInvoice(record.id);
-                                    openUpdatePayment();
-                                }}
-                            >
-                                Update Payment
-                            </Button>
-                        )}
-                        {record.paymentStatus === "PAID" && (
+                        {record.status === "COMPLETED" && (
                             <>
                                 <Button
                                     size="xs"
@@ -197,31 +153,6 @@ export default function AdminInvoiceTable() {
         columns: columns,
     });
 
-    useEffect(() => {
-        if (formState.success && formState.id && formState.status) {
-            setSelectedInvoice(null);
-            closeUpdatePayment();
-
-            queryClient.invalidateQueries({ queryKey: ["invoices", "admin"] });
-            notifications.show({
-                title: "Invoice payment status updated",
-                message: `Invoice Id: ${formState.id} is now ${formState.status?.toLowerCase()}.`,
-                color: "teal",
-                autoClose: 6000,
-                icon: <IconCheck size={18} />,
-            });
-        }
-
-        if (formState.error) {
-            notifications.show({
-                title: "Invoice payment status update failed",
-                message: `${formState.error}`,
-                color: "red",
-                autoClose: false,
-                icon: <IconX size={18} />,
-            });
-        }
-    }, [formState]);
     return (
         <Stack>
             <Group justify="flex-end">
@@ -256,57 +187,6 @@ export default function AdminInvoiceTable() {
                 }}
                 borderRadius={"md"}
             />
-
-            <Modal
-                centered
-                withCloseButton
-                opened={openedUpdatePayment}
-                onClose={closeUpdatePayment}
-                title="Update Settled Payment"
-                radius={"lg"}
-            >
-                <Stack gap="md">
-                    <Text size="sm">
-                        Update the status for this transaction. This will update
-                        the invoice balance accordingly.
-                    </Text>
-
-                    <Group grow>
-                        <Button
-                            color="red"
-                            onClick={() => handleMarkAsPaid()}
-                            loading={isMarkingAsPaid}
-                            disabled={isMarkingAsPaid || formState.success}
-                        >
-                            Mark as Paid
-                        </Button>
-
-                        <Button
-                            color="red"
-                            variant="outline"
-                            onClick={() => {
-                                setSelectedInvoice(null);
-                                closeUpdatePayment();
-                            }}
-                        >
-                            Cancel Payment
-                        </Button>
-                    </Group>
-
-                    {/* <Divider
-                        label="Additional Actions"
-                        labelPosition="center"
-                    />
-
-                    <Button
-                        variant="subtle"
-                        color="gray"
-                        // onClick={() => handleAdjustAmount(paymentId)}
-                    >
-                        Edit Amount
-                    </Button> */}
-                </Stack>
-            </Modal>
         </Stack>
     );
 }

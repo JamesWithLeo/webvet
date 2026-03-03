@@ -13,8 +13,8 @@ export default async function LoginPage() {
     }
 
     return (
-        <div className="items-center  grid grid-cols-[1fr]  bg-[url('/bgPattern.svg')] grid-rows-1 min-h-dvh px-42 ">
-            <section className="h-full flex flex-col items-center justify-center  bg-white">
+        <div className="justify-center items-center  bg-[url('/bgPattern.svg')]  min-h-dvh flex ">
+            <section className="h-screen flex-col items-center justify-center flex w-full  max-w-7xl bg-white">
                 <Box
                     color="primary"
                     className=" w-full flex mb-16 justify-center"

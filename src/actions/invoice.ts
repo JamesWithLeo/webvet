@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { dbTx } from "@/db";
+import { db, dbTx } from "@/db";
 import {
     invoiceItems,
     invoices,

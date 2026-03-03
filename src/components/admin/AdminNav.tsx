@@ -21,6 +21,7 @@ import { Tooltip, UnstyledButton } from "@mantine/core";
 import { Baskervville_SC } from "next/font/google";
 import { LogoSvg } from "../common/LogoSvg";
 import Link from "next/link";
+import { link } from "fs";
 
 const baskerville = Baskervville_SC({
     subsets: ["latin"],
@@ -49,6 +50,11 @@ const data = [
         link: "/v1/admin/sales",
         label: "Sales",
         icon: <IconChartHistogram stroke={1.5} />,
+    },
+    {
+        link: "/v1/admin/medical",
+        label: "Medical logs",
+        icon: <IconReportMedical stroke={1.5} />,
     },
     {
         link: "/v1/admin/accounts",

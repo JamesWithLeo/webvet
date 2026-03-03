@@ -30,7 +30,7 @@ import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
 import { AppointmentFormInput } from "../validators/newAppointmentSchema";
 import PetServiceMerged from "@/types/PetsServiceMerged";
-import { invoices } from "@/db/schema/invoice";
+import { invoiceItems, invoices } from "@/db/schema/invoice";
 
 export class ExistingAppointmentConflictError extends Error {
     public code: string;
@@ -192,15 +192,30 @@ export const getAppointments = async ({ id }: { id: string }) => {
         const response = await db
             .select({
                 ...getTableColumns(appointments),
-                // Squash the pet data into a single JSON array column
 
                 invoice: {
                     id: invoices.id,
                     paymentStatus: invoices.paymentStatus,
                     status: invoices.status,
-                    totalAmount: invoices.totalAmount,
                     createdAt: invoices.createdAt,
                 },
+                invoiceItems: sql<
+                    {
+                        id: string;
+                        serviceId: string;
+                        priceAtInvoice: number;
+                    }[]
+                >`
+                COALESCE(
+                    json_agg(
+                        DISTINCT jsonb_build_object(
+                            'id', ${invoiceItems.id}, 
+                            'serviceId', ${invoiceItems.serviceId}, 
+                            'priceAtInvoice', ${invoiceItems.priceAtInvoice}
+                        )
+                    ) FILTER (WHERE ${invoiceItems.id} IS NOT NULL), 
+                    '[]'
+                )`.as("invoiceItems"),
                 pets: sql<
                     {
                         id: string;
@@ -228,6 +243,7 @@ export const getAppointments = async ({ id }: { id: string }) => {
             )
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
             .leftJoin(invoices, eq(invoices.appointmentId, appointments.id))
+            .leftJoin(invoiceItems, eq(invoiceItems.invoiceId, invoices.id))
             .where(eq(pets.ownerId, id))
             .groupBy(appointments.id, invoices.id)
             .orderBy(desc(appointments.event_datetime));
@@ -450,7 +466,7 @@ export const getAppointmentWithDetails = async ({
                     id: invoices.id,
                     paymentStatus: invoices.paymentStatus,
                     status: invoices.status,
-                    totalAmount: invoices.totalAmount,
+                    // totalAmount: invoices.totalAmount,
                     createdAt: invoices.createdAt,
                 },
                 pets: sql<
@@ -618,7 +634,7 @@ export const getAllAppointmentsAdmin = async (
                 },
                 invoice: {
                     id: invoices.id,
-                    totalAmount: invoices.totalAmount,
+                    // totalAmount: invoices.totalAmount,
                     paymentStatus: invoices.paymentStatus,
                     createdAt: invoices.createdAt,
                     status: invoices.status,

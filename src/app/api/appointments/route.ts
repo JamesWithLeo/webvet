@@ -25,9 +25,7 @@ export const GET = auth(async function GET(req) {
             { status: 401 }
         );
     }
-
     try {
-        // 3. Execution: Handle the internal logic
         const { data, error: dbError } = await getAppointments({ id: ownerId });
 
         // Handle logical errors returned by the DB function (common in Supabase-style libs)

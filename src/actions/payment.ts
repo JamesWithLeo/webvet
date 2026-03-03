@@ -19,6 +19,9 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
                 error: "Unauthorized or Invoice not found",
             };
         }
+        const sum = invoice.items.reduce((acc, item) => {
+            return acc + Number(item.priceAtInvoice ?? 0);
+        }, 0);
 
         const secretKey = process.env.XENDIT_SECRET_KEY;
         // Important: Xendit requires the secret key followed by a colon, then Base64 encoded
@@ -37,10 +40,9 @@ export async function createPaymentInvoice(prevState: any, invoiceId: string) {
             },
             body: JSON.stringify({
                 external_id: invoice.id,
-                amount: Number(invoice.totalAmount),
+                amount: sum,
                 currency: "PHP",
                 payer_email: session.user.email,
-                // 💡 This "callback_url" is what tells Xendit where to send the "PAID" update
                 callback_url: cleanWebhookUrl,
                 success_redirect_url: `${BASE_URL}/v1/appointments`,
                 failure_redirect_url: `${BASE_URL}/v1/invoices/${invoiceId}`,

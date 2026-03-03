@@ -22,7 +22,7 @@ export default async function Page() {
     });
     return (
         <div className="flex  items-center gap-8 w-full h-screen  flex-col   ">
-            <div className="min-h-screen w-full relative md:px-16 px-4 py-4 flex gap-8 flex-col">
+            <div className="min-h-screen w-full relative md:px-16 px-8 py-4 flex gap-8 flex-col">
                 <HydrationBoundary state={dehydrate(queryClient)}>
                     <PetWrapper id={session.user.id} />
                 </HydrationBoundary>

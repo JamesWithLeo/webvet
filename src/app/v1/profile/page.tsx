@@ -13,7 +13,7 @@ export default async function ProfilePage() {
 
     return (
         <SessionProvider>
-            <div className="flex items-center h-screen  flex-col p-8 ">
+            <div className="flex items-center h-screen  flex-col">
                 <div className="w-full max-w-7xl gap-8 flex flex-col">
                     <Paper
                         withBorder

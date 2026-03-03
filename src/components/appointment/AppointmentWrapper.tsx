@@ -85,6 +85,7 @@ type Props = {
                 | "COMPLETED"
                 | "CANCELLED"
                 | "MISSED"
+                | "IN_PROGRESS"
                 | null;
             totalAmount: string;
             createdAt: Date;
@@ -121,7 +122,7 @@ export default function AppointmentWrapper({
 
     const [loading, setLoading] = useState(false);
     const [existingToCalendar, setIsExistingToCalendar] =
-        useState<boolean>(false);
+        useState<boolean>(true);
 
     const longService = LongItemFormatter(pets.map((p) => toTitleCase(p.type)));
 
@@ -166,6 +167,7 @@ export default function AppointmentWrapper({
             title: title as string,
         });
         if (result.existing) {
+            console.log("existing");
             setIsExistingToCalendar(true);
         } else {
             setIsExistingToCalendar(false);
@@ -195,6 +197,7 @@ export default function AppointmentWrapper({
                     <Button
                         variant="default"
                         size="sm"
+                        radius={"md"}
                         rightSection={googleCalendarIcon()}
                         onClick={handleBooking}
                         loading={loading}

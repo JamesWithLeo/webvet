@@ -33,8 +33,8 @@ type Props = {
             | "COMPLETED"
             | "CANCELLED"
             | "MISSED"
+            | "IN_PROGRESS"
             | null;
-        totalAmount: string;
         paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
         createdAt: Date;
         createdById: string | null;

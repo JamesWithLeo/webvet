@@ -17,7 +17,7 @@ import {
     MenuDivider,
 } from "@mantine/core";
 
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 
 import {
     IconGenderMale,
@@ -40,6 +40,7 @@ export default function ProfileCardGroup(user: {
     id: string;
     gender: (typeof userGenderValue)[number];
 }) {
+    const isMobile = useMediaQuery("(max-width: 64rem)");
     const gender = () => {
         switch (user.gender) {
             case "female":
@@ -55,8 +56,14 @@ export default function ProfileCardGroup(user: {
         <>
             <EditProfileModal opened={opened} close={close} />
 
-            <div className="items-center flex gap-4 h-full">
-                <Avatar radius={120} size={120} src={user.photoUrl}>
+            <div
+                className={`items-center flex ${isMobile ? "gap-2" : "gap-4"} h-full`}
+            >
+                <Avatar
+                    radius={120}
+                    size={isMobile ? 60 : 120}
+                    src={user.photoUrl}
+                >
                     {user.firstName?.at(0)?.toUpperCase()}
                     {user.lastName?.at(0)?.toUpperCase()}
                 </Avatar>
@@ -68,7 +75,7 @@ export default function ProfileCardGroup(user: {
                     justify="flex-end"
                     gap={0}
                 >
-                    <Title>
+                    <Title order={isMobile ? 3 : 1}>
                         {toTitleCase(`${user.firstName} ${user.lastName}`)}
                     </Title>
                     <Text>{user.email}</Text>

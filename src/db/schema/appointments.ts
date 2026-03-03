@@ -90,7 +90,13 @@ export const bookingSourceEnum = pgEnum("booking_source", [
 ]);
 export type BookingSourceType = (typeof bookingSourceEnum.enumValues)[number];
 
-// Inside your table...
+export const appointmentToPetsStatus = pgEnum("appointment_to_pets_status", [
+    "PENDING",
+    "COMPLETED",
+    "CANCELLED",
+]);
+export type AppointmentToPetsStatus =
+    (typeof appointmentToPetsStatus.enumValues)[number];
 
 export const appointmentsToPets = pgTable(
     "appointments_to_pets",

@@ -166,7 +166,7 @@ export default function PetControllers({
 
     return (
         <Grid w={"100%"} justify="space-between" grow>
-            <Grid.Col span={3}>
+            <Grid.Col span={1}>
                 <SegmentedControl
                     size={isMobile ? "xs" : "sm"}
                     defaultValue="all"
@@ -182,7 +182,7 @@ export default function PetControllers({
                     }}
                 />
             </Grid.Col>
-            <Grid.Col span={6} w={"100%"}>
+            <Grid.Col span={9} w={"100%"}>
                 <Group justify="flex-end">
                     <Button.Group>
                         <Button.GroupSection

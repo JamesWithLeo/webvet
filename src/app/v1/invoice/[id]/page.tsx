@@ -59,7 +59,8 @@ export default async function Page({
                         </Title>
                         <InvoiceTable
                             items={data.items}
-                            total={data.totalAmount}
+
+                            // total={data.totalAmount}
                         />
                     </Stack>
                     {data.paymentStatus === "UNPAID" && (

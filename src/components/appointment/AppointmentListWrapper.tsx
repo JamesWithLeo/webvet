@@ -10,15 +10,17 @@ import { AppointmentWithInvoice } from "@/types/appointments";
 
 export default function AppointmentListWrapper({ id }: { id: string }) {
     const { data } = useApointmentsClient(id);
-    const groupedAppointments = useMemo(() => {
-        if (!data) return null;
 
-        return data.reduce<Record<number, AppointmentWithInvoice[]>>(
+    const groupedAppointments = useMemo(() => {
+        // Use an empty object as default to avoid null pointer errors
+        if (!data || data.length === 0) return {};
+
+        return data.reduce<Record<string, AppointmentWithInvoice[]>>(
             (acc, appt) => {
-                const year = new Date(appt.event_datetime).getFullYear();
-                if (!acc[year]) {
-                    acc[year] = [];
-                }
+                const year = new Date(appt.event_datetime)
+                    .getFullYear()
+                    .toString();
+                if (!acc[year]) acc[year] = [];
                 acc[year].push(appt);
                 return acc;
             },
@@ -27,9 +29,8 @@ export default function AppointmentListWrapper({ id }: { id: string }) {
     }, [data]);
 
     const sortedYears = useMemo(() => {
-        if (!groupedAppointments) return null;
-        return Object.keys(groupedAppointments).sort(
-            (a, b) => Number(b) - Number(a)
+        return Object.keys(groupedAppointments).sort((a, b) =>
+            b.localeCompare(a)
         );
     }, [groupedAppointments]);
 

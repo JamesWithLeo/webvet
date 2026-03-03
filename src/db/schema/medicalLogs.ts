@@ -1,33 +1,35 @@
-import {
-    doublePrecision,
-    pgTable,
-    text,
-    timestamp,
-    uuid,
-    varchar,
-} from "drizzle-orm/pg-core";
+import { decimal, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { appointments } from "./appointments";
 import { pets } from "./pets";
+import { users } from "./users";
+import { services } from "./services";
 
 export const medicalLogs = pgTable("medical_logs", {
     id: uuid("id").defaultRandom().primaryKey(),
-    petId: uuid("pet_id")
-        .references(() => pets.id, { onDelete: "cascade" })
-        .notNull(),
+
     appointmentId: uuid("appointment_id").references(() => appointments.id, {
         onDelete: "set null",
     }),
+    serviceId: uuid("service_id")
+        .references(() => services.id, {
+            onDelete: "restrict",
+        })
+        .notNull(),
 
-    title: varchar("title", { length: 100 }).notNull(), // e.g., "5-in-1 Vaccine"
-    administeredAt: timestamp("administered_at").defaultNow().notNull(),
-    // The "Smart" part: When should they come back?
-    nextDueDate: timestamp("next_due_date"),
+    // Link to the specific pet (from appointments_to_pets)
+    petId: uuid("pet_id")
+        .references(() => pets.id, { onDelete: "cascade" })
+        .notNull(),
 
-    notes: text("notes"),
-    weightAtTime: doublePrecision("weight_at_time"), // Useful for deworming dosage tracking
+    // Clinical Data
+    weight: decimal("weight", { precision: 5, scale: 2 }),
+    symptoms: text("symptoms"),
+    diagnosis: text("diagnosis"),
+    prescription: text("prescription").notNull(),
+    notes: text("clinical_notes").notNull(),
+    temperature: decimal("temperature", { precision: 4, scale: 1 }),
+    // Staff tracking
+    veterinarianId: uuid("veterinarian_id").references(() => users.id),
 
-    // --- Medical Specifics ---
-    brand: varchar("brand", { length: 50 }),
-    batchNumber: varchar("batch_number", { length: 50 }),
-    dosage: varchar("dosage", { length: 50 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
 });

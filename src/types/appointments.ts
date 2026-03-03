@@ -21,10 +21,15 @@ export type AppointmentWithInvoice = {
             | "COMPLETED"
             | "CANCELLED"
             | "MISSED"
+            | "IN_PROGRESS"
             | null;
-        totalAmount: string;
         createdAt: Date;
     } | null;
+    invoiceItems: {
+        id: string;
+        serviceId: string;
+        priceAtInvoice: number;
+    }[];
     pets: {
         id: string;
         name: string;

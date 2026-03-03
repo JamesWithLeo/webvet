@@ -1,3 +1,4 @@
+import { AppointmentType } from "@/db/schema/appointments";
 import { pets } from "@/db/schema/pets";
 
 export type PetTypeModel = typeof pets.$inferSelect;
@@ -21,3 +22,14 @@ export type AdminPetsSummary = Pick<
     | "diet"
     | "gender"
 >;
+
+export type AppointedPet = {
+    id: string; // Pet ID
+    joinId: string; // The unique ID from appointmentsToPets
+    name: string;
+    species: "dog" | "cat";
+    serviceName: string;
+    serviceId: string;
+    serviceType: AppointmentType;
+    hasLogs: boolean; //
+};

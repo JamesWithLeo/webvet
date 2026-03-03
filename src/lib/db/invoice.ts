@@ -1,11 +1,19 @@
 import { db } from "@/db";
-import { appointments, appointmentsToPets } from "@/db/schema/appointments";
-import { invoiceItems, invoices } from "@/db/schema/invoice";
+import {
+    appointments,
+    appointmentsToPets,
+    AppointmentToPetsStatus,
+    AppointmentType,
+    AppointmentTypeModel,
+} from "@/db/schema/appointments";
+import { invoiceItems, invoices, InvoiceTypeModel } from "@/db/schema/invoice";
+import { medicalLogs } from "@/db/schema/medicalLogs";
 import { pets } from "@/db/schema/pets";
 import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
 import PetServiceMerged from "@/types/PetsServiceMerged";
-import { eq, getTableColumns, sql, sum } from "drizzle-orm";
+import { endOfDay, startOfDay } from "date-fns";
+import { and, eq, getTableColumns, gte, lte, sql, sum } from "drizzle-orm";
 
 export const getInvoiceAdmin = async () => {
     return await db.select().from(invoices);
@@ -158,13 +166,17 @@ export const getInvoiceWithDetails = async (id: string) => {
 export const getGrossRevenue = async () => {
     const [result] = await db
         .select({
-            total: sum(invoices.totalAmount),
+            totalAmount:
+                sql<number>`sum(${invoiceItems.priceAtInvoice})`.mapWith(
+                    Number
+                ),
         })
         .from(invoices)
+        .leftJoin(invoiceItems, eq(invoices.id, invoiceItems.invoiceId))
         .where(eq(invoices.paymentStatus, "PAID")); // Only count actual money received
 
     // result.total will be a string (e.g. "1250.50") or null
-    return Number(result?.total || 0);
+    return Number(result?.totalAmount || 0);
 };
 
 export const getSalesByService = async () => {
@@ -176,4 +188,109 @@ export const getSalesByService = async () => {
         .from(invoiceItems)
         .innerJoin(services, eq(invoiceItems.serviceId, services.id))
         .groupBy(services.type);
+};
+
+export const getArrivedInvoiceWithAppointment = async () => {
+    const now = new Date();
+    const todayStart = startOfDay(now);
+    const todayEnd = endOfDay(now);
+
+    return await db
+        .select({
+            ...getTableColumns(invoices),
+            appointment: getTableColumns(appointments), // Include appointment data
+        })
+        .from(invoices)
+        .innerJoin(appointments, eq(appointments.id, invoices.appointmentId))
+        .where(
+            and(
+                eq(invoices.status, "ARRIVED"),
+                gte(appointments.event_datetime, todayStart.toISOString()),
+                lte(appointments.event_datetime, todayEnd.toISOString())
+            )
+        )
+        .groupBy(invoices.id, appointments.id); // Group by both to avoid SQL errors
+};
+
+export type VetData = {
+    appointment: AppointmentTypeModel;
+    invoice: InvoiceTypeModel | null;
+    user: {
+        id: string;
+        firstName: string | null;
+        lastName: string | null;
+        contactNumber: string | null;
+        photoUrl: string | null;
+    };
+    pets: {
+        id: string; // Pet ID
+        joinId: string; // The unique ID from appointmentsToPets
+        weight: number;
+        name: string;
+        species: "dog" | "cat";
+        serviceName: string;
+        serviceId: string;
+        serviceType: AppointmentType;
+        hasLogs: boolean; //
+    }[];
+};
+export const getVetKanbanData = async (): Promise<VetData[]> => {
+    const results = await db
+        .select({
+            appointment: appointments,
+            invoice: invoices,
+            user: {
+                id: users.id,
+                firstName: users.firstName,
+                lastName: users.lastName,
+                contactNumber: users.contactNumber,
+                photoUrl: users.photoUrl,
+            },
+            // This JSON array now represents the "Live Billing Checklist"
+            pets: sql<
+                {
+                    id: string; // Pet ID
+                    joinId: string; // The unique ID from appointmentsToPets
+                    name: string;
+                    species: "dog" | "cat";
+                    weight: number;
+                    serviceName: string;
+                    serviceId: string;
+                    serviceType: AppointmentType;
+                    hasLogs: boolean; // Tells the UI if the Vet finished this specific task
+                }[]
+            >`json_agg(json_build_object(
+                'id', ${pets.id},
+                'joinId', ${appointmentsToPets.id}, 
+                'name', ${pets.name},
+                'weight', ${pets.weight},
+                'species', ${pets.species},
+                'serviceName', ${services.title},
+                'serviceType', ${services.type},
+                'serviceId', ${services.id}, 
+                'hasLogs', CASE WHEN ${medicalLogs.id} IS NOT NULL THEN true ELSE false END
+            ))`,
+        })
+        .from(appointments)
+        .leftJoin(invoices, eq(invoices.appointmentId, appointments.id))
+        .innerJoin(users, eq(invoices.userId, users.id))
+        .leftJoin(
+            appointmentsToPets,
+            eq(appointmentsToPets.appointmentId, appointments.id)
+        )
+        .innerJoin(pets, eq(pets.id, appointmentsToPets.petId))
+        .innerJoin(services, eq(services.id, appointmentsToPets.serviceId))
+        // Link to MedicalLogs to see which "To-Do" items are "Done"
+        .leftJoin(
+            medicalLogs,
+            and(
+                eq(medicalLogs.appointmentId, appointments.id),
+                eq(medicalLogs.petId, pets.id),
+                eq(medicalLogs.serviceId, services.id)
+            )
+        )
+        .groupBy(appointments.id, invoices.id, users.id)
+        .orderBy(appointments.event_datetime);
+
+    return results;
 };

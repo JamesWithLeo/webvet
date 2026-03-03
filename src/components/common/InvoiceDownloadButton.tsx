@@ -3,6 +3,7 @@
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Button, Loader } from "@mantine/core";
 import { InvoiceDocument } from "./InvoiceDocument";
+import { useMemo } from "react";
 
 type Props = {
     data: {
@@ -26,8 +27,8 @@ type Props = {
             | "COMPLETED"
             | "CANCELLED"
             | "MISSED"
+            | "IN_PROGRESS"
             | null;
-        totalAmount: string;
         paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
         createdAt: Date;
         createdById: string | null;
@@ -36,9 +37,26 @@ type Props = {
 };
 
 export default function InvoiceDownloadButton({ data, fullName }: Props) {
+    const totalAmount = useMemo(() => {
+        // 1. Ensure items exist
+        if (!data?.items) return 0;
+
+        // 2. Sum up the prices
+        return data.items.reduce((sum, item) => {
+            // Convert string decimal to number safely
+            const price = parseFloat(item.priceAtInvoice) || 0;
+            return sum + price;
+        }, 0);
+    }, [data.items]);
     return (
         <PDFDownloadLink
-            document={<InvoiceDocument data={data} fullName={fullName} />}
+            document={
+                <InvoiceDocument
+                    data={data}
+                    totalAmount={totalAmount}
+                    fullName={fullName}
+                />
+            }
             fileName={`invoice-${data.id}.pdf`}
         >
             {({ loading }) => (
