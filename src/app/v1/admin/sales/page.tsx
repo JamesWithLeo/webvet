@@ -1,12 +1,18 @@
+import { auth } from "@/auth";
 import SalesBarChart from "@/components/common/SalesBarchart";
 import { getServices, salesPerService } from "@/lib/db/services";
 import { Paper, Stack, Text, Title } from "@mantine/core";
+import { unauthorized } from "next/navigation";
 
 export default async function Page({
     searchParams,
 }: {
     searchParams: Promise<{ from?: string; to?: string }>;
 }) {
+    const session = await auth();
+    const role = session?.user.role;
+    if (role !== "admin" && Boolean(role)) unauthorized();
+
     const { from, to } = await searchParams;
 
     const { data, keys } = await salesPerService(from, to);

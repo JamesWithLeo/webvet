@@ -1,8 +1,14 @@
+import { auth } from "@/auth";
 import MedicalKaban from "@/components/MedicalKaban";
 import { getVetKanbanData } from "@/lib/db/invoice";
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { unauthorized } from "next/navigation";
 
 export default async function Page() {
+    const session = await auth();
+    const role = session?.user.role;
+    if (role !== "vet" && role !== "admin" && Boolean(role)) unauthorized();
+
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery({
         queryKey: ["medical", "admin"],

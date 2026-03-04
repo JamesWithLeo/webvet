@@ -27,7 +27,7 @@ import {
     IconTable,
     IconX,
 } from "@tabler/icons-react";
-import { formatDistance, subDays } from "date-fns";
+import { formatDistance, formatDistanceToNow, subDays } from "date-fns";
 import {
     DataTable,
     DataTableColumn,
@@ -51,9 +51,10 @@ import {
     EventSourceInput,
 } from "@fullcalendar/core/index.js";
 import { throttle } from "lodash";
-import { useQueryClient } from "@tanstack/react-query";
 import { useMarkAsArrived } from "@/lib/hooks/useMarkAsArrived";
 import AppointmentDrawerAdmin from "../appointment/AppointmentDrawerAdmin";
+import { DateInput, DatePicker, DatePickerInput } from "@mantine/dates";
+import dayjs from "dayjs";
 
 export default function AdminAppointmentTable({
     scope,
@@ -79,6 +80,8 @@ export default function AdminAppointmentTable({
         sortStatus,
         searchName,
         setSearchName,
+        dateRange,
+        setDateRange,
     } = useAppointmentAdmin(scope);
     const [selectedRecord, setSelectedRecord] =
         useState<AdminAppointment | null>(null);
@@ -141,17 +144,111 @@ export default function AdminAppointmentTable({
                 title: "Event Date time",
                 resizable: true,
                 sortable: true,
-                render: (data) => (
-                    <Text>
-                        {new Date(data.event_datetime).toLocaleString()}
-                        {" -> "}
-                        {formatDistance(
-                            new Date(),
-                            new Date(data.event_datetime),
-                            { addSuffix: true }
-                        )}
-                    </Text>
+                filter: ({ close }) => (
+                    <Stack>
+                        <DatePicker
+                            type="range"
+                            defaultValue={dateRange}
+                            onChange={(e) => {
+                                setDateRange(e);
+                            }}
+                            presets={[
+                                {
+                                    label: "Today",
+                                    value: [dayjs().format("YYYY-MM-DD"), null],
+                                },
+                                {
+                                    label: "Yesterday",
+                                    value: [
+                                        dayjs()
+                                            .subtract(1, "day")
+                                            .format("YYYY-MM-DD"),
+                                        dayjs()
+                                            .subtract(1, "day")
+                                            .format("YYYY-MM-DD"),
+                                    ],
+                                },
+                                {
+                                    label: "Last 7 Days",
+                                    value: [
+                                        dayjs()
+                                            .subtract(6, "days")
+                                            .format("YYYY-MM-DD"),
+                                        dayjs().format("YYYY-MM-DD"),
+                                    ],
+                                },
+                                {
+                                    label: "This Month (MTD)",
+                                    value: [
+                                        dayjs()
+                                            .startOf("month")
+                                            .format("YYYY-MM-DD"),
+                                        dayjs()
+                                            .endOf("month")
+                                            .format("YYYY-MM-DD"),
+                                    ],
+                                },
+                                {
+                                    label: "Last Month",
+                                    value: [
+                                        dayjs()
+                                            .subtract(1, "month")
+                                            .startOf("month")
+                                            .format("YYYY-MM-DD"),
+                                        dayjs()
+                                            .subtract(1, "month")
+                                            .endOf("month")
+                                            .format("YYYY-MM-DD"),
+                                    ],
+                                },
+                                {
+                                    label: "Last Year",
+                                    value: [
+                                        dayjs()
+                                            .subtract(1, "year")
+                                            .startOf("year")
+                                            .format("YYYY-MM-DD"),
+                                        dayjs()
+                                            .subtract(1, "year")
+                                            .endOf("year")
+                                            .format("YYYY-MM-DD"),
+                                    ],
+                                },
+                                {
+                                    label: "Full Current Year",
+                                    value: [
+                                        dayjs()
+                                            .startOf("year")
+                                            .format("YYYY-MM-DD"),
+                                        dayjs()
+                                            .endOf("year")
+                                            .format("YYYY-MM-DD"),
+                                    ],
+                                },
+                            ]}
+                        />
+                        <Button
+                            variant="light"
+                            onClick={() => setDateRange([null, null])}
+                        >
+                            clear date
+                        </Button>
+                    </Stack>
                 ),
+                render: (data) => {
+                    const eventDate = new Date(data.event_datetime);
+
+                    return (
+                        <Text>
+                            {eventDate.toLocaleString()}
+                            {" -> "}
+                            {formatDistanceToNow(eventDate, {
+                                addSuffix: true,
+                            })}
+                        </Text>
+                    );
+                },
+                filtering: !!(dateRange[0] && dateRange[1]),
             },
             {
                 accessor: "created_at",
@@ -191,7 +288,6 @@ export default function AdminAppointmentTable({
                                 Mark as arrived
                             </Button>
                         ) : (
-                            /* 2. TypeScript now knows 'record.invoice' IS NOT NULL here */
                             <>
                                 {record.invoice.paymentStatus === "PAID" && (
                                     <Button
@@ -207,22 +303,39 @@ export default function AdminAppointmentTable({
                                     </Button>
                                 )}
 
-                                {record.invoice.paymentStatus === "UNPAID" && (
+                                {record.invoice.paymentStatus === "UNPAID" &&
+                                    record.invoice.status === "COMPLETED" && (
+                                        <Button
+                                            size="xs"
+                                            fullWidth
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (
+                                                    record.invoice &&
+                                                    record.invoice.id
+                                                )
+                                                    router.push(
+                                                        `/v1/admin/invoice/new/${record.invoice.id}`
+                                                    );
+                                            }}
+                                        >
+                                            Generate Invoice
+                                        </Button>
+                                    )}
+
+                                {record.invoice.status === "ARRIVED" && (
                                     <Button
-                                        size="xs"
                                         fullWidth
+                                        variant="light"
+                                        color="orange"
+                                        size="xs"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            if (
-                                                record.invoice &&
-                                                record.invoice.id
-                                            )
-                                                router.push(
-                                                    `/v1/admin/invoice/new/${record.invoice.id}`
-                                                );
                                         }}
+                                        // disabled={isPending}
+                                        // loading={isPending}
                                     >
-                                        Generate Invoice
+                                        Mark as cancelled
                                     </Button>
                                 )}
                             </>

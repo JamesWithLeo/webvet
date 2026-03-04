@@ -5,6 +5,7 @@ import { AdminAppointment } from "@/db/schema/appointments";
 import { useState } from "react";
 import { DataTableSortStatus } from "mantine-datatable";
 import { sortBy } from "lodash";
+import dayjs from "dayjs";
 
 export default function useAppointmentAdmin(
     scope: "all" | "incoming" | "past"
@@ -17,6 +18,10 @@ export default function useAppointmentAdmin(
     });
 
     const [searchName, setSearchName] = useState<string>("");
+    const [dateRange, setDateRange] = useState<[string | null, string | null]>([
+        null,
+        null,
+    ]);
 
     const query = useQuery<AdminAppointment[], Error>({
         queryKey: ["appointments", "admin", scope],
@@ -34,9 +39,10 @@ export default function useAppointmentAdmin(
         staleTime: 1000 * 60 * 5,
         select: (data) => {
             let filtered = data;
+
             if (searchName) {
                 const lowerSearch = searchName.toLowerCase();
-                filtered = data.filter(
+                filtered = filtered.filter(
                     (appt) =>
                         appt.user.firstName
                             ?.toLowerCase()
@@ -45,6 +51,27 @@ export default function useAppointmentAdmin(
                 );
             }
 
+            const [start, end] = dateRange;
+            if (start) {
+                filtered = filtered.filter((appt) => {
+                    const apptDate = dayjs(appt.event_datetime);
+                    const startDate = dayjs(start).startOf("day");
+
+                    if (end) {
+                        // Range mode: between start and end
+                        const endDate = dayjs(end).endOf("day");
+                        return (
+                            apptDate.isAfter(startDate) &&
+                            apptDate.isBefore(endDate)
+                        );
+                    } else {
+                        // Single date mode: only same day
+                        return apptDate.isSame(startDate, "day");
+                    }
+                });
+            }
+
+            // 3. Sort (Existing)
             const sorted = sortBy(
                 filtered,
                 sortStatus.columnAccessor
@@ -52,5 +79,13 @@ export default function useAppointmentAdmin(
             return sortStatus.direction === "desc" ? sorted.reverse() : sorted;
         },
     });
-    return { ...query, sortStatus, setSortStatus, searchName, setSearchName };
+    return {
+        ...query,
+        sortStatus,
+        setSortStatus,
+        searchName,
+        setSearchName,
+        dateRange,
+        setDateRange,
+    };
 }

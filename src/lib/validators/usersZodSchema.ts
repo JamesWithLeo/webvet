@@ -1,4 +1,4 @@
-import { userGenderValueTuple } from "@/db/schema/users";
+import { role, userGenderValueTuple } from "@/db/schema/users";
 import { z } from "zod";
 
 export const userSetupSchema = z.object({
@@ -8,14 +8,14 @@ export const userSetupSchema = z.object({
         .min(2, { message: "First name must be at least 2 characters" })
         .max(25, { message: "First name is too long" })
         .regex(/^[a-zA-Z ]*$/, "Only letters are allowed")
-        .toLowerCase(),
+        .transform((v) => v.toLowerCase()),
     lastName: z
         .string("Missing Last name")
         .nonempty("Missing last name")
         .min(2, { message: "Last name must be at least 2 characters" })
         .max(25, { message: "Last name is too long" })
         .regex(/^[a-zA-Z ]*$/, "Only letters are allowed")
-        .toLowerCase(),
+        .transform((v) => v.toLowerCase()),
     gender: z.enum(userGenderValueTuple, { message: "Invalid gender" }),
     dateOfBirth: z
         .string()
@@ -43,3 +43,39 @@ export const userEditSchema = z.object({
     dateOfBirth: z.string().optional(),
     photoUrl: z.string().optional(),
 });
+
+export const accountUpdateSchemaAdmin = z.object({
+    firstName: z
+        .string("Missing first name")
+        // .nonempty("Missing first name")
+        .min(2, { message: "First name must be at least 2 characters" })
+        .max(25, { message: "First name is too long" })
+        .regex(/^[a-zA-Z ]*$/, "Only letters are allowed")
+        .transform((v) => v.toLowerCase().trim()),
+    lastName: z
+        .string("Missing Last name")
+        // .nonempty("Missing last name")
+        .min(2, { message: "Last name must be at least 2 characters" })
+        .max(25, { message: "Last name is too long" })
+        .regex(/^[a-zA-Z ]*$/, "Only letters are allowed")
+        .transform((v) => v.toLowerCase().trim()),
+    gender: z.enum(userGenderValueTuple, { message: "Invalid gender" }),
+    dateOfBirth: z
+        .string()
+        // .nonempty("Missing date of birth")
+        .refine((date) => !isNaN(Date.parse(date)), {
+            message: "Invalid date format",
+        }),
+    contactNumber: z
+        .string()
+        // Remove all non-numeric characters except the leading '+'
+        .transform((val) => val.replace(/(?!^\+)\D/g, ""))
+        // 2. Validate against E.164 length (min 10 for local+code, max 15 digits)
+        .refine((val) => /^\+?[1-9]\d{1,14}$/.test(val), {
+            message:
+                "Invalid phone number format. Use E.164 (e.g., +1234567890)",
+        }),
+    role: z.enum(role.enumValues, { error: "Invalid role" }),
+});
+
+export type AccountUpdateFormInput = z.input<typeof accountUpdateSchemaAdmin>;

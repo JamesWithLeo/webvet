@@ -10,7 +10,8 @@ export default async function Layout({
     children: React.ReactNode;
 }) {
     const session = await auth();
-    if (session?.user.role !== "admin" && session?.user.role !== "staff")
+    const role = session?.user.role;
+    if (role !== "admin" && role !== "staff" && role !== "vet" && Boolean(role))
         unauthorized();
     return (
         <Providers>

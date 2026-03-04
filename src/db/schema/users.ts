@@ -11,7 +11,7 @@ import {
 export const userGenderValueTuple = ["male", "female", "other"] as const;
 export const userGender = pgEnum("user_gender", userGenderValueTuple);
 
-export const role = pgEnum("role", ["client", "staff", "admin"]);
+export const role = pgEnum("role", ["client", "staff", "admin", "vet"]);
 
 export const users = pgTable("users", {
     photoUrl: varchar("photo_url", { length: 255 }),
