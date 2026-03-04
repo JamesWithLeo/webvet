@@ -144,6 +144,7 @@ export default function AdminAppointmentTable({
                 title: "Event Date time",
                 resizable: true,
                 sortable: true,
+
                 filter: ({ close }) => (
                     <Stack>
                         <DatePicker
@@ -344,7 +345,7 @@ export default function AdminAppointmentTable({
                 ),
             },
         ],
-        []
+        [dateRange, searchName]
     );
 
     const onEventClick = useCallback(

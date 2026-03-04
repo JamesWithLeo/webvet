@@ -54,7 +54,7 @@ import { toTitleCase } from "@/lib/toTitleCase";
 
 export default function AccountTable() {
     const {
-        data,
+        records,
         isLoading,
         searchFirstName,
         setSearchFirstName,
@@ -64,6 +64,8 @@ export default function AccountTable() {
         setSearchRole,
         searchGender,
         setSearchGender,
+        setSortStatus,
+        sortStatus,
     } = useUserAdmin();
     const queryClient = useQueryClient();
     const [isPendingUpdate, startTransition] = useTransition();
@@ -91,7 +93,7 @@ export default function AccountTable() {
             {
                 accessor: "firstName",
                 title: "First name",
-                width: "20%",
+                width: "10%",
                 resizable: true,
                 toggleable: true,
                 draggable: true,
@@ -121,7 +123,7 @@ export default function AccountTable() {
             {
                 accessor: "lastName",
                 title: "Last name",
-                width: "20%",
+                width: "10%",
                 resizable: true,
                 toggleable: true,
                 draggable: true,
@@ -156,6 +158,7 @@ export default function AccountTable() {
                 width: "8%",
                 toggleable: true,
                 draggable: true,
+                sortable: true,
             },
             {
                 accessor: "contactNumber",
@@ -197,6 +200,7 @@ export default function AccountTable() {
                         }}
                     />
                 ),
+                filtering: searchGender !== "all",
             },
             {
                 accessor: "role",
@@ -269,7 +273,7 @@ export default function AccountTable() {
                 ),
             },
         ],
-        []
+        [searchFirstName, searchGender, searchLastName, searchRole, sortStatus]
     );
 
     const key = `admin-user-table`;
@@ -464,7 +468,7 @@ export default function AccountTable() {
                 highlightOnHover={true}
                 verticalSpacing="xs"
                 borderRadius="md"
-                records={data}
+                records={records}
                 totalRecords={1500}
                 storeColumnsKey={key}
                 fetching={isLoading}
@@ -479,6 +483,8 @@ export default function AccountTable() {
                         <AdminAccountPetTable ownerId={record.id} />
                     ),
                 }}
+                sortStatus={sortStatus}
+                onSortStatusChange={setSortStatus}
             />
             <Drawer
                 opened={Boolean(editingAccount)}
