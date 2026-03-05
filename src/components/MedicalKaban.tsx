@@ -10,14 +10,12 @@ import {
 } from "@/lib/validators/newMedicalZodSchema";
 import {
     Badge,
-    Paper,
     Text,
     Group,
     Stack,
     Grid,
     Box,
     Button,
-    Divider,
     Drawer,
     NumberInput,
     Textarea,
@@ -98,7 +96,8 @@ export default function MedicalKanban() {
                 onClose={() => setSelectedPet(null)}
                 withinPortal
                 position="right"
-                size="md"
+                radius={"md"}
+                offset={8}
                 padding="xl"
                 title={
                     <Group gap="xs">
@@ -227,7 +226,6 @@ function MedicalForm({
                 />
                 <Textarea
                     label="Prescription / Medications"
-                    withAsterisk
                     placeholder="e.g., Amoxicillin 250mg - 1 tablet twice daily for 10 days"
                     description="Specify dosage, frequency, and duration"
                     minRows={3}

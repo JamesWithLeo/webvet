@@ -1,8 +1,5 @@
 import AdminCreateInvoiceTable from "@/components/admin/invoice/AdminCreateInvoiceTable";
-import {
-    getInvoiceAdminV2,
-    getInvoiceFullDetailsAdmin,
-} from "@/lib/db/invoice";
+import { getAppointmentFullDetailsAdmin } from "@/lib/db/appointments";
 import { getAllPets } from "@/lib/db/pets";
 import { getServicesGrouped } from "@/lib/db/services";
 import { toTitleCase } from "@/lib/toTitleCase";
@@ -14,18 +11,17 @@ export default async function Page({
 }: {
     params: Promise<{ id: string }>;
 }) {
-    const { id } = await params; // Invoice ID from URL
+    const { id } = await params;
 
-    const [invoiceRes, servicesGrouped] = await Promise.all([
-        getInvoiceFullDetailsAdmin(id),
+    const [servicesGrouped, appointmentFullDetail] = await Promise.all([
         getServicesGrouped(),
+        getAppointmentFullDetailsAdmin(id),
     ]);
 
-    const { data, error } = invoiceRes;
+    const { data, error } = appointmentFullDetail;
     if (error || !data) notFound();
 
-    // Everything is here in one object!
-    const { invoice, user, pets } = data;
+    const { user, pets, appointment } = data;
     const allPets = await getAllPets(user.id);
 
     return (
@@ -49,9 +45,10 @@ export default async function Page({
                 </Group>
             </Stack>
             <AdminCreateInvoiceTable
-                invoice={invoice}
+                appointmentId={id}
+                userId={user.id}
                 allPets={allPets}
-                pets={pets} // This comes directly from our joined query
+                pets={pets}
                 services={servicesGrouped}
             />
         </div>

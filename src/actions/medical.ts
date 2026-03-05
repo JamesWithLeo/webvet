@@ -50,7 +50,6 @@ export async function CreateMedical(
 
     try {
         await dbTx.transaction(async (tx) => {
-            // 1. Determine the Variant based on weight
             const variantNeeded: ServicePriceType =
                 weight && weight > 0 ? getSizeByWeight(weight) : "FLAT";
 
@@ -92,12 +91,11 @@ export async function CreateMedical(
                 finalPrice = flatRecords[0].price;
             }
 
-            // 3. Insert the Medical Log
             await tx.insert(medicalLogs).values({
                 appointmentId: appointmentId ?? null,
                 petId: petId,
                 serviceId: serviceId,
-                weight: weight?.toString() || null,
+                weight: weight.toString(),
                 temperature: temperature?.toString() || null,
                 symptoms: symptoms || null,
                 diagnosis: diagnosis || null,
@@ -108,14 +106,14 @@ export async function CreateMedical(
             });
 
             // 4. Insert into Invoice Items
-            if (invoiceId) {
-                await tx.insert(invoiceItems).values({
-                    invoiceId: invoiceId,
-                    petId: petId,
-                    serviceId: serviceId,
-                    priceAtInvoice: finalPrice,
-                });
-            }
+            // if (invoiceId) {
+            //     await tx.insert(invoiceItems).values({
+            //         invoiceId: invoiceId,
+            //         petId: petId,
+            //         serviceId: serviceId,
+            //         priceAtInvoice: finalPrice,
+            //     });
+            // }
         });
 
         revalidatePath("/v1/admin/medical");
@@ -169,7 +167,7 @@ export async function MarkAsComplete(
 
     if (
         !session ||
-        (session.user.role !== "admin" && session.user.role !== "staff")
+        (session.user.role !== "admin" && session.user.role !== "vet")
     ) {
         unauthorized();
     }
@@ -182,8 +180,8 @@ export async function MarkAsComplete(
             })
             .where(eq(invoices.id, invoiceId));
 
-        // 2. Clear the cache for the medical route so the card moves columns
-        revalidatePath("/v1/admin/medical");
+        // // 2. Clear the cache for the medical route so the card moves columns
+        // revalidatePath("/v1/admin/medical");
 
         return { success: true };
     } catch (error) {

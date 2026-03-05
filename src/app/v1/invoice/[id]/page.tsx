@@ -63,11 +63,12 @@ export default async function Page({
                             // total={data.totalAmount}
                         />
                     </Stack>
-                    {data.paymentStatus === "UNPAID" && (
-                        <Stack align="end" w={"1000"}>
-                            <ProcessPayment invoiceId={invoiceId} />
-                        </Stack>
-                    )}
+                    {data.paymentStatus === "UNPAID" &&
+                        data.status === "COMPLETED" && (
+                            <Stack align="end" w={"1000"}>
+                                <ProcessPayment invoiceId={invoiceId} />
+                            </Stack>
+                        )}
                     {data.paymentStatus === "PAID" && (
                         <Stack gap={0} align="end" w={"1000"}>
                             <Text c={"gray"} size="xs">

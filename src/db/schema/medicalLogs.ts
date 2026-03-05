@@ -25,7 +25,7 @@ export const medicalLogs = pgTable("medical_logs", {
     weight: decimal("weight", { precision: 5, scale: 2 }),
     symptoms: text("symptoms"),
     diagnosis: text("diagnosis"),
-    prescription: text("prescription").notNull(),
+    prescription: text("prescription"),
     notes: text("clinical_notes").notNull(),
     temperature: decimal("temperature", { precision: 4, scale: 1 }),
     // Staff tracking

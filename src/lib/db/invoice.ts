@@ -1,24 +1,25 @@
-import { db } from "@/db";
+import { db, dbTx } from "@/db";
 import {
     appointments,
     appointmentsToPets,
-    AppointmentToPetsStatus,
     AppointmentType,
     AppointmentTypeModel,
 } from "@/db/schema/appointments";
-import { invoiceItems, invoices, InvoiceTypeModel } from "@/db/schema/invoice";
+import {
+    invoiceItems,
+    invoices,
+    invoiceStatus,
+    InvoiceTypeModel,
+} from "@/db/schema/invoice";
 import { medicalLogs } from "@/db/schema/medicalLogs";
 import { pets } from "@/db/schema/pets";
 import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
-import { InvoiceTypeModelWithTotal } from "@/types/invoice";
 import PetServiceMerged from "@/types/PetsServiceMerged";
 import { endOfDay, startOfDay } from "date-fns";
 import { and, eq, getTableColumns, gte, lte, sql, sum } from "drizzle-orm";
 
-export const getInvoiceAdmin = async (): Promise<
-    InvoiceTypeModelWithTotal[]
-> => {
+export const getInvoiceAdmin = async () => {
     return await db
         .select({
             ...getTableColumns(invoices),
@@ -26,8 +27,22 @@ export const getInvoiceAdmin = async (): Promise<
                 sql<number>`sum(${invoiceItems.priceAtInvoice})`.mapWith(
                     Number
                 ),
+            // firstName: sql<string>`COALESCE(MAX(${users.firstName}))`,
+            // lastName: sql<string>`COALESCE(MAX(${users.lastName}))`,
         })
         .from(invoices)
+        // 1. Join to Appointment
+        .leftJoin(appointments, eq(appointments.id, invoices.appointmentId))
+        // 2. Join to the Link Table (AppointmentToPets)
+        // .leftJoin(
+        //     appointmentsToPets,
+        //     eq(appointmentsToPets.appointmentId, appointments.id)
+        // )
+        // // 3. Join to Pets
+        // .leftJoin(pets, eq(pets.id, appointmentsToPets.petId))
+        // // 4. Join to Users (Owner)
+        // .leftJoin(users, eq(users.id, pets.ownerId))
+        // 5. Join items for the total
         .leftJoin(invoiceItems, eq(invoices.id, invoiceItems.invoiceId))
         .groupBy(invoices.id);
 };
@@ -145,35 +160,89 @@ export const getInvoiceWithDetails = async (id: string) => {
             serviceTitle: services.title,
         })
         .from(invoices)
-        // 1. Join the items to the invoice
         .leftJoin(invoiceItems, eq(invoices.id, invoiceItems.invoiceId))
-        // 2. Join the pet to the item
         .leftJoin(pets, eq(invoiceItems.petId, pets.id))
-        // 3. Join the service to the item
         .leftJoin(services, eq(invoiceItems.serviceId, services.id))
         .innerJoin(appointments, eq(appointments.id, invoices.appointmentId))
         .where(eq(invoices.id, id));
+    // DELETE THE .groupBy(invoices.id) LINE HERE
 
     if (rows.length === 0) return null;
 
-    // Aggregate the flat rows into a single object with an items array
+    // The rest of your aggregation logic is already perfect for flat rows!
     const invoice = rows[0].invoice;
     const appointmentTitle = rows[0].appointmentTitle;
 
     const items = rows
-        .filter((r) => r.item !== null) // Handle case where invoice has 0 items
+        .filter((r) => r.item !== null)
         .map((r) => ({
             ...r.item!,
             petName: r.petName,
             serviceTitle: r.serviceTitle,
-            // appointmentTitle: r.appointmentTitle,
         }));
+
+    // Calculate total on the application side to avoid SQL group-by headaches
+    const totalAmount = items.reduce(
+        (sum, item) => sum + (Number(item.priceAtInvoice) || 0),
+        0
+    );
 
     return {
         ...invoice,
         appointmentTitle,
+        totalAmount,
         items,
     };
+};
+
+export const getInvoiceDownloadData = async (invoiceId: string) => {
+    const rows = await db
+        .select({
+            ...getTableColumns(invoices),
+            appointmentTitle: appointments.title,
+            firstName: users.firstName,
+            lastName: users.lastName,
+
+            items: sql<
+                {
+                    id: string;
+                    priceAtInvoice: number;
+                    petName: string;
+                    serviceTitle: string;
+                }[]
+            >`
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'id', ${invoiceItems.id},
+                            'priceAtInvoice', ${invoiceItems.priceAtInvoice},
+                            'petName', ${pets.name},
+                            'serviceTitle', ${services.title}
+                        )
+                    ) FILTER (WHERE ${invoiceItems.id} IS NOT NULL),
+                    '[]'
+                )
+            `.as("items"),
+            totalAmount:
+                sql<number>`COALESCE(SUM(${invoiceItems.priceAtInvoice}), 0)`.mapWith(
+                    Number
+                ),
+        })
+        .from(invoices)
+        .leftJoin(invoiceItems, eq(invoices.id, invoiceItems.invoiceId))
+        .leftJoin(pets, eq(invoiceItems.petId, pets.id))
+        .leftJoin(services, eq(invoiceItems.serviceId, services.id))
+        .innerJoin(appointments, eq(appointments.id, invoices.appointmentId))
+        .leftJoin(users, eq(pets.ownerId, users.id))
+        .where(eq(invoices.id, invoiceId))
+        .groupBy(
+            invoices.id,
+            appointments.title,
+            users.firstName,
+            users.lastName
+        );
+
+    return rows[0] || null;
 };
 
 export const getGrossRevenue = async () => {
@@ -306,4 +375,46 @@ export const getVetKanbanData = async (): Promise<VetData[]> => {
         .orderBy(appointments.event_datetime);
 
     return results;
+};
+
+type InitializeInvoiceType = {
+    userId: string;
+    appointmentId: string;
+    status: (typeof invoiceStatus.enumValues)[number];
+    createdBy: string;
+    items: {
+        priceAtInvoice: string;
+        petId: string;
+        serviceId: string;
+    }[];
+};
+
+export const InitializeInvoice = async ({
+    userId,
+    appointmentId,
+    status,
+    createdBy,
+    items,
+}: InitializeInvoiceType) => {
+    return await dbTx.transaction(async (tx) => {
+        const [insertedInvoice] = await tx
+            .insert(invoices)
+            .values({
+                userId: userId,
+                appointmentId: appointmentId,
+                status: status,
+                createdById: createdBy,
+            })
+            .returning();
+
+        const insertedInvoiceItems = await tx
+            .insert(invoiceItems)
+            .values(items.map((i) => ({ ...i, invoiceId: insertedInvoice.id })))
+            .returning();
+
+        return {
+            invoiceId: insertedInvoice.id,
+            insertedItemsLength: insertedInvoiceItems.length,
+        };
+    });
 };

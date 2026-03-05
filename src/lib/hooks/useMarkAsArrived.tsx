@@ -6,9 +6,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { markAsArrivedAction } from "@/actions/invoice";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { AdminAppointment } from "@/db/schema/appointments";
+import { useRouter } from "next/navigation";
 
 export function useMarkAsArrived(onSuccess?: () => void) {
     const queryClient = useQueryClient();
+    const router = useRouter();
+
     const [formState, formAction, isPending] = useActionState(
         markAsArrivedAction,
         {
@@ -38,41 +41,43 @@ export function useMarkAsArrived(onSuccess?: () => void) {
     }, [formState.success, formState.error]);
 
     const handleMarkAsArrived = (record: AdminAppointment) => {
-        modals.openConfirmModal({
-            title: "Confirm Client Arrival",
+        router.push(`/v1/admin/invoice/new/${record.id}`);
 
-            centered: true,
-            radius: "lg",
-            size: "md",
-            labels: { confirm: "Confirm Arrival", cancel: "Go Back" },
-            confirmProps: { color: "red", radius: "md" },
-            children: (
-                <Stack gap={0}>
-                    <Text>
-                        Are you sure you want to mark{" "}
-                        <b>
-                            {toTitleCase(
-                                `${record.user.firstName} ${record.user.lastName}`
-                            )}
-                        </b>
-                        with title / reason of <b>{record.title} </b> as
-                        arrived?
-                    </Text>
-                    <Text size="sm" c="dimmed">
-                        This will update the appointment status and generate an
-                        initial invoice.
-                    </Text>
-                </Stack>
-            ),
-            onConfirm: () => {
-                startTransition(() => {
-                    formAction({
-                        appointmentId: record.id,
-                        userId: record.user.id,
-                    });
-                });
-            },
-        });
+        // modals.openConfirmModal({
+        //     title: "Confirm Client Arrival",
+
+        //     centered: true,
+        //     radius: "lg",
+        //     size: "md",
+        //     labels: { confirm: "Confirm Arrival", cancel: "Go Back" },
+        //     confirmProps: { color: "red", radius: "md" },
+        //     children: (
+        //         <Stack gap={0}>
+        //             <Text>
+        //                 Are you sure you want to mark{" "}
+        //                 <b>
+        //                     {toTitleCase(
+        //                         `${record.user.firstName} ${record.user.lastName}`
+        //                     )}
+        //                 </b>
+        //                 with title / reason of <b>{record.title} </b> as
+        //                 arrived?
+        //             </Text>
+        //             <Text size="sm" c="dimmed">
+        //                 This will update the appointment status and generate an
+        //                 initial invoice.
+        //             </Text>
+        //         </Stack>
+        //     ),
+        //     onConfirm: () => {
+        //         startTransition(() => {
+        //             formAction({
+        //                 appointmentId: record.id,
+        //                 userId: record.user.id,
+        //             });
+        //         });
+        //     },
+        // });
     };
 
     return {

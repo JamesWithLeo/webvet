@@ -17,7 +17,7 @@ export default async function Page() {
         },
     });
     return (
-        <Stack className="w-full h-screen gap-4 p-16 light:bg-gray-50">
+        <Stack className="w-full h-screen gap-4 p-8 " bg={"gray.0"}>
             <Title>Invoice</Title>
 
             <HydrationBoundary state={dehydrate(queryClient)}>

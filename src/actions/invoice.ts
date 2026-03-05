@@ -3,46 +3,39 @@
 import { auth } from "@/auth";
 import { db, dbTx } from "@/db";
 import {
-    invoiceItems,
     invoices,
     invoiceStatus,
     paymentStatusType,
 } from "@/db/schema/invoice";
-import { markAsPaidInvoiceAdmin } from "@/lib/db/invoice";
+import {
+    getInvoiceDownloadData,
+    InitializeInvoice,
+    markAsPaidInvoiceAdmin,
+} from "@/lib/db/invoice";
 import { unauthorized } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 
 type SavePropType = {
     userId: string;
-    invoiceId: string;
-    totalAmount: string;
-    paymentStatus: (typeof paymentStatusType.enumValues)[number];
-    appointmentId: string | null;
+    appointmentId: string;
     status: (typeof invoiceStatus.enumValues)[number];
 };
 
-type ItemPropType = {
-    petId: string;
-    priceAtInvoice: string;
-    serviceId: string;
-};
-
-type SaveInvoiceResponse =
-    | { success: true; invoiceId: string; error: null }
-    | { success: false; invoiceId: null; error: string };
-
-export const UpdateInvoice = async (
+export const CreateInvoice = async (
     prevState: any,
     data: {
         rawInvoice: SavePropType;
-        items: ItemPropType[];
+        items: {
+            priceAtInvoice: string;
+            petId: string;
+            serviceId: string;
+        }[];
     }
-): Promise<SaveInvoiceResponse> => {
+) => {
     if (!data.items || data.items.length === 0) {
         return {
             success: false,
-            invoiceId: null,
             error: "Cannot create an invoice with no items.",
         };
     }
@@ -54,45 +47,30 @@ export const UpdateInvoice = async (
         unauthorized();
 
     try {
-        return await dbTx.transaction(async (tx) => {
-            const [invoice] = await tx
-                .select()
-                .from(invoices)
-                .where(eq(invoices.id, data.rawInvoice.invoiceId))
-                .limit(1);
-            if (!invoice) {
-                throw new Error("Invoice doesn't exist");
-            }
-
-            const itemsToInsert = data.items.map((item) => ({
-                invoiceId: invoice.id,
-                petId:
-                    item.petId && item.petId.trim() !== "" ? item.petId : null,
-                priceAtInvoice: item.priceAtInvoice,
-                serviceId: item.serviceId,
-            }));
-
-            await tx.insert(invoiceItems).values(itemsToInsert);
-            await tx
-                .update(invoices)
-                .set({
-                    status: data.rawInvoice.status, // The bill is now finalized
-                    paymentStatus: data.rawInvoice.paymentStatus,
-                })
-                .where(eq(invoices.id, invoice.id));
-
-            return {
-                success: true,
-                invoiceId: invoice.id,
-                error: null,
-            };
+        const invoice = await InitializeInvoice({
+            appointmentId: data.rawInvoice.appointmentId,
+            userId: data.rawInvoice.userId,
+            status: "ARRIVED",
+            createdBy: session.user.id,
+            items: data.items,
         });
+
+        if (invoice && invoice.invoiceId)
+            return {
+                invoiceId: invoice.invoiceId,
+                success: true,
+                insertedInvoiceItemsLength: invoice.insertedItemsLength,
+            };
+        else {
+            return {
+                success: false,
+            };
+        }
     } catch (error) {
         console.error("INVOICE_SAVE_ERROR:", error);
 
         return {
             success: false,
-            invoiceId: null,
             error:
                 error instanceof Error
                     ? error.message
@@ -190,5 +168,16 @@ export async function markAsArrivedAction(
     } catch (error) {
         console.error("Check-in error:", error);
         return { success: false, error: "Failed to process arrival" };
+    }
+}
+
+export async function getInvoiceDownloadDataAction(invoiceId: string) {
+    try {
+        const result = await getInvoiceDownloadData(invoiceId);
+
+        return result || null;
+    } catch (error) {
+        console.error("Server Action Error:", error);
+        throw new Error("Failed to fetch invoice data");
     }
 }

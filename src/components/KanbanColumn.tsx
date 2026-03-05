@@ -157,7 +157,6 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
             queryClient.invalidateQueries({ queryKey: ["medical", "admin"] });
         }
     }, [markAsCompleteState]);
-    // ... Effects remain the same ...
 
     return (
         <Paper
@@ -271,7 +270,6 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
                                                                     e
                                                                 ) => {
                                                                     e.stopPropagation();
-                                                                    // Fixed: item.invoice?.id instead of pet.invoice.id
                                                                     onMedicalClick(
                                                                         pet,
                                                                         item

@@ -1,16 +1,17 @@
 "use client";
 
 import {
-    InvoiceTypeModel,
     paymentStatusTypeValues,
     paymentStatusType,
+    invoiceStatus,
 } from "@/db/schema/invoice";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import useInvoiceAdmin from "@/lib/hooks/useInvoiceAdmin";
 import useInvoiceItemAdmin from "@/lib/hooks/useInvoiceItemAdmin";
 import { toTitleCase } from "@/lib/toTitleCase";
-import { InvoiceTypeModelWithTotal } from "@/types/invoice";
+import { InvoiceAdmin } from "@/types/invoice";
 import {
+    ActionIcon,
     Button,
     Group,
     Loader,
@@ -18,36 +19,41 @@ import {
     Stack,
     Text,
     TextInput,
+    Tooltip,
 } from "@mantine/core";
-import { IconCheck, IconPointerCode, IconX } from "@tabler/icons-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { IconEye, IconPointerCode, IconX } from "@tabler/icons-react";
 import {
     DataTable,
     DataTableColumn,
     useDataTableColumns,
 } from "mantine-datatable";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
-
-type FilterStatus = "all" | (typeof paymentStatusType.enumValues)[number];
+import { useEffect, useMemo } from "react";
+import { DownloadInvoiceButton } from "./DownloadInvoiceButtonAsync";
+import CopyButton from "@/components/common/CopyButton";
 
 export default function AdminInvoiceTable() {
     const router = useRouter();
 
     const {
-        data,
+        filteredData,
         isPending,
         setQueryId,
         queryId,
+        status,
+        setStatus,
         paymentStatus,
         setPaymentStatus,
+        sortStatus,
+        setSortStatus,
     } = useInvoiceAdmin();
-    const columns = useMemo<DataTableColumn<InvoiceTypeModelWithTotal>[]>(
+    const columns = useMemo<DataTableColumn<InvoiceAdmin>[]>(
         () => [
             {
                 accessor: "id",
                 title: "ID",
-                width: "10%",
+                resizable: true,
+                width: "8%",
                 ellipsis: true,
                 filter: (record) => (
                     <TextInput
@@ -59,71 +65,124 @@ export default function AdminInvoiceTable() {
                     />
                 ),
                 filtering: queryId !== "",
+                render: (record) => (
+                    <Group
+                        className="group"
+                        wrap="nowrap"
+                        justify="space-between"
+                    >
+                        <Text truncate="end">{record.id}</Text>
+                        <CopyButton value={record.id} />
+                    </Group>
+                ),
             },
             {
                 accessor: "userId",
-                title: "User ID",
-                width: "10%",
+                title: "User",
+                width: "8%",
+                resizable: true,
                 ellipsis: true,
+                render: (record) => (
+                    <Group
+                        className="group"
+                        wrap="nowrap"
+                        justify="space-between"
+                    >
+                        <Text truncate="end">{record.userId}</Text>
+                        <CopyButton value={record.userId} />
+                    </Group>
+                ),
             },
             {
                 accessor: "status",
                 title: "Status",
                 width: "10%",
+                filter: () => (
+                    <NativeSelect
+                        label="Seach by invoice status"
+                        data={["ALL", ...invoiceStatus.enumValues].map((v) => ({
+                            label: v.toUpperCase(),
+                            value: v,
+                        }))}
+                        defaultValue={status}
+                        onChange={(e) =>
+                            setStatus(
+                                e.currentTarget.value as
+                                    | (typeof invoiceStatus.enumValues)[number]
+                                    | "ALL"
+                            )
+                        }
+                    />
+                ),
+                filtering: status !== "ALL",
             },
             {
                 accessor: "paymentStatus",
                 title: "Payment Status",
-                width: "10%",
+                width: "8%",
+
                 filter: () => (
                     <NativeSelect
                         label="Seach by payment Status"
-                        data={["all", ...paymentStatusTypeValues].map((v) => ({
-                            label: toTitleCase(v),
+                        data={["ALL", ...paymentStatusTypeValues].map((v) => ({
+                            label: v.toUpperCase(),
                             value: v,
                         }))}
                         defaultValue={paymentStatus}
                         onChange={(e) =>
                             setPaymentStatus(
-                                e.currentTarget.value as FilterStatus
+                                e.currentTarget.value as
+                                    | (typeof paymentStatusType.enumValues)[number]
+                                    | "ALL"
                             )
                         }
                     />
                 ),
-                filtering: paymentStatus !== "all",
+                filtering: paymentStatus !== "ALL",
             },
             {
                 accessor: "totalAmount",
-                width: "10%",
+                width: "8%",
                 title: "Total Amount",
+                sortable: true,
                 textAlign: "center",
                 render: (record) => (
                     <Group justify="right">
-                        <Text>{CurrencyFormatter(record.totalAmount)}</Text>
+                        <Text size="sm">
+                            {CurrencyFormatter(record.totalAmount)}
+                        </Text>
                     </Group>
                 ),
             },
             {
                 accessor: "createdAt",
                 title: "Created At",
-                width: "10%",
+                width: "8%",
+                sortable: true,
                 render: (record) => new Date(record.createdAt).toLocaleString(),
             },
 
             {
                 accessor: "action",
-                width: "10%",
+                width: "4%",
                 title: (
                     <Group justify="center" wrap="nowrap">
                         <IconPointerCode size={16} />
                     </Group>
                 ),
                 render: (record) => (
-                    <Group justify="center" w={"100%"}>
-                        {record.status === "COMPLETED" && (
-                            <>
-                                <Button
-                                    size="xs"
+                    <Group justify="left" gap={"xs"} w={"100%"} wrap="nowrap">
+                        {record.status === "COMPLETED" ||
+                        record.status === "ARRIVED" ? (
+                            <Tooltip
+                                label="View invoice"
+                                position="left"
+                                withArrow
+                                offset={-1}
+                                arrowSize={10}
+                            >
+                                <ActionIcon
+                                    size="input-xs"
                                     variant="default"
                                     radius={"md"}
                                     onClick={(e) => {
@@ -133,15 +192,20 @@ export default function AdminInvoiceTable() {
                                         );
                                     }}
                                 >
-                                    View Invoice
-                                </Button>
-                            </>
-                        )}
+                                    <IconEye size={16} />
+                                </ActionIcon>
+                            </Tooltip>
+                        ) : null}
+                        {record.totalAmount &&
+                            record.status === "COMPLETED" &&
+                            record.paymentStatus === "PAID" && (
+                                <DownloadInvoiceButton invoiceId={record.id} />
+                            )}
                     </Group>
                 ),
             },
         ],
-        []
+        [paymentStatus, queryId, status]
     );
     const key = `admin-invoice-table`;
     const {
@@ -153,7 +217,9 @@ export default function AdminInvoiceTable() {
         key,
         columns: columns,
     });
-
+    useEffect(() => {
+        console.log(filteredData);
+    }, [filteredData]);
     return (
         <Stack>
             <Group justify="flex-end">
@@ -174,12 +240,14 @@ export default function AdminInvoiceTable() {
             </Group>
             <DataTable
                 minHeight={400}
-                withTableBorder={false}
+                withTableBorder={true}
                 withColumnBorders
-                striped
+                highlightOnHover={true}
                 columns={effectiveColumns}
-                records={data}
+                records={filteredData}
                 fetching={isPending}
+                sortStatus={sortStatus}
+                onSortStatusChange={setSortStatus}
                 rowExpansion={{
                     allowMultiple: false,
                     content: ({ record }) => (

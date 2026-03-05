@@ -40,6 +40,12 @@ export const invoices = pgTable("invoices", {
 
 export type InvoiceTypeModel = typeof invoices.$inferSelect;
 
+export const itemStatusEnum = pgEnum("item_status", [
+    "PENDING",
+    "COMPLETED",
+    "CANCELLED",
+]);
+
 export const invoiceItems = pgTable("invoice_items", {
     id: uuid("id").primaryKey().defaultRandom(),
     invoiceId: uuid("invoice_id").references(() => invoices.id, {
@@ -49,6 +55,7 @@ export const invoiceItems = pgTable("invoice_items", {
     serviceId: uuid("service_id").references(() => services.id, {
         onDelete: "set null",
     }),
+    itemStatus: itemStatusEnum("item_status").default("PENDING").notNull(),
     priceAtInvoice: decimal("price_at_booking", {
         scale: 2,
         precision: 10,

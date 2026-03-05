@@ -15,7 +15,7 @@ export const insertMedicalLogSchema = z4.object({
         .min(0, "Weight cannot be negative")
         .max(999.99, "Weight exceeds maximum precision")
         .optional()
-        .nullable(),
+        .nonoptional(),
 
     temperature: z4.coerce
         .number()
@@ -26,7 +26,7 @@ export const insertMedicalLogSchema = z4.object({
 
     symptoms: z4.string().trim().optional().nullable(),
     diagnosis: z4.string().trim().optional().nullable(),
-    prescription: z4.string().trim().nonoptional(),
+    prescription: z4.string().trim().nullable(),
     notes: z4
         .string()
         .trim()

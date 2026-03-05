@@ -7,7 +7,6 @@ import { sortBy } from "lodash";
 import { DataTableSortStatus } from "mantine-datatable";
 
 export default function useUserAdmin() {
-    // 1. Keep all your states
     const [sortStatus, setSortStatus] = useState<
         DataTableSortStatus<AdminUserSummary>
     >({
@@ -19,7 +18,6 @@ export default function useUserAdmin() {
     const [searchRole, setSearchRole] = useState<"all" | Role>("all");
     const [searchGender, setSearchGender] = useState<"all" | UserGender>("all");
 
-    // 2. Fetch raw data only (don't use 'select' for UI state logic)
     const query = useQuery<AdminUserSummary[], Error>({
         queryKey: ["user", "admin"],
         queryFn: async () => {
@@ -33,7 +31,6 @@ export default function useUserAdmin() {
     const records = useMemo(() => {
         if (!query.data) return [];
 
-        // --- FILTERING ---
         const fSearch = searchFirstName.toLowerCase();
         const lSearch = searchLastName.toLowerCase();
 
@@ -49,7 +46,6 @@ export default function useUserAdmin() {
             return matchesFirst && matchesLast && matchesRole && matchesGender;
         });
 
-        // --- SORTING ---
         const sorted = sortBy(filtered, (item) => {
             const value =
                 item[sortStatus.columnAccessor as keyof AdminUserSummary];

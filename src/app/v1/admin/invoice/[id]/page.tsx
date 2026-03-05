@@ -56,12 +56,12 @@ export default async function Page({
                         </Title>
                         <InvoiceTable items={data.items} />
                     </Stack>
-                    {data.paymentStatus === "UNPAID" && (
-                        <Stack align="end" w={"1000"}>
-                            <ProcessCashButton invoiceId={data.id} />
-                            {/* <ProcessPayment invoiceId={invoiceId} /> */}
-                        </Stack>
-                    )}
+                    {data.paymentStatus === "UNPAID" &&
+                        data.status === "COMPLETED" && (
+                            <Stack align="end" w={"1000"}>
+                                <ProcessCashButton invoiceId={data.id} />
+                            </Stack>
+                        )}
                     {data.paymentStatus === "PAID" && (
                         <Stack gap={0} align="end" w={"1000"}>
                             <Text c={"gray"} size="xs">

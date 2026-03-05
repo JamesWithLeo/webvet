@@ -103,12 +103,10 @@ const styles = StyleSheet.create({
 
 export const InvoiceDocument = ({
     data,
-    fullName,
     totalAmount,
 }: {
     data: any;
     totalAmount: number;
-    fullName: string;
 }) => (
     <Document>
         <Page size="A4" style={styles.page}>
@@ -140,7 +138,9 @@ export const InvoiceDocument = ({
                         hour12: true,
                     })}
                 </Text>
-                <Text style={styles.detailsText}>Client: {fullName}</Text>
+                <Text style={styles.detailsText}>
+                    Client: {`${data.firstName} ${data.lastName}`}
+                </Text>
             </View>
 
             {/* Table */}

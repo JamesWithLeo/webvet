@@ -1,8 +1,8 @@
 "use client";
 
 import { ServiceMergePriceType } from "@/db/schema/services";
-import { toTitleCase } from "@/lib/toTitleCase";
 import {
+    Alert,
     Button,
     Checkbox,
     Group,
@@ -24,20 +24,23 @@ import PetsSelectModal from "./PetsSelectModal";
 import { useDisclosure } from "@mantine/hooks";
 import { PetTypeModel } from "@/types/pets";
 import PetServiceMerged from "@/types/PetsServiceMerged";
-import { UpdateInvoice } from "@/actions/invoice";
+import { CreateInvoice } from "@/actions/invoice";
 import { notifications } from "@mantine/notifications";
-import { InvoiceTypeModel, paymentStatusType } from "@/db/schema/invoice";
 import { useRouter } from "next/navigation";
+import { toTitleCase } from "@/lib/toTitleCase";
+import LongItemFormatter from "@/lib/LongItemFormatter";
 
 type Props = {
+    appointmentId: string;
     pets: PetServiceMerged[];
     allPets: PetTypeModel[];
+    userId: string;
     services: ServiceMergePriceType[];
-    invoice: InvoiceTypeModel;
 };
 
 export default function AdminCreateInvoiceTable({
-    invoice,
+    appointmentId,
+    userId,
     pets,
     services,
     allPets,
@@ -49,35 +52,30 @@ export default function AdminCreateInvoiceTable({
     const [opened, { close, open }] = useDisclosure();
 
     const [
-        openedPaymentStatus,
-        { close: closePaymentStatus, open: openPaymentStatus },
+        openedCreateInvoiceModal,
+        { close: closeCreateInvoiceModal, open: openCreateInvoiceModal },
     ] = useDisclosure();
 
-    const createInvoice = UpdateInvoice.bind(null);
+    const createInvoice = CreateInvoice.bind(null);
 
     const [formState, formAction, isPending] = useActionState(createInvoice, {
         success: false,
-        invoiceId: null,
         error: "",
     });
 
-    const handleIssueInvoice = async (
-        paymentStatus: (typeof paymentStatusType.enumValues)[number]
-    ) => {
-        closePaymentStatus();
+    const handleIssueInvoice = async () => {
+        closeCreateInvoiceModal();
+
         startTransition(() => {
             formAction({
                 rawInvoice: {
-                    invoiceId: invoice.id,
-                    userId: invoice.userId,
-                    appointmentId: invoice.appointmentId,
-                    totalAmount: sum.toFixed(2),
-                    paymentStatus: paymentStatus,
-                    status: "COMPLETED",
+                    status: "ARRIVED",
+                    appointmentId: appointmentId,
+                    userId: userId,
                 },
                 items: selectedRows.map((row) => ({
                     petId: row.petId,
-                    priceAtInvoice: row.priceAtBooking.toFixed(2),
+                    priceAtInvoice: row.priceAtBooking,
                     serviceId: row.serviceId,
                 })),
             });
@@ -110,7 +108,7 @@ export default function AdminCreateInvoiceTable({
         if (formState.success && formState.invoiceId) {
             notifications.show({
                 title: "Invoice Created",
-                message: `Invoice #${formState.invoiceId} has been saved successfully.`,
+                message: `Invoice #${formState.invoiceId} has been saved successfully with ${formState.insertedInvoiceItemsLength} item(s).`,
                 color: "green",
                 icon: <IconCheck size={18} />,
                 autoClose: 3000,
@@ -120,7 +118,7 @@ export default function AdminCreateInvoiceTable({
 
         if (formState.error) {
             notifications.show({
-                title: "Action Failed",
+                title: "Create Invoice failed",
                 message: formState.error,
                 color: "red",
                 icon: <IconX size={18} />,
@@ -180,7 +178,7 @@ export default function AdminCreateInvoiceTable({
                             <Group>
                                 <Text c={"red"} size="sm">
                                     Warning: Pets with no weight (
-                                    {noWeightPets.join(", ")})
+                                    {LongItemFormatter(noWeightPets)})
                                 </Text>
                             </Group>
                         </Table.Caption>
@@ -197,15 +195,16 @@ export default function AdminCreateInvoiceTable({
                             !selectedRows.length ||
                             isPending
                         }
+                        radius={"md"}
                         loading={isPending}
-                        onClick={() => openPaymentStatus()}
+                        onClick={() => openCreateInvoiceModal()}
                     >
-                        Issue Invoice
+                        Create invoice
                     </Button>
                 </Group>
             </Stack>
             <PetsSelectModal
-                appointmentId={invoice.appointmentId}
+                appointmentId={appointmentId}
                 services={services}
                 onClose={close}
                 opened={opened}
@@ -213,29 +212,41 @@ export default function AdminCreateInvoiceTable({
             />
 
             <Modal
-                title="Payment Status"
                 centered
-                withCloseButton
-                opened={openedPaymentStatus}
-                onClose={closePaymentStatus}
-                radius={"lg"}
-                size={"md"}
+                withCloseButton={false}
+                opened={openedCreateInvoiceModal}
+                onClose={closeCreateInvoiceModal}
+                radius={"md"}
+                size={"lg"}
                 shadow="xl"
             >
-                <Group justify="center">
-                    <Button
-                        size="md"
-                        onClick={() => handleIssueInvoice("PAID")}
+                <Stack>
+                    <Alert
+                        color="blue"
+                        title="Invoice Confirmation"
+                        variant="light"
                     >
-                        Save & mark as paid
-                    </Button>
-                    <Button
-                        size="md"
-                        onClick={() => handleIssueInvoice("UNPAID")}
-                    >
-                        Save as unpaid
-                    </Button>
-                </Group>
+                        You are about to generate an official invoice. Please
+                        ensure all services and pet details are correct before
+                        proceeding.
+                    </Alert>
+                    <Group justify="end">
+                        <Button
+                            radius="md"
+                            variant="default"
+                            onClick={closeCreateInvoiceModal}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            radius="md"
+                            bg={"red"}
+                            onClick={handleIssueInvoice}
+                        >
+                            Confirm
+                        </Button>
+                    </Group>
+                </Stack>
             </Modal>
         </>
     );

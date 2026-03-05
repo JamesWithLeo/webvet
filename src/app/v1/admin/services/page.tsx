@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import ServicesTable from "@/components/admin/ServicesTable";
 import { getServices } from "@/lib/db/services";
-import { Title } from "@mantine/core";
+import { Stack, Title } from "@mantine/core";
 import {
     dehydrate,
     HydrationBoundary,
@@ -10,7 +10,6 @@ import {
 import { unauthorized } from "next/navigation";
 
 export default async function Page() {
-    // only the admin
     const session = await auth();
     if (session?.user.role !== "admin") unauthorized();
 
@@ -21,12 +20,10 @@ export default async function Page() {
     });
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <div className="w-full h-screen sm:p-16 p-4 ">
-                <Title order={2} c={"dimmed"}>
-                    #Services
-                </Title>
+            <Stack bg={"gray.0"} className="w-full h-screen  p-8 ">
+                <Title> Services</Title>
                 <ServicesTable />
-            </div>
+            </Stack>
         </HydrationBoundary>
     );
 }

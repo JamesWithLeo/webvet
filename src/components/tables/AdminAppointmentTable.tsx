@@ -86,12 +86,6 @@ export default function AdminAppointmentTable({
     const [selectedRecord, setSelectedRecord] =
         useState<AdminAppointment | null>(null);
 
-    const { handleMarkAsArrived, isPending, isSuccess, state } =
-        useMarkAsArrived(() => {
-            close();
-            setSelectedRecord(null);
-        });
-
     const columns = useMemo<DataTableColumn<AdminAppointment>[]>(
         () => [
             {
@@ -281,12 +275,12 @@ export default function AdminAppointmentTable({
                                 size="xs"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    handleMarkAsArrived(record);
+                                    router.push(
+                                        `/v1/admin/invoice/new/${record.id}`
+                                    );
                                 }}
-                                disabled={isPending}
-                                loading={isPending}
                             >
-                                Mark as arrived
+                                Initialize Invoice
                             </Button>
                         ) : (
                             <>
@@ -333,8 +327,6 @@ export default function AdminAppointmentTable({
                                         onClick={(e) => {
                                             e.stopPropagation();
                                         }}
-                                        // disabled={isPending}
-                                        // loading={isPending}
                                     >
                                         Mark as cancelled
                                     </Button>

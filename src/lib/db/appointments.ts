@@ -729,3 +729,91 @@ export const getAppointmentToPetsAdmin = async (id: string) => {
         };
     }
 };
+
+export async function getUserAndPetsByAppointment(appointmentId: string) {
+    return await dbTx.transaction(async (tx) => {
+        // 1. Get the Owner ID from the appointment link
+        const ownerRecord = await tx
+            .select({ userId: pets.ownerId })
+            .from(appointmentsToPets)
+            .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            .where(eq(appointmentsToPets.appointmentId, appointmentId))
+            .limit(1);
+
+        const userId = ownerRecord[0]?.userId;
+
+        if (!userId) {
+            throw new Error("Appointment or user not found");
+        }
+        const currentAppointmentPets = await tx
+            .select()
+            .from(appointmentsToPets)
+            .where(eq(appointmentsToPets.appointmentId, appointmentId));
+
+        // 3. Get all pets for that User
+        const allPets = await tx
+            .select()
+            .from(pets)
+            .where(eq(pets.ownerId, userId));
+
+        return {
+            userId,
+            currentAppointmentPets,
+            allPets,
+        };
+    });
+}
+
+export const getAppointmentFullDetailsAdmin = async (appointmentId: string) => {
+    try {
+        const result = await db
+            .select({
+                appointment: getTableColumns(appointments),
+                user: {
+                    id: users.id,
+                    firstName: users.firstName,
+                    lastName: users.lastName,
+                    photoUrl: users.photoUrl,
+                },
+                pets: sql<PetServiceMerged[]>`
+                    COALESCE(
+                        json_agg(
+                            json_build_object(
+                                'id', ${appointmentsToPets.id},
+                                'petId', ${pets.id}, 
+                                'name', ${pets.name}, 
+                                'photoUrl', ${pets.photoUrl},
+                                'title', ${services.title},
+                                'type', ${services.type},
+                                'serviceId', ${services.id},
+                                'priceAtBooking', ${appointmentsToPets.priceAtBooking},
+                                'species', ${pets.species},
+                                'weight', ${pets.weight},
+                                'source', ${appointmentsToPets.source}
+                            )
+                        ) FILTER (WHERE ${pets.id} IS NOT NULL), 
+                        '[]'
+                    )`.as("pets"),
+            })
+            .from(appointments) // Start from appointments
+            .leftJoin(invoices, eq(appointments.id, invoices.appointmentId)) // Left join so we still get appointment data if invoice is missing
+            .innerJoin(
+                appointmentsToPets,
+                eq(appointments.id, appointmentsToPets.appointmentId)
+            )
+            .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
+            .innerJoin(users, eq(pets.ownerId, users.id))
+            .innerJoin(services, eq(services.id, appointmentsToPets.serviceId))
+            .where(eq(appointments.id, appointmentId)) // Filter by appointmentId
+            .groupBy(appointments.id, invoices.id, users.id)
+            .then((res) => res[0]);
+
+        return {
+            data: result ?? null,
+            error: result ? null : "Appointment not found",
+        };
+    } catch (error) {
+        console.error(error);
+        return { data: null, error: "Failed to fetch appointment details" };
+    }
+};

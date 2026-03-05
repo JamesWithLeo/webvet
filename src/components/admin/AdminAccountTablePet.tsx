@@ -1,9 +1,7 @@
 "use client";
 
 import usePets from "@/lib/hooks/usePets";
-import usePetsAdmin from "@/lib/hooks/usePetsAdmin";
-import { PetTypeModel, PetTypeModelWithBreed } from "@/types/pets";
-import { Stack } from "@mantine/core";
+import { PetTypeModelWithBreed } from "@/types/pets";
 import { DataTable, DataTableColumn } from "mantine-datatable";
 import { useMemo } from "react";
 

@@ -49,6 +49,7 @@
         "drizzle-orm": "^0.45.1",
         "embla-carousel": "^8.6.0",
         "embla-carousel-react": "^8.6.0",
+        "file-saver": "^2.0.5",
         "googleapis": "^170.1.0",
         "gsap": "^3.13.0",
         "ip-range-check": "^0.2.0",
@@ -75,6 +76,7 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3",
         "@tailwindcss/postcss": "^4",
+        "@types/file-saver": "^2.0.7",
         "@types/lodash": "^4.17.23",
         "@types/node": "^20",
         "@types/nodemailer": "^7.0.4",
