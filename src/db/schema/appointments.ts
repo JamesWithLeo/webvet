@@ -13,7 +13,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
-import { invoices } from "./invoice";
+import { invoices, invoiceStatus } from "./invoice";
 import { users } from "./users";
 import { appointmentType } from "./enums";
 import { prices, services } from "./services";
@@ -181,6 +181,6 @@ export type AdminAppointment = {
         totalAmount: string;
         paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
         createdAt: Date;
-        status: "PENDING" | "ARRIVED" | "COMPLETED" | "CANCELLED" | null;
+        status: (typeof invoiceStatus.enumValues)[number];
     } | null;
 };

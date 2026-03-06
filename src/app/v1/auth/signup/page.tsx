@@ -46,13 +46,13 @@ export default async function Signup() {
         redirect("/");
     }
     return (
-        <div className="items-centers gap-0 grid grid-cols-1 xl:grid-cols-[1fr_1fr] grid-rows-[auto_.5fr] bg-[url('/bgPattern.svg')] xl:grid-rows-1 min-h-dvh xl:px-42 ">
+        <div className="items-centers gap-0 px-4 sm:px-8 grid grid-cols-1 xl:grid-cols-[1fr_1fr] grid-rows-[auto_.5fr] bg-[url('/bgPattern.svg')] xl:grid-rows-1 min-h-dvh xl:px-42 ">
             <section className=" flex flex-col h-screen  items-center justify-center  bg-white">
                 <div className=" w-full flex mb-16 justify-center">
                     <Logo />
                 </div>
-                <div className="flex gap-3.5 w-sm flex-col ">
-                    <h1 className="text-4xl font-bold mb-6">
+                <div className="flex gap-3.5 w-full max-w-sm flex-col ">
+                    <h1 className="md:text-4xl text-2xl font-bold mb-6">
                         Care for your pet, anytime, anywhere.
                     </h1>
                     <AuthForm label="Sign up" />

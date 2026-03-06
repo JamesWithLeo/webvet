@@ -35,6 +35,9 @@ export default function ProcessCashButton({
             closeUpdatePayment();
 
             queryClient.invalidateQueries({ queryKey: ["invoices", "admin"] });
+            queryClient.invalidateQueries({
+                queryKey: ["appointments", "admin", "all"],
+            });
             notifications.show({
                 title: "Invoice payment status updated",
                 message: `Invoice Id: ${formState.id} is now ${formState.status?.toLowerCase()}.`,

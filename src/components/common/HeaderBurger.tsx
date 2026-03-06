@@ -1,55 +1,56 @@
 "use client";
 
+import { role } from "@/db/schema/users";
 import { Burger } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import {
-    IconCalendar,
-    IconCurrencyPeso,
-    IconDog,
-    IconInfoSquare,
-    IconLayoutDashboard,
-} from "@tabler/icons-react";
 import Link from "next/link";
 
 const NAV_ITEMS = [
     {
         label: "Dashboard",
         value: "/v1/dashboard",
-        icon: <IconLayoutDashboard stroke={1.5} />,
-        protected: true,
     },
     {
         label: "Pets",
         value: "/v1/pets",
-        icon: <IconDog stroke={1.5} />,
-        protected: true,
     },
     {
         label: "Appointments",
         value: "/v1/appointments",
-        icon: <IconCalendar stroke={1.5} />,
-        protected: true,
     },
     {
         label: "About",
         value: "/v1/about",
-        icon: <IconInfoSquare stroke={1.5} />,
-        protected: false,
     },
     {
         label: "Pricing",
         value: "/v1/pricing",
-        icon: <IconCurrencyPeso stroke={1.5} />,
-        protected: false,
+    },
+    {
+        label: "Admin",
+        value: "/v1/Admin",
+        roles: ["admin"],
+    },
+    {
+        label: "Clinic",
+        value: "/v1/Admin/treatment-board",
+        roles: ["vet"],
+    },
+    {
+        label: "Dashboard",
+        value: "/v1/Admin/medical-logs",
+        roles: ["staff"],
     },
 ];
+type Props = {
+    role: (typeof role.enumValues)[number] | undefined;
+};
 
-export default function HeaderBurger({ auth }: { auth: boolean }) {
+export default function HeaderBurger({ role }: Props) {
     const [opened, { toggle, close }] = useDisclosure();
 
-    // 2. Filter links based on auth status
     const visibleLinks = NAV_ITEMS.filter((item) =>
-        auth ? true : !item.protected
+        item.roles ? (role ? item.roles.includes(role) : true) : true
     );
 
     return (
@@ -65,7 +66,7 @@ export default function HeaderBurger({ auth }: { auth: boolean }) {
             {opened && (
                 <div className="fixed inset-0 top-16 z-90 w-full bg-white h-screen animate-in fade-in slide-in-from-top-2">
                     <nav className="flex flex-col">
-                        {visibleLinks.map(({ label, value, icon }) => (
+                        {visibleLinks.map(({ label, value }) => (
                             <Link
                                 key={value}
                                 href={value}
@@ -75,7 +76,6 @@ export default function HeaderBurger({ auth }: { auth: boolean }) {
                                 <span className="font-sans font-medium">
                                     {label}
                                 </span>
-                                <span className="opacity-70">{icon}</span>
                             </Link>
                         ))}
                     </nav>

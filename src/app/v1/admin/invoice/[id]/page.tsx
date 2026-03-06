@@ -1,9 +1,6 @@
-import { auth } from "@/auth";
-import BackToAppointment from "@/components/common/BackToAppointment";
 import InvoiceTable from "@/components/InvoiceTable";
-import ProcessPayment from "@/components/ProcessPayment";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
-import { Stack, Text, Title, Group, Button } from "@mantine/core";
+import { Stack, Text, Title, Group } from "@mantine/core";
 import { notFound } from "next/navigation";
 import InvoiceDocumentWrapper from "@/components/common/InvoiceDocumentWrapper";
 import { toTitleCase } from "@/lib/toTitleCase";

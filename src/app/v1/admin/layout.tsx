@@ -2,7 +2,7 @@ import AdminNav from "@/components/admin/AdminNav";
 import BottomPattern from "@/components/common/BottomPattern";
 import Providers from "../Provider";
 import { auth } from "@/auth";
-import { unauthorized } from "next/navigation";
+import { redirect, unauthorized } from "next/navigation";
 
 export default async function Layout({
     children,
@@ -11,15 +11,16 @@ export default async function Layout({
 }) {
     const session = await auth();
     const role = session?.user.role;
-    if (role !== "admin" && role !== "staff" && role !== "vet" && Boolean(role))
-        unauthorized();
+    if (!role) unauthorized();
+    if (role !== "admin" && role !== "staff" && role !== "vet") unauthorized();
+
     return (
         <Providers>
             <main
                 className="flex h-screen overflow-hidden  w-full "
                 suppressHydrationWarning
             >
-                <AdminNav />
+                <AdminNav role={role} />
                 <main className="flex-1 overflow-y-auto">{children}</main>
 
                 <BottomPattern />

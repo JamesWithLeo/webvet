@@ -236,8 +236,8 @@ export default function AdminAppointmentTable({
                     return (
                         <Text>
                             {eventDate.toLocaleString()}
-                            {" -> "}
-                            {formatDistanceToNow(eventDate, {
+                            {" ⇒ "}
+                            {formatDistance(eventDate, subDays(new Date(), 0), {
                                 addSuffix: true,
                             })}
                         </Text>
@@ -253,12 +253,10 @@ export default function AdminAppointmentTable({
                 render: (data) => (
                     <Text>
                         {new Date(data.created_at).toLocaleString()}
-                        {" -> "}
-                        {formatDistance(
-                            subDays(new Date(), 0),
-                            new Date(data.created_at),
-                            { addSuffix: true }
-                        )}
+                        {" ⇒ "}
+                        {formatDistanceToNow(data.created_at, {
+                            addSuffix: true,
+                        })}
                     </Text>
                 ),
             },
@@ -266,75 +264,78 @@ export default function AdminAppointmentTable({
                 accessor: "user.id",
                 title: "Action",
                 textAlign: "right",
-                render: (record) => (
-                    <Group justify="right">
-                        {!record?.invoice && !record.invoice?.id ? (
-                            <Button
-                                fullWidth
-                                variant="default"
-                                size="xs"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.push(
-                                        `/v1/admin/invoice/new/${record.id}`
-                                    );
-                                }}
-                            >
-                                Initialize Invoice
-                            </Button>
-                        ) : (
-                            <>
-                                {record.invoice.paymentStatus === "PAID" && (
+                render: (record) => {
+                    const invoice = record.invoice;
+                    return (
+                        <>
+                            <Group justify="right">
+                                {!invoice ? (
                                     <Button
+                                        fullWidth
                                         variant="default"
                                         size="xs"
-                                        fullWidth
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            router.push(`/v1/admin/invoice`);
+                                            router.push(
+                                                `/v1/admin/invoice/new/${record.id}`
+                                            );
                                         }}
                                     >
-                                        View Invoice
+                                        Initialize Invoice
                                     </Button>
-                                )}
-
-                                {record.invoice.paymentStatus === "UNPAID" &&
-                                    record.invoice.status === "COMPLETED" && (
-                                        <Button
-                                            size="xs"
-                                            fullWidth
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (
-                                                    record.invoice &&
-                                                    record.invoice.id
-                                                )
+                                ) : (
+                                    <>
+                                        {invoice && (
+                                            <Button
+                                                variant="default"
+                                                size="xs"
+                                                fullWidth
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
                                                     router.push(
-                                                        `/v1/admin/invoice/${record.invoice.id}`
+                                                        `/v1/admin/invoice/${invoice.id}`
                                                     );
-                                            }}
-                                        >
-                                            Generate Invoice
-                                        </Button>
-                                    )}
+                                                }}
+                                            >
+                                                View Invoice
+                                            </Button>
+                                        )}
 
-                                {record.invoice.status === "ARRIVED" && (
-                                    <Button
-                                        fullWidth
-                                        variant="light"
-                                        color="orange"
-                                        size="xs"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                    >
-                                        Mark as cancelled
-                                    </Button>
+                                        {invoice.paymentStatus === "UNPAID" &&
+                                            invoice.status === "COMPLETED" && (
+                                                <Button
+                                                    size="xs"
+                                                    fullWidth
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        router.push(
+                                                            `/v1/admin/invoice/${invoice.id}`
+                                                        );
+                                                    }}
+                                                >
+                                                    Generate Invoice
+                                                </Button>
+                                            )}
+
+                                        {invoice.status === "ARRIVED" && (
+                                            <Button
+                                                fullWidth
+                                                variant="light"
+                                                color="orange"
+                                                size="xs"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                }}
+                                            >
+                                                Mark as cancelled
+                                            </Button>
+                                        )}
+                                    </>
                                 )}
-                            </>
-                        )}
-                    </Group>
-                ),
+                            </Group>
+                        </>
+                    );
+                },
             },
         ],
         [dateRange, searchName]
@@ -469,13 +470,12 @@ export default function AdminAppointmentTable({
                     <DataTable
                         key={`${scope}-appointment-table`}
                         idAccessor={"id"}
-                        withTableBorder={false}
+                        withTableBorder={true}
                         withColumnBorders={true}
                         withRowBorders
                         verticalSpacing={"xs"}
                         horizontalSpacing={"xs"}
-                        borderRadius="xl"
-                        striped
+                        borderRadius="md"
                         pinFirstColumn
                         highlightOnHover={true}
                         fetching={isLoading}

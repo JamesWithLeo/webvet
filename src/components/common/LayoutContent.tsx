@@ -5,6 +5,7 @@ import HeaderBurger from "./HeaderBurger";
 import UserAvatar from "./UserAvatar";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { userAgent } from "next/server";
 
 export default async function LayoutContent({
     children,
@@ -62,6 +63,22 @@ export default async function LayoutContent({
                                     Admin
                                 </Link>
                             )}
+                            {session.user.role === "vet" && (
+                                <Link
+                                    href="/v1/admin/treatment-board"
+                                    className=" hover:bg-gray-200 rounded text-sm p-4"
+                                >
+                                    Clinic
+                                </Link>
+                            )}
+                            {session.user.role === "staff" && (
+                                <Link
+                                    href="/v1/admin"
+                                    className=" hover:bg-gray-200 rounded text-sm p-4"
+                                >
+                                    Dashboard
+                                </Link>
+                            )}
                         </div>
                     ) : (
                         <div className="w-full  hidden lg:flex justify-center">
@@ -87,7 +104,7 @@ export default async function LayoutContent({
                     >
                         <>
                             <div className="lg:hidden h-full w-full flex justify-end gap-2">
-                                <HeaderBurger auth={Boolean(session?.user)} />
+                                <HeaderBurger role={session?.user.role} />
                                 <Divider orientation="vertical" />
                             </div>
                         </>

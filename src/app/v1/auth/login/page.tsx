@@ -13,7 +13,7 @@ export default async function LoginPage() {
     }
 
     return (
-        <div className="justify-center items-center  bg-[url('/bgPattern.svg')]  min-h-dvh flex ">
+        <div className="justify-center items-center px-4 sm:px-8  bg-[url('/bgPattern.svg')]  min-h-dvh flex ">
             <section className="h-screen flex-col items-center justify-center flex w-full  max-w-7xl bg-white">
                 <Box
                     color="primary"
@@ -21,8 +21,10 @@ export default async function LoginPage() {
                 >
                     <Logo />
                 </Box>
-                <div className="flex gap-3.5 w-sm flex-col ">
-                    <h1 className="text-4xl font-bold mb-6">Welcome Back!</h1>
+                <div className="flex gap-3.5 max-w-sm w-full flex-col ">
+                    <h1 className="md:text-4xl text-2xl font-bold mb-6">
+                        Welcome Back!
+                    </h1>
 
                     <AuthForm label="Login" />
 

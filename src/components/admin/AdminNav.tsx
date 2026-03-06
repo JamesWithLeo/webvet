@@ -10,18 +10,18 @@ import {
     IconListSearch,
     IconCategory2,
     IconFileInvoice,
-    IconReport,
     IconReportMedical,
     IconChartHistogram,
+    IconLayoutKanban,
 } from "@tabler/icons-react";
-import { ReactNode, useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { JSX, ReactNode, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import LogoutButton from "../common/LogoutButton";
 import { Tooltip, UnstyledButton } from "@mantine/core";
 import { Baskervville_SC } from "next/font/google";
 import { LogoSvg } from "../common/LogoSvg";
+import { role } from "@/db/schema/users";
 import Link from "next/link";
-import { link } from "fs";
 
 const baskerville = Baskervville_SC({
     subsets: ["latin"],
@@ -35,42 +35,62 @@ const data = [
         link: "/v1/admin/dashboard",
         label: "Dashboard",
         icon: <IconGauge stroke={1.5} />,
+        roles: ["admin", "staff"],
     },
     {
         link: "/v1/admin/appointments",
         label: "Appointments",
         icon: <IconListSearch stroke={1.5} />,
+        roles: ["admin", "staff"],
     },
     {
         link: "/v1/admin/invoice",
         label: "Invoices",
         icon: <IconFileInvoice stroke={1.5} />,
+        roles: ["admin", "staff"],
     },
     {
         link: "/v1/admin/sales",
         label: "Sales",
         icon: <IconChartHistogram stroke={1.5} />,
+        roles: ["admin", "staff"],
+    },
+    // vet pages
+    {
+        link: "/v1/admin/treatment-board",
+        label: "Treatment Board",
+        icon: <IconLayoutKanban stroke={1.5} />,
+        roles: ["admin", "vet"],
     },
     {
-        link: "/v1/admin/medical",
-        label: "Medical logs",
+        link: "/v1/admin/medical-logs",
+        label: "Medical Logs",
         icon: <IconReportMedical stroke={1.5} />,
+        roles: ["admin", "vet"],
     },
     {
         link: "/v1/admin/accounts",
         label: "Accounts",
         icon: <IconUser stroke={1.5} />,
+        roles: ["admin", "staff"],
     },
-    { link: "/v1/admin/pets", label: "Pets", icon: <IconCat stroke={1.5} /> },
+    {
+        link: "/v1/admin/pets",
+        label: "Pets",
+        icon: <IconCat stroke={1.5} />,
+        roles: ["admin", "staff"],
+    },
     {
         link: "/v1/admin/calendar",
         label: "Calendar",
         icon: <IconCalendarSearch stroke={1.5} />,
+        roles: ["admin"],
     },
     {
         link: "/v1/admin/services",
         label: "Services",
         icon: <IconCategory2 stroke={1.5} />,
+        roles: ["admin"],
     },
 ];
 const NavLink = ({
@@ -79,16 +99,12 @@ const NavLink = ({
     link,
     label,
     icon,
-    onClick,
-    subLinks,
 }: {
-    isActive: boolean;
     isCollapsed: boolean;
     link: string;
     label: string;
     icon: ReactNode;
-    onClick: () => void;
-    subLinks?: { link: string; label: string }[];
+    isActive: boolean;
 }) => {
     return (
         <Tooltip label={label} position="right" withArrow>
@@ -97,13 +113,12 @@ const NavLink = ({
                     data-active={isActive || undefined}
                     href={link}
                     key={label}
-                    onClick={onClick}
                     className={`
-                ${
+                {/* ${
                     isActive
                         ? " bg-(--mantine-color-blue-light) text-(--mantine-color-blue-light-color) "
                         : " text-gray-500 hover:bg-gray-100 "
-                } 
+                }  */}
                 ${isCollapsed ? " justify-center " : " p-4 "}
                 transition-colors duration-200 ease-in-out mt-2 
                 rounded flex gap-4 h-12 items-center  
@@ -117,7 +132,10 @@ const NavLink = ({
     );
 };
 
-export default function AdminNav() {
+type Props = {
+    role: (typeof role.enumValues)[number];
+};
+export default function AdminNav({ role }: Props) {
     const pathname = usePathname();
     const lastpath = pathname.split("/").pop()?.toLowerCase() ?? "dashboard";
 
@@ -134,18 +152,16 @@ export default function AdminNav() {
             return newState;
         });
     };
+    const filtered = data.filter((item) => item.roles.includes(role));
 
-    const links = data.map((item) => (
+    const links = filtered.map((item) => (
         <NavLink
             key={item.label}
             icon={item.icon}
-            isActive={item.label.toLowerCase() === active}
+            isActive={item.label.toLowerCase() === active.split("-").join(" ")}
             link={item.link}
             label={item.label}
             isCollapsed={isCollapsed}
-            onClick={() => {
-                setActive(lastpath);
-            }}
         />
     ));
     useEffect(() => {
