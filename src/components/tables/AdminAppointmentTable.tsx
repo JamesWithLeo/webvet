@@ -310,7 +310,7 @@ export default function AdminAppointmentTable({
                                                     record.invoice.id
                                                 )
                                                     router.push(
-                                                        `/v1/admin/invoice/new/${record.invoice.id}`
+                                                        `/v1/admin/invoice/${record.invoice.id}`
                                                     );
                                             }}
                                         >

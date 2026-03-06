@@ -1,4 +1,11 @@
-import { pgEnum, pgTable, timestamp, uuid, decimal } from "drizzle-orm/pg-core";
+import {
+    pgEnum,
+    pgTable,
+    timestamp,
+    uuid,
+    decimal,
+    unique,
+} from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { services } from "./services";
 import { appointments } from "./appointments";
@@ -46,20 +53,38 @@ export const itemStatusEnum = pgEnum("item_status", [
     "CANCELLED",
 ]);
 
-export const invoiceItems = pgTable("invoice_items", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    invoiceId: uuid("invoice_id").references(() => invoices.id, {
-        onDelete: "cascade",
-    }),
-    petId: uuid("pet_id").references(() => pets.id, { onDelete: "set null" }),
-    serviceId: uuid("service_id").references(() => services.id, {
-        onDelete: "set null",
-    }),
-    itemStatus: itemStatusEnum("item_status").default("PENDING").notNull(),
-    priceAtInvoice: decimal("price_at_booking", {
-        scale: 2,
-        precision: 10,
-    }).notNull(),
-});
+export const invoiceItems = pgTable(
+    "invoice_items",
+    {
+        id: uuid("id").primaryKey().defaultRandom(),
+        invoiceId: uuid("invoice_id")
+            .references(() => invoices.id, {
+                onDelete: "restrict",
+            })
+            .notNull(),
+        petId: uuid("pet_id")
+            .references(() => pets.id, { onDelete: "restrict" })
+            .notNull(),
+        serviceId: uuid("service_id")
+            .references(() => services.id, {
+                onDelete: "restrict",
+            })
+            .notNull(),
+        itemStatus: itemStatusEnum("item_status").default("PENDING").notNull(),
+        priceAtInvoice: decimal("price_at_booking", {
+            scale: 2,
+            precision: 10,
+        }).notNull(),
+    },
+    (table) => {
+        return {
+            uniquePetServicePerInvoice: unique("unique_pet_service_invoice").on(
+                table.invoiceId,
+                table.petId,
+                table.serviceId
+            ),
+        };
+    }
+);
 
 export type InvoiceItemsTypeModel = typeof invoiceItems.$inferSelect;

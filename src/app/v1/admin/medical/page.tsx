@@ -15,7 +15,7 @@ export default async function Page() {
         queryFn: getVetKanbanData,
     });
     return (
-        <div className="bg-gray-50 w-full h-screen p-16 ">
+        <div className="bg-gray-50 w-full h-screen p-8 ">
             <MedicalKaban />
         </div>
     );

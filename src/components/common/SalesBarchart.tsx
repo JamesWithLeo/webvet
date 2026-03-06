@@ -2,14 +2,7 @@
 
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import { BarChart } from "@mantine/charts";
-import {
-    Button,
-    ColorSwatch,
-    Group,
-    Indicator,
-    Paper,
-    Text,
-} from "@mantine/core";
+import { Button, ColorSwatch, Group, Paper, Text } from "@mantine/core";
 import { DatePickerInput, DatesRangeValue } from "@mantine/dates";
 import { IconX } from "@tabler/icons-react";
 import { useRouter, useSearchParams } from "next/navigation";

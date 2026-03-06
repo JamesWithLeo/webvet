@@ -1,7 +1,12 @@
 "use client";
 
-import { MarkAsComplete, MarkAsInProgressAction } from "@/actions/medical";
+import {
+    UpdateInvoiceItemStatus,
+    UpdateInvoiceStatus,
+} from "@/actions/medical";
+import { invoiceStatus, itemStatusEnum } from "@/db/schema/invoice";
 import { VetData } from "@/lib/db/invoice";
+import { toTitleCase } from "@/lib/toTitleCase";
 import { AppointedPet } from "@/types/pets";
 import {
     Badge,
@@ -16,11 +21,21 @@ import {
     ColorSwatch,
     Button,
     Collapse,
+    ActionIcon,
+    Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+import {
+    IconCheck,
+    IconChevronDown,
+    IconChevronUp,
+    IconX,
+} from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { title } from "process";
 import { startTransition, useActionState, useEffect, useMemo } from "react";
+import { fa } from "zod/v4/locales";
 
 type Props = {
     title: string;
@@ -29,9 +44,9 @@ type Props = {
     active?: boolean;
     completed?: boolean;
     onMedicalClick: (
-        pet: AppointedPet,
-        apptId: string,
-        invoiceId: string | null
+        appointmentId: string,
+        invoiceId: string,
+        pet: AppointedPet
     ) => void;
 };
 
@@ -51,14 +66,12 @@ export default function KanbanColumn({
                 radius="md"
                 style={{
                     flex: 1,
-                    // minWidth: 300,
                     display: "flex",
                     flexDirection: "column",
                 }}
             >
                 <Stack gap="md">
-                    {/* Column Header */}
-                    <Group justify="apart" mb="xs">
+                    <Group justify="apart">
                         <Group gap="xs">
                             <ColorSwatch color={color} size={10} />
                             <Text fw={700} size="sm" tt="uppercase" c="dimmed">
@@ -106,9 +119,9 @@ export interface CardProps {
     active?: boolean;
     completed?: boolean;
     onMedicalClick: (
-        pet: AppointedPet,
-        apptId: string,
-        invoiceId: string | null
+        appointmentId: string,
+        invoiceId: string,
+        pet: AppointedPet
     ) => void;
 }
 
@@ -116,47 +129,78 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
     const queryClient = useQueryClient();
     const [opened, { toggle }] = useDisclosure(false);
 
-    const [formState, formAction, isMarking] = useActionState(
-        MarkAsInProgressAction,
-        { success: false }
-    );
+    const [updateInvoiceStatusState, updateInvoiceStatusAction, isMarking] =
+        useActionState(UpdateInvoiceStatus, { success: false });
 
-    const [markAsCompleteState, markAsCompleteAction, isCompleting] =
-        useActionState(MarkAsComplete, { success: false });
+    const [
+        updateInvoiceItemStatusState,
+        updateInvoiceItemStatusAction,
+        isPendingUpdateItemStatus,
+    ] = useActionState(UpdateInvoiceItemStatus, { success: false });
 
-    const handleStart = () => {
+    const handleUpdateInvoiceStatus = (
+        status: (typeof invoiceStatus.enumValues)[number]
+    ) => {
         const invoiceId = item.invoice?.id;
         if (invoiceId && !isMarking) {
             startTransition(() => {
-                formAction({ invoiceId });
+                updateInvoiceStatusAction({ invoiceId, status: status });
             });
         }
     };
 
-    const handleComplete = () => {
-        const invoiceId = item.invoice?.id;
-        if (invoiceId && !isCompleting) {
-            startTransition(() => {
-                markAsCompleteAction({ invoiceId });
-            });
-        }
+    const handleUpdateInvoiceItemstatus = (
+        invoiceItemId: string,
+        status: (typeof itemStatusEnum.enumValues)[number]
+    ) => {
+        if (isPendingUpdateItemStatus) return;
+        startTransition(() => {
+            updateInvoiceItemStatusAction({ invoiceItemId, status });
+        });
     };
 
     const canFinishAndBill = useMemo(() => {
         if (!item.pets || item.pets.length === 0) return false;
-        return item.pets.every(
-            (p) =>
-                p.hasLogs ||
-                ["grooming", "vaccination"].includes(
-                    p.serviceType?.toLowerCase() ?? ""
-                )
-        );
+        return item.pets.every((p) => p.itemStatus === "COMPLETED");
     }, [item.pets]);
+
     useEffect(() => {
-        if (markAsCompleteState.success) {
+        if (
+            updateInvoiceStatusState.success &&
+            updateInvoiceStatusState.updatedInvoiceId &&
+            updateInvoiceStatusState.status
+        ) {
+            const { updatedInvoiceId, status } = updateInvoiceStatusState;
             queryClient.invalidateQueries({ queryKey: ["medical", "admin"] });
+            notifications.show({
+                title: "Appointment updated!",
+                message: `Appointment with invoice of ${updatedInvoiceId} is successfully marked as ${status.toLowerCase()}.`,
+                icon: <IconCheck />,
+                color: "teal",
+                autoClose: 6000,
+                radius: "md",
+            });
         }
-    }, [markAsCompleteState]);
+    }, [updateInvoiceStatusState]);
+    useEffect(() => {
+        if (
+            updateInvoiceItemStatusState.success &&
+            updateInvoiceItemStatusState.updatedInvoiceId &&
+            updateInvoiceItemStatusState.itemStatus
+        ) {
+            const { updatedInvoiceId, itemStatus } =
+                updateInvoiceItemStatusState;
+            queryClient.invalidateQueries({ queryKey: ["medical", "admin"] });
+            notifications.show({
+                title: "Invoice item updated!",
+                message: `Invoice item with Id of ${updatedInvoiceId} is successfully marked as ${itemStatus.toLowerCase()}.`,
+                icon: <IconCheck />,
+                color: "teal",
+                autoClose: 6000,
+                radius: "md",
+            });
+        }
+    }, [updateInvoiceItemStatusState]);
 
     return (
         <Paper
@@ -166,13 +210,14 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
             style={{ opacity: completed ? 0.7 : 1 }}
         >
             <Stack gap="xs">
-                {/* Owner Info Section */}
                 <Box>
                     <Text size="xs" c="dimmed" fw={700}>
                         OWNER
                     </Text>
                     <Text fw={700} size="sm">
-                        {item.user.firstName} {item.user.lastName}
+                        {toTitleCase(
+                            `${item.user?.firstName} ${item.user?.lastName}`
+                        ).trim() ?? "Unknown client"}
                     </Text>
                 </Box>
 
@@ -208,97 +253,165 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
 
                     <Collapse in={opened}>
                         <Stack gap={6} mt={6}>
-                            {item.pets.map(
-                                (
-                                    pet // Fixed 'any' here
-                                ) => (
-                                    <Box
-                                        key={pet.joinId}
-                                        p={8}
-                                        bg="white"
-                                        style={{
-                                            borderRadius: "6px",
-                                            border: "1px solid #eee",
-                                            borderLeft: pet.hasLogs
-                                                ? "4px solid green"
-                                                : "4px solid transparent",
-                                        }}
-                                    >
-                                        <Group
-                                            justify="space-between"
-                                            wrap="nowrap"
-                                        >
-                                            <Stack gap={0}>
-                                                <Text size="xs" fw={700}>
-                                                    {pet.species?.toLowerCase() ===
-                                                    "cat"
-                                                        ? "🐱"
-                                                        : "🐶"}{" "}
-                                                    {pet.name}
-                                                </Text>
-                                                <Badge
-                                                    size="xs"
-                                                    variant="outline"
-                                                    color="blue"
-                                                >
-                                                    {pet.serviceName}
-                                                </Badge>
-                                            </Stack>
+                            {item.pets.map((pet) => (
+                                <Box
+                                    key={pet.invoiceItemId}
+                                    bg="white"
+                                    style={{
+                                        padding: "10px",
+                                        borderRadius: "6px",
+                                        border: "1px solid #eee",
 
-                                            {active && (
-                                                <Box>
-                                                    {pet.hasLogs ? (
-                                                        <Badge
-                                                            variant="light"
-                                                            color="green"
-                                                            size="sm"
-                                                        >
-                                                            ✓ Done
-                                                        </Badge>
-                                                    ) : (
-                                                        ![
-                                                            "grooming",
-                                                            "vaccination",
-                                                        ].includes(
-                                                            pet.serviceType?.toLowerCase() ??
-                                                                ""
-                                                        ) && (
-                                                            <Button
-                                                                variant="subtle"
-                                                                size="compact-xs"
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    e.stopPropagation();
+                                        borderLeft:
+                                            pet.itemStatus === "COMPLETED"
+                                                ? "5px solid green"
+                                                : "1px solid #eee",
+                                    }}
+                                >
+                                    <Group
+                                        justify="space-between"
+                                        wrap="nowrap"
+                                    >
+                                        <Stack gap={0}>
+                                            <Text size="sm" fw={700}>
+                                                {pet.species?.toLowerCase() ===
+                                                "cat"
+                                                    ? "🐱"
+                                                    : "🐶"}{" "}
+                                                {pet.name}
+                                            </Text>
+                                            <Badge
+                                                size="sm"
+                                                variant="outline"
+                                                color="blue"
+                                            >
+                                                {pet.serviceName}
+                                            </Badge>
+                                        </Stack>
+
+                                        {active && (
+                                            <Box>
+                                                <Group gap={"xs"}>
+                                                    <Button
+                                                        variant="subtle"
+                                                        size="xs"
+                                                        radius={"sm"}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            startTransition(
+                                                                () => {
                                                                     onMedicalClick(
-                                                                        pet,
                                                                         item
                                                                             .appointment
                                                                             .id,
                                                                         item
                                                                             .invoice
-                                                                            ?.id ??
-                                                                            null
+                                                                            ?.id,
+                                                                        pet
                                                                     );
-                                                                }}
+                                                                    // item.invoice
+                                                                    //     ?.id;
+                                                                }
+                                                            );
+                                                        }}
+                                                    >
+                                                        {pet.log
+                                                            ? "Edit log"
+                                                            : "Add log"}
+                                                        {/* Add log */}
+                                                    </Button>
+                                                    {pet.itemStatus ===
+                                                    "COMPLETED" ? (
+                                                        <>
+                                                            {" "}
+                                                            <Tooltip
+                                                                label="Mark as completed"
+                                                                position="right"
+                                                                withArrow
+                                                                offset={-1}
+                                                                arrowSize={10}
                                                             >
-                                                                + Log
-                                                            </Button>
-                                                        )
+                                                                <ActionIcon
+                                                                    size="input-xs"
+                                                                    radius={
+                                                                        "md"
+                                                                    }
+                                                                    color="orange"
+                                                                    loading={
+                                                                        isPendingUpdateItemStatus
+                                                                    }
+                                                                    disabled={
+                                                                        isPendingUpdateItemStatus
+                                                                    }
+                                                                    variant="light"
+                                                                    onClick={() => {
+                                                                        handleUpdateInvoiceItemstatus(
+                                                                            pet.invoiceItemId,
+                                                                            "PENDING"
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <IconX
+                                                                        size={
+                                                                            16
+                                                                        }
+                                                                        stroke={
+                                                                            1.5
+                                                                        }
+                                                                    />
+                                                                </ActionIcon>
+                                                            </Tooltip>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Tooltip
+                                                                label="Mark as completed"
+                                                                position="right"
+                                                                withArrow
+                                                                offset={-1}
+                                                                arrowSize={10}
+                                                            >
+                                                                <ActionIcon
+                                                                    onClick={() => {
+                                                                        handleUpdateInvoiceItemstatus(
+                                                                            pet.invoiceItemId,
+                                                                            "COMPLETED"
+                                                                        );
+                                                                    }}
+                                                                    loading={
+                                                                        isPendingUpdateItemStatus
+                                                                    }
+                                                                    size="input-xs"
+                                                                    radius={
+                                                                        "md"
+                                                                    }
+                                                                    variant="light"
+                                                                >
+                                                                    <IconCheck
+                                                                        size={
+                                                                            16
+                                                                        }
+                                                                        stroke={
+                                                                            1.5
+                                                                        }
+                                                                    />
+                                                                </ActionIcon>
+                                                            </Tooltip>
+                                                        </>
                                                     )}
-                                                </Box>
-                                            )}
-                                        </Group>
-                                    </Box>
-                                )
-                            )}
+                                                </Group>
+                                            </Box>
+                                        )}
+                                    </Group>
+                                </Box>
+                            ))}
                         </Stack>
                     </Collapse>
                 </Box>
 
                 <Box p={6} bg="gray.1" style={{ borderRadius: "4px" }}>
                     <Text size="xs" fw={700} c="gray.7">
-                        REASON:
+                        TItle / Reason:
                     </Text>
                     <Text size="xs">{item.appointment.title}</Text>
                 </Box>
@@ -310,7 +423,7 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
                         color="green"
                         variant="light"
                         loading={isMarking}
-                        onClick={handleStart}
+                        onClick={() => handleUpdateInvoiceStatus("IN_PROGRESS")}
                     >
                         Start Exam
                     </Button>
@@ -320,9 +433,9 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
                         fullWidth
                         size="xs"
                         color="blue"
-                        loading={isCompleting}
+                        loading={isMarking}
                         disabled={!canFinishAndBill}
-                        onClick={handleComplete}
+                        onClick={() => handleUpdateInvoiceStatus("COMPLETED")}
                     >
                         Mark as complete
                     </Button>

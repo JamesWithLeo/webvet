@@ -8,21 +8,21 @@ export const insertMedicalLogSchema = z4.object({
     invoiceId: z4.uuid().nonoptional(),
     // priceAtInvoice: z4.string(),
 
-    // Clinical Data
-    // We use coerce to handle inputs from form fields which are usually strings
     weight: z4.coerce
         .number()
         .min(0, "Weight cannot be negative")
-        .max(999.99, "Weight exceeds maximum precision")
+        .max(500, "Weight seems too high") // 999 is a bit high for a pet!
         .optional()
-        .nonoptional(),
+        .nullable()
+        .or(z4.literal("")),
 
     temperature: z4.coerce
-        .number()
-        .min(30, "Temperature too low")
-        .max(45, "Temperature too high")
+        .number() // Use number for range validation
+        .min(30, "Temperature too low (Min 30°C)")
+        .max(45, "Temperature too high (Max 45°C)")
         .optional()
-        .nullable(),
+        .nullable()
+        .or(z4.literal("")),
 
     symptoms: z4.string().trim().optional().nullable(),
     diagnosis: z4.string().trim().optional().nullable(),

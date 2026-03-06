@@ -25,11 +25,11 @@ export type AdminPetsSummary = Pick<
 
 export type AppointedPet = {
     id: string; // Pet ID
-    joinId: string; // The unique ID from appointmentsToPets
+    invoiceItemId: string;
     name: string;
     species: "dog" | "cat";
     serviceName: string;
     serviceId: string;
     serviceType: AppointmentType;
-    hasLogs: boolean; //
+    log: string;
 };

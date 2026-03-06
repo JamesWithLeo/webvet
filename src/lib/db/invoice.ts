@@ -10,6 +10,7 @@ import {
     invoices,
     invoiceStatus,
     InvoiceTypeModel,
+    itemStatusEnum,
 } from "@/db/schema/invoice";
 import { medicalLogs } from "@/db/schema/medicalLogs";
 import { pets } from "@/db/schema/pets";
@@ -296,85 +297,98 @@ export const getArrivedInvoiceWithAppointment = async () => {
 
 export type VetData = {
     appointment: AppointmentTypeModel;
-    invoice: InvoiceTypeModel | null;
+    invoice: InvoiceTypeModel;
     user: {
         id: string;
         firstName: string | null;
         lastName: string | null;
         contactNumber: string | null;
         photoUrl: string | null;
-    };
+    } | null;
     pets: {
-        id: string; // Pet ID
-        joinId: string; // The unique ID from appointmentsToPets
+        id: string;
+        invoiceItemId: string;
+        itemStatus: (typeof itemStatusEnum.enumValues)[number];
         weight: number;
         name: string;
         species: "dog" | "cat";
         serviceName: string;
         serviceId: string;
         serviceType: AppointmentType;
-        hasLogs: boolean; //
+        log: string; //
     }[];
 };
-export const getVetKanbanData = async (): Promise<VetData[]> => {
+
+export const getVetKanbanData = async (
+    fromStr?: string,
+    toStr?: string
+): Promise<VetData[]> => {
+    // 1. Setup Date Range (Defaulting to today if no dates provided)
+    const now = new Date();
+    const startRange = fromStr
+        ? new Date(fromStr)
+        : new Date(now.setHours(0, 0, 0, 0));
+    const endRange = toStr
+        ? new Date(toStr)
+        : new Date(now.setHours(23, 59, 59, 999));
+
     const results = await db
         .select({
             appointment: appointments,
             invoice: invoices,
-            user: {
-                id: users.id,
-                firstName: users.firstName,
-                lastName: users.lastName,
-                contactNumber: users.contactNumber,
-                photoUrl: users.photoUrl,
-            },
-            // This JSON array now represents the "Live Billing Checklist"
-            pets: sql<
-                {
-                    id: string; // Pet ID
-                    joinId: string; // The unique ID from appointmentsToPets
-                    name: string;
-                    species: "dog" | "cat";
-                    weight: number;
-                    serviceName: string;
-                    serviceId: string;
-                    serviceType: AppointmentType;
-                    hasLogs: boolean; // Tells the UI if the Vet finished this specific task
-                }[]
-            >`json_agg(json_build_object(
-                'id', ${pets.id},
-                'joinId', ${appointmentsToPets.id}, 
-                'name', ${pets.name},
-                'weight', ${pets.weight},
-                'species', ${pets.species},
-                'serviceName', ${services.title},
-                'serviceType', ${services.type},
-                'serviceId', ${services.id}, 
-                'hasLogs', CASE WHEN ${medicalLogs.id} IS NOT NULL THEN true ELSE false END
-            ))`,
+            user: sql<VetData["user"]>`
+                CASE 
+                    WHEN ${users.id} IS NOT NULL THEN 
+                        jsonb_build_object(
+                            'id', ${users.id},
+                            'firstName', ${users.firstName},
+                            'lastName', ${users.lastName},
+                            'contactNumber', ${users.contactNumber},
+                            'photoUrl', ${users.photoUrl}
+                        )
+                    ELSE NULL 
+                END`,
+            pets: sql<VetData["pets"]>`
+                COALESCE(
+                    json_agg(
+                        DISTINCT jsonb_build_object(
+                            'id', ${pets.id},
+                            'invoiceItemId', ${invoiceItems.id},
+                            'itemStatus', ${invoiceItems.itemStatus},
+                            'name', ${pets.name},
+                            'weight', ${pets.weight},
+                            'species', ${pets.species},
+                            'serviceName', ${services.title},
+                            'serviceType', ${services.type},
+                            'serviceId', ${services.id}, 
+                            'log', (
+                                SELECT ml.id 
+                                FROM medical_logs ml 
+                                WHERE ml.appointment_id = ${appointments.id} 
+                                AND ml.pet_id = ${pets.id} 
+                                AND ml.service_id = ${services.id}
+                                LIMIT 1)
+                        )
+                    ) FILTER (WHERE ${invoiceItems.id} IS NOT NULL), 
+                    '[]'
+                )`,
         })
         .from(appointments)
         .leftJoin(invoices, eq(invoices.appointmentId, appointments.id))
-        .innerJoin(users, eq(invoices.userId, users.id))
-        .leftJoin(
-            appointmentsToPets,
-            eq(appointmentsToPets.appointmentId, appointments.id)
-        )
-        .innerJoin(pets, eq(pets.id, appointmentsToPets.petId))
-        .innerJoin(services, eq(services.id, appointmentsToPets.serviceId))
-        // Link to MedicalLogs to see which "To-Do" items are "Done"
-        .leftJoin(
-            medicalLogs,
+        .leftJoin(users, eq(invoices.userId, users.id))
+        .leftJoin(invoiceItems, eq(invoiceItems.invoiceId, invoices.id))
+        .leftJoin(pets, eq(pets.id, invoiceItems.petId))
+        .leftJoin(services, eq(services.id, invoiceItems.serviceId))
+        .where(
             and(
-                eq(medicalLogs.appointmentId, appointments.id),
-                eq(medicalLogs.petId, pets.id),
-                eq(medicalLogs.serviceId, services.id)
+                gte(appointments.event_datetime, startRange.toISOString()),
+                lte(appointments.event_datetime, endRange.toISOString())
             )
         )
         .groupBy(appointments.id, invoices.id, users.id)
         .orderBy(appointments.event_datetime);
 
-    return results;
+    return results as unknown as VetData[];
 };
 
 type InitializeInvoiceType = {
