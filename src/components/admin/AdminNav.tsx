@@ -32,62 +32,62 @@ const baskerville = Baskervville_SC({
 
 const data = [
     {
-        link: "/v1/admin/dashboard",
+        link: "/dashboard",
         label: "Dashboard",
         icon: <IconGauge stroke={1.5} />,
         roles: ["admin", "staff"],
     },
     {
-        link: "/v1/admin/appointments",
+        link: "/appointments",
         label: "Appointments",
         icon: <IconListSearch stroke={1.5} />,
         roles: ["admin", "staff"],
     },
     {
-        link: "/v1/admin/invoice",
+        link: "/v1/clinic/invoice",
         label: "Invoices",
         icon: <IconFileInvoice stroke={1.5} />,
         roles: ["admin", "staff"],
     },
     {
-        link: "/v1/admin/sales",
+        link: "/sales",
         label: "Sales",
         icon: <IconChartHistogram stroke={1.5} />,
         roles: ["admin", "staff"],
     },
     // vet pages
     {
-        link: "/v1/admin/treatment-board",
+        link: "/treatment-board",
         label: "Treatment Board",
         icon: <IconLayoutKanban stroke={1.5} />,
         roles: ["admin", "vet"],
     },
+    // {
+    //     link: "/medical-logs",
+    //     label: "Medical Logs",
+    //     icon: <IconReportMedical stroke={1.5} />,
+    //     roles: ["admin", "vet"],
+    // },
     {
-        link: "/v1/admin/medical-logs",
-        label: "Medical Logs",
-        icon: <IconReportMedical stroke={1.5} />,
-        roles: ["admin", "vet"],
-    },
-    {
-        link: "/v1/admin/accounts",
+        link: "/accounts",
         label: "Accounts",
         icon: <IconUser stroke={1.5} />,
         roles: ["admin", "staff"],
     },
     {
-        link: "/v1/admin/pets",
+        link: "/pets",
         label: "Pets",
         icon: <IconCat stroke={1.5} />,
-        roles: ["admin", "staff"],
+        roles: ["admin", "staff", "vet"],
     },
     {
-        link: "/v1/admin/calendar",
+        link: "/calendar",
         label: "Calendar",
         icon: <IconCalendarSearch stroke={1.5} />,
         roles: ["admin"],
     },
     {
-        link: "/v1/admin/services",
+        link: "/services",
         label: "Services",
         icon: <IconCategory2 stroke={1.5} />,
         roles: ["admin"],
@@ -159,7 +159,7 @@ export default function AdminNav({ role }: Props) {
             key={item.label}
             icon={item.icon}
             isActive={item.label.toLowerCase() === active.split("-").join(" ")}
-            link={item.link}
+            link={`/v1/clinic${item.link}`}
             label={item.label}
             isCollapsed={isCollapsed}
         />

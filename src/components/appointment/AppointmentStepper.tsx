@@ -195,8 +195,7 @@ export default function AppointmentStepper({
                             />
 
                             <Accordion
-                                className="gap-2 flex  flex-col"
-                                // multiple={true}
+                                className="gap-4 flex  flex-col"
                             >
                                 {pets.map((pet) => (
                                     <PetAccordionItem

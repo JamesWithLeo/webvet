@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { Button } from "@mantine/core";
+import { role } from "@/db/schema/users";
 
 export function GoogleIcon(props: React.ComponentPropsWithoutRef<"svg">) {
     return (

@@ -33,7 +33,7 @@ export const InsertAppointmentToPetsAdmin = async (
 
         // 4. Update the UI Cache
         // Revalidate the specific appointment page or the list
-        revalidatePath(`/v1/admin/invoice/new/${data.appointmentId}`);
+        revalidatePath(`/v1/clinic/invoice/new/${data.appointmentId}`);
 
         return {
             error: null,

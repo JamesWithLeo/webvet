@@ -209,7 +209,7 @@ export default function AppointmentDrawerAdmin({
                                 disabled={isSuccess || isPending}
                                 loading={isPending}
                             >
-                                Mark as arrived
+                                Arrived & Create Invoice
                             </Button>
                         ) : (
                             <>
@@ -220,7 +220,7 @@ export default function AppointmentDrawerAdmin({
                                         mt={"lg"}
                                         variant="default"
                                         onClick={() => {
-                                            router.push(`/v1/admin/invoice`);
+                                            router.push(`/v1/clinic/invoice`);
                                         }}
                                     >
                                         View Invoice
@@ -234,7 +234,7 @@ export default function AppointmentDrawerAdmin({
                                         variant="default"
                                         onClick={(e) => {
                                             router.push(
-                                                `/v1/admin/invoice/new/${selectedRow.id}`
+                                                `/v1/clinic/invoice/new/${selectedRow.id}`
                                             );
                                         }}
                                     >

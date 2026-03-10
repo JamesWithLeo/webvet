@@ -277,11 +277,11 @@ export default function AdminAppointmentTable({
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             router.push(
-                                                `/v1/admin/invoice/new/${record.id}`
+                                                `/v1/clinic/invoice/new/${record.id}`
                                             );
                                         }}
                                     >
-                                        Initialize Invoice
+                                        Arrived & Create Invoice
                                     </Button>
                                 ) : (
                                     <>
@@ -293,7 +293,7 @@ export default function AdminAppointmentTable({
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     router.push(
-                                                        `/v1/admin/invoice/${invoice.id}`
+                                                        `/v1/clinic/invoice/${invoice.id}`
                                                     );
                                                 }}
                                             >
@@ -309,7 +309,7 @@ export default function AdminAppointmentTable({
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         router.push(
-                                                            `/v1/admin/invoice/${invoice.id}`
+                                                            `/v1/clinic/invoice/${invoice.id}`
                                                         );
                                                     }}
                                                 >

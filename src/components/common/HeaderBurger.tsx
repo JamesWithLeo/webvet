@@ -28,17 +28,17 @@ const NAV_ITEMS = [
     },
     {
         label: "Admin",
-        value: "/v1/Admin",
+        value: "/v1/clinic",
         roles: ["admin"],
     },
     {
         label: "Clinic",
-        value: "/v1/Admin/treatment-board",
+        value: "/v1/clinic/treatment-board",
         roles: ["vet"],
     },
     {
         label: "Dashboard",
-        value: "/v1/Admin/medical-logs",
+        value: "/v1/clinic/medical-logs",
         roles: ["staff"],
     },
 ];

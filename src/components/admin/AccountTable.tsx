@@ -84,8 +84,8 @@ export default function AccountTable() {
             role: editingAccount?.role ?? "client",
         },
         validate: zod4Resolver(accountUpdateSchemaAdmin),
-        // validateInputOnBlur: true,
-        // validateInputOnChange: true,
+        validateInputOnBlur: true,
+        validateInputOnChange: true,
     });
 
     const columns = useMemo<DataTableColumn<AdminUserSummary>[]>(
@@ -261,7 +261,6 @@ export default function AccountTable() {
                                         <IconEdit size={16} color="gray" />
                                     }
                                     onClick={() => {
-                                        // openDrawer();
                                         setEditingAccount(data);
                                     }}
                                 >
@@ -474,7 +473,7 @@ export default function AccountTable() {
                 fetching={isLoading}
                 minHeight={250}
                 page={1}
-                recordsPerPage={10}
+                recordsPerPage={20}
                 onPageChange={() => {}}
                 columns={effectiveColumns}
                 rowExpansion={{

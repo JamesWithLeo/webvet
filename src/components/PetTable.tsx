@@ -10,22 +10,31 @@ import {
     NativeSelect,
     Modal,
     NumberInput,
+    Image,
     TagsInput,
     Text,
+    Drawer,
+    Menu,
+    Box,
+    Badge,
+    Divider,
 } from "@mantine/core";
 
 import {
     IconArrowAutofitWidth,
     IconCheck,
     IconColumns3,
+    IconDots,
     IconEdit,
+    IconFolderOpen,
+    IconHistory,
     IconPointerCode,
     IconSearch,
     IconSquareToggle,
     IconX,
 } from "@tabler/icons-react";
 
-import Image from "next/image";
+// import Image from "next/image";
 import {
     startTransition,
     useActionState,
@@ -56,7 +65,6 @@ import { useForm } from "@mantine/form";
 import {
     editPetSchemaAdmin,
     PetEditFormInput,
-    PetEditFormOutput,
 } from "@/lib/validators/petsZodSchema";
 
 import { zod4Resolver } from "mantine-form-zod-resolver";
@@ -64,6 +72,7 @@ import BreedComboBox from "./pet/BreedComboBox";
 import { UpdatePetAdmin } from "@/actions/pets";
 import { notifications } from "@mantine/notifications";
 import { useQueryClient } from "@tanstack/react-query";
+import { role } from "@/db/schema/users";
 
 const initialValue: PetEditFormInput = {
     name: "",
@@ -80,7 +89,11 @@ const initialValue: PetEditFormInput = {
     reproductiveStatus: "UNKNOWN",
 };
 
-export default function PetTable() {
+type Props = {
+    role: (typeof role.enumValues)[number];
+};
+
+export default function PetTable({ role }: Props) {
     const key = "draggable-example";
     const queryClient = useQueryClient();
 
@@ -196,7 +209,7 @@ export default function PetTable() {
             {
                 accessor: "id",
                 title: "id",
-                width: "6%",
+                width: "5%",
                 toggleable: true,
                 resizable: true,
                 ellipsis: true,
@@ -318,19 +331,52 @@ export default function PetTable() {
                         <IconPointerCode size={16} />
                     </Group>
                 ),
+                // hidden: role === "vet",
                 width: "6%",
                 textAlign: "center",
                 render: (record) => (
                     <Group justify="center">
-                        <ActionIcon
-                            variant="subtle"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditClick(record);
-                            }}
+                        <Menu
+                            width={"200px"}
+                            shadow="xl"
+                            offset={-4}
+                            radius={"md"}
+                            withArrow
+                            arrowSize={12}
+                            position="bottom-end"
                         >
-                            <IconEdit size={16} />
-                        </ActionIcon>
+                            <Menu.Target>
+                                <ActionIcon
+                                    variant="transparent"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    <IconDots />
+                                </ActionIcon>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                                {role !== "vet" && (
+                                    <Menu.Item
+                                        rightSection={
+                                            <IconEdit size={16} color="gray" />
+                                        }
+                                    >
+                                        Edit
+                                    </Menu.Item>
+                                )}
+                                <Menu.Item
+                                    rightSection={
+                                        <IconFolderOpen
+                                            size={16}
+                                            color="gray"
+                                        />
+                                    }
+                                >
+                                    View Medical History
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
                     </Group>
                 ),
             },
@@ -418,43 +464,147 @@ export default function PetTable() {
                 rowExpansion={{
                     allowMultiple: true,
                     content: ({ record }) => (
-                        <Stack p="xs" gap={6}>
-                            <Group gap={6} ml={"200"}>
-                                <Image
-                                    className="rounded shadow"
-                                    alt="dog"
-                                    src={record.photoUrl}
-                                    height={200}
-                                    quality={100}
-                                    priority
-                                    width={200}
-                                    style={{
-                                        maxWidth: "100%",
-                                        height: "auto",
-                                    }}
-                                />
-                                <Stack>
-                                    <div className="text-sm">
-                                        <h1>Next Appointment: No record</h1>
-                                        <h1>Grooming: 4</h1>
-                                        <h1>Check up: 4</h1>
-                                        <h1>Neuter: True</h1>
-                                    </div>
-                                    <Button size="sm">Modify Record</Button>
-                                    <Button size="sm">View full record</Button>
+                        <Box p="md" bg="var(--mantine-color-gray-0)">
+                            <Group align="flex-start" gap="xl" wrap="nowrap">
+                                <Box
+                                    className="relative group shrink-0 overflow-hidden shadow-md rounded-lg"
+                                    w={200}
+                                    h={200}
+                                >
+                                    {/* Blurred Background Layer */}
+                                    <Image
+                                        src={record.photoUrl}
+                                        alt=""
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                        style={{
+                                            filter: "blur(12px) brightness(0.8)",
+                                            transform: "scale(1.2)",
+                                        }}
+                                    />
+
+                                    {/* Foreground Image Layer */}
+                                    <Image
+                                        src={record.photoUrl}
+                                        alt={record.name}
+                                        fit="contain"
+                                        className="relative z-10 w-full h-full transition-transform duration-500 group-hover:scale-105"
+                                    />
+                                </Box>
+
+                                <Stack gap="md" style={{ flex: 1 }}>
+                                    <Box>
+                                        <Text
+                                            fw={700}
+                                            size="sm"
+                                            c="dimmed"
+                                            tt="uppercase"
+                                            mb={4}
+                                        >
+                                            Distinguishing Marks
+                                        </Text>
+                                        <Group gap={6}>
+                                            {record.distinguishingMarks.length >
+                                            0 ? (
+                                                record.distinguishingMarks.map(
+                                                    (mark, index) => (
+                                                        <Badge
+                                                            key={index}
+                                                            variant="light"
+                                                            color="blue"
+                                                            radius="sm"
+                                                        >
+                                                            {mark}
+                                                        </Badge>
+                                                    )
+                                                )
+                                            ) : (
+                                                <Text size="sm" c="gray.5">
+                                                    None recorded
+                                                </Text>
+                                            )}
+                                        </Group>
+                                    </Box>
+
+                                    <Box>
+                                        <Text
+                                            fw={700}
+                                            size="sm"
+                                            c="dimmed"
+                                            tt="uppercase"
+                                            mb={4}
+                                        >
+                                            Food Diet
+                                        </Text>
+                                        <Group gap={6}>
+                                            {record.diet.map((item, index) => (
+                                                <Badge
+                                                    key={index}
+                                                    variant="dot"
+                                                    color="teal"
+                                                    radius="sm"
+                                                >
+                                                    {item}
+                                                </Badge>
+                                            ))}
+                                        </Group>
+                                    </Box>
+
+                                    <Box>
+                                        <Text
+                                            fw={700}
+                                            size="sm"
+                                            c="dimmed"
+                                            tt="uppercase"
+                                            mb={4}
+                                        >
+                                            Allergies / Medical Alerts
+                                        </Text>
+                                        <Group gap={6}>
+                                            {record.allergies &&
+                                            record.allergies?.length > 0 ? (
+                                                record.allergies.map(
+                                                    (allergy, index) => (
+                                                        <Badge
+                                                            key={index}
+                                                            variant="filled"
+                                                            color="red"
+                                                            radius="sm"
+                                                        >
+                                                            {allergy}
+                                                        </Badge>
+                                                    )
+                                                )
+                                            ) : (
+                                                <Badge
+                                                    variant="outline"
+                                                    color="gray"
+                                                >
+                                                    No known allergies
+                                                </Badge>
+                                            )}
+                                        </Group>
+                                    </Box>
                                 </Stack>
+                                <Divider orientation="vertical" />
                             </Group>
-                        </Stack>
+                        </Box>
                     ),
                     collapseProps: {
                         transitionDuration: 500,
-                        animateOpacity: false,
-                        transitionTimingFunction: "ease-out",
+                        animateOpacity: true,
+                        transitionTimingFunction: "ease-in-out",
                     },
                 }}
             />
 
-            <Modal opened={opened} onClose={handleCloseEdit} title={"Edit Pet"}>
+            <Drawer
+                radius={"md"}
+                position="right"
+                offset={8}
+                opened={opened}
+                onClose={handleCloseEdit}
+                title={"Edit Pet"}
+            >
                 <form>
                     <Stack>
                         <TextInput
@@ -538,7 +688,7 @@ export default function PetTable() {
                         </Group>
                     </Stack>
                 </form>
-            </Modal>
+            </Drawer>
         </Stack>
     );
 }

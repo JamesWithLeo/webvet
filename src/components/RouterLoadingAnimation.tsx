@@ -36,12 +36,12 @@ export default function RouterLoadingAnimation() {
         };
     }, [pathname]);
 
-    if (!isLoading || pathname.startsWith("/v1/admin")) {
+    if (!isLoading || pathname.startsWith("/v1/clinic")) {
         return null;
     }
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-xs">
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/70 backdrop-blur-xs">
             <div className="w-sm h-sm">
                 <Lottie
                     animationData={loadingAnim}

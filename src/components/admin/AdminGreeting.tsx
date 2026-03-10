@@ -6,6 +6,7 @@ import Lottie from "lottie-react";
 import animDate from "@/../public/lottie/Meeting.json";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import { toTitleCase } from "@/lib/toTitleCase";
+
 type Props = {
     gross: number;
     sales: {
@@ -37,16 +38,19 @@ export default function AdminGreet({ gross, sales }: Props) {
                                         {CurrencyFormatter(gross)}
                                     </h1>
                                 </div>
-                                {sales.map((s) => (
-                                    <Stack key={s.serviceType} gap={0}>
-                                        <Text c={"dimmed"} size="sm">
-                                            {toTitleCase(s.serviceType)}
-                                        </Text>
-                                        <Text>
-                                            {CurrencyFormatter(s.revenue)}
-                                        </Text>
-                                    </Stack>
-                                ))}
+
+                                <Stack gap={0}>
+                                    {sales.map((s) => (
+                                        <Group key={s.serviceType}>
+                                            <Text c={"dimmed"} size="sm">
+                                                {toTitleCase(s.serviceType)}
+                                            </Text>
+                                            <Text>
+                                                {CurrencyFormatter(s.revenue)}
+                                            </Text>
+                                        </Group>
+                                    ))}
+                                </Stack>
                                 {/* <div>
                                     <h1 className="font-bold text-sm text-gray-500">
                                         ACCOMPLISHED

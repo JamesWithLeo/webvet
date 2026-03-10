@@ -27,7 +27,7 @@ export default async function AppointmentPage() {
 
     return (
         <>
-            <div className="grid grid-rows-[auto_auto_8fr] min-h-screen  grid-cols-1  gap-8  w-full items-center pt-16 pb-16  h-full md:px-16 px-10">
+            <div className="grid grid-rows-[auto_auto_8fr] min-h-screen  grid-cols-1  gap-8  w-full items-center p-8  h-full md:px-16">
                 <AppointmentProvider schedules={serviceSchedules}>
                     <HydrationBoundary state={dehydrate(queryClient)}>
                         <AppointmentStepper

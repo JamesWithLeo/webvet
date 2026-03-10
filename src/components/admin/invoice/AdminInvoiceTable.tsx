@@ -188,7 +188,7 @@ export default function AdminInvoiceTable() {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         router.push(
-                                            `/v1/admin/invoice/${record.id}`
+                                            `/v1/clinic/invoice/${record.id}`
                                         );
                                     }}
                                 >

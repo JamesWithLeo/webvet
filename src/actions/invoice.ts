@@ -108,7 +108,7 @@ export const MarkAsPaidInvoiceAdmin = async (
             };
         }
 
-        revalidatePath("/v1/admin/invoice");
+        revalidatePath("/v1/clinic/invoice");
 
         return {
             success: true,

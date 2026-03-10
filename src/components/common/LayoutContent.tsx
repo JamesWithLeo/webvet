@@ -57,15 +57,15 @@ export default async function LayoutContent({
                             </Link>
                             {session.user.role === "admin" && (
                                 <Link
-                                    href="/v1/admin"
+                                    href="/v1/clinic"
                                     className=" hover:bg-gray-200 rounded text-sm p-4"
                                 >
-                                    Admin
+                                   Clinic 
                                 </Link>
                             )}
                             {session.user.role === "vet" && (
                                 <Link
-                                    href="/v1/admin/treatment-board"
+                                    href="/v1/clinic/treatment-board"
                                     className=" hover:bg-gray-200 rounded text-sm p-4"
                                 >
                                     Clinic
@@ -73,10 +73,10 @@ export default async function LayoutContent({
                             )}
                             {session.user.role === "staff" && (
                                 <Link
-                                    href="/v1/admin"
+                                    href="/v1/clinic"
                                     className=" hover:bg-gray-200 rounded text-sm p-4"
                                 >
-                                    Dashboard
+                                    Clinic
                                 </Link>
                             )}
                         </div>

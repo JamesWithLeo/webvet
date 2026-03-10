@@ -113,7 +113,7 @@ export default function AdminCreateInvoiceTable({
                 icon: <IconCheck size={18} />,
                 autoClose: 3000,
             });
-            router.push("/v1/admin/invoice");
+            router.push("/v1/clinic/invoice");
         }
 
         if (formState.error) {

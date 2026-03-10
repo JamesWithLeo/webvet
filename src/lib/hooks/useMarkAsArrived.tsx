@@ -41,7 +41,7 @@ export function useMarkAsArrived(onSuccess?: () => void) {
     }, [formState.success, formState.error]);
 
     const handleMarkAsArrived = (record: AdminAppointment) => {
-        router.push(`/v1/admin/invoice/new/${record.id}`);
+        router.push(`/v1/clinic/invoice/new/${record.id}`);
 
         // modals.openConfirmModal({
         //     title: "Confirm Client Arrival",

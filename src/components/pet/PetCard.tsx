@@ -17,8 +17,8 @@ import {
     IconArchiveOff,
     IconCat,
     IconDotsVertical,
-    IconHeart,
-    IconHeartFilled,
+    // IconHeart,
+    // IconHeartFilled,
     IconPlus,
 } from "@tabler/icons-react";
 

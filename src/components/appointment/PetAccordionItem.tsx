@@ -64,6 +64,7 @@ export default function PetAccordionItem({ pet, services }: Props) {
                 </Group>
             </Accordion.Control>
             <Accordion.Panel>
+            <Stack gap={0}>
                 {services.length > 0 ? (
                     <>
                         {services
@@ -98,8 +99,8 @@ export default function PetAccordionItem({ pet, services }: Props) {
                                         <Group
                                             key={service.id}
                                             justify="space-between"
-                                            mb="sm"
-                                            h={"2rem"}
+                                            // mb="sm"
+                                            wrap="nowrap"
                                             className="cursor-pointer select-none"
                                             onClick={() => {
                                                 console.log("toggled");
@@ -110,7 +111,7 @@ export default function PetAccordionItem({ pet, services }: Props) {
                                                 });
                                             }}
                                         >
-                                            <Stack gap={0}>
+                                            <Stack gap={0} flex={1}>
                                                 <Checkbox
                                                     key={`${service.id}-${isCurrentlyChecked}`}
                                                     checked={isCurrentlyChecked}
@@ -159,6 +160,7 @@ export default function PetAccordionItem({ pet, services }: Props) {
                                         justify="space-between"
                                         mb="xs"
                                         wrap="nowrap"
+                                        gap={0}
                                         p="sm"
                                         className="cursor-pointer select-none hover:bg-gray-100 rounded-sm"
                                         onClick={() => {
@@ -170,7 +172,7 @@ export default function PetAccordionItem({ pet, services }: Props) {
                                             });
                                         }}
                                     >
-                                        <Stack gap="4px">
+                                        <Stack gap="4px" flex={1}>
                                             <Checkbox
                                                 key={`${service.id}-${isCurrentlyChecked}`}
                                                 checked={isCurrentlyChecked}
@@ -209,6 +211,7 @@ export default function PetAccordionItem({ pet, services }: Props) {
                 ) : (
                     <Text size="sm">No service available at the moment</Text>
                 )}
+                </Stack>
             </Accordion.Panel>
         </Accordion.Item>
     );
