@@ -5,6 +5,7 @@ import { PinInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
+import { checkAuthLimit } from "@/actions/rateLimit";
 
 export default function AuthPin() {
     const [email, setEmail] = useState<string | null>(null);
@@ -24,6 +25,17 @@ export default function AuthPin() {
     const handleVerify = async (otp: string) => {
         if (!email) return;
         setLoading(true);
+        const limit = await checkAuthLimit(email);
+
+        if (!limit.success) {
+            setLoading(false);
+            notifications.show({
+                title: "Too many attempts",
+                message: `Please wait ${limit.retryInSeconds}s before trying again.`,
+                color: "orange",
+            });
+            return;
+        }
 
         const result = await signIn("otp-verify", {
             email,
