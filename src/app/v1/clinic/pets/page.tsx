@@ -30,7 +30,10 @@ export default async function Pets({
         },
     });
     return (
-        <Stack className="w-full h-screen gap-8 p-16 " bg={"gray.0"}>
+        <Stack
+            className="w-full min-h-screen h-auto     gap-8 p-16 "
+            bg={"gray.0"}
+        >
             <Title>Pets</Title>
             <HydrationBoundary state={dehydrate(queryClient)}>
                 <PetTable role={session.user.role} id={selectedPet} />

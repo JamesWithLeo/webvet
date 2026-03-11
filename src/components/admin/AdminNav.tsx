@@ -14,7 +14,7 @@ import {
     IconChartHistogram,
     IconLayoutKanban,
 } from "@tabler/icons-react";
-import { JSX, ReactNode, useEffect, useState } from "react";
+import { JSX, ReactNode, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "../common/LogoutButton";
 import { Tooltip, UnstyledButton } from "@mantine/core";
@@ -44,8 +44,8 @@ const data = [
         roles: ["admin", "staff"],
     },
     {
-        link: "/v1/clinic/invoice",
-        label: "Invoices",
+        link: "/invoice",
+        label: "Invoice",
         icon: <IconFileInvoice stroke={1.5} />,
         roles: ["admin", "staff"],
     },
@@ -154,16 +154,22 @@ export default function AdminNav({ role }: Props) {
     };
     const filtered = data.filter((item) => item.roles.includes(role));
 
-    const links = filtered.map((item) => (
-        <NavLink
-            key={item.label}
-            icon={item.icon}
-            isActive={item.label.toLowerCase() === active.split("-").join(" ")}
-            link={`/v1/clinic${item.link}`}
-            label={item.label}
-            isCollapsed={isCollapsed}
-        />
-    ));
+    const links = useMemo(
+        () =>
+            filtered.map((item) => (
+                <NavLink
+                    key={item.label}
+                    icon={item.icon}
+                    isActive={
+                        item.label.toLowerCase() === active.split("-").join(" ")
+                    }
+                    link={`/v1/clinic${item.link}`}
+                    label={item.label}
+                    isCollapsed={isCollapsed}
+                />
+            )),
+        [pathname, isCollapsed]
+    );
     useEffect(() => {
         const saved = localStorage.getItem(key);
         if (saved !== null) {

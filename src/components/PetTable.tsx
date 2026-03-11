@@ -1,6 +1,10 @@
 "use client";
 
-import { DataTable, useDataTableColumns } from "mantine-datatable";
+import {
+    DataTable,
+    DataTableColumn,
+    useDataTableColumns,
+} from "mantine-datatable";
 import {
     ActionIcon,
     Group,
@@ -32,14 +36,12 @@ import {
     IconDots,
     IconEdit,
     IconFolderOpen,
-    IconHistory,
     IconPointerCode,
     IconSearch,
     IconSquareToggle,
     IconX,
 } from "@tabler/icons-react";
 
-// import Image from "next/image";
 import {
     startTransition,
     useActionState,
@@ -51,7 +53,6 @@ import {
 import usePetsAdmin from "@/lib/hooks/usePetsAdmin";
 import { AdminPetsSummary } from "@/types/pets";
 import { toTitleCase } from "@/lib/toTitleCase";
-import { useDisclosure } from "@mantine/hooks";
 
 import {
     LIFE_STATUS,
@@ -78,9 +79,7 @@ import { UpdatePetAdmin } from "@/actions/pets";
 import { notifications } from "@mantine/notifications";
 import { useQueryClient } from "@tanstack/react-query";
 import { role } from "@/db/schema/users";
-import { useRouter } from "next/navigation";
 import useMedicalHistory from "@/lib/hooks/useMedicalHistory";
-import { AdminUserSummary } from "@/types/user";
 
 const initialValue: PetEditFormInput = {
     name: "",
@@ -171,9 +170,9 @@ export default function PetTable({ role, id }: Props) {
         drawer.close("edit");
     };
 
-    // const handleEditClick = (pet: AdminPetsSummary) => {
-    //     setSelected(pet);
-    // };
+    const handleEditClick = (pet: AdminPetsSummary) => {
+        setSelected(pet);
+    };
 
     const handleSubmit = async (values: PetEditFormInput) => {
         if (!selected?.id) return;
@@ -216,14 +215,8 @@ export default function PetTable({ role, id }: Props) {
         });
     };
 
-    const {
-        effectiveColumns,
-        resetColumnsOrder,
-        resetColumnsWidth,
-        resetColumnsToggle,
-    } = useDataTableColumns<AdminPetsSummary>({
-        key,
-        columns: [
+    const columns = useMemo<DataTableColumn<AdminPetsSummary>[]>(
+        () => [
             {
                 accessor: "id",
                 title: "id",
@@ -379,6 +372,10 @@ export default function PetTable({ role, id }: Props) {
                                         rightSection={
                                             <IconEdit size={16} color="gray" />
                                         }
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleEditClick(record);
+                                        }}
                                     >
                                         Edit
                                     </Menu.Item>
@@ -403,11 +400,23 @@ export default function PetTable({ role, id }: Props) {
                 ),
             },
         ],
+        [setSelected, setSelectedPetForMedical]
+    );
+
+    const {
+        effectiveColumns,
+        resetColumnsOrder,
+        resetColumnsWidth,
+        resetColumnsToggle,
+    } = useDataTableColumns<AdminPetsSummary>({
+        key,
+        columns: columns,
     });
 
     useEffect(() => {
         if (selected) {
-            form.initialize(selected);
+            form.setValues(selected);
+            form.resetDirty();
             drawer.open("edit");
         }
     }, [selected]);
