@@ -11,7 +11,7 @@ export default function AuthForm({ label }: { label: string }) {
                     const email = formData.get("email");
                     await signIn("resend", {
                         email,
-                        redirectTo: "/",
+                        redirectTo: `/v1/auth/verify-request?email=${email}`,
                     });
                 }}
             >

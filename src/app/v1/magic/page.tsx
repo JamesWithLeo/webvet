@@ -1,7 +1,7 @@
 "use client";
 import AppointmentSaved from "@/components/emails/AppointmentSaved";
 import MagicLinkEmail from "@/components/emails/MagicLinkEmail";
-import { Button } from "@mantine/core";
+import { Button, PinInput } from "@mantine/core";
 
 export default function Page() {
     const testIncoming = async () => {
@@ -11,6 +11,14 @@ export default function Page() {
 
     return (
         <>
+            <PinInput
+                length={6}
+                type="number"
+                placeholder="○" // Optional: custom placeholder
+                oneTimeCode
+                size="md" // Makes it easier to tap on mobile
+                // onComplete={}
+            />
             <AppointmentSaved
                 id="123456"
                 pets="Dash, Foxley, and Ara"
@@ -19,11 +27,12 @@ export default function Page() {
             />
 
             <MagicLinkEmail
-                baseUrl="1234"
-                identifier="james123@gmail.com"
-                token="12345"
+                // baseUrl="1234"
+                // identifier="james123@gmail.com"
+                // token="12345"
                 name={"james123@gmail.com".split("@")[0]}
-                providerName="Google"
+                otp="123456"
+                // providerName="Google"
             />
 
             <Button

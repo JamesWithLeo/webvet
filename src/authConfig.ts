@@ -13,6 +13,7 @@ import { render } from "@react-email/render";
 import MagicLinkEmail from "./components/emails/MagicLinkEmail";
 import { getUserById } from "./lib/db/users";
 import { refreshAccessToken } from "./lib/refreshAccessToken";
+import { randomInt } from "crypto";
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -43,6 +44,9 @@ export const authConfig = {
             apiKey: process.env.RESEND_API_KEY,
             from: "Joseph and Mary Clinic <auth@updates.josephmary.me>",
 
+            generateVerificationToken: () => {
+                return randomInt(100_000, 999_999).toString();
+            },
             sendVerificationRequest: async ({
                 expires,
                 identifier: email,
@@ -52,14 +56,10 @@ export const authConfig = {
                 theme,
                 token,
             }) => {
-                const { host } = new URL(url);
                 const emailHtml = await render(
                     MagicLinkEmail({
                         name: email.split("@")[0],
-                        baseUrl: host,
-                        identifier: email,
-                        token: token,
-                        providerName: provider.name,
+                        otp: token,
                     })
                 );
                 const response = await fetch("https://api.resend.com/emails", {

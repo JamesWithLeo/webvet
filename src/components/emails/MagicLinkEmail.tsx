@@ -1,4 +1,4 @@
-"use client`";
+"use client";
 
 import {
     Body,
@@ -6,7 +6,6 @@ import {
     Head,
     Heading,
     Html,
-    Link,
     Preview,
     Section,
     Text,
@@ -14,25 +13,12 @@ import {
     Img,
 } from "@react-email/components";
 
-const MagicLinkEmail = ({
-    baseUrl,
-    name,
-    identifier,
-    token,
-    providerName,
-}: {
+interface VerificationCodeEmailProps {
     name: string;
-    baseUrl: string;
-    identifier: string;
-    token: string;
-    providerName: string;
-}) => {
-    const params = new URLSearchParams({
-        callbackUrl: baseUrl,
-        email: identifier,
-        token: token,
-        providerName: providerName,
-    });
+    otp: string;
+}
+
+const VerificationCodeEmail = ({ name, otp }: VerificationCodeEmailProps) => {
     return (
         <Html>
             <Head />
@@ -62,19 +48,20 @@ const MagicLinkEmail = ({
                                     Welcome {name},
                                 </Text>
                                 <Text className="text-slate-600 text-sm leading-6 mt-4">
-                                    We received a request to log in to your{" "}
-                                    account, Please click the link to <br />{" "}
-                                    continue. If you did not request this email,
-                                    please ignore it.
+                                    We received a request to log in to your
+                                    account. Please enter the following <br />
+                                    code into the login screen:
                                 </Text>
 
-                                <Link
-                                    href={`${baseUrl}/v1/auth/verify?${params}`}
-                                    style={{ display: "inline-block" }} // Force the clickable area to match the visual box
-                                    className=" text-sm underline mb-8 "
-                                >
-                                    Sign In to Dashboard
-                                </Link>
+                                <Text className="text-4xl font-bold bg-slate-100  w-min p-2 rounded-md tracking-[10px] text-slate-900 m-0">
+                                    {otp}
+                                </Text>
+
+                                <Text className="text-slate-500 text-xs leading-6 italic">
+                                    This code is valid for a limited time. If
+                                    you did not request this email, please
+                                    ignore it.
+                                </Text>
                             </Section>
                         </Section>
 
@@ -91,4 +78,4 @@ const MagicLinkEmail = ({
     );
 };
 
-export default MagicLinkEmail;
+export default VerificationCodeEmail;
