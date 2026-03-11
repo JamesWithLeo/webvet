@@ -3,15 +3,18 @@ import EmailAnimation from "@/components/common/EmailAnimation";
 import LogoWithText from "@/components/common/LogoWithText";
 import CenterPattern from "@/components/common/CenterPattern";
 import AuthPin from "@/components/auth/AuthPin";
-import { email } from "zod";
 import { unauthorized } from "next/navigation";
 
-export default function Page({
+export default async function Page({
     searchParams,
 }: {
-    searchParams: { email?: string };
+    searchParams: Promise<{ email?: string }>;
 }) {
-    if (!searchParams.email) unauthorized();
+    const { email } = await searchParams;
+
+    if (!email) {
+        unauthorized();
+    }
 
     return (
         <div className="flex justify-center   min-h-dvh gap-8 flex-col items-center  lg:p-16 p-8">
@@ -28,7 +31,7 @@ export default function Page({
                     </div>
                 </div>
                 <Group justify="center">
-                    <AuthPin email={searchParams.email} />
+                    <AuthPin email={email} />
                 </Group>
                 <Text mt={"md"} c={"dimmed"} size="sm">
                     Didn't receive the email? Check your spam folder. Still
