@@ -235,7 +235,7 @@ export default function PetCard({ pet }: Props) {
                             // Apply a heavy blur and darken it slightly
                             style={{
                                 filter: "blur(20px) brightness(0.7)",
-                                transform: "scale(1.1)", // Prevents white edges from the blur
+                                transform: "scale(1.1)",
                             }}
                             className="absolute inset-0"
                         />
@@ -246,7 +246,7 @@ export default function PetCard({ pet }: Props) {
                             h="100%"
                             w="100%"
                             fit="contain" // Ensures the whole pet is visible
-                            className="relative z-10 transition-transform duration-700 group-hover:scale-105"
+                            className="relative z-10 aspect-square   transition-transform duration-700 group-hover:scale-105"
                         />
                     </>
                 ) : (

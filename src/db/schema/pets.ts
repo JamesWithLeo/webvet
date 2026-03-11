@@ -103,6 +103,7 @@ export const pets = pgTable(
             .default("UNKNOWN")
             .notNull(),
         archivedAt: timestamp("archived_at"),
+        photoKey: varchar({ length: 255 }),
     },
     (table) => [
         check(

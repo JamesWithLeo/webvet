@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { AdminPetsSummary, PetTypeModel } from "@/types/pets";
+import { PetTypeModel } from "@/types/pets";
 import { checkExistingPets, savePetsToDb, updatePetAdmin } from "@/lib/db/pets";
 import { DeleteUTFile } from "@/lib/uploadthing-util";
 import {
@@ -11,7 +11,12 @@ import {
     PetEditFormInput,
 } from "@/lib/validators/petsZodSchema";
 import { unauthorized } from "next/navigation";
+import { db } from "@/db";
+import { pets } from "@/db/schema/pets";
+import { eq } from "drizzle-orm";
 import { success } from "zod";
+import { revalidatePath } from "next/cache";
+import { UTApi } from "uploadthing/server";
 
 export type ActionResponse = {
     success: boolean;
@@ -112,6 +117,46 @@ export async function UpdatePetAdmin(
         const result = await updatePetAdmin(data.petId, parsed.data);
         if (result) return { success: true, pet: result.data };
         return { success: false, petId: data.petId };
+    } catch (error) {
+        return {
+            success: false,
+            petId: data.petId,
+            error: "An unexpected database error occurred.",
+        };
+    }
+}
+
+const utapi = new UTApi();
+
+export async function UpdatePetPhoto(
+    prevState: any,
+    data: {
+        petId: string;
+        photoUrl: string;
+        photoKey: string;
+        oldKey: string | null;
+    }
+) {
+    const session = await auth();
+    if (!session?.user?.id) unauthorized();
+
+    try {
+        if (data.oldKey) {
+            await utapi.deleteFiles(data.oldKey);
+            console.log("Deleted old file:", data.oldKey);
+        }
+        const [updatedPet] = await db
+            .update(pets)
+            .set({ photoUrl: data.photoUrl, photoKey: data.photoKey })
+            .where(eq(pets.id, data.petId))
+            .returning({ id: pets.id });
+
+        if (updatedPet) {
+            return {
+                success: true,
+                petId: updatedPet.id,
+            };
+        }
     } catch (error) {
         return {
             success: false,
