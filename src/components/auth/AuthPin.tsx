@@ -15,7 +15,7 @@ export default function AuthPin() {
     useEffect(() => {
         const storedEmail = sessionStorage.getItem("auth_email");
         if (!storedEmail) {
-            router.push("/auth/login"); // Redirect back if no email is found
+            router.push("/"); // Redirect back if no email is found
             return;
         }
         setEmail(storedEmail);

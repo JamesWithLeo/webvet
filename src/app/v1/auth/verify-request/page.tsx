@@ -3,7 +3,6 @@ import EmailAnimation from "@/components/common/EmailAnimation";
 import LogoWithText from "@/components/common/LogoWithText";
 import CenterPattern from "@/components/common/CenterPattern";
 import AuthPin from "@/components/auth/AuthPin";
-import { unauthorized } from "next/navigation";
 
 export default async function Page() {
     return (
