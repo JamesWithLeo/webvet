@@ -18,6 +18,11 @@ import {
     Box,
     Badge,
     Divider,
+    useDrawersStack,
+    Paper,
+    Loader,
+    SimpleGrid,
+    Avatar,
 } from "@mantine/core";
 
 import {
@@ -73,6 +78,9 @@ import { UpdatePetAdmin } from "@/actions/pets";
 import { notifications } from "@mantine/notifications";
 import { useQueryClient } from "@tanstack/react-query";
 import { role } from "@/db/schema/users";
+import { useRouter } from "next/navigation";
+import useMedicalHistory from "@/lib/hooks/useMedicalHistory";
+import { AdminUserSummary } from "@/types/user";
 
 const initialValue: PetEditFormInput = {
     name: "",
@@ -91,19 +99,23 @@ const initialValue: PetEditFormInput = {
 
 type Props = {
     role: (typeof role.enumValues)[number];
+    id: string;
 };
 
-export default function PetTable({ role }: Props) {
+export default function PetTable({ role, id }: Props) {
     const key = "draggable-example";
     const queryClient = useQueryClient();
+    const drawer = useDrawersStack(["history", "edit"]);
 
     const { data, isLoading, queryId, setQueryId } = usePetsAdmin();
-    const [opened, { open, close }] = useDisclosure();
 
     const [selected, setSelected] = useState<AdminPetsSummary | null>(null);
+    const [selectedPetForMedical, setSelectedPetForMedical] =
+        useState<AdminPetsSummary | null>(null);
 
     const [isLoadingBreed, setIsLoadingBreed] = useState<boolean>(false);
     const [breeds, setBreeds] = useState<{ id: string; name: string }[]>([]);
+
     const breedRef = useRef<HTMLInputElement>(null);
     const updatePetAdmin = UpdatePetAdmin.bind(null);
 
@@ -111,6 +123,12 @@ export default function PetTable({ role }: Props) {
         success: false,
         petId: "",
     });
+
+    const {
+        data: medicalData,
+        isFetching: isFetchingMedical,
+        isSuccess: isSuccessMedical,
+    } = useMedicalHistory(selectedPetForMedical?.id);
 
     const form = useForm({
         mode: "controlled",
@@ -150,12 +168,12 @@ export default function PetTable({ role }: Props) {
     const handleCloseEdit = () => {
         setSelected(null);
         form.reset();
-        close();
+        drawer.close("edit");
     };
 
-    const handleEditClick = (pet: AdminPetsSummary) => {
-        setSelected(pet);
-    };
+    // const handleEditClick = (pet: AdminPetsSummary) => {
+    //     setSelected(pet);
+    // };
 
     const handleSubmit = async (values: PetEditFormInput) => {
         if (!selected?.id) return;
@@ -372,6 +390,10 @@ export default function PetTable({ role }: Props) {
                                             color="gray"
                                         />
                                     }
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedPetForMedical(record);
+                                    }}
                                 >
                                     View Medical History
                                 </Menu.Item>
@@ -386,9 +408,14 @@ export default function PetTable({ role }: Props) {
     useEffect(() => {
         if (selected) {
             form.initialize(selected);
-            open();
+            drawer.open("edit");
         }
     }, [selected]);
+
+    useEffect(() => {
+        if (selectedPetForMedical) drawer.open("history");
+        console.log(medicalData);
+    }, [selectedPetForMedical, isFetchingMedical, medicalData]);
 
     useEffect(() => {
         if (formState.error) {
@@ -414,6 +441,7 @@ export default function PetTable({ role }: Props) {
             handleCloseEdit();
         }
     }, [formState]);
+
     return (
         <Stack>
             <Group justify="flex-end">
@@ -444,10 +472,10 @@ export default function PetTable({ role }: Props) {
                 </Button>
             </Group>
             <DataTable
-                withTableBorder={false}
-                withColumnBorders
+                withTableBorder={true}
+                withColumnBorders={false}
                 withRowBorders
-                striped
+                // striped
                 pinLastColumn
                 highlightOnHover
                 verticalSpacing="sm"
@@ -585,7 +613,6 @@ export default function PetTable({ role }: Props) {
                                         </Group>
                                     </Box>
                                 </Stack>
-                                <Divider orientation="vertical" />
                             </Group>
                         </Box>
                     ),
@@ -601,7 +628,7 @@ export default function PetTable({ role }: Props) {
                 radius={"md"}
                 position="right"
                 offset={8}
-                opened={opened}
+                opened={drawer.state.edit}
                 onClose={handleCloseEdit}
                 title={"Edit Pet"}
             >
@@ -688,6 +715,200 @@ export default function PetTable({ role }: Props) {
                         </Group>
                     </Stack>
                 </form>
+            </Drawer>
+            <Drawer
+                opened={drawer.state.history}
+                onClose={() => {
+                    setSelectedPetForMedical(null);
+                    drawer.close("history");
+                }}
+                radius="md"
+                size="xl"
+                position="right"
+                offset={8}
+                title={
+                    <Text fw={700} size="xl">
+                        Medical History
+                    </Text>
+                }
+            >
+                <Stack gap="md">
+                    {selectedPetForMedical && (
+                        <Group>
+                            <Avatar
+                                size={"lg"}
+                                src={selectedPetForMedical.photoUrl}
+                            >
+                                {selectedPetForMedical.name[0].toUpperCase()}
+                            </Avatar>
+
+                            <Stack gap={0}>
+                                <Text fw={"bold"}>
+                                    {toTitleCase(selectedPetForMedical.name)}
+                                </Text>
+                                <Text size="xs" c={"dimmed"}>
+                                    {selectedPetForMedical.id}
+                                </Text>
+                                <Group>
+                                    <Badge
+                                        variant="light"
+                                        size="lg"
+                                        leftSection={
+                                            selectedPetForMedical.species ===
+                                            "cat"
+                                                ? "🐱"
+                                                : "🐶"
+                                        }
+                                    >
+                                        {toTitleCase(
+                                            selectedPetForMedical.breedSpecification
+                                        )}
+                                    </Badge>
+                                </Group>
+                            </Stack>
+                        </Group>
+                    )}
+                    <Divider
+                        orientation="horizontal"
+                        label={
+                            <>
+                                <IconFolderOpen size={14} stroke={1.5} />
+                                <Text ml={5} size={"sm"}>
+                                    records: {medicalData?.length ?? 0}
+                                </Text>
+                            </>
+                        }
+                    />
+                    {isFetchingMedical && (
+                        <>
+                            {Array.from({ length: 5 }).map((_, index) => (
+                                <Paper
+                                    key={index}
+                                    p="md"
+                                    // withBorder
+                                    bg={"gray.1"}
+                                    radius="md"
+                                    h={"300px"}
+                                    className="animate-pulse"
+                                >
+                                    <div></div>
+                                </Paper>
+                            ))}
+                        </>
+                    )}
+
+                    {/* DATA STATE */}
+                    {!isFetchingMedical &&
+                    isSuccessMedical &&
+                    medicalData?.length > 0
+                        ? medicalData.map((log) => (
+                              <Paper
+                                  key={log.id}
+                                  p="md"
+                                  withBorder
+                                  radius="md"
+                                  shadow="xs"
+                                  className="hover:shadow-md transition-shadow"
+                              >
+                                  <Group justify="space-between" mb="xs">
+                                      <Badge
+                                          color="blue"
+                                          variant="light"
+                                          size="sm"
+                                      >
+                                          {log.service?.title ||
+                                              "Service Record"}
+                                      </Badge>
+                                      <Text size="xs" c="dimmed" fw={500}>
+                                          {new Date(
+                                              log.createdAt
+                                          ).toLocaleDateString(undefined, {
+                                              year: "numeric",
+                                              month: "long",
+                                              day: "numeric",
+                                          })}
+                                      </Text>
+                                  </Group>
+
+                                  <SimpleGrid cols={2} spacing="xs" mb="sm">
+                                      <Box>
+                                          <Text
+                                              size="xs"
+                                              c="dimmed"
+                                              tt="uppercase"
+                                              fw={700}
+                                          >
+                                              Weight
+                                          </Text>
+                                          <Text size="sm" fw={500}>
+                                              {log.weight} kg
+                                          </Text>
+                                      </Box>
+                                      <Box>
+                                          <Text
+                                              size="xs"
+                                              c="dimmed"
+                                              tt="uppercase"
+                                              fw={700}
+                                          >
+                                              Temp
+                                          </Text>
+                                          <Text size="sm" fw={500}>
+                                              {log.temperature}°C
+                                          </Text>
+                                      </Box>
+                                  </SimpleGrid>
+
+                                  <Divider my="sm" variant="dashed" />
+
+                                  <Stack gap={4}>
+                                      <Text size="sm" fw={700}>
+                                          Diagnosis:
+                                      </Text>
+                                      <Text size="sm" c="gray.7" mb="xs">
+                                          {log.diagnosis ||
+                                              "No diagnosis provided"}
+                                      </Text>
+
+                                      <Text size="sm" fw={700}>
+                                          Symptoms:
+                                      </Text>
+                                      <Text size="sm" c="gray.7" mb="xs">
+                                          {log.symptoms || "N/A"}
+                                      </Text>
+
+                                      <Text size="sm" fw={700}>
+                                          Prescription:
+                                      </Text>
+                                      <Text size="sm" c="indigo.8">
+                                          {log.prescription || "None"}
+                                      </Text>
+                                  </Stack>
+
+                                  {log.notes && (
+                                      <Box
+                                          mt="md"
+                                          p="xs"
+                                          bg="gray.0"
+                                          style={{ borderRadius: "4px" }}
+                                      >
+                                          <Text size="xs" fw={700} c="dimmed">
+                                              CLINICAL NOTES
+                                          </Text>
+                                          <Text size="sm">{log.notes}</Text>
+                                      </Box>
+                                  )}
+                              </Paper>
+                          ))
+                        : /* EMPTY STATE (only show if not fetching) */
+                          !isFetchingMedical && (
+                              <Stack align="center" mt="xl" gap="xs">
+                                  <Text c="dimmed" size="sm">
+                                      No medical records found for this pet.
+                                  </Text>
+                              </Stack>
+                          )}
+                </Stack>
             </Drawer>
         </Stack>
     );

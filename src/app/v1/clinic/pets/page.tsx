@@ -9,7 +9,13 @@ import {
 } from "@tanstack/react-query";
 import { unauthorized } from "next/navigation";
 
-export default async function Pets() {
+export default async function Pets({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const selectedPet = (await params).id;
+
     const session = await auth();
     if (!session) {
         unauthorized();
@@ -24,10 +30,10 @@ export default async function Pets() {
         },
     });
     return (
-        <Stack className="w-full h-screen gap-8 p-16 light:bg-gray-50">
+        <Stack className="w-full h-screen gap-8 p-16 " bg={"gray.0"}>
             <Title>Pets</Title>
             <HydrationBoundary state={dehydrate(queryClient)}>
-                <PetTable role={session.user.role} />
+                <PetTable role={session.user.role} id={selectedPet} />
             </HydrationBoundary>
         </Stack>
     );

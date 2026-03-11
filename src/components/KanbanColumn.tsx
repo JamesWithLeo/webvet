@@ -23,6 +23,7 @@ import {
     Collapse,
     ActionIcon,
     Tooltip,
+    Avatar,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -33,9 +34,8 @@ import {
     IconX,
 } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { title } from "process";
 import { startTransition, useActionState, useEffect, useMemo } from "react";
-import { fa } from "zod/v4/locales";
+import CopyButton from "./common/CopyButton";
 
 type Props = {
     title: string;
@@ -272,14 +272,49 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
                                         justify="space-between"
                                         wrap="nowrap"
                                     >
-                                        <Stack gap={0}>
-                                            <Text size="sm" fw={700}>
-                                                {pet.species?.toLowerCase() ===
-                                                "cat"
-                                                    ? "🐱"
-                                                    : "🐶"}{" "}
-                                                {pet.name}
-                                            </Text>
+                                        <Stack gap={"sm"}>
+                                            <Group className="group">
+                                                <Avatar
+                                                    src={pet.photoUrl}
+                                                    size={"lg"}
+                                                >
+                                                    {pet.name[0].toUpperCase()}
+                                                </Avatar>
+                                                <Stack gap={0}>
+                                                    <Group wrap="nowrap">
+                                                        <Text fw={"bold"}>
+                                                            {toTitleCase(
+                                                                pet.name
+                                                            )}
+                                                        </Text>
+                                                        <CopyButton
+                                                            value={pet.id}
+                                                        />
+                                                    </Group>
+                                                    <Text
+                                                        size="xs"
+                                                        c={"dimmed"}
+                                                    >
+                                                        {pet.id}
+                                                    </Text>
+                                                    <Group>
+                                                        <Badge
+                                                            variant="light"
+                                                            size="lg"
+                                                            leftSection={
+                                                                pet.species ===
+                                                                "cat"
+                                                                    ? "🐱"
+                                                                    : "🐶"
+                                                            }
+                                                        >
+                                                            {toTitleCase(
+                                                                pet.breedSpecification
+                                                            )}
+                                                        </Badge>
+                                                    </Group>
+                                                </Stack>
+                                            </Group>
                                             <Badge
                                                 size="sm"
                                                 variant="outline"

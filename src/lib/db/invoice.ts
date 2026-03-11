@@ -306,12 +306,14 @@ export type VetData = {
         photoUrl: string | null;
     } | null;
     pets: {
+        photoUrl: string;
         id: string;
         invoiceItemId: string;
         itemStatus: (typeof itemStatusEnum.enumValues)[number];
         weight: number;
         name: string;
         species: "dog" | "cat";
+        breedSpecification: string;
         serviceName: string;
         serviceId: string;
         serviceType: AppointmentType;
@@ -356,6 +358,8 @@ export const getVetKanbanData = async (
                             'invoiceItemId', ${invoiceItems.id},
                             'itemStatus', ${invoiceItems.itemStatus},
                             'name', ${pets.name},
+                            'photoUrl', ${pets.photoUrl},
+                            'breedSpecification', ${pets.breedSpecification},
                             'weight', ${pets.weight},
                             'species', ${pets.species},
                             'serviceName', ${services.title},
