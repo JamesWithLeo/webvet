@@ -15,11 +15,6 @@ export default function AuthPin({ email }: { email: string }) {
             redirect: true,
             callbackUrl: "/v1/dashboard",
         });
-
-        // if (result?.error) {
-        //     setLoading(false);
-        //     // Add a Mantine Notification here for "Invalid Code"
-        // }
     };
     return (
         <PinInput
