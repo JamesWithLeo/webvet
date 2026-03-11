@@ -22,14 +22,13 @@ export default function AuthForm({ label }: { label: string }) {
         });
 
         if (result?.ok) {
-            router.push(
-                `/v1/auth/verify-request?email=${encodeURIComponent(email)}`
-            );
+            sessionStorage.setItem("auth_email", email);
+
+            router.push("/v1/auth/verify-request");
         } else {
             setLoading(false);
         }
     };
-
     return (
         <form className="gap-3.5 flex flex-col" onSubmit={handleSubmit}>
             <TextInput

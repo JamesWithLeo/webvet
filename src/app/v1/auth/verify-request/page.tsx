@@ -5,17 +5,7 @@ import CenterPattern from "@/components/common/CenterPattern";
 import AuthPin from "@/components/auth/AuthPin";
 import { unauthorized } from "next/navigation";
 
-export default async function Page({
-    searchParams,
-}: {
-    searchParams: Promise<{ email?: string }>;
-}) {
-    const { email } = await searchParams;
-
-    if (!email) {
-        unauthorized();
-    }
-
+export default async function Page() {
     return (
         <div className="flex justify-center   min-h-dvh gap-8 flex-col items-center  lg:p-16 p-8">
             <CenterPattern />
@@ -31,7 +21,7 @@ export default async function Page({
                     </div>
                 </div>
                 <Group justify="center">
-                    <AuthPin email={email} />
+                    <AuthPin />
                 </Group>
                 <Text mt={"md"} c={"dimmed"} size="sm">
                     Didn't receive the email? Check your spam folder. Still
