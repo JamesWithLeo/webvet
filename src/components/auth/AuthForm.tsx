@@ -4,6 +4,8 @@ import { signIn } from "next-auth/react";
 import { Button, TextInput } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ratelimit } from "@/lib/RateLimit";
+import { notifications } from "@mantine/notifications";
 
 export default function AuthForm({ label }: { label: string }) {
     const router = useRouter();
@@ -15,6 +17,19 @@ export default function AuthForm({ label }: { label: string }) {
 
         const formData = new FormData(event.currentTarget);
         const email = formData.get("email") as string;
+
+        const { success, reset } = await ratelimit.limit(email);
+
+        if (!success) {
+            const now = Date.now();
+            const retryIn = Math.floor((reset - now) / 1000); // Seconds until reset
+
+            return notifications.show({
+                title: "Slow down!",
+                message: `Too many attempts. Please wait ${retryIn} seconds.`,
+                color: "orange",
+            });
+        }
 
         const result = await signIn("resend", {
             email,

@@ -5,6 +5,7 @@ import { db } from "./db";
 import type { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
 import { AdapterUser, AdapterSession } from "next-auth/adapters";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { verificationTokens } from "./db/schema/verificationToken";
 import { users } from "./db/schema/users";
 import { accounts } from "./db/schema/accounts";
@@ -14,6 +15,7 @@ import MagicLinkEmail from "./components/emails/MagicLinkEmail";
 import { getUserById } from "./lib/db/users";
 import { refreshAccessToken } from "./lib/refreshAccessToken";
 import { randomInt } from "crypto";
+import { and, eq } from "drizzle-orm";
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -82,6 +84,56 @@ export const authConfig = {
                         `Resend error: ${JSON.stringify(errorData)}`
                     );
                 }
+            },
+        }),
+        CredentialsProvider({
+            id: "otp-verify",
+            name: "OTP Verification",
+            credentials: {
+                email: { label: "Email", type: "text" },
+                otp: { label: "OTP", type: "text" },
+            },
+            async authorize(credentials) {
+                if (!credentials?.email || !credentials?.otp) return null;
+
+                // 1. Find the token in your Drizzle verificationTokens table
+                const [verificationToken] = await db
+                    .select()
+                    .from(verificationTokens)
+                    .where(
+                        and(
+                            eq(
+                                verificationTokens.identifier,
+                                credentials.email as string
+                            ),
+                            eq(
+                                verificationTokens.token,
+                                credentials.otp as string
+                            )
+                        )
+                    )
+                    .limit(1);
+
+                if (
+                    !verificationToken ||
+                    verificationToken.expires < new Date()
+                ) {
+                    return null;
+                }
+
+                let [user] = await db
+                    .select()
+                    .from(users)
+                    .where(eq(users.email, credentials.email as string))
+                    .limit(1);
+
+                await db
+                    .delete(verificationTokens)
+                    .where(
+                        eq(verificationTokens.token, credentials.otp as string)
+                    );
+
+                return user || null;
             },
         }),
     ],

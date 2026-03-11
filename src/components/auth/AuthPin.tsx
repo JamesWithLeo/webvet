@@ -25,7 +25,7 @@ export default function AuthPin() {
         if (!email) return;
         setLoading(true);
 
-        const result = await signIn("credentials", {
+        const result = await signIn("otp-verify", {
             email,
             otp,
             redirect: false,
@@ -40,12 +40,7 @@ export default function AuthPin() {
                 color: "red",
             });
         } else {
-            // SUCCESS: Clear storage and move to dashboard
             sessionStorage.removeItem("auth_email");
-
-            // Force a hard refresh or router refresh to ensure
-            // the middleware picks up the new session cookie.
-            router.refresh();
             router.push("/v1/dashboard");
         }
     };
