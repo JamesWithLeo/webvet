@@ -248,7 +248,7 @@ export default function PetTable({ role, id }: Props) {
                 accessor: "name",
                 title: "Name",
                 draggable: true,
-                width: "20%",
+                width: "10%",
                 resizable: true,
                 render: (record) => `${toTitleCase(record.name)}`,
                 filter: ({ close }) => (
@@ -272,14 +272,14 @@ export default function PetTable({ role, id }: Props) {
             {
                 accessor: "species",
                 title: "Species",
-                width: "20%",
+                width: "10%",
                 textAlign: "left",
                 render: (record) => `${toTitleCase(record.species)}`,
             },
             {
                 accessor: "breedSpecification",
                 title: "Breed",
-                width: "20%",
+                width: "10%",
                 ellipsis: true,
                 textAlign: "left",
                 render: (record) => `${toTitleCase(record.breedSpecification)}`,
@@ -334,6 +334,14 @@ export default function PetTable({ role, id }: Props) {
                 textAlign: "center",
                 width: "8%",
                 resizable: true,
+            },
+            {
+                accessor: "createdAt",
+                title: "created at",
+                width: "8%",
+                render: (record) => (
+                    <Text>{new Date(record.createdAt).toLocaleString()}</Text>
+                ),
             },
             {
                 accessor: "action",
@@ -508,24 +516,26 @@ export default function PetTable({ role, id }: Props) {
                                     w={200}
                                     h={200}
                                 >
-                                    {/* Blurred Background Layer */}
-                                    <Image
-                                        src={record.photoUrl}
-                                        alt=""
-                                        className="absolute inset-0 w-full h-full object-cover"
-                                        style={{
-                                            filter: "blur(12px) brightness(0.8)",
-                                            transform: "scale(1.2)",
-                                        }}
-                                    />
+                                    {Boolean(record.photoUrl) && (
+                                        <>
+                                            <Image
+                                                src={record.photoUrl}
+                                                alt=""
+                                                className="absolute inset-0 w-full h-full object-cover"
+                                                style={{
+                                                    filter: "blur(12px) brightness(0.8)",
+                                                    transform: "scale(1.2)",
+                                                }}
+                                            />
 
-                                    {/* Foreground Image Layer */}
-                                    <Image
-                                        src={record.photoUrl}
-                                        alt={record.name}
-                                        fit="contain"
-                                        className="relative z-10 w-full h-full transition-transform duration-500 group-hover:scale-105"
-                                    />
+                                            <Image
+                                                src={record.photoUrl}
+                                                alt={record.name}
+                                                fit="contain"
+                                                className="relative z-10 w-full h-full transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                        </>
+                                    )}
                                 </Box>
 
                                 <Stack gap="md" style={{ flex: 1 }}>
