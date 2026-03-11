@@ -1,16 +1,9 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import ScrollVelocity from "@/components/common/ScrollVelocity";
 import HeroSection from "@/components/common/HeroSection";
 import TimeSection from "@/components/TimeSection";
 import ProcessSection from "@/components/ProcessSection";
 
-export default async function AppPage() {
-    const session = await auth();
-    if (session?.user.id && !session.error) {
-        redirect("/v1");
-    }
-
+export default function AppPage() {
     return (
         <div
             className="items-center justify-center

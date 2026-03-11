@@ -55,23 +55,7 @@ export default async function LayoutContent({
                             >
                                 Pricing
                             </Link>
-                            {session.user.role === "admin" && (
-                                <Link
-                                    href="/v1/clinic"
-                                    className=" hover:bg-gray-200 rounded text-sm p-4"
-                                >
-                                   Clinic 
-                                </Link>
-                            )}
-                            {session.user.role === "vet" && (
-                                <Link
-                                    href="/v1/clinic/treatment-board"
-                                    className=" hover:bg-gray-200 rounded text-sm p-4"
-                                >
-                                    Clinic
-                                </Link>
-                            )}
-                            {session.user.role === "staff" && (
+                            {session.user.role !== "client" && (
                                 <Link
                                     href="/v1/clinic"
                                     className=" hover:bg-gray-200 rounded text-sm p-4"
