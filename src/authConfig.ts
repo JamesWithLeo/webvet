@@ -14,7 +14,7 @@ import { render } from "@react-email/render";
 import MagicLinkEmail from "./components/emails/MagicLinkEmail";
 import { getUserById } from "./lib/db/users";
 import { refreshAccessToken } from "./lib/refreshAccessToken";
-import { randomInt } from "crypto";
+import { createHash, randomInt } from "crypto";
 import { and, eq } from "drizzle-orm";
 
 export const authConfig = {
@@ -95,24 +95,23 @@ export const authConfig = {
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.otp) return null;
+                // 1. Ensure credentials exist and cast them to strings
+                const email = credentials?.email as string;
+                const otp = credentials?.otp as string;
 
-                // 1. Find the token in your Drizzle verificationTokens table
+                const hashedToken = createHash("sha256")
+                    .update(`${otp}${process.env.NEXTAUTH_SECRET}`)
+                    .digest("hex");
+
                 const [verificationToken] = await db
                     .select()
                     .from(verificationTokens)
                     .where(
                         and(
-                            eq(
-                                verificationTokens.identifier,
-                                credentials.email as string
-                            ),
-                            eq(
-                                verificationTokens.token,
-                                credentials.otp as string
-                            )
+                            eq(verificationTokens.identifier, email),
+                            eq(verificationTokens.token, hashedToken) // Compare hashed versions!
                         )
-                    )
-                    .limit(1);
+                    );
 
                 if (
                     !verificationToken ||
