@@ -72,8 +72,17 @@ export const authConfig = {
                 token,
             }) => {
                 const hashedToken = createHash("sha256")
-                    .update(token)
+                    .update(`${token}${process.env.NEXTAUTH_SECRET}`)
                     .digest("hex");
+
+                await db
+                    .delete(verificationTokens)
+                    .where(
+                        and(
+                            eq(verificationTokens.identifier, email),
+                            ne(verificationTokens.token, hashedToken)
+                        )
+                    );
 
                 const emailHtml = await render(
                     MagicLinkEmail({

@@ -78,9 +78,9 @@ export default function AuthPin() {
                 });
             } else if (result.code === "WRONG_PIN") {
                 notifications.show({
-                    title: "PIN Expired",
+                    title: "Wrong Pin",
                     message:
-                        "This code is no longer valid. Please request a new one.",
+                        "The code you entered is incorrect. Please try again.",
                     color: "orange",
                     icon: <IconLock size={16} />,
                 });
