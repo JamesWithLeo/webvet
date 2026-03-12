@@ -63,7 +63,7 @@ export default function AuthPin() {
 
             notifications.show({
                 title: "Verification failed",
-                message: "Invalid code.",
+                message: result.error,
                 color: "red",
             });
         } else {

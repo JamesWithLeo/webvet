@@ -96,13 +96,11 @@ export const authConfig = {
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.otp) return null;
-                // 1. Ensure credentials exist and cast them to strings
                 const email = credentials?.email as string;
                 const otp = credentials?.otp as string;
 
                 const limit = await checkAuthLimit(email);
                 if (!limit.success) {
-                    // Throwing an error here sends a message to the frontend result object
                     throw new Error("RATE_LIMIT_EXCEEDED");
                 }
 
@@ -120,10 +118,11 @@ export const authConfig = {
                         )
                     );
 
-                if (
-                    !verificationToken ||
-                    verificationToken.expires < new Date()
-                ) {
+                if (!verificationToken) return null;
+                if (verificationToken.expires < new Date()) {
+                    await db
+                        .delete(verificationTokens)
+                        .where(eq(verificationTokens.token, hashedToken));
                     return null;
                 }
 
