@@ -129,7 +129,7 @@ export const authConfig = {
                 }
 
                 const hashedToken = createHash("sha256")
-                    .update(`${otp}${process.env.NEXTAUTH_SECRET}`)
+                    .update(otp)
                     .digest("hex");
 
                 const [verificationToken] = await db

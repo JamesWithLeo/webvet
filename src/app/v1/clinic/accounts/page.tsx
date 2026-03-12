@@ -18,7 +18,7 @@ export default async function Users() {
         },
     });
     return (
-        <Stack className="w-full h-screen gap-4 p-8" bg={"gray.0"}>
+        <Stack className="w-full h-auto  gap-4 p-8" bg={"gray.0"}>
             <Title>Account</Title>
             <HydrationBoundary state={dehydrate(queryClient)}>
                 <AccountTable />
