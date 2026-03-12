@@ -64,7 +64,7 @@ export default function AuthPin() {
             if (result.code === "RATE_LIMIT_EXCEEDED")
                 notifications.show({
                     title: "Verification failed",
-                    message: "Rate limit exceeded, please try again later",
+                    message: "Rate limit exceeded, please try again later.",
                     color: "red",
                 });
         } else {
