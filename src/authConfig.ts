@@ -109,7 +109,7 @@ export const authConfig = {
                     .where(
                         and(
                             eq(verificationTokens.identifier, email),
-                            eq(verificationTokens.token, hashedToken) // Compare hashed versions!
+                            eq(verificationTokens.token, hashedToken)
                         )
                     );
 
@@ -129,7 +129,10 @@ export const authConfig = {
                 await db
                     .delete(verificationTokens)
                     .where(
-                        eq(verificationTokens.token, credentials.otp as string)
+                        eq(
+                            verificationTokens.identifier,
+                            credentials.email as string
+                        )
                     );
 
                 return user || null;

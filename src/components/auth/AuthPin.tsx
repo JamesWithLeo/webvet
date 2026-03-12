@@ -11,12 +11,13 @@ export default function AuthPin() {
     const [email, setEmail] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [value, setValue] = useState("");
+    const [isError, setIsError] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
         const storedEmail = sessionStorage.getItem("auth_email");
         if (!storedEmail) {
-            router.push("/"); // Redirect back if no email is found
+            router.push("/");
             return;
         }
         setEmail(storedEmail);
@@ -25,6 +26,8 @@ export default function AuthPin() {
     const handleVerify = async (otp: string) => {
         if (!email) return;
         setLoading(true);
+        setIsError(false);
+
         const limit = await checkAuthLimit(email);
 
         if (!limit.success) {
@@ -46,6 +49,8 @@ export default function AuthPin() {
         if (result?.error) {
             setLoading(false);
             setValue("");
+            setIsError(true);
+
             notifications.show({
                 title: "Verification failed",
                 message: "Invalid code.",
@@ -56,10 +61,14 @@ export default function AuthPin() {
             router.push("/v1/dashboard");
         }
     };
+
     return (
         <PinInput
             value={value}
-            onChange={setValue}
+            onChange={(val) => {
+                setValue(val);
+                if (isError) setIsError(false);
+            }}
             length={6}
             variant="filled"
             type="number"
@@ -69,7 +78,7 @@ export default function AuthPin() {
             size="lg"
             autoFocus
             onComplete={handleVerify}
-            error={!!value && value.length === 6 && !loading} // Optional visual error state
+            error={isError} // Use the state here
         />
     );
 }

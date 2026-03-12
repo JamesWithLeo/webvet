@@ -3,6 +3,7 @@ import EmailAnimation from "@/components/common/EmailAnimation";
 import LogoWithText from "@/components/common/LogoWithText";
 import CenterPattern from "@/components/common/CenterPattern";
 import AuthPin from "@/components/auth/AuthPin";
+import { ResendOTPButton } from "@/components/auth/ResendOTPButton";
 
 export default async function Page() {
     return (
@@ -26,9 +27,7 @@ export default async function Page() {
                     Didn't receive the email? Check your spam folder. Still
                     can't find it?
                 </Text>
-                <Button mt={"md"} variant="light">
-                    Resend OTP
-                </Button>
+                <ResendOTPButton />
             </div>
         </div>
     );
