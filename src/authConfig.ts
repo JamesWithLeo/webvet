@@ -47,6 +47,7 @@ export const authConfig = {
             apiKey: process.env.RESEND_API_KEY,
             from: "Joseph and Mary Clinic <auth@updates.josephmary.me>",
 
+            maxAge: 5 * 60,
             generateVerificationToken: () => {
                 return randomInt(100_000, 999_999).toString();
             },
@@ -59,12 +60,17 @@ export const authConfig = {
                 theme,
                 token,
             }) => {
+                await db
+                    .delete(verificationTokens)
+                    .where(eq(verificationTokens.identifier, email));
+
                 const emailHtml = await render(
                     MagicLinkEmail({
                         name: email.split("@")[0],
                         otp: token,
                     })
                 );
+
                 const response = await fetch("https://api.resend.com/emails", {
                     method: "POST",
                     headers: {
@@ -87,6 +93,7 @@ export const authConfig = {
                 }
             },
         }),
+
         CredentialsProvider({
             id: "otp-verify",
             name: "OTP Verification",
@@ -119,7 +126,10 @@ export const authConfig = {
                     );
 
                 if (!verificationToken) return null;
-                if (verificationToken.expires < new Date()) {
+
+                const now = new Date().getTime();
+                const expiry = new Date(verificationToken.expires).getTime();
+                if (expiry < now) {
                     await db
                         .delete(verificationTokens)
                         .where(eq(verificationTokens.token, hashedToken));

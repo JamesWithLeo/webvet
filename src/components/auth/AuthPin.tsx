@@ -88,7 +88,7 @@ export default function AuthPin() {
             size="lg"
             autoFocus
             onComplete={handleVerify}
-            error={isError} // Use the state here
+            error={isError}
         />
     );
 }

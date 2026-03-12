@@ -1,4 +1,4 @@
-import { Button, Group, PinInput, Text } from "@mantine/core";
+import { Button, Group, Text } from "@mantine/core";
 import EmailAnimation from "@/components/common/EmailAnimation";
 import LogoWithText from "@/components/common/LogoWithText";
 import CenterPattern from "@/components/common/CenterPattern";
