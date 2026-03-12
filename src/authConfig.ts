@@ -69,7 +69,7 @@ export const authConfig = {
                 token,
             }) => {
                 const hashedToken = createHash("sha256")
-                    .update(token)
+                    .update(`${token}${process.env.NEXTAUTH_SECRET}`)
                     .digest("hex");
 
                 await db
