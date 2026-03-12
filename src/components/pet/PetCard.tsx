@@ -10,6 +10,7 @@ import {
     Menu,
     Center,
     Image,
+    Paper,
 } from "@mantine/core";
 
 import {
@@ -21,6 +22,8 @@ import {
     // IconHeartFilled,
     IconPlus,
 } from "@tabler/icons-react";
+// import NextImage from "@nex"
+import NextImage from "next/image";
 
 import DogPlaceholder from "../common/DogPlaceholder";
 import CatPlaceholder from "../common/CatPlaceholder";
@@ -30,6 +33,7 @@ import calculatePetAge from "@/lib/calculatePetAge";
 import { useRouter } from "next/navigation";
 import { modals } from "@mantine/modals";
 import { useUpdatePetArchive } from "@/lib/hooks/usePets";
+import { useState } from "react";
 
 type Props = {
     pet: PetTypeModelWithBreed;
@@ -52,6 +56,7 @@ export default function PetCard({ pet }: Props) {
     const { displayAge } = calculatePetAge(dateOfBirth);
     const router = useRouter();
 
+    const [isError, setIsError] = useState(false);
     const { mutateAsync: updateArchive, isPending } = useUpdatePetArchive();
 
     const handleArchieve = () => {
@@ -104,11 +109,10 @@ export default function PetCard({ pet }: Props) {
     return (
         <Card
             withBorder
-            className="group w-80 h-100 flex flex-col overflow-hidden"
+            className="group w-xs  h-110  flex flex-col overflow-hidden"
             radius={"md"}
             p="0" // Remove padding so Card.Section touches the borders
         >
-            {/* Header Section */}
             <Card.Section
                 withBorder
                 style={{
@@ -119,22 +123,20 @@ export default function PetCard({ pet }: Props) {
                 }}
             >
                 <Group justify="space-between" wrap="nowrap">
-                    <Stack gap={1}>
+                    <Stack gap={0}>
                         <Title
                             c="primary"
                             order={1}
-                            className="text-2xl font-bold line-clamp-1"
+                            className="text-2xl font-bold "
                         >
                             {name ? toTitleCase(name) : "Unknown pet name"}
                         </Title>
-                        <Title
-                            c={"dimmed"}
-                            order={6}
-                            className="font-bold line-clamp-1"
-                        >
+                        <Title c={"dimmed"} order={6} className="font-bold ">
                             {breed
                                 ? toTitleCase(breed)
-                                : (breedSpecification ?? "Unknown breed")}
+                                : toTitleCase(
+                                      breedSpecification ?? "Unknown breed"
+                                  )}
                         </Title>
                     </Stack>
 
@@ -208,7 +210,7 @@ export default function PetCard({ pet }: Props) {
                     </Group>
                 </Group>
 
-                <Group gap={4} c={"dimmed"} mt={4}>
+                <Group gap={2} c={"dimmed"} mt={4}>
                     <Text size="xs" fw={700}>
                         {gender ? toTitleCase(gender) : "N/A"}
                     </Text>
@@ -217,47 +219,42 @@ export default function PetCard({ pet }: Props) {
                     </Text>
                     <Text size="xs" fw={700}>
                         {displayAge}
-                        {/* {years} {years === 1 ? "year" : "years"} old */}
                     </Text>
                 </Group>
             </Card.Section>
 
-            {/* Image Section - Expands to fill the rest of h-120 */}
-            <Card.Section className="relative flex-1 bg-gray-50 overflow-hidden">
-                {imageUrl ? (
-                    <>
-                        <Image
-                            src={imageUrl}
-                            alt=""
-                            h="100%"
-                            w="100%"
-                            fit="cover"
-                            // Apply a heavy blur and darken it slightly
-                            style={{
-                                filter: "blur(20px) brightness(0.7)",
-                                transform: "scale(1.1)",
-                            }}
-                            className="absolute inset-0"
-                        />
-
-                        <Image
-                            src={imageUrl}
-                            alt={name}
-                            h="100%"
-                            w="100%"
-                            fit="contain" // Ensures the whole pet is visible
-                            className="relative z-10 aspect-square   transition-transform duration-700 group-hover:scale-105"
-                        />
-                    </>
-                ) : (
-                    <Center h="100%" c={"gray.3"}>
-                        {species?.toLowerCase() === "cat" ? (
-                            <CatPlaceholder />
+            <Card.Section
+                withBorder
+                component={"a"}
+                href={`/v1/pets/${id}`}
+                p={0}
+            >
+                <div className="flex flex-col items-center   justify-start w-full ">
+                    <div className="relative group min-h-75 w-xs  aspect-square   overflow-hidden">
+                        {!isError ? (
+                            <NextImage
+                                className=" z-0 relative  h-full   w-full object-cover  "
+                                src={imageUrl}
+                                loading="lazy"
+                                fill={true}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                alt={""}
+                                onError={() => {
+                                    console.log("error");
+                                    setIsError(true);
+                                }}
+                            />
                         ) : (
-                            <DogPlaceholder />
+                            <Center h="100%" c={"gray.2"}>
+                                {species?.toLowerCase() === "cat" ? (
+                                    <CatPlaceholder />
+                                ) : (
+                                    <DogPlaceholder />
+                                )}
+                            </Center>
                         )}
-                    </Center>
-                )}
+                    </div>
+                </div>
             </Card.Section>
         </Card>
     );

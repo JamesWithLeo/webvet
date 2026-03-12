@@ -72,15 +72,6 @@ export const authConfig = {
                     .update(token)
                     .digest("hex");
 
-                await db
-                    .delete(verificationTokens)
-                    .where(
-                        and(
-                            eq(verificationTokens.identifier, email),
-                            ne(verificationTokens.token, hashedToken)
-                        )
-                    );
-
                 const emailHtml = await render(
                     MagicLinkEmail({
                         name: email.split("@")[0],
