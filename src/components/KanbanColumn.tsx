@@ -255,6 +255,7 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
                         <Stack gap={6} mt={6}>
                             {item.pets.map((pet) => (
                                 <Box
+                                    className="group"
                                     key={pet.invoiceItemId}
                                     bg="white"
                                     style={{
@@ -272,11 +273,11 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
                                         justify="space-between"
                                         wrap="nowrap"
                                     >
-                                        <Stack gap={"sm"}>
-                                            <Group className="group">
+                                        <Stack gap={"sm"} w={"100%"}>
+                                            <Group>
                                                 <Avatar
                                                     src={pet.photoUrl}
-                                                    size={"lg"}
+                                                    size={"md"}
                                                 >
                                                     {pet.name[0].toUpperCase()}
                                                 </Avatar>
@@ -291,16 +292,16 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
                                                             value={pet.id}
                                                         />
                                                     </Group>
-                                                    <Text
+                                                    {/* <Text
                                                         size="xs"
                                                         c={"dimmed"}
                                                     >
                                                         {pet.id}
-                                                    </Text>
+                                                    </Text> */}
                                                     <Group>
                                                         <Badge
                                                             variant="light"
-                                                            size="lg"
+                                                            size="md"
                                                             leftSection={
                                                                 pet.species ===
                                                                 "cat"
@@ -315,128 +316,140 @@ function KanbanCard({ item, active, completed, onMedicalClick }: CardProps) {
                                                     </Group>
                                                 </Stack>
                                             </Group>
-                                            <Badge
-                                                size="sm"
-                                                variant="outline"
-                                                color="blue"
-                                            >
-                                                {pet.serviceName}
-                                            </Badge>
-                                        </Stack>
+                                            <Group justify="space-between">
+                                                <Badge
+                                                    size="sm"
+                                                    variant="outline"
+                                                    color="blue"
+                                                >
+                                                    {pet.serviceName}
+                                                </Badge>
 
-                                        {active && (
-                                            <Box>
-                                                <Group gap={"xs"}>
-                                                    <Button
-                                                        variant="subtle"
-                                                        size="xs"
-                                                        radius={"sm"}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            startTransition(
-                                                                () => {
-                                                                    onMedicalClick(
-                                                                        item
-                                                                            .appointment
-                                                                            .id,
-                                                                        item
-                                                                            .invoice
-                                                                            ?.id,
-                                                                        pet
+                                                {active && (
+                                                    <Box>
+                                                        <Group gap={"xs"}>
+                                                            <Button
+                                                                variant="subtle"
+                                                                size="xs"
+                                                                radius={"sm"}
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
+                                                                    e.stopPropagation();
+                                                                    startTransition(
+                                                                        () => {
+                                                                            onMedicalClick(
+                                                                                item
+                                                                                    .appointment
+                                                                                    .id,
+                                                                                item
+                                                                                    .invoice
+                                                                                    ?.id,
+                                                                                pet
+                                                                            );
+                                                                            // item.invoice
+                                                                            //     ?.id;
+                                                                        }
                                                                     );
-                                                                    // item.invoice
-                                                                    //     ?.id;
-                                                                }
-                                                            );
-                                                        }}
-                                                    >
-                                                        {pet.log
-                                                            ? "Edit log"
-                                                            : "Add log"}
-                                                        {/* Add log */}
-                                                    </Button>
-                                                    {pet.itemStatus ===
-                                                    "COMPLETED" ? (
-                                                        <>
-                                                            {" "}
-                                                            <Tooltip
-                                                                label="Mark as completed"
-                                                                position="right"
-                                                                withArrow
-                                                                offset={-1}
-                                                                arrowSize={10}
+                                                                }}
                                                             >
-                                                                <ActionIcon
-                                                                    size="input-xs"
-                                                                    radius={
-                                                                        "md"
-                                                                    }
-                                                                    color="orange"
-                                                                    loading={
-                                                                        isPendingUpdateItemStatus
-                                                                    }
-                                                                    disabled={
-                                                                        isPendingUpdateItemStatus
-                                                                    }
-                                                                    variant="light"
-                                                                    onClick={() => {
-                                                                        handleUpdateInvoiceItemstatus(
-                                                                            pet.invoiceItemId,
-                                                                            "PENDING"
-                                                                        );
-                                                                    }}
-                                                                >
-                                                                    <IconX
-                                                                        size={
-                                                                            16
+                                                                {pet.log
+                                                                    ? "Edit log"
+                                                                    : "Add log"}
+                                                                {/* Add log */}
+                                                            </Button>
+                                                            {pet.itemStatus ===
+                                                            "COMPLETED" ? (
+                                                                <>
+                                                                    {" "}
+                                                                    <Tooltip
+                                                                        label="Mark as completed"
+                                                                        position="right"
+                                                                        withArrow
+                                                                        offset={
+                                                                            -1
                                                                         }
-                                                                        stroke={
-                                                                            1.5
+                                                                        arrowSize={
+                                                                            10
                                                                         }
-                                                                    />
-                                                                </ActionIcon>
-                                                            </Tooltip>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Tooltip
-                                                                label="Mark as completed"
-                                                                position="right"
-                                                                withArrow
-                                                                offset={-1}
-                                                                arrowSize={10}
-                                                            >
-                                                                <ActionIcon
-                                                                    onClick={() => {
-                                                                        handleUpdateInvoiceItemstatus(
-                                                                            pet.invoiceItemId,
-                                                                            "COMPLETED"
-                                                                        );
-                                                                    }}
-                                                                    loading={
-                                                                        isPendingUpdateItemStatus
-                                                                    }
-                                                                    size="input-xs"
-                                                                    radius={
-                                                                        "md"
-                                                                    }
-                                                                    variant="light"
-                                                                >
-                                                                    <IconCheck
-                                                                        size={
-                                                                            16
+                                                                    >
+                                                                        <ActionIcon
+                                                                            size="input-xs"
+                                                                            radius={
+                                                                                "md"
+                                                                            }
+                                                                            color="orange"
+                                                                            loading={
+                                                                                isPendingUpdateItemStatus
+                                                                            }
+                                                                            disabled={
+                                                                                isPendingUpdateItemStatus
+                                                                            }
+                                                                            variant="light"
+                                                                            onClick={() => {
+                                                                                handleUpdateInvoiceItemstatus(
+                                                                                    pet.invoiceItemId,
+                                                                                    "PENDING"
+                                                                                );
+                                                                            }}
+                                                                        >
+                                                                            <IconX
+                                                                                size={
+                                                                                    16
+                                                                                }
+                                                                                stroke={
+                                                                                    1.5
+                                                                                }
+                                                                            />
+                                                                        </ActionIcon>
+                                                                    </Tooltip>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Tooltip
+                                                                        label="Mark as completed"
+                                                                        position="right"
+                                                                        withArrow
+                                                                        offset={
+                                                                            -1
                                                                         }
-                                                                        stroke={
-                                                                            1.5
+                                                                        arrowSize={
+                                                                            10
                                                                         }
-                                                                    />
-                                                                </ActionIcon>
-                                                            </Tooltip>
-                                                        </>
-                                                    )}
-                                                </Group>
-                                            </Box>
-                                        )}
+                                                                    >
+                                                                        <ActionIcon
+                                                                            onClick={() => {
+                                                                                handleUpdateInvoiceItemstatus(
+                                                                                    pet.invoiceItemId,
+                                                                                    "COMPLETED"
+                                                                                );
+                                                                            }}
+                                                                            loading={
+                                                                                isPendingUpdateItemStatus
+                                                                            }
+                                                                            size="input-xs"
+                                                                            radius={
+                                                                                "md"
+                                                                            }
+                                                                            variant="light"
+                                                                        >
+                                                                            <IconCheck
+                                                                                size={
+                                                                                    16
+                                                                                }
+                                                                                stroke={
+                                                                                    1.5
+                                                                                }
+                                                                            />
+                                                                        </ActionIcon>
+                                                                    </Tooltip>
+                                                                </>
+                                                            )}
+                                                        </Group>
+                                                    </Box>
+                                                )}
+                                            </Group>
+                                        </Stack>
                                     </Group>
                                 </Box>
                             ))}
