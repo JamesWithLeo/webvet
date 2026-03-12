@@ -16,6 +16,7 @@ import { getUserById } from "./lib/db/users";
 import { refreshAccessToken } from "./lib/refreshAccessToken";
 import { createHash, randomInt } from "crypto";
 import { and, eq } from "drizzle-orm";
+import { checkAuthLimit } from "./actions/rateLimit";
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -98,6 +99,12 @@ export const authConfig = {
                 // 1. Ensure credentials exist and cast them to strings
                 const email = credentials?.email as string;
                 const otp = credentials?.otp as string;
+
+                const limit = await checkAuthLimit(email);
+                if (!limit.success) {
+                    // Throwing an error here sends a message to the frontend result object
+                    throw new Error("RATE_LIMIT_EXCEEDED");
+                }
 
                 const hashedToken = createHash("sha256")
                     .update(`${otp}${process.env.NEXTAUTH_SECRET}`)

@@ -7,6 +7,8 @@ import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
 import { checkAuthLimit } from "@/actions/rateLimit";
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 export default function AuthPin() {
     const [email, setEmail] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -20,6 +22,14 @@ export default function AuthPin() {
             router.push("/");
             return;
         }
+
+        if (!EMAIL_REGEX.test(storedEmail)) {
+            console.error("Invalid email format in session storage");
+            sessionStorage.removeItem("auth_email");
+            router.push("/");
+            return;
+        }
+
         setEmail(storedEmail);
     }, [router]);
 
