@@ -22,6 +22,9 @@ import { CredentialsSignin } from "next-auth";
 class RateError extends CredentialsSignin {
     code = "RATE_LIMIT_EXCEEDED";
 }
+class WrongPinError extends CredentialsSignin {
+    code = "PIN_EXPIRED";
+}
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -147,7 +150,7 @@ export const authConfig = {
                     await db
                         .delete(verificationTokens)
                         .where(eq(verificationTokens.token, hashedToken));
-                    return null;
+                    throw new WrongPinError();
                 }
 
                 let [user] = await db

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
 import { checkAuthLimit } from "@/actions/rateLimit";
+import { IconLock } from "@tabler/icons-react";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -61,12 +62,29 @@ export default function AuthPin() {
             setValue("");
             setIsError(true);
 
-            if (result.code === "RATE_LIMIT_EXCEEDED")
+            if (result.code === "RATE_LIMIT_EXCEEDED") {
                 notifications.show({
                     title: "Verification failed",
                     message: "Rate limit exceeded, please try again later.",
                     color: "red",
                 });
+            } else if (result.code === "PIN_EXPIRED") {
+                notifications.show({
+                    title: "PIN Expired",
+                    message:
+                        "This code is no longer valid. Please request a new one.",
+                    color: "orange",
+                    icon: <IconLock size={16} />,
+                });
+            } else {
+                notifications.show({
+                    title: "Invalid PIN",
+                    message:
+                        "The PIN you entered is incorrect. Please try again.",
+                    color: "red",
+                    icon: <IconLock size={16} />,
+                });
+            }
         } else {
             sessionStorage.removeItem("auth_email");
             router.push("/v1/dashboard");
