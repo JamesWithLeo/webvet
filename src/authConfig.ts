@@ -15,8 +15,13 @@ import MagicLinkEmail from "./components/emails/MagicLinkEmail";
 import { getUserById } from "./lib/db/users";
 import { refreshAccessToken } from "./lib/refreshAccessToken";
 import { createHash, randomInt } from "crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne, not } from "drizzle-orm";
 import { checkAuthLimit } from "./actions/rateLimit";
+import { CredentialsSignin } from "next-auth";
+
+class RateError extends CredentialsSignin {
+    code = "RATE_LIMIT_EXCEEDED";
+}
 
 export const authConfig = {
     secret: process.env.NEXTAUTH_SECRET as string,
@@ -60,9 +65,18 @@ export const authConfig = {
                 theme,
                 token,
             }) => {
+                const hashedToken = createHash("sha256")
+                    .update(token)
+                    .digest("hex");
+
                 await db
                     .delete(verificationTokens)
-                    .where(eq(verificationTokens.identifier, email));
+                    .where(
+                        and(
+                            eq(verificationTokens.identifier, email),
+                            ne(verificationTokens.token, hashedToken)
+                        )
+                    );
 
                 const emailHtml = await render(
                     MagicLinkEmail({
@@ -108,7 +122,7 @@ export const authConfig = {
 
                 const limit = await checkAuthLimit(email);
                 if (!limit.success) {
-                    throw new Error("RATE_LIMIT_EXCEEDED");
+                    throw new RateError();
                 }
 
                 const hashedToken = createHash("sha256")

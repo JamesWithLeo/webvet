@@ -61,11 +61,12 @@ export default function AuthPin() {
             setValue("");
             setIsError(true);
 
-            notifications.show({
-                title: "Verification failed",
-                message: result.error,
-                color: "red",
-            });
+            if (result.code === "RATE_LIMIT_EXCEEDED")
+                notifications.show({
+                    title: "Verification failed",
+                    message: "Rate limit exceeded, please try again later",
+                    color: "red",
+                });
         } else {
             sessionStorage.removeItem("auth_email");
             router.push("/v1/dashboard");
@@ -86,7 +87,7 @@ export default function AuthPin() {
             oneTimeCode
             disabled={loading}
             size="lg"
-            autoFocus
+            autoFocus={false}
             onComplete={handleVerify}
             error={isError}
         />
