@@ -22,7 +22,6 @@ import {
     // IconHeartFilled,
     IconPlus,
 } from "@tabler/icons-react";
-// import NextImage from "@nex"
 import NextImage from "next/image";
 
 import DogPlaceholder from "../common/DogPlaceholder";

@@ -243,7 +243,7 @@ export default function AdminAppointmentTable({
                         </Text>
                     );
                 },
-                filtering: !!(dateRange[0] && dateRange[1]),
+                filtering: !!(dateRange[0] || dateRange[1]),
             },
             {
                 accessor: "created_at",

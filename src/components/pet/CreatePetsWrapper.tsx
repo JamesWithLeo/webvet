@@ -84,8 +84,8 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
     const breedRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [importedFile, setImportedFile] = useState<FileWithPath | null>(null);
     const uploadDataRef = useRef<{ url: string; key: string } | null>(null);
+    const [croppedFile, setCroppedFile] = useState<File | null>(null);
     const modalsStack = useModalsStack([
         "confirm-modal",
         "force-modal",
@@ -94,7 +94,6 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
     const [image, setImage] = useState<string | null>(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
-    const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
     const createPet = CreatePet.bind(null);
@@ -138,8 +137,10 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
     };
 
     const removePhoto = () => {
-        setImportedFile(null);
         setPreviewUrl(null);
+        setCroppedFile(null);
+        setImage(null);
+        form.setFieldValue("photoUrl", "");
     };
 
     const processAndSubmit = (
@@ -170,6 +171,8 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
     };
 
     const handleSubmit = async (value: PetCreateFormInput) => {
+        if (!croppedFile || isUploading) return;
+
         if (isForced && uploadDataRef.current) {
             processAndSubmit(
                 value,
@@ -179,43 +182,40 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
             );
             return;
         }
-        if (!originalImage || !croppedAreaPixels || isUploading) return;
+
         try {
-            const result = await getCroppedImg(
-                originalImage,
-                croppedAreaPixels
-            );
-            if (result) {
-                const uploadedFile = await startUpload([result.file]);
-                if (uploadedFile?.[0]) {
-                    const { ufsUrl, key } = uploadedFile[0];
-                    uploadDataRef.current = { url: ufsUrl, key: key };
-                    processAndSubmit(value, ufsUrl, key, false);
-                }
+            const uploadedFile = await startUpload([croppedFile]);
+
+            if (uploadedFile?.[0]) {
+                const { ufsUrl, key } = uploadedFile[0];
+
+                uploadDataRef.current = { url: ufsUrl, key };
+
+                processAndSubmit(value, ufsUrl, key, false);
             }
         } catch (e) {
-            console.error("Error during crop/upload flow:", e);
+            console.error("Upload failed:", e);
         }
     };
+
     const onCropComplete = useCallback((sa: any, croppedAreaPixels: any) => {
         setCroppedAreaPixels(croppedAreaPixels);
     }, []);
 
     const onDrop = (files: File[]) => {
         const file = files[0];
+        if (!file) return;
 
         const reader = new FileReader();
-        modalsStack.open("crop-modal");
 
-        reader.addEventListener("load", () => {
+        reader.onload = () => {
             const result = reader.result as string;
             setImage(result);
-            setOriginalImage(result);
-        });
+            modalsStack.open("crop-modal");
+        };
 
         reader.readAsDataURL(file);
     };
-
     // for server error
     useEffect(() => {
         if (formState.existingPet && formState.name && formState.photoUrl) {
@@ -261,22 +261,6 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
             return () => clearTimeout(timer); // Cleanup timer on unmount
         }
     }, [formState]);
-
-    // For pet profile picture
-    useEffect(() => {
-        let objectUrl: string | null = null;
-        if (importedFile) {
-            // If a file was uploaded, create a Blob URL
-            objectUrl = URL.createObjectURL(importedFile);
-            setPreviewUrl(objectUrl);
-            form.setFieldValue("photoUrl", objectUrl);
-        }
-
-        return () => {
-            if (objectUrl) URL.revokeObjectURL(objectUrl);
-        };
-        // create preview
-    }, [importedFile]);
 
     // For duplicate pet
     useEffect(() => {
@@ -516,6 +500,7 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                     mt={"lg"}
                     onClick={() => {
                         const { hasErrors } = form.validate();
+
                         if (!hasErrors) modalsStack.open("confirm-modal");
                     }}
                     loading={isPending || isUploading || isPendingTransition}
@@ -789,7 +774,7 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                                         fullWidth
                                         variant="default"
                                         onClick={() => {
-                                            setImage(null);
+                                            removePhoto();
                                             modalsStack.closeAll();
                                         }}
                                         // onClick={handleClose}
@@ -800,7 +785,8 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                                         fullWidth
                                         disabled={!image}
                                         onClick={async () => {
-                                            if (!image) return;
+                                            if (!image || !croppedAreaPixels)
+                                                return;
 
                                             try {
                                                 const result =
@@ -808,12 +794,23 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                                                         image,
                                                         croppedAreaPixels
                                                     );
+
                                                 if (result) {
+                                                    // preview
                                                     setPreviewUrl(
                                                         result.fileUrl
                                                     );
 
-                                                    // 2. Clear the "editor" state to close the cropper UI
+                                                    // store cropped file
+                                                    setCroppedFile(result.file);
+
+                                                    // satisfy form validation
+                                                    form.setFieldValue(
+                                                        "photoUrl",
+                                                        result.fileUrl
+                                                    );
+
+                                                    // close modal
                                                     setImage(null);
                                                     modalsStack.closeAll();
                                                 }
