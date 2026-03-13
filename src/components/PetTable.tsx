@@ -12,7 +12,6 @@ import {
     Button,
     TextInput,
     NativeSelect,
-    Modal,
     NumberInput,
     Image,
     TagsInput,
@@ -24,7 +23,6 @@ import {
     Divider,
     useDrawersStack,
     Paper,
-    Loader,
     SimpleGrid,
     Avatar,
 } from "@mantine/core";
@@ -98,15 +96,18 @@ const initialValue: PetEditFormInput = {
 
 type Props = {
     role: (typeof role.enumValues)[number];
-    id: string;
+    id?: string | null;
 };
 
 export default function PetTable({ role, id }: Props) {
+    const [highlight, setHighlight] = useState<string>(id ?? "");
     const key = "draggable-example";
     const queryClient = useQueryClient();
     const drawer = useDrawersStack(["history", "edit"]);
-
-    const { data, isLoading, queryId, setQueryId } = usePetsAdmin();
+    const [page, setPage] = useState(1);
+    const pageSize = 10;
+    const { data, totalCount, currentPage, isLoading, queryId, setQueryId } =
+        usePetsAdmin(page, pageSize, highlight);
 
     const [selected, setSelected] = useState<AdminPetsSummary | null>(null);
     const [selectedPetForMedical, setSelectedPetForMedical] =
@@ -146,7 +147,7 @@ export default function PetTable({ role, id }: Props) {
     });
 
     const allBreed = useMemo(() => {
-        return new Set(data?.map((pet) => pet.breedSpecification));
+        return new Set(data.map((pet) => pet.breedSpecification));
     }, [data]);
 
     const fetchBreeds = async (species: string) => {
@@ -350,7 +351,6 @@ export default function PetTable({ role, id }: Props) {
                         <IconPointerCode size={16} />
                     </Group>
                 ),
-                // hidden: role === "vet",
                 width: "6%",
                 textAlign: "center",
                 render: (record) => (
@@ -489,22 +489,28 @@ export default function PetTable({ role, id }: Props) {
                 </Button>
             </Group>
             <DataTable
+                rowClassName={(record) =>
+                    record.id === highlight ? "!bg-blue-50" : ""
+                }
+                idAccessor={"id"}
                 withTableBorder={true}
                 withColumnBorders={false}
                 withRowBorders
-                // striped
                 pinLastColumn
                 highlightOnHover
                 verticalSpacing="sm"
                 borderRadius="sm"
                 records={data}
-                totalRecords={1500}
+                totalRecords={totalCount}
                 storeColumnsKey={key}
-                page={1}
+                page={currentPage}
                 minHeight={200}
                 fetching={isLoading}
-                recordsPerPage={20}
-                onPageChange={() => {}}
+                recordsPerPage={pageSize}
+                onPageChange={(p) => {
+                    setHighlight("");
+                    setPage(p);
+                }}
                 columns={effectiveColumns}
                 rowExpansion={{
                     allowMultiple: true,

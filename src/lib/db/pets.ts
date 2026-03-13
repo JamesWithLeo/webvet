@@ -1,7 +1,15 @@
 import { db } from "@/db";
 import { breeds, pets } from "@/db/schema/pets";
 import { AdminPetsSummary } from "@/types/pets";
-import { and, eq, getTableColumns, isNotNull, isNull } from "drizzle-orm";
+import {
+    and,
+    count,
+    eq,
+    getTableColumns,
+    isNotNull,
+    isNull,
+    sql,
+} from "drizzle-orm";
 import {
     PetEditFormInput,
     PetEditFormOutput,
@@ -104,13 +112,51 @@ export const getPet = async (petId: string, ownerId: string) => {
     }
 };
 
-export const getAllPetsAdmin = async () => {
+export const getAllPetsAdmin = async (
+    page: number = 1,
+    pageSize: number = 10,
+    highlightId?: string | null
+) => {
     try {
-        const result = await db.select().from(pets);
-        return { data: result, error: null };
+        let activePage = page;
+
+        // Find the page of the highlighted pet if highlightId is passed
+        if (highlightId) {
+            const allPets = await db
+                .select({ id: pets.id })
+                .from(pets)
+                .orderBy(sql`${pets.createdAt} DESC`);
+            const index = allPets.findIndex((p) => p.id === highlightId);
+
+            if (index !== -1) {
+                activePage = Math.ceil((index + 1) / pageSize);
+            }
+        }
+
+        const offset = (activePage - 1) * pageSize;
+
+        const data = await db
+            .select()
+            .from(pets)
+            .limit(pageSize)
+            .offset(offset)
+            .orderBy(sql`${pets.createdAt} DESC`);
+
+        const total = await db.select({ value: count() }).from(pets);
+
+        return {
+            data,
+            totalCount: total[0].value,
+            currentPage: activePage,
+            error: null,
+        };
     } catch (error) {
-        console.error(error);
-        return { data: null, error: "Failed to load all pets for admin" };
+        return {
+            data: [],
+            totalCount: 0,
+            currentPage: 1,
+            error: "Error fetching",
+        };
     }
 };
 

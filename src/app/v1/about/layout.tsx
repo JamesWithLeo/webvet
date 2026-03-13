@@ -1,4 +1,4 @@
-import { Divider, Text } from "@mantine/core";
+import { Divider, Button, Text } from "@mantine/core";
 import { ReactNode } from "react";
 import bg from "../../../../public/bg.svg";
 
@@ -12,11 +12,14 @@ export default function Layout({ children }: { children: ReactNode }) {
                 style={{ backgroundImage: `url(${bg.src})` }}
             >
                 <div className="flex h-8 w-max gap-8 text-white">
-                    <Text>About</Text>
+                <Button component={"a"} variant="transparent" c="white" href={"#"}>
+                About</Button>
                     <Divider orientation="vertical" />
-                    <Text>Pricing</Text>
+                <Button component={"a"} variant="transparent" c="white" href={"/v1/pricing"}>
+                Pricing</Button>
                     <Divider orientation="vertical" />
-                    <Text>Landing Page</Text>
+                <Button component={"a"} variant="transparent" c="white" href={"/"}>
+                Landing Page</Button>
                 </div>
                 <Text size="sm" c={"gray.6"} ta={"center"}>
                     © 2025 Education Purposes Only. This is a non-affiliated

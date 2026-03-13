@@ -43,7 +43,7 @@ export default function Page() {
             <CenterPattern />
             <div className="flex flex-col  h-220 justify-center items-center gap-16 max-w-4xl">
                 <LogoWithText href="/" />
-                <Text fz={"xl"} ta={"center"} ff={"monospace"} fs={"italic"}>
+                <Text fz={{xs:"md", sm:"xl"}} ta={"center"} ff={"monospace"} fs={"italic"}>
                     At Joseph & Mary Veterinary Clinic, we prioritize heart over
                     transactions. We’ve created a sanctuary for our community
                     where every pet is treated like family. Our mission is
@@ -52,38 +52,38 @@ export default function Page() {
                 </Text>
             </div>
 
-            <div className=" flex flex-col gap-16 mb-36 max-w-4xl">
+            <div className=" flex flex-col w-full gap-16 mb-36 max-w-7xl">
                 <Title order={2} ta={"center"} fw={"500"}>
                     What Makes Us Different:
                 </Title>
-                <div className="flex gap-8  ">
-                    <Card withBorder p={"xl"}>
+                <div className="flex max-w-7xl  w-full gap-8 flex-col sm:flex-row  ">
+                    <Paper  withBorder p={"xl"} w="100%" >
                         {heart()}
                         <Text c={"primary"} mt={"sm"} fw={"600"} size="lg">
                             Family First
                         </Text>
                         <Text>We treat your pets like our own.</Text>
-                    </Card>
-                    <Card withBorder p={"xl"}>
+                    </Paper>
+                    <Paper  withBorder p={"xl"} w="100%" >
                         {stress()}
                         <Text c={"primary"} mt={"sm"} fw={"600"} size="lg">
                             Stress Free Visits
                         </Text>
                         <Text>A calm environment for happy tails.</Text>
-                    </Card>
-                    <Card withBorder p={"xl"}>
+                    </Paper>
+                    <Paper  withBorder p={"xl"} w="100%" >
                         {care()}
                         <Text c={"primary"} mt={"sm"} fw={"600"} size="lg">
                             Expert Care
                         </Text>
                         <Text>A calm environment for happy tails.</Text>
-                    </Card>
+                    </Paper>
                 </div>
             </div>
             <div className="max-w-4xl gap-4 flex flex-col">
                 <div className="flex gap-4 items-center justify-center w-full ">
                     <Text>Ready to join the Joseph & Mary family?</Text>
-                    <Button size="sm" variant="gradient">
+                    <Button size="sm" variant="gradient" component={"a"} href="/v1/appointments/new">
                         Book an Appointment
                     </Button>
                 </div>

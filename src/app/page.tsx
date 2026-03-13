@@ -4,7 +4,7 @@ import TimeSection from "@/components/TimeSection";
 import ProcessSection from "@/components/ProcessSection";
 
 export default function AppPage() {
-    return (
+   return (
         <div
             className="items-center justify-center
          bg-[#043343]

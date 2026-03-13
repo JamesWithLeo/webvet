@@ -139,10 +139,10 @@ export default function CalendarList({
     return (
         <>
             <div className="justify-between items-center  gap-4 flex-wrap flex ">
-                <label className="lg:text-2xl text-md font-bold">
+                <label className="lg:text-2xl  text-right text-md font-bold w-full sm:w-max">
                     {currentTitle}
                 </label>
-                <div className="flex gap-2  justify-end w-full ">
+                <div className="flex gap-2  justify-end w-full sm:w-max">
                     <AddNewPetButton size={isMobile ? "xs" : "sm"} />
                     <NewAppointmentButton size={isMobile ? "xs" : "sm"} />
                     <Button.Group>

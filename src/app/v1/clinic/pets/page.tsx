@@ -10,11 +10,12 @@ import {
 import { unauthorized } from "next/navigation";
 
 export default async function Pets({
-    params,
+    searchParams,
 }: {
-    params: Promise<{ id: string }>;
+    searchParams: Promise<{ id: string; highlight: string }>;
 }) {
-    const selectedPet = (await params).id;
+    const params = await searchParams;
+    const highlightedPetId = params.highlight;
 
     const session = await auth();
     if (!session) {
@@ -36,7 +37,7 @@ export default async function Pets({
         >
             <Title>Pets</Title>
             <HydrationBoundary state={dehydrate(queryClient)}>
-                <PetTable role={session.user.role} id={selectedPet} />
+                <PetTable role={session.user.role} id={highlightedPetId} />
             </HydrationBoundary>
         </Stack>
     );
