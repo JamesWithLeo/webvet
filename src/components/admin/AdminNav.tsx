@@ -10,11 +10,10 @@ import {
     IconListSearch,
     IconCategory2,
     IconFileInvoice,
-    IconReportMedical,
     IconChartHistogram,
     IconLayoutKanban,
 } from "@tabler/icons-react";
-import { JSX, ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "../common/LogoutButton";
 import { Tooltip, UnstyledButton } from "@mantine/core";
@@ -44,32 +43,25 @@ const data = [
         roles: ["admin", "staff"],
     },
     {
-        link: "/invoice",
+        link: "/clinic/invoice",
         label: "Invoice",
         icon: <IconFileInvoice stroke={1.5} />,
         roles: ["admin", "staff"],
     },
     {
-        link: "/sales",
+        link: "/clinic/sales",
         label: "Sales",
         icon: <IconChartHistogram stroke={1.5} />,
         roles: ["admin", "staff"],
     },
-    // vet pages
     {
-        link: "/treatment-board",
+        link: "/clinic/treatment-board",
         label: "Treatment Board",
         icon: <IconLayoutKanban stroke={1.5} />,
         roles: ["admin", "vet"],
     },
-    // {
-    //     link: "/medical-logs",
-    //     label: "Medical Logs",
-    //     icon: <IconReportMedical stroke={1.5} />,
-    //     roles: ["admin", "vet"],
-    // },
     {
-        link: "/accounts",
+        link: "/clinic/accounts",
         label: "Accounts",
         icon: <IconUser stroke={1.5} />,
         roles: ["admin", "staff"],
@@ -81,13 +73,13 @@ const data = [
         roles: ["admin", "staff", "vet"],
     },
     {
-        link: "/calendar",
+        link: "/clinic/calendar",
         label: "Calendar",
         icon: <IconCalendarSearch stroke={1.5} />,
         roles: ["admin"],
     },
     {
-        link: "/services",
+        link: "/clinic/services",
         label: "Services",
         icon: <IconCategory2 stroke={1.5} />,
         roles: ["admin"],
@@ -137,7 +129,7 @@ type Props = {
 };
 export default function AdminNav({ role }: Props) {
     const pathname = usePathname();
-    const lastpath = pathname.split("/").pop()?.toLowerCase() ?? "dashboard";
+    const lastpath = pathname.split("/").pop()?.toLowerCase() ?? "";
 
     const [active, setActive] = useState(lastpath);
 
@@ -163,7 +155,7 @@ export default function AdminNav({ role }: Props) {
                     isActive={
                         item.label.toLowerCase() === active.split("-").join(" ")
                     }
-                    link={`/v1/clinic${item.link}`}
+                    link={`/v1${item.link}`}
                     label={item.label}
                     isCollapsed={isCollapsed}
                 />
