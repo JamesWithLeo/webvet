@@ -4,6 +4,7 @@ import { PetTypeModel } from "@/types/pets";
 import calculatePetAge from "@/lib/calculatePetAge";
 import { toTitleCase } from "@/lib/toTitleCase";
 import Cropper from "react-easy-crop";
+import getCroppedImage from "@/lib/GetCroppedImage";
 import {
     Stack,
     Title,
@@ -45,10 +46,6 @@ type Props = {
     data: PetTypeModel;
 };
 
-interface CropResult {
-    file: File;
-    fileUrl: string;
-}
 export default function PetProfile({
     data: {
         id,
@@ -134,7 +131,7 @@ export default function PetProfile({
         if (!source || !croppedAreaPixels) return;
 
         try {
-            const result = await getCroppedImg(source, croppedAreaPixels);
+            const result = await getCroppedImage(source, croppedAreaPixels);
             if (result) {
                 // CRITICAL: Pass the file array directly to startUpload
                 await startUpload([result.file]);
@@ -142,59 +139,6 @@ export default function PetProfile({
         } catch (e) {
             console.error("Error during crop/upload flow:", e);
         }
-    };
-    const getCroppedImg = async (
-        imageSrc: string,
-        pixelCrop: any
-    ): Promise<CropResult | null> => {
-        const image = new Image();
-        image.setAttribute("crossOrigin", "anonymous");
-        image.src = imageSrc;
-
-        await new Promise((resolve, reject) => {
-            image.onload = resolve;
-            image.onerror = reject;
-        });
-
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-
-        if (!ctx) return null;
-
-        // Set canvas size to the exact pixel dimensions provided by the cropper
-        canvas.width = pixelCrop.width;
-        canvas.height = pixelCrop.height;
-
-        // Clear canvas to prevent bleeding from previous draws
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw the image
-        ctx.drawImage(
-            image,
-            pixelCrop.x,
-            pixelCrop.y,
-            pixelCrop.width,
-            pixelCrop.height,
-            0,
-            0,
-            pixelCrop.width,
-            pixelCrop.height
-        );
-
-        return new Promise((resolve) => {
-            canvas.toBlob(
-                (blob) => {
-                    if (!blob) return;
-                    const file = new File([blob], "cropped-image.jpg", {
-                        type: "image/jpeg",
-                    });
-                    const fileUrl = URL.createObjectURL(blob);
-                    resolve({ file, fileUrl });
-                },
-                "image/jpeg",
-                1.0 // Use 1.0 for highest quality
-            );
-        });
     };
     useEffect(() => {
         if (formState?.success) {
@@ -380,7 +324,7 @@ export default function PetProfile({
                                     onZoomChange={setZoom}
                                 />
                             </div>
-                            <Text size="sm">Zoom</Text>
+                            <Text size="sm">Zoom</Text>{" "}
                             <Slider
                                 value={zoom}
                                 min={1}
@@ -390,6 +334,7 @@ export default function PetProfile({
                             />
                         </div>
                     )}
+
                     <Group wrap="nowrap">
                         {previewUrl && (
                             <>
@@ -436,10 +381,11 @@ export default function PetProfile({
                                         if (!image) return;
 
                                         try {
-                                            const result = await getCroppedImg(
-                                                image,
-                                                croppedAreaPixels
-                                            );
+                                            const result =
+                                                await getCroppedImage(
+                                                    image,
+                                                    croppedAreaPixels
+                                                );
                                             if (result) {
                                                 setPreviewUrl(result.fileUrl);
 

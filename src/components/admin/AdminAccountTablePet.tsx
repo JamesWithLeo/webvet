@@ -2,7 +2,7 @@
 
 import usePets from "@/lib/hooks/usePets";
 import { toTitleCase } from "@/lib/toTitleCase";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import { PetTypeModelWithBreed } from "@/types/pets";
 import {
     ActionIcon,
@@ -23,7 +23,7 @@ type Props = {
 };
 export default function AdminAccountPetTable({ ownerId }: Props) {
     const { data, isFetching } = usePets(ownerId, "all");
-    const router =useRouter()
+    const router = useRouter();
     const columns = useMemo<DataTableColumn<PetTypeModelWithBreed>[]>(
         () => [{ accessor: "name", title: "Name" }],
         [ownerId, data]
@@ -64,12 +64,18 @@ export default function AdminAccountPetTable({ ownerId }: Props) {
                                           <IconDotsVertical />
                                       </Menu.Target>
                                       <Menu.Dropdown>
-                                          <Menu.Item onClick={()=> {
-router.push(`/v1/clinic/pets?highlight=${pet.id}`)
-                                          }}>View on table</Menu.Item>
-                                          <Menu.Item>
-                                              View medical history
+                                          <Menu.Item
+                                              onClick={() => {
+                                                  router.push(
+                                                      `/v1/clinic/pets?highlight=${pet.id}`
+                                                  );
+                                              }}
+                                          >
+                                              View on table
                                           </Menu.Item>
+                                          {/* <Menu.Item>
+                                              View medical history
+                                          </Menu.Item> */}
                                       </Menu.Dropdown>
                                   </Menu>
                               </ActionIcon>

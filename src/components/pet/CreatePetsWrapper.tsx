@@ -1,5 +1,6 @@
 "use client";
 
+import getCroppedImg from "@/lib/GetCroppedImage";
 import { CreatePet } from "@/actions/pets";
 import Image from "next/image";
 import {
@@ -11,6 +12,7 @@ import {
     Group,
     Modal,
     NativeSelect,
+    Slider,
     Stack,
     TagsInput,
     Text,
@@ -33,6 +35,7 @@ import {
 } from "@tabler/icons-react";
 import {
     useActionState,
+    useCallback,
     useEffect,
     useRef,
     useState,
@@ -56,6 +59,7 @@ import { notifications } from "@mantine/notifications";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { useRouter } from "next/navigation";
 import { DeleteUTFile } from "@/lib/uploadthing-util";
+import Cropper from "react-easy-crop";
 
 const formInitialValues: PetCreateFormInput = {
     name: "",
@@ -82,7 +86,16 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [importedFile, setImportedFile] = useState<FileWithPath | null>(null);
     const uploadDataRef = useRef<{ url: string; key: string } | null>(null);
-    const modalsStack = useModalsStack(["confirm-modal", "force-modal"]);
+    const modalsStack = useModalsStack([
+        "confirm-modal",
+        "force-modal",
+        "crop-modal",
+    ]);
+    const [image, setImage] = useState<string | null>(null);
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [originalImage, setOriginalImage] = useState<string | null>(null);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
     const createPet = CreatePet.bind(null);
     const [formState, formAction, isPending] = useActionState(createPet, {
@@ -166,16 +179,41 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
             );
             return;
         }
-
-        if (!importedFile || isUploading) return;
-        const uploadedFile = await startUpload([importedFile]);
-
-        if (uploadedFile?.[0]) {
-            const { ufsUrl, key } = uploadedFile[0];
-            // Cache it in the ref
-            uploadDataRef.current = { url: ufsUrl, key: key };
-            processAndSubmit(value, ufsUrl, key, false);
+        if (!originalImage || !croppedAreaPixels || isUploading) return;
+        try {
+            const result = await getCroppedImg(
+                originalImage,
+                croppedAreaPixels
+            );
+            if (result) {
+                const uploadedFile = await startUpload([result.file]);
+                if (uploadedFile?.[0]) {
+                    const { ufsUrl, key } = uploadedFile[0];
+                    uploadDataRef.current = { url: ufsUrl, key: key };
+                    processAndSubmit(value, ufsUrl, key, false);
+                }
+            }
+        } catch (e) {
+            console.error("Error during crop/upload flow:", e);
         }
+    };
+    const onCropComplete = useCallback((sa: any, croppedAreaPixels: any) => {
+        setCroppedAreaPixels(croppedAreaPixels);
+    }, []);
+
+    const onDrop = (files: File[]) => {
+        const file = files[0];
+
+        const reader = new FileReader();
+        modalsStack.open("crop-modal");
+
+        reader.addEventListener("load", () => {
+            const result = reader.result as string;
+            setImage(result);
+            setOriginalImage(result);
+        });
+
+        reader.readAsDataURL(file);
     };
 
     // for server error
@@ -298,10 +336,11 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                                 gap={"xl"}
                                 mih={"220"}
                                 multiple={false}
-                                onDrop={(files) => {
-                                    setImportedFile(files[0]);
-                                    form.clearFieldError("photoUrl");
-                                }}
+                                onDrop={onDrop}
+                                // onDrop={(files) => {
+                                //     setImportedFile(files[0]);
+                                //     form.clearFieldError("photoUrl");
+                                // }}
                                 onReject={(files) => {
                                     (form.setFieldError(
                                         "photoUrl",
@@ -684,6 +723,112 @@ export default function CreatePetsWrapper({ id }: { id: string }) {
                             >
                                 Proceed and add anyways
                             </Button>
+                        </Group>
+                    </Stack>
+                </Modal>
+
+                <Modal
+                    withCloseButton={false}
+                    withOverlay={true}
+                    overlayProps={{
+                        backgroundOpacity: 0.55,
+                        blur: 3,
+                    }}
+                    centered
+                    size={"md"}
+                    closeOnClickOutside={false}
+                    {...modalsStack.register("crop-modal")}
+                    onClose={() => {
+                        setImage(null);
+                        modalsStack.closeAll();
+                    }}
+                >
+                    <Stack>
+                        {image && (
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "1rem",
+                                }}
+                            >
+                                <div
+                                    className="rounded-sm overflow-hidden"
+                                    style={{
+                                        position: "relative",
+                                        height: 300,
+                                        width: "100%",
+                                        background: "#333",
+                                    }}
+                                >
+                                    <Cropper
+                                        image={image}
+                                        crop={crop}
+                                        zoom={zoom}
+                                        aspect={1 / 1}
+                                        onCropChange={setCrop}
+                                        onCropComplete={onCropComplete}
+                                        onZoomChange={setZoom}
+                                    />
+                                </div>
+                                <Text size="sm">Zoom</Text>{" "}
+                                <Slider
+                                    value={zoom}
+                                    min={1}
+                                    max={3}
+                                    step={0.1}
+                                    onChange={setZoom}
+                                />
+                            </div>
+                        )}
+
+                        <Group wrap="nowrap">
+                            {!previewUrl && (
+                                <>
+                                    <Button
+                                        fullWidth
+                                        variant="default"
+                                        onClick={() => {
+                                            setImage(null);
+                                            modalsStack.closeAll();
+                                        }}
+                                        // onClick={handleClose}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        fullWidth
+                                        disabled={!image}
+                                        onClick={async () => {
+                                            if (!image) return;
+
+                                            try {
+                                                const result =
+                                                    await getCroppedImg(
+                                                        image,
+                                                        croppedAreaPixels
+                                                    );
+                                                if (result) {
+                                                    setPreviewUrl(
+                                                        result.fileUrl
+                                                    );
+
+                                                    // 2. Clear the "editor" state to close the cropper UI
+                                                    setImage(null);
+                                                    modalsStack.closeAll();
+                                                }
+                                            } catch (e) {
+                                                console.error(
+                                                    "Error creating preview:",
+                                                    e
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        Select
+                                    </Button>
+                                </>
+                            )}
                         </Group>
                     </Stack>
                 </Modal>

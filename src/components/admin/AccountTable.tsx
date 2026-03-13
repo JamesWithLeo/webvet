@@ -466,7 +466,6 @@ export default function AccountTable() {
                 pinLastColumn={true}
                 highlightOnHover={true}
                 verticalSpacing="xs"
-                highlightOnHover={true}
                 borderRadius="md"
                 records={records}
                 totalRecords={1500}
