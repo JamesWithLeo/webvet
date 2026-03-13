@@ -114,40 +114,45 @@ export const getPet = async (petId: string, ownerId: string) => {
 
 export const getAllPetsAdmin = async (
     page: number = 1,
-    pageSize: number = 10,
+    pageSize: number | null = 10, // Allow null for "unlimited"
     highlightId?: string | null
 ) => {
     try {
         let activePage = page;
 
-        // Find the page of the highlighted pet if highlightId is passed
-        if (highlightId) {
-            const allPets = await db
+        // 1. Calculate the target page if a highlightId is provided
+        if (highlightId && pageSize) {
+            const allIds = await db
                 .select({ id: pets.id })
                 .from(pets)
                 .orderBy(sql`${pets.createdAt} DESC`);
-            const index = allPets.findIndex((p) => p.id === highlightId);
-
+            const index = allIds.findIndex((p) => p.id === highlightId);
             if (index !== -1) {
                 activePage = Math.ceil((index + 1) / pageSize);
             }
         }
 
-        const offset = (activePage - 1) * pageSize;
-
-        const data = await db
+        // 2. Build the query dynamically
+        let query = db
             .select()
             .from(pets)
-            .limit(pageSize)
-            .offset(offset)
             .orderBy(sql`${pets.createdAt} DESC`);
 
-        const total = await db.select({ value: count() }).from(pets);
+        // Only apply pagination if pageSize is provided
+        if (pageSize && pageSize > 0) {
+            const offset = (activePage - 1) * pageSize;
+            query = query.limit(pageSize).offset(offset) as any;
+        }
+
+        const [data, total] = await Promise.all([
+            query,
+            db.select({ value: count() }).from(pets),
+        ]);
 
         return {
             data,
             totalCount: total[0].value,
-            currentPage: activePage,
+            currentPage: pageSize ? activePage : 1,
             error: null,
         };
     } catch (error) {
@@ -159,7 +164,6 @@ export const getAllPetsAdmin = async (
         };
     }
 };
-
 export const updatePetAdmin = async (
     id: string,
     pet: Partial<AdminPetsSummary>

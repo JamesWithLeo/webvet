@@ -1,45 +1,12 @@
 "use client";
 
 import { Button, Paper, SimpleGrid } from "@mantine/core";
-import { IconArrowUpRight } from "@tabler/icons-react";
 import { AreaChart, PieChart } from "@mantine/charts";
 import usePetsAdmin from "@/lib/hooks/usePetsAdmin";
 import { useMemo } from "react";
-// export const data = [
-//     {
-//         date: "Mar 22",
-//         Dogs: 2890,
-//         Cats: 2338,
-//         Tomatoes: 2452,
-//     },
-//     {
-//         date: "Mar 23",
-//         Dogs: 2756,
-//         Cats: 2103,
-//         Tomatoes: 2402,
-//     },
-//     {
-//         date: "Mar 24",
-//         Dogs: 3322,
-//         Cats: 986,
-//         Tomatoes: 1821,
-//     },
-//     {
-//         date: "Mar 25",
-//         Dogs: 3470,
-//         Cats: 2108,
-//         Tomatoes: 2809,
-//     },
-//     {
-//         date: "Mar 26",
-//         Dogs: 3129,
-//         Cats: 1726,
-//         Tomatoes: 2290,
-//     },
-// ];
 
 export default function PetPanels({ detailed }: { detailed?: boolean }) {
-    const { data } = usePetsAdmin();
+    const { data } = usePetsAdmin(null, 0);
     const pieData = useMemo(() => {
         if (!data) return [];
 

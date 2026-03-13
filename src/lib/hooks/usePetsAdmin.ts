@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 export default function usePetsAdmin(
-    page: number,
+    page: number | null,
     pageSize: number,
     highlight?: string | null
 ) {
