@@ -29,6 +29,7 @@ import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
 import { toTitleCase } from "@/lib/toTitleCase";
 import LongItemFormatter from "@/lib/LongItemFormatter";
+import { getSizeByWeight } from "@/lib/getSizeByWeight";
 
 type Props = {
     appointmentId: string;
@@ -75,7 +76,7 @@ export default function AdminCreateInvoiceTable({
                 },
                 items: selectedRows.map((row) => ({
                     petId: row.petId,
-                    priceAtInvoice: row.priceAtBooking,
+                    priceAtInvoice: "0.00",
                     serviceId: row.serviceId,
                 })),
             });
@@ -90,19 +91,35 @@ export default function AdminCreateInvoiceTable({
 
     const sum = useMemo(() => {
         return selectedRows.reduce((acc, row) => {
-            const price = Number(row.priceAtBooking) || 0;
+            const price = Number(row.priceAtInvoice);
             return acc + price;
         }, 0);
     }, [selectedRows]);
 
-    const rows = pets.map((pet) => (
-        <PetRow
-            key={pet.id}
-            pet={pet}
-            selectedRows={selectedRows}
-            setSelectedRows={setSelectedRows}
-        />
-    ));
+    const renderedRows = pets
+        .map((pet) => {
+            const weight = getSizeByWeight(pet.weight);
+            const service = services.find((s) => s.id === pet.serviceId);
+
+            const variant =
+                service?.variants.find((v) => v.variant === weight) ||
+                service?.variants.find((v) => v.variant === "FLAT");
+            if (!variant) return;
+
+            return (
+                <PetRow
+                    noWeight={!pet.weight}
+                    key={`${pet.id}`}
+                    pet={pet}
+                    selectedRows={selectedRows.map((r) => ({
+                        ...r,
+                    }))}
+                    priceAtInvoice={variant.price}
+                    setSelectedRows={setSelectedRows}
+                />
+            );
+        })
+        .filter(Boolean);
 
     useEffect(() => {
         if (formState.success && formState.invoiceId) {
@@ -127,43 +144,77 @@ export default function AdminCreateInvoiceTable({
         }
     }, [formState]);
 
+    useEffect(() => {
+        console.log(pets);
+    }, [pets]);
+
     return (
         <>
             <Stack>
                 <Table
+                    bg={"white"}
                     withRowBorders
-                    withTableBorder={false}
+                    withTableBorder={true}
                     withColumnBorders
-                    striped
+                    striped={false}
                     tabularNums
                 >
                     <Table.Thead>
                         <Table.Tr>
+                            <Table.Th>Pet</Table.Th>
+                            <Table.Th>Source</Table.Th>
+                            <Table.Th>Service</Table.Th>
+                            <Table.Th>Price at booking</Table.Th>
                             <Table.Td>
                                 <Checkbox
                                     aria-label="Select all row"
                                     onClick={(event) => {
-                                        if (event.currentTarget.checked)
-                                            setSelectedRows(pets);
-                                        else {
+                                        if (event.currentTarget.checked) {
+                                            const allPets = pets.map((pet) => {
+                                                if (!pet.weight) return;
+                                                const weight = getSizeByWeight(
+                                                    pet.weight
+                                                );
+                                                const service = services.find(
+                                                    (s) =>
+                                                        s.id === pet.serviceId
+                                                );
+
+                                                const variant =
+                                                    service?.variants.find(
+                                                        (v) =>
+                                                            v.variant === weight
+                                                    ) ||
+                                                    service?.variants.find(
+                                                        (v) =>
+                                                            v.variant === "FLAT"
+                                                    );
+                                                if (!variant) return;
+
+                                                return {
+                                                    ...pet,
+                                                    priceAtInvoice:
+                                                        variant.price,
+                                                };
+                                            });
+                                            setSelectedRows(
+                                                allPets.filter((p) => !!p)
+                                            );
+                                        } else {
                                             setSelectedRows([]);
                                         }
                                     }}
                                 />
                             </Table.Td>
-                            <Table.Th>Pet</Table.Th>
-                            <Table.Th>Source</Table.Th>
-                            <Table.Th>Service</Table.Th>
-                            <Table.Th>Price at booking</Table.Th>
                         </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
-                        {rows}
+                        {renderedRows}
                         <Table.Tr>
-                            <Table.Td colSpan={4} align="right" fw={"bold"}>
+                            <Table.Td colSpan={3} align="right" fw={"bold"}>
                                 Total
                             </Table.Td>
-                            <Table.Td colSpan={2} fw={"bold"}>
+                            <Table.Td fw={"bold"}>
                                 {new Intl.NumberFormat("en-PH", {
                                     style: "currency",
                                     currency: "PHP",
@@ -203,6 +254,7 @@ export default function AdminCreateInvoiceTable({
                     </Button>
                 </Group>
             </Stack>
+
             <PetsSelectModal
                 appointmentId={appointmentId}
                 services={services}

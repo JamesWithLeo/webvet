@@ -25,7 +25,7 @@ export default async function Page({
     const allPets = await getAllPets(user.id);
 
     return (
-        <div className="w-full h-screen p-16 flex flex-col gap-4">
+        <Stack className="w-full h-screen p-8" gap={"md"} bg={"gray.0"}>
             <Title>Invoice</Title>
             <Stack gap={"xl"}>
                 <Group>
@@ -51,6 +51,6 @@ export default async function Page({
                 pets={pets}
                 services={servicesGrouped}
             />
-        </div>
+        </Stack>
     );
 }

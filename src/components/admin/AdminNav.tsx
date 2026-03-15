@@ -37,7 +37,7 @@ const data = [
         roles: ["admin", "staff"],
     },
     {
-        link: "/appointments",
+        link: "/clinic/appointments",
         label: "Appointments",
         icon: <IconListSearch stroke={1.5} />,
         roles: ["admin", "staff"],
@@ -67,7 +67,7 @@ const data = [
         roles: ["admin", "staff"],
     },
     {
-        link: "/pets",
+        link: "/clinic/pets",
         label: "Pets",
         icon: <IconCat stroke={1.5} />,
         roles: ["admin", "staff", "vet"],

@@ -64,54 +64,118 @@ export default function PetAccordionItem({ pet, services }: Props) {
                 </Group>
             </Accordion.Control>
             <Accordion.Panel>
-            <Stack gap={0}>
-                {services.length > 0 ? (
-                    <>
-                        {services
-                            .filter(
-                                (s) =>
-                                    s.species === null ||
-                                    s.species === pet.species
-                            )
-                            .map((service) => {
-                                // 1. Check if weight is valid
-                                const hasWeight =
-                                    typeof pet.weight === "number" &&
-                                    pet.weight > 0;
+                <Stack gap={0}>
+                    {services.length > 0 ? (
+                        <>
+                            {services
+                                .filter(
+                                    (s) =>
+                                        s.species === null ||
+                                        s.species === pet.species
+                                )
+                                .map((service) => {
+                                    // 1. Check if weight is valid
+                                    const hasWeight =
+                                        typeof pet.weight === "number" &&
+                                        pet.weight > 0;
 
-                                // 2. Safely get the size for TS
-                                const petSize = hasWeight
-                                    ? getSizeByWeight(pet.weight as number)
-                                    : null;
+                                    // 2. Safely get the size for TS
+                                    const petSize = hasWeight
+                                        ? getSizeByWeight(pet.weight as number)
+                                        : null;
 
-                                // 3. Find the variant
-                                const matchingVariant = service.variants.find(
-                                    (v: any) =>
-                                        v.variant === "FLAT" ||
-                                        (petSize && v.variant === petSize)
-                                );
-                                const isCurrentlyChecked = !!selections[
-                                    pet.id
-                                ]?.some((item) => item.id === service.id);
+                                    // 3. Find the variant
+                                    const matchingVariant =
+                                        service.variants.find(
+                                            (v: any) =>
+                                                v.variant === "FLAT" ||
+                                                (petSize &&
+                                                    v.variant === petSize)
+                                        );
+                                    const isCurrentlyChecked = !!selections[
+                                        pet.id
+                                    ]?.some((item) => item.id === service.id);
 
-                                if (!matchingVariant && !hasWeight) {
+                                    if (!matchingVariant && !hasWeight) {
+                                        return (
+                                            <Group
+                                                key={service.id}
+                                                justify="space-between"
+                                                wrap="nowrap"
+                                                className="cursor-pointer hover:bg-gray-100 rounded-sm select-none"
+                                                p={"sm"}
+                                                onClick={() => {
+                                                    toggleService(pet.id, {
+                                                        name: pet.name,
+                                                        priceAtBooking: "0",
+                                                        ...service,
+                                                    });
+                                                }}
+                                            >
+                                                <Stack gap={0} flex={1}>
+                                                    <Checkbox
+                                                        key={`${service.id}-${isCurrentlyChecked}`}
+                                                        checked={
+                                                            isCurrentlyChecked
+                                                        }
+                                                        label={toTitleCase(
+                                                            service.title
+                                                        )}
+                                                        readOnly
+                                                        styles={{
+                                                            input: {
+                                                                pointerEvents:
+                                                                    "none",
+                                                            },
+                                                        }}
+                                                    />
+
+                                                    <Text
+                                                        size="xs"
+                                                        c="orange"
+                                                        ml={"xl"}
+                                                    >
+                                                        Size-dependent: Price
+                                                        will be assigned by
+                                                        staff upon arrival.
+                                                    </Text>
+                                                </Stack>
+                                                <Tooltip
+                                                    label="To be disclosed"
+                                                    withArrow
+                                                >
+                                                    <Badge
+                                                        size="sm"
+                                                        color="gray"
+                                                        variant="outline"
+                                                    >
+                                                        TBD
+                                                    </Badge>
+                                                </Tooltip>
+                                            </Group>
+                                        );
+                                    }
+
+                                    if (!matchingVariant) return null;
                                     return (
                                         <Group
                                             key={service.id}
                                             justify="space-between"
-                                            // mb="sm"
+                                            mb="xs"
                                             wrap="nowrap"
-                                            className="cursor-pointer select-none"
+                                            gap={0}
+                                            p="sm"
+                                            className="cursor-pointer select-none hover:bg-gray-100 rounded-sm"
                                             onClick={() => {
-                                                console.log("toggled");
                                                 toggleService(pet.id, {
                                                     name: pet.name,
-                                                    priceAtBooking: "0",
+                                                    priceAtBooking:
+                                                        matchingVariant.price,
                                                     ...service,
                                                 });
                                             }}
                                         >
-                                            <Stack gap={0} flex={1}>
+                                            <Stack gap="4px" flex={1}>
                                                 <Checkbox
                                                     key={`${service.id}-${isCurrentlyChecked}`}
                                                     checked={isCurrentlyChecked}
@@ -126,91 +190,35 @@ export default function PetAccordionItem({ pet, services }: Props) {
                                                         },
                                                     }}
                                                 />
-
-                                                <Text
-                                                    size="xs"
-                                                    c="orange"
-                                                    ml={"xl"}
-                                                >
-                                                    Size-dependent: Price will
-                                                    be assigned by staff upon
-                                                    arrival.
-                                                </Text>
-                                            </Stack>
-                                            <Tooltip
-                                                label="To be disclosed"
-                                                withArrow
-                                            >
                                                 <Badge
+                                                    ml={"xl"}
                                                     size="sm"
                                                     color="gray"
                                                     variant="outline"
                                                 >
-                                                    TBD
+                                                    {matchingVariant.variant ===
+                                                    "FLAT"
+                                                        ? "Standard"
+                                                        : matchingVariant.variant}
                                                 </Badge>
-                                            </Tooltip>
+                                            </Stack>
+
+                                            <Text size="sm" fw={700}>
+                                                {currencyFormatter.format(
+                                                    Number(
+                                                        matchingVariant.price
+                                                    )
+                                                )}
+                                            </Text>
                                         </Group>
                                     );
-                                }
-
-                                if (!matchingVariant) return null;
-                                return (
-                                    <Group
-                                        key={service.id}
-                                        justify="space-between"
-                                        mb="xs"
-                                        wrap="nowrap"
-                                        gap={0}
-                                        p="sm"
-                                        className="cursor-pointer select-none hover:bg-gray-100 rounded-sm"
-                                        onClick={() => {
-                                            toggleService(pet.id, {
-                                                name: pet.name,
-                                                priceAtBooking:
-                                                    matchingVariant.price,
-                                                ...service,
-                                            });
-                                        }}
-                                    >
-                                        <Stack gap="4px" flex={1}>
-                                            <Checkbox
-                                                key={`${service.id}-${isCurrentlyChecked}`}
-                                                checked={isCurrentlyChecked}
-                                                label={toTitleCase(
-                                                    service.title
-                                                )}
-                                                readOnly
-                                                styles={{
-                                                    input: {
-                                                        pointerEvents: "none",
-                                                    },
-                                                }}
-                                            />
-                                            <Badge
-                                                ml={"xl"}
-                                                size="sm"
-                                                color="gray"
-                                                variant="outline"
-                                            >
-                                                {matchingVariant.variant ===
-                                                "FLAT"
-                                                    ? "Standard"
-                                                    : matchingVariant.variant}
-                                            </Badge>
-                                        </Stack>
-
-                                        <Text size="sm" fw={700}>
-                                            {currencyFormatter.format(
-                                                Number(matchingVariant.price)
-                                            )}
-                                        </Text>
-                                    </Group>
-                                );
-                            })}
-                    </>
-                ) : (
-                    <Text size="sm">No service available at the moment</Text>
-                )}
+                                })}
+                        </>
+                    ) : (
+                        <Text size="sm">
+                            No service available at the moment
+                        </Text>
+                    )}
                 </Stack>
             </Accordion.Panel>
         </Accordion.Item>

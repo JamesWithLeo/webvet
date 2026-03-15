@@ -64,7 +64,7 @@ export function AppointmentProvider({
                           name: service.name,
                           priceAtBooking: service.priceAtBooking,
                       },
-                  ]; // Store both!
+                  ];
 
             const newState = { ...prev, [petId]: next };
             if (next.length === 0) delete newState[petId];
