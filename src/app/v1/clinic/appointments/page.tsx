@@ -13,7 +13,7 @@ export default function Page() {
         queryFn: () => getAllAppointmentsAdmin("all"),
     });
     return (
-        <div className="w-full h-screen p-16 flex flex-col gap-4">
+        <div className="w-full h-screen p-8 flex flex-col gap-4">
             {" "}
             <HydrationBoundary state={dehydrate(queryClient)}>
                 <AdminAppointmentTable scope="all" />

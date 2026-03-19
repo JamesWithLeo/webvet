@@ -133,6 +133,7 @@ export default function SelectTimeCal({
     return (
         <>
             <FullCalendar
+                height={"100%"}
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView="timeGridDay"
                 initialDate={initialDate}

@@ -149,6 +149,7 @@ export default function CalendarList({
                         <Button
                             onClick={() => calendarRef.current?.getApi().prev()}
                             size={isMobile ? "xs" : "sm"}
+                            radius={"md"}
                             variant="default"
                             c="gray.7"
                         >
@@ -157,6 +158,7 @@ export default function CalendarList({
                         <Button
                             onClick={() => calendarRef.current?.getApi().next()}
                             size={isMobile ? "xs" : "sm"}
+                            radius={"md"}
                             variant="default"
                             c="gray.7"
                         >
