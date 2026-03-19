@@ -22,14 +22,12 @@ import { toTitleCase } from "@/lib/toTitleCase";
 import { useMediaQuery } from "@mantine/hooks";
 import Link from "next/link";
 import DetailRow from "../common/DetailRow";
-import { startTransition, useActionState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import LongItemFormatter from "@/lib/LongItemFormatter";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import useAppointmentToPets from "@/lib/hooks/useAppointmnetToPetsAdmin";
 import { AdminAppointment } from "@/db/schema/appointments";
 import { useRouter } from "next/navigation";
-import { modals } from "@mantine/modals";
-import { notifications } from "@mantine/notifications";
 import { markAsArrivedAction } from "@/actions/invoice";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMarkAsArrived } from "@/lib/hooks/useMarkAsArrived";
@@ -61,7 +59,7 @@ export default function AppointmentDrawerAdmin({
         const allService = data.pets.map((p) => toTitleCase(p.type));
 
         const totalAmount = data.pets.reduce((acc, pet) => {
-            return acc + (Number(pet.priceAtBooking) || 0);
+            return acc + (Number(pet.priceAtInvoice) || 0);
         }, 0);
         return { allService: LongItemFormatter(allService), totalAmount };
     }, [data]);
