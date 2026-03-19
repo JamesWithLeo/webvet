@@ -261,6 +261,27 @@ export default function AdminAppointmentTable({
                 ),
             },
             {
+                accessor: "invoice.status",
+                title: "Status",
+                resizable: true,
+                render: (data) => (
+                    <Text ta={"center"} size="sm">
+                        {data.invoice?.status}
+                    </Text>
+                ),
+            },
+            {
+                accessor: "invoice.paymentStatus",
+                title: "Payment status",
+                resizable: true,
+                render: (data) => (
+                    <Text ta={"center"} size="sm">
+                        {data.invoice?.paymentStatus}
+                    </Text>
+                ),
+            },
+
+            {
                 accessor: "user.id",
                 title: "Action",
                 textAlign: "right",
@@ -317,19 +338,21 @@ export default function AdminAppointmentTable({
                                                 </Button>
                                             )}
 
-                                        {invoice.status === "ARRIVED" && (
-                                            <Button
-                                                fullWidth
-                                                variant="light"
-                                                color="orange"
-                                                size="xs"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                }}
-                                            >
-                                                Mark as cancelled
-                                            </Button>
-                                        )}
+                                        {invoice.status === "ARRIVED" &&
+                                            invoice.paymentStatus !==
+                                                "VOID" && (
+                                                <Button
+                                                    fullWidth
+                                                    variant="light"
+                                                    color="orange"
+                                                    size="xs"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                    }}
+                                                >
+                                                    Mark as cancelled
+                                                </Button>
+                                            )}
                                     </>
                                 )}
                             </Group>

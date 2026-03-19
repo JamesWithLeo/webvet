@@ -59,7 +59,7 @@ export default function AppointmentDrawerAdmin({
         const allService = data.pets.map((p) => toTitleCase(p.type));
 
         const totalAmount = data.pets.reduce((acc, pet) => {
-            return acc + (Number(pet.priceAtInvoice) || 0);
+            return acc + (Number(pet.priceAtBooking) || 0);
         }, 0);
         return { allService: LongItemFormatter(allService), totalAmount };
     }, [data]);

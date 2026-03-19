@@ -10,6 +10,7 @@ type PetServiceMerged = {
     serviceId: string;
     type: AppointmentType;
     priceAtInvoice: string;
+    priceAtBooking: string;
     weight: number;
     source: BookingSourceType;
 };
