@@ -1,11 +1,12 @@
 import InvoiceTable from "@/components/InvoiceTable";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
-import { Stack, Text, Title, Group } from "@mantine/core";
+import { Stack, Text, Title, Group, Button } from "@mantine/core";
 import { notFound } from "next/navigation";
 import InvoiceDocumentWrapper from "@/components/common/InvoiceDocumentWrapper";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { getUserById } from "@/lib/db/users";
 import ProcessCashButton from "@/components/admin/invoice/ProcessCashButton";
+import ProcessVoidButton from "@/components/admin/invoice/ProcessVoidButton";
 
 export default async function Page({
     params,
@@ -59,6 +60,23 @@ export default async function Page({
                                 <ProcessCashButton invoiceId={data.id} />
                             </Stack>
                         )}
+                    {data.paymentStatus === "UNPAID" &&
+                        data.status === "ARRIVED" && (
+                            <Stack align="end" w={"1000"}>
+                                <ProcessVoidButton invoiceId={data.id} />
+                            </Stack>
+                        )}
+
+                    {data.paymentStatus === "VOID" && (
+                        <Stack gap={0} align="end" w={"1000"}>
+                            <Text c={"gray"} size="xs">
+                                Payment status
+                            </Text>
+                            <Text c={"dark"} size="xl" fw={"bolder"}>
+                                VOID
+                            </Text>
+                        </Stack>
+                    )}
                     {data.paymentStatus === "PAID" && (
                         <Stack gap={0} align="end" w={"1000"}>
                             <Text c={"gray"} size="xs">

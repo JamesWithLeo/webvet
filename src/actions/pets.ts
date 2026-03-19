@@ -14,9 +14,8 @@ import { unauthorized } from "next/navigation";
 import { db } from "@/db";
 import { pets } from "@/db/schema/pets";
 import { eq } from "drizzle-orm";
-import { success } from "zod";
-import { revalidatePath } from "next/cache";
 import { UTApi } from "uploadthing/server";
+import { revalidatePath } from "next/cache";
 
 export type ActionResponse = {
     success: boolean;
@@ -157,6 +156,40 @@ export async function UpdatePetPhoto(
                 petId: updatedPet.id,
             };
         }
+    } catch (error) {
+        return {
+            success: false,
+            petId: data.petId,
+            error: "An unexpected database error occurred.",
+        };
+    }
+}
+
+export async function UpdatePetWeight(
+    prevState: any,
+    data: { weight: string; petId: string }
+) {
+    try {
+        const [updatedPet] = await db
+            .update(pets)
+            .set({ weight: parseFloat(data.weight) })
+            .where(eq(pets.id, data.petId))
+            .returning({ id: pets.id, name: pets.name });
+
+        if (!updatedPet) {
+            return {
+                success: false,
+                error: "Pet not found or update failed.",
+            };
+        }
+
+        revalidatePath("/v1/clinic/invoice/new");
+
+        return {
+            success: true,
+            petId: updatedPet.id,
+            petName: updatedPet.name,
+        };
     } catch (error) {
         return {
             success: false,

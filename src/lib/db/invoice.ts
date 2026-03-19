@@ -18,7 +18,7 @@ import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
 import PetServiceMerged from "@/types/PetsServiceMerged";
 import { endOfDay, startOfDay } from "date-fns";
-import { and, eq, getTableColumns, gte, lte, sql, sum } from "drizzle-orm";
+import { and, eq, getTableColumns, gte, lte, ne, sql, sum } from "drizzle-orm";
 
 export const getInvoiceAdmin = async () => {
     return await db
@@ -28,21 +28,21 @@ export const getInvoiceAdmin = async () => {
                 sql<number>`sum(${invoiceItems.priceAtInvoice})`.mapWith(
                     Number
                 ),
-            // firstName: sql<string>`COALESCE(MAX(${users.firstName}))`,
-            // lastName: sql<string>`COALESCE(MAX(${users.lastName}))`,
+            firstName: sql<string>`COALESCE(MAX(${users.firstName}))`,
+            lastName: sql<string>`COALESCE(MAX(${users.lastName}))`,
         })
         .from(invoices)
         // 1. Join to Appointment
         .leftJoin(appointments, eq(appointments.id, invoices.appointmentId))
         // 2. Join to the Link Table (AppointmentToPets)
-        // .leftJoin(
-        //     appointmentsToPets,
-        //     eq(appointmentsToPets.appointmentId, appointments.id)
-        // )
+        .leftJoin(
+            appointmentsToPets,
+            eq(appointmentsToPets.appointmentId, appointments.id)
+        )
         // // 3. Join to Pets
-        // .leftJoin(pets, eq(pets.id, appointmentsToPets.petId))
+        .leftJoin(pets, eq(pets.id, appointmentsToPets.petId))
         // // 4. Join to Users (Owner)
-        // .leftJoin(users, eq(users.id, pets.ownerId))
+        .leftJoin(users, eq(users.id, pets.ownerId))
         // 5. Join items for the total
         .leftJoin(invoiceItems, eq(invoices.id, invoiceItems.invoiceId))
         .groupBy(invoices.id);
@@ -137,8 +137,9 @@ export const getInvoiceAdminV2 = async (invoiceId: string) => {
 
 export const getInvoiceItemAdmin = async (id: string) => {
     return await db
-        .select()
+        .select({ petName: pets.name, ...getTableColumns(invoiceItems) })
         .from(invoiceItems)
+        .innerJoin(pets, eq(pets.id, invoiceItems.petId))
         .where(eq(invoiceItems.invoiceId, id));
 };
 
@@ -146,6 +147,15 @@ export const markAsPaidInvoiceAdmin = async (id: string) => {
     return await db
         .update(invoices)
         .set({ paymentStatus: "PAID", status: "COMPLETED" })
+        .where(eq(invoices.id, id))
+        .returning({ id: invoices.id, status: invoices.paymentStatus })
+        .then((v) => v[0]);
+};
+
+export const markAsVoidInvoiceAdmin = async (id: string) => {
+    return await db
+        .update(invoices)
+        .set({ paymentStatus: "VOID" })
         .where(eq(invoices.id, id))
         .returning({ id: invoices.id, status: invoices.paymentStatus })
         .then((v) => v[0]);
@@ -386,7 +396,8 @@ export const getVetKanbanData = async (
         .where(
             and(
                 gte(appointments.event_datetime, startRange.toISOString()),
-                lte(appointments.event_datetime, endRange.toISOString())
+                lte(appointments.event_datetime, endRange.toISOString()),
+                ne(invoices.paymentStatus, "VOID")
             )
         )
         .groupBy(appointments.id, invoices.id, users.id)

@@ -61,28 +61,17 @@ export default function MedicalKanban() {
         GetMedicalLogAction,
         {
             success: false,
-
             error: "",
-
             appointmentId: "",
-
             serviceId: "",
-
             pet: {
                 id: "",
-
                 invoiceItemId: "",
-
                 name: "",
-
                 species: "dog",
-
                 serviceName: "",
-
                 serviceId: "",
-
                 serviceType: "CHECK_UP",
-
                 log: "",
             },
         }
@@ -142,7 +131,7 @@ export default function MedicalKanban() {
     }, [medicalLogState]);
 
     return (
-        <Stack p="md" h="calc(100vh - 60px)" w={"100%"}>
+        <Stack p="md" w={"100%"}>
             <Grid justify="end">
                 <Popover position="bottom-end" withArrow radius={"md"}>
                     <Popover.Target>

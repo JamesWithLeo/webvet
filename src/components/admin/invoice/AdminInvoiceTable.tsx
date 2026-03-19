@@ -88,8 +88,15 @@ export default function AdminInvoiceTable() {
                         wrap="nowrap"
                         justify="space-between"
                     >
-                        <Text truncate="end">{record.userId}</Text>
-                        <CopyButton value={record.userId} />
+                        <Text truncate="end">
+                            {toTitleCase(
+                                `${record.firstName} ${record.lastName}`
+                            )}
+                        </Text>
+                        <CopyButton
+                            value={record.userId}
+                            copylabel="Copy UID"
+                        />
                     </Group>
                 ),
             },
@@ -279,9 +286,9 @@ const AdminInvoiceItemTable = ({ id }: { id: string }) => {
                     <Group key={item.id} gap={"xl"} ml={"xl"}>
                         <Stack gap={0} w={"400px"}>
                             <Text size="xs" c={"blue.5"}>
-                                Pet Id{" "}
+                                Pet name {item.petName}
                             </Text>
-                            <Text>{item.petId}</Text>
+                            <Text>{toTitleCase(item.petName)}</Text>
                         </Stack>
                         <Stack gap={0} w={"400px"}>
                             <Text size="xs" c={"blue.5"}>

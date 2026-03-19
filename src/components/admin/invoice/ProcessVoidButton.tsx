@@ -1,6 +1,9 @@
 "use client";
 
-import { MarkAsPaidInvoiceAdmin } from "@/actions/invoice";
+import {
+    MarkAsPaidInvoiceAdmin,
+    MarkAsVoidInvoiceAdmin,
+} from "@/actions/invoice";
 import { Button, Group, Modal, Stack, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -8,31 +11,30 @@ import { IconCheck, IconX } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useActionState, useEffect } from "react";
 
-export default function ProcessCashButton({
+export default function ProcessVoidButton({
     invoiceId,
 }: {
     invoiceId: string;
 }) {
     const queryClient = useQueryClient();
-    const [
-        openedUpdatePayment,
-        { open: openUpdatePayment, close: closeUpdatePayment },
-    ] = useDisclosure();
+    const [opened, { open, close }] = useDisclosure();
 
-    const markAsPaid = MarkAsPaidInvoiceAdmin.bind(null);
-    const [formState, formAction, isMarkingAsPaid] = useActionState(
-        markAsPaid,
-        { success: false, id: null, error: "", status: null }
-    );
+    const markAsPaid = MarkAsVoidInvoiceAdmin.bind(null);
+    const [formState, formAction, isPending] = useActionState(markAsPaid, {
+        success: false,
+        id: null,
+        error: "",
+        status: null,
+    });
 
-    const handleMarkAsPaid = () => {
+    const handleVoid = () => {
         startTransition(() => {
             formAction(invoiceId);
         });
     };
     useEffect(() => {
         if (formState.success && formState.id && formState.status) {
-            closeUpdatePayment();
+            close();
 
             queryClient.invalidateQueries({ queryKey: ["invoices", "admin"] });
             queryClient.invalidateQueries({
@@ -49,7 +51,7 @@ export default function ProcessCashButton({
 
         if (formState.error) {
             notifications.show({
-                title: "Invoice payment status update failed",
+                title: "Invoice status failed to update.",
                 message: `${formState.error}`,
                 color: "red",
                 autoClose: false,
@@ -59,54 +61,37 @@ export default function ProcessCashButton({
     }, [formState]);
     return (
         <>
-            <Button radius={"md"} onClick={openUpdatePayment}>
-                Process cash payment
+            <Button radius={"md"} color="dark" onClick={open}>
+                Void
             </Button>
             <Modal
                 centered
                 withCloseButton={false}
-                opened={openedUpdatePayment}
-                onClose={closeUpdatePayment}
-                title="Settled Payment"
+                opened={opened}
+                onClose={close}
+                title="Void invoice"
                 radius={"lg"}
             >
                 <Stack gap="md">
                     <Text size="sm">
-                        Process payment this transaction. This will update the
-                        invoice balance accordingly.
+                        This will cancel the current invoice record. You{" "}
+                        <strong>cannot undo</strong> this action.
                     </Text>
 
                     <Group grow>
                         <Button
-                            color="red"
-                            onClick={() => handleMarkAsPaid()}
-                            loading={isMarkingAsPaid}
-                            disabled={isMarkingAsPaid || formState.success}
+                            color="dark"
+                            onClick={() => handleVoid()}
+                            loading={isPending}
+                            disabled={isPending || formState.success}
                         >
-                            Mark as Paid
+                            Void
                         </Button>
 
-                        <Button
-                            color="red"
-                            variant="outline"
-                            onClick={closeUpdatePayment}
-                        >
-                            Cancel Payment
+                        <Button color="dark" variant="outline" onClick={close}>
+                            Cancel
                         </Button>
                     </Group>
-
-                    {/* <Divider
-                        label="Additional Actions"
-                        labelPosition="center"
-                    />
-
-                    <Button
-                        variant="subtle"
-                        color="gray"
-                        // onClick={() => handleAdjustAmount(paymentId)}
-                    >
-                        Edit Amount
-                    </Button> */}
                 </Stack>
             </Modal>
         </>

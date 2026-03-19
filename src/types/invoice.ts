@@ -1,3 +1,5 @@
+import { InvoiceItemsTypeModel, InvoiceTypeModel } from "@/db/schema/invoice";
+
 export type InvoiceTypeModelWithItems = {
     appointmentTitle: string;
     items: {
@@ -24,8 +26,8 @@ export type InvoiceTypeModelWithItems = {
 };
 
 export type InvoiceAdmin = {
-    // firstName: string | null;
-    // lastName: string | null;
+    firstName: string | null;
+    lastName: string | null;
     totalAmount: number;
     id: string;
     userId: string;
@@ -41,4 +43,8 @@ export type InvoiceAdmin = {
     paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
     createdAt: Date;
     createdById: string | null;
+};
+
+export type InvoiceItemWithPetName = InvoiceItemsTypeModel & {
+    petName: string;
 };

@@ -91,7 +91,12 @@ export default function AppointmentCard({
                     Not yet billed.
                 </Text>
             );
-        if (invoice.paymentStatus === "VOID") return null;
+        if (invoice.paymentStatus === "VOID")
+            return (
+                <Text c="dimmed" size="sm">
+                    Voided
+                </Text>
+            );
 
         // Buttons for Completed Services
         if (invoice.status === "COMPLETED") {
@@ -113,6 +118,7 @@ export default function AppointmentCard({
             PENDING: "Pending",
             ARRIVED: "Arrived",
             IN_PROGRESS: "In progress",
+            VOID: "Voided",
         };
 
         // Or wrap the logic
@@ -124,7 +130,7 @@ export default function AppointmentCard({
     };
 
     return (
-        <Card withBorder w={500} h={180} p={"md"} radius={"md"}>
+        <Card withBorder w={500} mih={"175px"} p={"md"} radius={"md"}>
             <Card.Section
                 p={"md"}
                 className="group"

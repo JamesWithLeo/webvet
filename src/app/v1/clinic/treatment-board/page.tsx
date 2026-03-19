@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import MedicalKaban from "@/components/MedicalKaban";
 import { getVetKanbanData } from "@/lib/db/invoice";
+import { Stack } from "@mantine/core";
 import { QueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { unauthorized } from "next/navigation";
@@ -20,8 +21,8 @@ export default async function Page() {
             ),
     });
     return (
-        <div className="bg-gray-50 w-full h-screen p-8 ">
+        <Stack bg={"gray.0"} className="w-full h-auto" p={"md"}>
             <MedicalKaban />
-        </div>
+        </Stack>
     );
 }

@@ -1,15 +1,17 @@
 "use client";
 
-import { JoinedAppointmentType } from "@/db/schema/appointments";
-import { Group, Stack, Text, Title } from "@mantine/core";
+import { em, Group, Stack, Text, Title } from "@mantine/core";
 import { IconMoodSad } from "@tabler/icons-react";
 import { useMemo } from "react";
 import AppointmentCard from "./AppointmentCard";
 import useApointmentsClient from "@/lib/hooks/useAppointmentsClient";
 import { AppointmentWithInvoice } from "@/types/appointments";
+import { useMediaQuery } from "@mantine/hooks";
 
 export default function AppointmentListWrapper({ id }: { id: string }) {
     const { data } = useApointmentsClient(id);
+
+    const isMobile = useMediaQuery(`(max-width: ${em(1024)})`);
 
     const groupedAppointments = useMemo(() => {
         // Use an empty object as default to avoid null pointer errors
@@ -41,7 +43,7 @@ export default function AppointmentListWrapper({ id }: { id: string }) {
                     <Stack key={year}>
                         {" "}
                         <Title c={"dimmed"}>{year}</Title>
-                        <Group>
+                        <Group justify={isMobile ? "center" : "normal"}>
                             {groupedAppointments[Number(year)].map((v) => (
                                 <AppointmentCard key={v.id} {...v} />
                             ))}

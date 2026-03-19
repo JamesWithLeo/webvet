@@ -11,6 +11,7 @@ import {
     getInvoiceDownloadData,
     InitializeInvoice,
     markAsPaidInvoiceAdmin,
+    markAsVoidInvoiceAdmin,
 } from "@/lib/db/invoice";
 import { unauthorized } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -163,7 +164,7 @@ export async function markAsArrivedAction(
                 .returning();
         });
 
-        revalidatePath("/v0/admin/appointments/");
+        revalidatePath("/v1/clinic/appointments/");
         return { success: true };
     } catch (error) {
         console.error("Check-in error:", error);
@@ -179,5 +180,51 @@ export async function getInvoiceDownloadDataAction(invoiceId: string) {
     } catch (error) {
         console.error("Server Action Error:", error);
         throw new Error("Failed to fetch invoice data");
+    }
+}
+
+export async function MarkAsVoidInvoiceAdmin(
+    prevState: any,
+    id: string | null
+) {
+    try {
+        if (!id)
+            return {
+                success: false,
+                error: "Missing Invoice ID.",
+                id: null,
+                status: null,
+            };
+
+        const session = await auth();
+        if (!session || !["admin", "staff"].includes(session.user.role)) {
+            unauthorized();
+        }
+        const updated = await markAsVoidInvoiceAdmin(id);
+
+        if (!updated || updated.status !== "VOID") {
+            return {
+                success: false,
+                error: "The invoice status could not be updated.",
+                id: null,
+                status: null,
+            };
+        }
+
+        revalidatePath("/v1/clinic/invoice");
+
+        return {
+            success: true,
+            id: updated.id,
+            error: null,
+            status: updated.status,
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: "A database error occurred.",
+            id: null,
+            status: null,
+        };
     }
 }

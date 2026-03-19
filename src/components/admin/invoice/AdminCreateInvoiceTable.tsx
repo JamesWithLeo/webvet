@@ -3,13 +3,16 @@
 import { ServiceMergePriceType } from "@/db/schema/services";
 import {
     Alert,
+    Avatar,
     Button,
     Checkbox,
     Group,
     Modal,
+    NumberInput,
     Stack,
     Table,
     Text,
+    useModalsStack,
 } from "@mantine/core";
 import { IconCheck, IconInvoice, IconX } from "@tabler/icons-react";
 import {
@@ -21,7 +24,6 @@ import {
 } from "react";
 import { PetRow } from "./PetRow";
 import PetsSelectModal from "./PetsSelectModal";
-import { useDisclosure } from "@mantine/hooks";
 import { PetTypeModel } from "@/types/pets";
 import PetServiceMerged from "@/types/PetsServiceMerged";
 import { CreateInvoice } from "@/actions/invoice";
@@ -30,6 +32,8 @@ import { useRouter } from "next/navigation";
 import { toTitleCase } from "@/lib/toTitleCase";
 import LongItemFormatter from "@/lib/LongItemFormatter";
 import { getSizeByWeight } from "@/lib/getSizeByWeight";
+import { UpdatePetWeight } from "@/actions/pets";
+import { useForm } from "@mantine/form";
 
 type Props = {
     appointmentId: string;
@@ -47,28 +51,34 @@ export default function AdminCreateInvoiceTable({
     allPets,
 }: Props) {
     const [selectedRows, setSelectedRows] = useState<PetServiceMerged[]>([]);
+    const [selectedPet, setSelectedPet] = useState<PetServiceMerged | null>(
+        null
+    );
 
     const router = useRouter();
-
-    const [opened, { close, open }] = useDisclosure();
-
-    const [
-        openedCreateInvoiceModal,
-        { close: closeCreateInvoiceModal, open: openCreateInvoiceModal },
-    ] = useDisclosure();
+    const modals = useModalsStack(["invoice", "select"]);
 
     const createInvoice = CreateInvoice.bind(null);
+    const updatePetWeight = UpdatePetWeight.bind(null);
 
-    const [formState, formAction, isPending] = useActionState(createInvoice, {
-        success: false,
-        error: "",
-    });
+    const [createInvoiceState, createInvoiceAction, isPendingCreateInvoice] =
+        useActionState(createInvoice, {
+            success: false,
+            error: "",
+        });
+
+    const [addPetWeightState, addPetWeightAction, isPendingAddPetWeight] =
+        useActionState(updatePetWeight, {
+            success: false,
+            petId: "",
+            petName: "",
+        });
 
     const handleIssueInvoice = async () => {
-        closeCreateInvoiceModal();
+        modals.close("invoice");
 
         startTransition(() => {
-            formAction({
+            createInvoiceAction({
                 rawInvoice: {
                     status: "ARRIVED",
                     appointmentId: appointmentId,
@@ -76,10 +86,38 @@ export default function AdminCreateInvoiceTable({
                 },
                 items: selectedRows.map((row) => ({
                     petId: row.petId,
-                    priceAtInvoice: "0.00",
+                    priceAtInvoice: row.priceAtInvoice,
                     serviceId: row.serviceId,
                 })),
             });
+        });
+    };
+
+    const weightForm = useForm({
+        mode: "uncontrolled",
+        initialValues: {
+            weight: "0.00",
+        },
+
+        validate: {
+            weight: (value) => {
+                const num = parseFloat(value);
+                if (!value || isNaN(num)) return "Please enter a valid weight";
+                if (num <= 0) return "Weight must be greater than 0";
+                if (num > 100) return "Weight seems too high";
+                if (!/^\d*\.?\d*$/.test(value)) return "Invalid number format";
+                return null;
+            },
+        },
+        validateInputOnChange: true,
+        validateInputOnBlur: true,
+    });
+
+    const handleAddWeight = async ({ weight }: { weight: string }) => {
+        if (!selectedPet) return;
+
+        startTransition(() => {
+            addPetWeightAction({ weight: weight, petId: selectedPet.petId });
         });
     };
 
@@ -116,37 +154,63 @@ export default function AdminCreateInvoiceTable({
                     }))}
                     priceAtInvoice={variant.price}
                     setSelectedRows={setSelectedRows}
+                    onSetWeight={
+                        !pet.weight
+                            ? () => {
+                                  setSelectedPet(pet);
+                              }
+                            : undefined
+                    }
                 />
             );
         })
         .filter(Boolean);
 
     useEffect(() => {
-        if (formState.success && formState.invoiceId) {
+        if (createInvoiceState.success && createInvoiceState.invoiceId) {
             notifications.show({
                 title: "Invoice Created",
-                message: `Invoice #${formState.invoiceId} has been saved successfully with ${formState.insertedInvoiceItemsLength} item(s).`,
-                color: "green",
+                message: `Invoice #${createInvoiceState.invoiceId} has been saved successfully with ${createInvoiceState.insertedInvoiceItemsLength} item(s).`,
+                color: "teal",
                 icon: <IconCheck size={18} />,
                 autoClose: 3000,
             });
             router.push("/v1/clinic/invoice");
         }
 
-        if (formState.error) {
+        if (createInvoiceState.error) {
             notifications.show({
                 title: "Create Invoice failed",
-                message: formState.error,
+                message: createInvoiceState.error,
                 color: "red",
                 icon: <IconX size={18} />,
                 autoClose: false,
             });
         }
-    }, [formState]);
+    }, [createInvoiceState]);
 
     useEffect(() => {
-        console.log(pets);
-    }, [pets]);
+        if (!addPetWeightState) return;
+        if (addPetWeightState.success && addPetWeightState.petName) {
+            notifications.show({
+                title: "Weight saved",
+                message: `Weight has been saved successfully for ${addPetWeightState.petName}!`,
+                color: "teal",
+                icon: <IconCheck size={18} />,
+                autoClose: 3000,
+            });
+            setSelectedPet(null);
+            weightForm.reset();
+            return;
+        } else if (addPetWeightState.error && !addPetWeightState.success) {
+            notifications.show({
+                title: addPetWeightState.error,
+                message: "We couldn't save the weight. Please try again.",
+                color: "red",
+                icon: <IconX size={18} />,
+            });
+        }
+    }, [addPetWeightState]);
 
     return (
         <>
@@ -236,7 +300,10 @@ export default function AdminCreateInvoiceTable({
                     )}
                 </Table>
                 <Group justify="space-between">
-                    <Button variant="default" onClick={open}>
+                    <Button
+                        variant="default"
+                        onClick={() => modals.open("select")}
+                    >
                         Add pet
                     </Button>
                     <Button
@@ -244,30 +311,28 @@ export default function AdminCreateInvoiceTable({
                         disabled={
                             noWeightPets.length > 0 ||
                             !selectedRows.length ||
-                            isPending
+                            isPendingCreateInvoice
                         }
                         radius={"md"}
-                        loading={isPending}
-                        onClick={() => openCreateInvoiceModal()}
+                        loading={isPendingCreateInvoice}
+                        onClick={() => modals.open("invoice")}
                     >
                         Create invoice
                     </Button>
                 </Group>
             </Stack>
-
             <PetsSelectModal
                 appointmentId={appointmentId}
                 services={services}
-                onClose={close}
-                opened={opened}
+                onClose={() => modals.close("select")}
+                opened={modals.state.select}
                 allPets={allPets}
             />
-
             <Modal
                 centered
                 withCloseButton={false}
-                opened={openedCreateInvoiceModal}
-                onClose={closeCreateInvoiceModal}
+                opened={modals.state.invoice}
+                onClose={() => modals.close("invoice")}
                 radius={"md"}
                 size={"lg"}
                 shadow="xl"
@@ -286,7 +351,7 @@ export default function AdminCreateInvoiceTable({
                         <Button
                             radius="md"
                             variant="default"
-                            onClick={closeCreateInvoiceModal}
+                            onClick={() => modals.close("invoice")}
                         >
                             Cancel
                         </Button>
@@ -299,6 +364,69 @@ export default function AdminCreateInvoiceTable({
                         </Button>
                     </Group>
                 </Stack>
+            </Modal>
+
+            <Modal
+                opened={!!selectedPet}
+                onClose={() => setSelectedPet(null)}
+                size={"md"}
+                centered
+                radius={"lg"}
+                withCloseButton={false}
+            >
+                <form
+                    onSubmit={weightForm.onSubmit((value) =>
+                        handleAddWeight(value)
+                    )}
+                >
+                    <Stack p={"sm"}>
+                        <Group>
+                            <Avatar src={selectedPet?.photoUrl} size={"lg"}>
+                                {selectedPet?.name[0]}
+                            </Avatar>
+                            <Stack gap={0}>
+                                <Text>{selectedPet?.name}</Text>
+                                <Text size="xs" c={"dimmed"}>
+                                    {selectedPet?.petId}
+                                </Text>
+                            </Stack>
+                        </Group>
+                        <NumberInput
+                            id="weightInput"
+                            label="Weight (kg)"
+                            placeholder="0.00"
+                            decimalScale={2}
+                            description={
+                                "Set the weight of the pet to enable other services"
+                            }
+                            fixedDecimalScale
+                            min={0}
+                            stepHoldDelay={500}
+                            stepHoldInterval={100}
+                            withAsterisk
+                            {...weightForm.getInputProps("weight")}
+                        />
+                        <Group justify="flex-end">
+                            <Button
+                                variant="default"
+                                radius={"md"}
+                                onClick={() => {
+                                    setSelectedPet(null);
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                radius={"md"}
+                                loading={isPendingAddPetWeight}
+                                type="submit"
+                                disabled={!weightForm.isValid()}
+                            >
+                                Save
+                            </Button>
+                        </Group>
+                    </Stack>
+                </form>
             </Modal>
         </>
     );

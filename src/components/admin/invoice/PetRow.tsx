@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Checkbox, Group, Text, Stack } from "@mantine/core";
+import { Table, Checkbox, Group, Text, Stack, Button } from "@mantine/core";
 import CopyButton from "@/components/common/CopyButton";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import PetServiceMerged from "@/types/PetsServiceMerged";
@@ -12,6 +12,7 @@ interface PetRowProps {
     noWeight: boolean;
     priceAtInvoice: string;
     setSelectedRows: (rows: any[]) => void;
+    onSetWeight?: () => void;
 }
 
 export function PetRow({
@@ -20,6 +21,7 @@ export function PetRow({
     selectedRows,
     setSelectedRows,
     priceAtInvoice,
+    onSetWeight,
 }: PetRowProps) {
     const isSelected = selectedRows.some((row) => row.id === pet.id);
 
@@ -61,9 +63,14 @@ export function PetRow({
 
             <Table.Td>
                 {noWeight ? (
-                    <Text size="xs" c={"red"}>
-                        set the weight first
-                    </Text>
+                    <Button
+                        size="compact-xs"
+                        variant="subtle"
+                        color="red"
+                        onClick={onSetWeight}
+                    >
+                        set weight
+                    </Button>
                 ) : (
                     CurrencyFormatter(priceAtInvoice)
                 )}

@@ -3,14 +3,20 @@ import { IconCopy, IconCheck } from "@tabler/icons-react";
 
 type Props = {
     value: string;
+    copylabel?: string;
+    copiedLable?: string;
 };
 
-export default function CopyButton({ value }: Props) {
+export default function CopyButton({ value, copiedLable, copylabel }: Props) {
     return (
         <CB value={value} timeout={3000}>
             {({ copied, copy }) => (
                 <Tooltip
-                    label={copied ? "Copied" : "Copy"}
+                    label={
+                        copied
+                            ? (copiedLable ?? "Copied")
+                            : (copylabel ?? "Copy")
+                    }
                     withArrow
                     position="right"
                 >

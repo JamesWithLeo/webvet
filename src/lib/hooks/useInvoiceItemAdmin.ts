@@ -1,10 +1,10 @@
 "use client";
 
-import { InvoiceItemsTypeModel } from "@/db/schema/invoice";
+import { InvoiceItemWithPetName } from "@/types/invoice";
 import { useQuery } from "@tanstack/react-query";
 
 export default function useInvoiceItemAdmin(id: string) {
-    return useQuery<InvoiceItemsTypeModel[]>({
+    return useQuery<InvoiceItemWithPetName[]>({
         queryKey: ["invoices", "admin", id],
         queryFn: async () => {
             if (!id) throw new Error("No Invoice ID provided");
@@ -21,7 +21,7 @@ export default function useInvoiceItemAdmin(id: string) {
             }
 
             const data = await res.json();
-            return data as InvoiceItemsTypeModel[];
+            return data as InvoiceItemWithPetName[];
         },
         staleTime: 1000 * 60 * 5,
     });
