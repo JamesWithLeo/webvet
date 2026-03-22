@@ -16,7 +16,6 @@ export default function useServiceUptakeAdmin() {
             }
 
             const data = await res.json();
-            console.log();
             return data as any[];
         },
     });

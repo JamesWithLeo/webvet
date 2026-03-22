@@ -119,6 +119,7 @@ export const getAllUsersAdmin = async () => {
                 email: users.email,
                 contactNumber: users.contactNumber,
                 gender: users.gender,
+                created_at: users.created_at,
             })
             .from(users);
         return { data: response, error: null };

@@ -1,8 +1,7 @@
 import AdminNav from "@/components/admin/AdminNav";
-import BottomPattern from "@/components/common/BottomPattern";
 import Providers from "../Provider";
 import { auth } from "@/auth";
-import { redirect, unauthorized } from "next/navigation";
+import { unauthorized } from "next/navigation";
 
 export default async function Layout({
     children,
@@ -21,9 +20,9 @@ export default async function Layout({
                 suppressHydrationWarning
             >
                 <AdminNav role={role} />
-                <main className="flex-1 overflow-y-auto">{children}</main>
-
-                <BottomPattern />
+                <main className="w-full min-w-0 overflow-y-auto overflow-x-hidden">
+                    {children}
+                </main>
             </main>
         </Providers>
     );

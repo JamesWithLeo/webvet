@@ -31,7 +31,7 @@ const baskerville = Baskervville_SC({
 
 const data = [
     {
-        link: "/dashboard",
+        link: "/clinic/dashboard",
         label: "Dashboard",
         icon: <IconGauge stroke={1.5} />,
         roles: ["admin", "staff"],

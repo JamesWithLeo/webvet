@@ -2,45 +2,40 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { appointmentsToPets } from "@/db/schema/appointments";
 import { services } from "@/db/schema/services";
-import { count, eq } from "drizzle-orm";
+import { salesPerService } from "@/lib/db/services";
+import { invoiceItems, invoices } from "@/db/schema/invoice";
+
+import { eq, sum, sql, count } from "drizzle-orm";
 
 export async function GET() {
     try {
-        const uptake = await db
+        const quantityData = await db
             .select({
+                date: sql<string>`DATE(${invoices.createdAt})`,
                 serviceType: services.type,
-                source: appointmentsToPets.source,
-                count: count(appointmentsToPets.id),
+                totalQuantity: count(invoiceItems.id),
             })
-            .from(appointmentsToPets)
-            .innerJoin(services, eq(appointmentsToPets.serviceId, services.id))
-            .groupBy(services.type, appointmentsToPets.source);
+            .from(invoiceItems)
+            .innerJoin(invoices, eq(invoiceItems.invoiceId, invoices.id))
+            .innerJoin(services, eq(invoiceItems.serviceId, services.id))
+            .groupBy(sql`DATE(${invoices.createdAt})`, services.type)
+            .orderBy(sql`DATE(${invoices.createdAt})`);
 
         const chartDataMap: Record<string, any> = {};
 
-        uptake.forEach((curr) => {
-            // Use a fallback "Unknown" if serviceType is missing
-            const label = curr.serviceType || "Other";
-            const source = curr.source;
-            const value = Number(curr.count);
+        quantityData.forEach((curr) => {
+            const date = curr.date;
+            const type = curr.serviceType || "Other";
+            const quantity = Number(curr.totalQuantity || 0);
 
-            if (!chartDataMap[label]) {
-                chartDataMap[label] = {
-                    service: label,
-                    admin: 0,
-                    staff: 0,
-                    client: 0,
-                };
+            if (!chartDataMap[date]) {
+                chartDataMap[date] = { date };
             }
 
-            // source is "admin" | "staff" | "client"
-            chartDataMap[label][source] = value;
+            chartDataMap[date][type] = quantity;
         });
 
-        // CRITICAL: Convert the object map back to an array for the RadarChart
-        const finalData = Object.values(chartDataMap);
-
-        return NextResponse.json(finalData);
+        return NextResponse.json(Object.values(chartDataMap));
     } catch (error) {
         console.error("Fetch Error:", error);
         return NextResponse.json(

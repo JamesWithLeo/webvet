@@ -16,7 +16,11 @@ type Props = {
 };
 export default function AdminGreet({ gross, sales }: Props) {
     return (
-        <Paper withBorder className="w-full p-4 col-span-3">
+        <Paper
+            withBorder
+            className="w-full p-6 col-span-2 col-start-1 row-start-1"
+            radius={"lg"}
+        >
             <Group className="h-full">
                 <div className="flex-1 relative flex flex-col justify-between h-full">
                     <div>
@@ -95,13 +99,13 @@ export default function AdminGreet({ gross, sales }: Props) {
                             </Button>
                         </Button.Group> */}
                     </Group>
-                    <div className="absolute w-72 h-72 left-100 -top-7">
-                        <Lottie animationData={animDate} />
-                    </div>
                 </div>
 
+                {/* <div className="  w-72 h-72 ">
+                    <Lottie animationData={animDate} />
+                </div> */}
                 {/* <Divider orientation="vertical" /> */}
-                <div className="flex-1 flex justify-end gap-4 h-full">
+                <div className="flex-1 flex justify-end  gap-4 h-full">
                     {/* <div className="flex items-end text-sm  flex-col">
                         <h1>{new Date().toTimeString()}</h1>
                     </div> */}

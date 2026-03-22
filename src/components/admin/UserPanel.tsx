@@ -1,84 +1,67 @@
 "use client";
 
-import { Paper, SimpleGrid } from "@mantine/core";
+import { Paper, SimpleGrid, Stack } from "@mantine/core";
 import { IconArrowUpRight } from "@tabler/icons-react";
-import { Sparkline } from "@mantine/charts";
+import { AreaChart, Sparkline } from "@mantine/charts";
 import useUserAdmin from "@/lib/hooks/useUserAdmin";
-import { useMemo } from "react";
-import dayjs from "dayjs";
+import { useEffect, useMemo } from "react";
 
 export default function UserPanel() {
     const { data } = useUserAdmin();
-    const analytics = useMemo(() => {
-        const monthsTemplate = [
-            { name: "Jan", total: 0 },
-            { name: "Feb", total: 0 },
-            { name: "Mar", total: 0 },
-            { name: "Apr", total: 0 },
-            { name: "May", total: 0 },
-            { name: "Jun", total: 0 },
-            { name: "Jul", total: 0 },
-            { name: "Aug", total: 0 },
-            { name: "Sep", total: 0 },
-            { name: "Oct", total: 0 },
-            { name: "Nov", total: 0 },
-            { name: "Dec", total: 0 },
-        ];
+    const chartData = useMemo(() => {
+        if (!data || !Array.isArray(data)) return [];
 
-        const result = {
-            chartData: monthsTemplate.map((m) => ({ ...m })), // Deep copy
-            thisMonth: 0,
-            lastMonth: 0,
-            diff: "0",
-        };
+        const groups: Record<string, any> = {};
 
-        if (!data) return result;
-
-        const now = dayjs();
-        const currentYear = now.year();
-        const startOfThisMonth = now.startOf("month");
-        const startOfLastMonth = now.subtract(1, "month").startOf("month");
-        const endOfLastMonth = now.subtract(1, "month").endOf("month");
-
-        // 2. Single Loop Logic
         data.forEach((user) => {
-            const created = dayjs(user.created_at);
+            // 1. Parse the ISO string
+            const dateObj = new Date(user.created_at);
 
-            // Logic for Chart (Current Year Only)
-            if (created.year() === currentYear) {
-                const monthIndex = created.month();
-                result.chartData[monthIndex].total += 1;
+            // 2. Format to "YYYY-MM-DD" for grouping (removes the time portion)
+            const dateLabel = dateObj.toISOString().split("T")[0];
+
+            // 3. Normalize role to lowercase (e.g., "CLIENT" -> "client")
+            const role = user.role?.toLowerCase() || "unknown";
+
+            if (!groups[dateLabel]) {
+                groups[dateLabel] = {
+                    date: dateLabel,
+                    sortKey: dateObj.getTime(),
+                    // Initialize all known roles to 0 to avoid "jumps" in the area chart
+                    admin: 0,
+                    client: 0,
+                    staff: 0,
+                    vet: 0,
+                };
             }
 
-            // Logic for Stats (This Month vs Last Month)
-            if (created.isAfter(startOfThisMonth)) {
-                result.thisMonth++;
-            } else if (
-                created.isAfter(startOfLastMonth) &&
-                created.isBefore(endOfLastMonth)
-            ) {
-                result.lastMonth++;
+            // 4. Increment the count for that role on that specific day
+            if (role in groups[dateLabel]) {
+                groups[dateLabel][role] += 1;
+            } else {
+                groups[dateLabel].unknown =
+                    (groups[dateLabel].unknown || 0) + 1;
             }
         });
 
-        // 3. Final Calculation
-        const diffValue =
-            result.lastMonth === 0
-                ? result.thisMonth * 100
-                : ((result.thisMonth - result.lastMonth) / result.lastMonth) *
-                  100;
-
-        result.diff = diffValue.toFixed(0);
-
-        return result;
+        // 5. Sort chronologically (Oldest to Newest)
+        return Object.values(groups).sort((a, b) => a.sortKey - b.sortKey);
     }, [data]);
+
+    const series = [
+        { name: "client", label: "Clients", color: "blue.6" },
+        { name: "staff", label: "Staff", color: "teal.6" },
+        { name: "admin", label: "Admins", color: "grape.6" },
+        { name: "vet", label: "Vets", color: "orange.6" },
+    ];
+
     return (
-        <Paper withBorder className="w-full flex p-4 col-span-1 row-span-1">
-            <SimpleGrid
-                cols={3}
-                spacing={0}
-                className="flex-1 flex flex-col justify-between h-full"
-            >
+        <Paper
+            withBorder
+            radius={"lg"}
+            className="w-full flex p-6 col-span-2 row-span-1"
+        >
+            <div className="flex flex-col justify-between gap-10 ">
                 <div className="flex h-full  flex-col gap-6 ">
                     <div>
                         <h1 className="font-bold text-sm text-gray-500">
@@ -88,7 +71,7 @@ export default function UserPanel() {
                             {data?.length}
                         </h1>
                     </div>
-                    <div>
+                    {/* <div>
                         <h1 className="font-bold text-sm text-gray-500">
                             LAST MONTH
                         </h1>
@@ -102,25 +85,32 @@ export default function UserPanel() {
                         </h1>
                         <div className="flex items-center gap-2">
                             <h1 className="text-xl font-bold ">
+                                {" "}
                                 {analytics.thisMonth}
                             </h1>
                             <IconArrowUpRight color="green" />
                         </div>
-                    </div>
+                    </div> */}
                 </div>
                 <div className="w-full col-span-2  flex items-end  h-full">
-                    <Sparkline
-                        h={"200px"}
-                        w={"200px"}
-                        data={analytics.chartData.map((v) => v.total)}
-                        curveType="bump"
+                    <AreaChart
+                        h={"300px"}
+                        w={"100%"}
+                        data={chartData}
+                        dataKey="date"
+                        valueFormatter={(value) => `${value} users`}
+                        series={series}
                         withGradient
                         color="blue"
-                        fillOpacity={0.6}
-                        strokeWidth={2}
+                        type="stacked"
+                        curveType="monotone"
+                        // fillOpacity={0.6}
+                        // strokeWidth={2}
+                        withLegend
+                        withTooltip
                     />
                 </div>
-            </SimpleGrid>
+            </div>
         </Paper>
     );
 }

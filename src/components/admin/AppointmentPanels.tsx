@@ -22,7 +22,7 @@ export default function AppointmentPanels() {
         return counts;
     }, [data]);
     return (
-        <Paper withBorder className="w-full p-4 col-span-2">
+        <Paper withBorder className="w-full p-4 col-span-1 row-start-3">
             <Group className="h-full">
                 <div className="flex-1 flex flex-col justify-start gap-16 h-full">
                     <div>

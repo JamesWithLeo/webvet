@@ -1,77 +1,65 @@
 "use client";
 
 import useServiceUptakeAdmin from "@/lib/hooks/useServiceUptakeAdmin";
-import { RadarChart } from "@mantine/charts";
-import { Paper, Space, Stack } from "@mantine/core";
-import { useEffect } from "react";
+import { AreaChart } from "@mantine/charts";
+import { Paper, Space } from "@mantine/core";
+import { useMemo } from "react";
 
-export const datar = [
-    {
-        service: "Grooming",
-        "2024": 90,
-        "2025": 30,
-    },
-    {
-        service: "Check up",
-        "2024": 52,
-        "2025": 80,
-    },
-    {
-        service: "Vaccination",
-        "2024": 70,
-        "2025": 80,
-    },
-    {
-        service: "De-worming",
-        "2024": 99,
-        "2025": 80,
-    },
-    {
-        service: "Consultation",
-        "2024": 80,
-        "2025": 90,
-    },
-    {
-        service: "Neuturing",
-        "2024": 30,
-        "2025": 5,
-    },
-];
 export default function AdminServiceOpertations() {
     const { data } = useServiceUptakeAdmin();
-    useEffect(() => {
-        console.log(data);
-    }, [data]);
-    return (
-        <Paper withBorder className="w-full flex p-4 col-span-1 row-span-2">
-            <h1 className="font-bold text-sm text-gray-500">SERVICE UPTAKE</h1>
-            <Space h={"md"} />
 
-            <Stack h={"100%"}>
-                <RadarChart
-                    h={380}
-                    data={
-                        data
-                            ? data?.map((v) => ({
-                                  service: v.service,
-                                  staff: v.staff,
-                                  admin: v.admin,
-                                  client: v.client,
-                              }))
-                            : []
-                    }
-                    dataKey="service"
-                    withDots
-                    withTooltip
-                    withPolarRadiusAxis
-                    series={[
-                        { name: "staff", color: "dark.2", opacity: 0.2 },
-                        { name: "client", color: "blue.6", opacity: 0.7 },
-                        { name: "admin", color: "blue.6", opacity: 0.3 },
-                    ]}
+    const series = useMemo(() => {
+        if (!data || data.length === 0) return [];
+
+        // Get all unique keys across all data points, excluding 'date'
+        const allKeys = new Set<string>();
+        data.forEach((item: any) => {
+            Object.keys(item).forEach((key) => {
+                if (key !== "date") allKeys.add(key);
+            });
+        });
+
+        const colors = ["indigo", "cyan", "teal", "orange", "pink", "grape"];
+
+        return Array.from(allKeys).map((key, index) => ({
+            name: key,
+            label: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize label
+            color: `${colors[index % colors.length]}.6`, // Rotate through Mantine colors
+        }));
+    }, [data]);
+
+    return (
+        <Paper
+            withBorder
+            radius={"lg"}
+            className="w-full flex p-6 col-span-2 col-start-3 "
+        >
+            <div className="flex flex-col justify-between gap-10 ">
+                <h1 className="font-bold text-sm text-gray-500">
+                    SERVICE UPTAKE
+                </h1>
+                <Space h={"md"} />
+
+                <AreaChart
+                    h="300px"
+                    w={"100%"}
+                    data={data ?? []}
+                    dataKey="date"
+                    series={series}
+                    type="stacked"
+                    curveType="monotone"
                     withLegend
+                    legendProps={{
+                        verticalAlign: "top",
+                        fontSize: "10px",
+                        iconSize: 8,
+                    }}
+                    withTooltip
+                    // CHANGE: Simple integer formatting instead of Currency
+                    valueFormatter={(value) => `${value} units`}
+                    gridAxis="xy"
                 />
-            </Stack>
+            </div>
         </Paper>
     );
 }
