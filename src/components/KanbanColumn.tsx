@@ -24,6 +24,7 @@ import {
     ActionIcon,
     Tooltip,
     Avatar,
+    ScrollArea,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -65,13 +66,15 @@ export default function KanbanColumn({
                 p="sm"
                 radius="md"
                 style={{
-                    flex: 1,
+                    // Define a height so the ScrollArea can work
+                    height: "calc(100vh - 150px)",
                     display: "flex",
                     flexDirection: "column",
                 }}
             >
-                <Stack gap="md">
-                    <Group justify="apart">
+                {/* Header Section */}
+                <Box mb="md">
+                    <Group justify="apart" mb="xs">
                         <Group gap="xs">
                             <ColorSwatch color={color} size={10} />
                             <Text fw={700} size="sm" tt="uppercase" c="dimmed">
@@ -82,10 +85,16 @@ export default function KanbanColumn({
                             {items.length}
                         </Badge>
                     </Group>
-
                     <Divider color={color} size="sm" />
+                </Box>
 
-                    <Stack gap="sm" style={{ flex: 1, overflowY: "auto" }}>
+                {/* Scrollable Area */}
+                <ScrollArea
+                    scrollbarSize={6}
+                    offsetScrollbars
+                    style={{ flex: 1 }}
+                >
+                    <Stack gap="sm" pr="xs">
                         {items.length === 0 ? (
                             <Text
                                 size="xs"
@@ -108,7 +117,7 @@ export default function KanbanColumn({
                             ))
                         )}
                     </Stack>
-                </Stack>
+                </ScrollArea>
             </Paper>
         </Grid.Col>
     );

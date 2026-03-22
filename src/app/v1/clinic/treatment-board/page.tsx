@@ -21,7 +21,7 @@ export default async function Page() {
             ),
     });
     return (
-        <Stack bg={"gray.0"} className="w-full h-auto" p={"md"}>
+        <Stack bg={"gray.0"} className="w-full min-h-dvh" p={"md"}>
             <MedicalKaban />
         </Stack>
     );
