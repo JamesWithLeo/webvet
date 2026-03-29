@@ -194,9 +194,7 @@ export default function AppointmentStepper({
                                 {...form.getInputProps("title")}
                             />
 
-                            <Accordion
-                                className="gap-4 flex  flex-col"
-                            >
+                            <Accordion className="gap-4 flex  flex-col">
                                 {pets.map((pet) => (
                                     <PetAccordionItem
                                         key={pet.id}
@@ -253,6 +251,7 @@ export default function AppointmentStepper({
                             <PopoverViewSchedule
                                 isMobile={isMobile}
                                 schedules={schedules}
+                                radius={"md"}
                                 position="bottom-end"
                             />
                         </SelectDateCal>
@@ -401,25 +400,18 @@ export default function AppointmentStepper({
                 <Modal
                     {...stack.register("confirm-modal")}
                     centered
-                    title="Appointment confirmation"
-                    size={"lg"}
+                    title="Save appointment"
+                    withCloseButton={false}
                     radius={"lg"}
                 >
-                    <Box className="flex flex-col gap-6 p-4">
+                    <Stack gap="md">
                         <Text size="sm">
                             Are you really sure about this appointment?
                         </Text>
                         <span className="w-full flex justify-end gap-4">
                             <Button
-                                variant="default"
-                                color="gray"
-                                onClick={() => {
-                                    stack.close("confirm-modal");
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
+                                fullWidth
+                                bg={"red"}
                                 onClick={() => {
                                     form.onSubmit((v) => handleSubmit(v))();
                                 }}
@@ -427,8 +419,17 @@ export default function AppointmentStepper({
                             >
                                 Confirm
                             </Button>
+                            <Button
+                                variant="default"
+                                fullWidth
+                                onClick={() => {
+                                    stack.close("confirm-modal");
+                                }}
+                            >
+                                Cancel
+                            </Button>
                         </span>
-                    </Box>
+                    </Stack>
                 </Modal>
 
                 <Modal

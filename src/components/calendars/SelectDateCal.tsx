@@ -146,6 +146,7 @@ export default function SelectDateCal({ children, onChange, error }: Props) {
                         <Button
                             onClick={() => calendarRef.current?.getApi().prev()}
                             size={isMobile ? "xs" : "sm"}
+                            radius={"md"}
                             variant="default"
                             c="gray.7"
                         >
@@ -155,6 +156,7 @@ export default function SelectDateCal({ children, onChange, error }: Props) {
                             onClick={() => calendarRef.current?.getApi().next()}
                             size={isMobile ? "xs" : "sm"}
                             variant="default"
+                            radius={"md"}
                             c="gray.7"
                         >
                             <IconChevronRight size={20} />
@@ -164,6 +166,7 @@ export default function SelectDateCal({ children, onChange, error }: Props) {
                     <Button
                         variant="default"
                         c="gray.7"
+                        radius={"md"}
                         size={isMobile ? "xs" : "sm"}
                         onClick={() => calendarRef.current?.getApi().today()}
                     >
