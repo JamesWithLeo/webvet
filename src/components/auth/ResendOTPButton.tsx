@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Text } from "@mantine/core";
+import { Button, Divider, Group, Stack, Text } from "@mantine/core";
 import { useInterval } from "@mantine/hooks";
 import { useState, useEffect } from "react";
 import { notifications } from "@mantine/notifications";
@@ -71,7 +71,7 @@ export function ResendOTPButton() {
     };
 
     return (
-        <div className="w-full">
+        <Stack gap={"sm"}>
             <Button
                 mt={"md"}
                 variant="light"
@@ -84,10 +84,22 @@ export function ResendOTPButton() {
             </Button>
 
             {seconds > 0 && (
-                <Text size="xs" c="dimmed" ta="center" mt={5}>
+                <Text size="xs" c="dimmed" ta="center">
                     Wait for the cooldown to request a new code.
                 </Text>
             )}
-        </div>
+            <Divider />
+            <Button
+                variant="subtle"
+                color="gray"
+                radius={"md"}
+                onClick={() => {
+                    sessionStorage.removeItem("auth_email");
+                    router.replace("/v1/auth/signup");
+                }}
+            >
+                Try another email
+            </Button>
+        </Stack>
     );
 }

@@ -1,5 +1,4 @@
-import { Button, Group, Text } from "@mantine/core";
-import EmailAnimation from "@/components/common/EmailAnimation";
+import { Group, Text } from "@mantine/core";
 import LogoWithText from "@/components/common/LogoWithText";
 import CenterPattern from "@/components/common/CenterPattern";
 import AuthPin from "@/components/auth/AuthPin";
@@ -12,17 +11,10 @@ export default async function Page() {
             <Group>
                 <LogoWithText />
             </Group>
-            <div className="py-12 px-8 flex  flex-col ">
+            <div className=" flex  flex-col ">
                 <h1 className="font-bold text-xl">Please verify your email</h1>
-                <Text>We send an OTP to the email address you provided</Text>
-                <div className="w-full flex flex-col items-center">
-                    <div className="w-40   h-auto min-w-40  min-h-40">
-                        <EmailAnimation />
-                    </div>
-                </div>
-                <Group justify="center">
-                    <AuthPin />
-                </Group>
+                <Text>We send an OTP to the email address you provided.</Text>
+                <AuthPin />
                 <Text mt={"md"} c={"dimmed"} size="sm">
                     Didn't receive the email? Check your spam folder. Still
                     can't find it?

@@ -1,12 +1,13 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { PinInput } from "@mantine/core";
+import { Group, PinInput, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
 import { checkAuthLimit } from "@/actions/rateLimit";
 import { IconLock } from "@tabler/icons-react";
+import EmailAnimation from "../common/EmailAnimation";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -100,22 +101,34 @@ export default function AuthPin() {
     };
 
     return (
-        <PinInput
-            value={value}
-            onChange={(val) => {
-                setValue(val);
-                if (isError) setIsError(false);
-            }}
-            length={6}
-            variant="filled"
-            type="number"
-            placeholder="○"
-            oneTimeCode
-            disabled={loading}
-            size="lg"
-            autoFocus={false}
-            onComplete={handleVerify}
-            error={isError}
-        />
+        <>
+            <Text fw={"bold"} mt={"sm"}>
+                {email}
+            </Text>
+            <div className="w-full flex flex-col items-center">
+                <div className="w-40   h-auto min-w-40  min-h-40">
+                    <EmailAnimation />
+                </div>
+            </div>
+            <Group justify="center">
+                <PinInput
+                    value={value}
+                    onChange={(val) => {
+                        setValue(val);
+                        if (isError) setIsError(false);
+                    }}
+                    length={6}
+                    variant="filled"
+                    type="number"
+                    placeholder="○"
+                    oneTimeCode
+                    disabled={loading}
+                    size="lg"
+                    autoFocus={false}
+                    onComplete={handleVerify}
+                    error={isError}
+                />
+            </Group>
+        </>
     );
 }

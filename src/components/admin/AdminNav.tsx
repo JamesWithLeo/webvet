@@ -16,7 +16,7 @@ import {
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "../common/LogoutButton";
-import { Tooltip, UnstyledButton } from "@mantine/core";
+import { Divider, Tooltip, UnstyledButton } from "@mantine/core";
 import { Baskervville_SC } from "next/font/google";
 import { LogoSvg } from "../common/LogoSvg";
 import { role } from "@/db/schema/users";
@@ -198,17 +198,18 @@ export default function AdminNav({ role }: Props) {
             </div>
 
             <div
-                className={`flex flex-col border-t  gap-4 w-full pt-4 ${isCollapsed ? "px-2" : "px-4"}`}
+                className={`flex flex-col gap-4 w-full pt-4 ${isCollapsed ? "px-2" : "px-4"}`}
             >
+                <Divider />
                 <LogoutButton
                     className="font-normal"
                     size="md"
-                    variant="transparent"
+                    variant="subtle"
                     label="Logout"
                     color="gray"
                     leftSection={
                         <IconLogout2
-                            size={isCollapsed ? 20 : 32}
+                            size={isCollapsed ? 20 : undefined}
                             stroke={1.5}
                         />
                     }
@@ -217,7 +218,6 @@ export default function AdminNav({ role }: Props) {
                 </LogoutButton>
             </div>
 
-            {/* <ThemeModeButton /> */}
             <button
                 className="
                     absolute top-1/2 -right-4 transform -translate-y-1/2 

@@ -105,12 +105,12 @@ export default function AdminGreet({ gross, sales }: Props) {
                     <Lottie animationData={animDate} />
                 </div> */}
                 {/* <Divider orientation="vertical" /> */}
-                <div className="flex-1 flex justify-end  gap-4 h-full">
-                    {/* <div className="flex items-end text-sm  flex-col">
+                {/* <div className="flex-1 flex justify-end  gap-4 h-full">
+                    <div className="flex items-end text-sm  flex-col">
                         <h1>{new Date().toTimeString()}</h1>
-                    </div> */}
+                    </div>
                     <StaticMiniCalendar />
-                </div>
+                </div> */}
             </Group>
         </Paper>
     );
