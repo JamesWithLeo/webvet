@@ -1,10 +1,9 @@
 "use client";
 
-import { Paper, SimpleGrid, Stack } from "@mantine/core";
-import { IconArrowUpRight } from "@tabler/icons-react";
+import { Paper } from "@mantine/core";
 import { AreaChart, Sparkline } from "@mantine/charts";
 import useUserAdmin from "@/lib/hooks/useUserAdmin";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 export default function UserPanel() {
     const { data } = useUserAdmin();
@@ -102,7 +101,7 @@ export default function UserPanel() {
                         series={series}
                         withGradient
                         color="blue"
-                        type="stacked"
+                        type="default"
                         curveType="monotone"
                         // fillOpacity={0.6}
                         // strokeWidth={2}

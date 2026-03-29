@@ -12,7 +12,6 @@ import {
 import { unauthorized } from "next/navigation";
 
 export default async function Page() {
-    // only the admin
     const session = await auth();
     if (session?.user.role !== "admin") unauthorized();
 
@@ -38,14 +37,14 @@ export default async function Page() {
                     <AdminCalendarSchedules schedules={appointmentSchedules} />
                 </Box>
 
-                <Divider />
+                {/* <Divider />
 
                 <Box>
                     <Text size="lg" fw={700} c="dimmed" mb="xl" tt="uppercase">
                         Capacity & Limits
                     </Text>
                     <CalendarCapacityAndLimit />
-                </Box>
+                </Box> */}
             </div>
         </div>
     );

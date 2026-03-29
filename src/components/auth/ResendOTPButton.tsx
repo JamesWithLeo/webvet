@@ -52,7 +52,11 @@ export function ResendOTPButton() {
                 setSeconds(COOLDOWN_SECONDS);
                 interval.start();
             } else {
-                throw new Error(result?.error || "Failed to resend");
+                notifications.show({
+                    title: "Error",
+                    message: result.error,
+                    color: "red",
+                });
             }
         } catch (error) {
             notifications.show({
