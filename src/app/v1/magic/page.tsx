@@ -1,6 +1,7 @@
 "use client";
 import AppointmentSaved from "@/components/emails/AppointmentSaved";
 import MagicLinkEmail from "@/components/emails/MagicLinkEmail";
+import PaymentReceived from "@/components/emails/PaymentReceived";
 import { Button, PinInput } from "@mantine/core";
 
 export default function Page() {
@@ -34,6 +35,8 @@ export default function Page() {
                 otp="123456"
                 // providerName="Google"
             />
+
+            <PaymentReceived name={"James"} />
 
             <Button
                 onClick={() => {

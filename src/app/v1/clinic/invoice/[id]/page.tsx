@@ -57,7 +57,10 @@ export default async function Page({
                     {data.paymentStatus === "UNPAID" &&
                         data.status === "COMPLETED" && (
                             <Stack align="end" w={"1000"}>
-                                <ProcessCashButton invoiceId={data.id} />
+                                <ProcessCashButton
+                                    invoiceId={data.id}
+                                    email={user.email}
+                                />
                             </Stack>
                         )}
                     {data.paymentStatus === "UNPAID" &&

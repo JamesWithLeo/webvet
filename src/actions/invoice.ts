@@ -16,6 +16,7 @@ import {
 import { unauthorized } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
+import { resend } from "@/lib/resend";
 
 type SavePropType = {
     userId: string;
@@ -82,9 +83,10 @@ export const CreateInvoice = async (
 
 export const MarkAsPaidInvoiceAdmin = async (
     prevState: any,
-    id: string | null
+    data: { id: string | null; email: string }
 ) => {
     try {
+        const { id, email } = data;
         if (!id)
             return {
                 success: false,
@@ -111,6 +113,12 @@ export const MarkAsPaidInvoiceAdmin = async (
 
         revalidatePath("/v1/clinic/invoice");
 
+        // const {} = await resend.emails.send({
+        //     from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
+        //     to: [email],
+        //     subject: `Invoice`,
+        //     react:
+        // });
         return {
             success: true,
             id: updated.id,

@@ -18,6 +18,7 @@ import { createHash, randomInt } from "crypto";
 import { and, eq, ne, not } from "drizzle-orm";
 import { checkAuthLimit } from "./actions/rateLimit";
 import { CredentialsSignin } from "next-auth";
+import { compileMjmlTemplate } from "./lib/compileMjmlTemplate";
 
 class RateError extends CredentialsSignin {
     code = "RATE_LIMIT_EXCEEDED";
@@ -71,12 +72,16 @@ export const authConfig = {
                 theme,
                 token,
             }) => {
-                const emailHtml = await render(
-                    MagicLinkEmail({
-                        name: email.split("@")[0],
-                        otp: token,
-                    })
-                );
+                const emailHtml = compileMjmlTemplate("otp", {
+                    name: email.split("@")[0],
+                    otp: token,
+                });
+                // const emailHtml = await render(
+                //     MagicLinkEmail({
+                //         name: email.split("@")[0],
+                //         otp: token,
+                //     })
+                // );
 
                 const response = await fetch("https://api.resend.com/emails", {
                     method: "POST",

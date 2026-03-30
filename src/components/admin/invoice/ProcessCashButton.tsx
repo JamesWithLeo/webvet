@@ -10,8 +10,10 @@ import { startTransition, useActionState, useEffect } from "react";
 
 export default function ProcessCashButton({
     invoiceId,
+    email,
 }: {
     invoiceId: string;
+    email: string | null;
 }) {
     const queryClient = useQueryClient();
     const [
@@ -26,8 +28,10 @@ export default function ProcessCashButton({
     );
 
     const handleMarkAsPaid = () => {
+        if (!email) return;
+
         startTransition(() => {
-            formAction(invoiceId);
+            formAction({ id: invoiceId, email: email });
         });
     };
     useEffect(() => {

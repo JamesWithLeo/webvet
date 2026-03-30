@@ -5,7 +5,6 @@ import HeaderBurger from "./HeaderBurger";
 import UserAvatar from "./UserAvatar";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { userAgent } from "next/server";
 
 export default async function LayoutContent({
     children,
