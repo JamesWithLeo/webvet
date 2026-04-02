@@ -7,9 +7,15 @@ export function compileMjmlTemplate(templateName: string, data: any) {
     // 1. Get the absolute path to your .mjml file
     const templatePath = path.join(
         process.cwd(),
-        "src/components/emails",
+        "src",
+        "components",
+        "emails",
         `${templateName}.mjml`
     );
+
+    if (!fs.existsSync(templatePath)) {
+        throw new Error(`Email template not found at: ${templatePath}`);
+    }
 
     // 2. Read the raw MJML content
     const mjmlRaw = fs.readFileSync(templatePath, "utf8");
