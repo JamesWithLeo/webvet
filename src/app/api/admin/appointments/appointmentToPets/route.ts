@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { getAppointmentToPetsAdmin } from "@/lib/db/appointments";
 import { NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
     try {
