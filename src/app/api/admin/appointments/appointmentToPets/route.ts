@@ -5,6 +5,12 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
     try {
         const session = await auth();
+        if (!session || session.user.role === "client") {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
 
         const { searchParams } = new URL(request.url);
         const id = searchParams.get("id");
@@ -12,13 +18,7 @@ export async function GET(request: Request) {
         if (!id) {
             return NextResponse.json(
                 { error: "No appointment id provided" },
-                { status: 500 }
-            );
-        }
-        if (session?.user.role === "client") {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 500 }
+                { status: 400 }
             );
         }
 
