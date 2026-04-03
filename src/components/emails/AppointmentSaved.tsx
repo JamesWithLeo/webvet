@@ -85,16 +85,24 @@ export default function AppointmentSaved({
                                 <strong className="text-[#10b981]">
                                     {pets}
                                 </strong>{" "}
-                                for a <strong>{type}</strong> session. Here are
-                                your appointment details:
+                                . Here are your appointment details:
                             </Text>
 
                             {/* Detail Box */}
-                            <Section className="bg-slate-50 rounded-lg p-4 my-6 border border-slate-100">
-                                <Text className="m-0 text-sm text-slate-500 uppercase tracking-tight font-semibold">
+                            <Section
+                                style={{
+                                    backgroundColor: "#f8fafc", // slate-50
+                                    borderRadius: "8px",
+                                    border: "1px solid #f1f5f9", // slate-100
+                                    marginTop: "24px",
+                                    marginBottom: "24px",
+                                    width: "100%",
+                                }}
+                            >
+                                <Text className="text-xs font-semibold text-slate-400 uppercase mb-3">
                                     Scheduled Date & Time
                                 </Text>
-                                <Text className="m-0 text-lg     font-medium text-slate-900">
+                                <Text className="m-0 text-lg    font-medium text-slate-900">
                                     {eventDateTime}
                                 </Text>
                             </Section>

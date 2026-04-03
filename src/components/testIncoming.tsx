@@ -3,12 +3,19 @@
 import { Button } from "@mantine/core";
 import { useState } from "react";
 
-export default function TestIncoming() {
+export default function TestIncoming({ bearer }: { bearer: string }) {
     const [loading, setIsLoading] = useState<boolean>(false);
     const testIncoming = async () => {
         setIsLoading(true);
-        const response = await fetch("/api/cron/incoming");
-        console.log(await response.json());
+        const response = await fetch("/api/cron/incoming", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${bearer}`,
+                "Content-Type": "application/json",
+            },
+        });
+        const result = await response.json();
+        console.log(result);
         setIsLoading(false);
     };
     return (

@@ -1,3 +1,6 @@
+import { appointmentTypeValues } from "@/db/schema/enums";
+import LongItemFormatter from "@/lib/LongItemFormatter";
+import { toTitleCase } from "@/lib/toTitleCase";
 import {
     Body,
     Container,
@@ -17,14 +20,15 @@ import {
 export default function IncomingAppointmentEmail({
     id,
     name,
-    pets,
-    type,
+    petsWithServiceType,
     eventDateTime,
 }: {
     id: string;
     name: string;
-    pets: string;
-    type: string;
+    petsWithServiceType: {
+        name: string;
+        type: (typeof appointmentTypeValues)[number];
+    }[];
     eventDateTime: string;
 }) {
     return (
@@ -84,27 +88,46 @@ export default function IncomingAppointmentEmail({
                                 You have an appointment in an hour, We are
                                 excited to see{" "}
                                 <strong className="text-[#10b981]">
-                                    {pets}
-                                </strong>{" "}
-                                for a <strong>{type}</strong> session. Please
-                                arrive at least 5 minutes early to allow for
-                                check-in.
+                                    {Array.isArray(petsWithServiceType)
+                                        ? LongItemFormatter(
+                                              petsWithServiceType.map((p) =>
+                                                  toTitleCase(p.name)
+                                              )
+                                          )
+                                        : "No pets listed"}
+                                </strong>
+                                . Please arrive at least 5 minutes early to
+                                allow for check-in.
                             </Text>
 
                             {/* Detail Box */}
-                            {/* <Section className="bg-slate-50 rounded-lg p-4 my-6 border border-slate-100">
-                                <Text className="m-0 text-sm text-slate-500 uppercase tracking-tight font-semibold">
-                                    Scheduled Date & Time
+                            <Section
+                                style={{
+                                    backgroundColor: "#f8fafc", // slate-50
+                                    borderRadius: "8px",
+                                    border: "1px solid #f1f5f9", // slate-100
+                                    marginTop: "24px",
+                                    marginBottom: "24px",
+                                    width: "100%",
+                                }}
+                            >
+                                <Text className="text-xs font-semibold text-slate-400 uppercase mb-3">
+                                    Date & Time
                                 </Text>
-                                <Text className="m-0 text-lg     font-medium text-slate-900">
+                                <Text className="m-0 text-lg    font-medium text-slate-900">
                                     {eventDateTime}
                                 </Text>
-                            </Section> */}
 
-                            {/* <Text className="text-slate-600 text-sm italic mb-6">
-                                Please arrive at least 5 minutes early to allow
-                                for check-in.
-                            </Text> */}
+                                <Text className="text-xs font-semibold text-slate-400 uppercase mb-3">
+                                    Pets Included
+                                </Text>
+                                {petsWithServiceType.map((pet, index) => (
+                                    <Text className=" w-full">
+                                        <strong>{toTitleCase(pet.name)}</strong>{" "}
+                                        → {toTitleCase(pet.type)}
+                                    </Text>
+                                ))}
+                            </Section>
 
                             <Section className="text-center">
                                 <Button

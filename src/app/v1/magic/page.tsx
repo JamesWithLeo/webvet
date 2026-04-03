@@ -3,6 +3,7 @@ import IncomingAppointmentEmail from "@/components/emails/IncomingAppointmentEma
 import MagicLinkEmail from "@/components/emails/otp";
 import PaymentReceived from "@/components/emails/PaymentReceived";
 import TestIncoming from "@/components/testIncoming";
+import { formatDateToReadable } from "@/lib/formatDateToReadable";
 import { render } from "@react-email/render";
 
 export default async function Page() {
@@ -10,13 +11,9 @@ export default async function Page() {
         <IncomingAppointmentEmail
             id="123"
             name="123"
-            pets="123"
-            type="123"
-            eventDateTime="123"
-        />,
-        {
-            pretty: true,
-        }
+            petsWithServiceType={[{ name: "chloe", type: "GROOMING" }]}
+            eventDateTime={formatDateToReadable(new Date())}
+        />
     );
 
     const saved = await render(
@@ -32,12 +29,8 @@ export default async function Page() {
 
     const otp = await render(
         <MagicLinkEmail
-            // baseUrl="1234"
-            // identifier="james123@gmail.com"
-            // token="12345"
             name={"james123@gmail.com".split("@")[0]}
             otp="123456"
-            // providerName="Google"
         />,
         { pretty: true }
     );
@@ -78,7 +71,7 @@ export default async function Page() {
                 className="w-full h-200 bg-white rounded shadow-sm"
             />
 
-            <TestIncoming />
+            <TestIncoming bearer={process.env.CRON_SECRET!} />
         </>
     );
 }

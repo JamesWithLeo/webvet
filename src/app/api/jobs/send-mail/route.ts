@@ -9,9 +9,9 @@ import { eq } from "drizzle-orm";
 
 async function handler(req: Request) {
     const body = await req.json();
-    const { email, pets, type, firstName, id, eventDateTime } = body;
+    const { email, petsWithServiceType, firstName, id, eventDateTime } = body;
 
-    if (!email || !pets || !type || !firstName || !id || !eventDateTime) {
+    if (!email || !petsWithServiceType || !firstName || !id || !eventDateTime) {
         return NextResponse.json(
             { error: "Missing required fields" },
             { status: 400 }
@@ -24,12 +24,11 @@ async function handler(req: Request) {
         const { error } = await resend.emails.send({
             from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
             to: [email],
-            subject: `Incoming ${type} Appointment`,
+            subject: `Incoming Appointment`,
             react: IncomingAppointmentEmail({
-                type: type,
                 id: id,
                 name: toTitleCase(firstName),
-                pets: pets,
+                petsWithServiceType: petsWithServiceType,
                 eventDateTime: eventDateTime,
             }),
         });

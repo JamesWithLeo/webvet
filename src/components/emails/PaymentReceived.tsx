@@ -104,8 +104,17 @@ export default function PaymentReceived({
                                 for check-in.
                             </Text> */}
 
-                            <Section>
-                                <Text className="text-slate-900 text-sm leading-7 mt-6">
+                            <Section
+                                style={{
+                                    backgroundColor: "#f8fafc", // slate-50
+                                    borderRadius: "8px",
+                                    border: "1px solid #f1f5f9", // slate-100
+                                    marginTop: "24px",
+                                    marginBottom: "24px",
+                                    width: "100%",
+                                }}
+                            >
+                                <Text className="text-slate-900 text-sm leading-7 ">
                                     Date: {eventDateTime}
                                 </Text>
                                 <Text className="text-slate-900 text-sm leading-7 ">

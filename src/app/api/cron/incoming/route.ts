@@ -8,6 +8,7 @@ import { qstash } from "@/lib/qtash";
 import { services } from "@/db/schema/services";
 import LongItemFormatter from "@/lib/LongItemFormatter";
 import { formatDateToReadable } from "@/lib/formatDateToReadable";
+import { appointmentStatusValues, appointmentType } from "@/db/schema/enums";
 
 export async function GET(request: Request) {
     const authHeader = request.headers.get("authorization");
@@ -29,18 +30,22 @@ export async function GET(request: Request) {
                 firstName: users.firstName,
                 userEmail: users.email,
                 eventDateTime: appointments.event_datetime,
-                // 1. Add these fields to the selection
-                serviceType: services.type,
                 serviceName: services.title,
-                pets: sql<{ name: string }[]>`
-        COALESCE(
-            json_agg(
-                json_build_object(
-                    'name', ${pets.name} 
-                )
-            ) FILTER (WHERE ${pets.id} IS NOT NULL), 
-             '[]'
-        )`.as("pets"),
+                pets: sql<
+                    {
+                        name: string;
+                        type: (typeof appointmentStatusValues)[number];
+                    }[]
+                >`
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'name', ${pets.name},
+                            'type', ${services.type}
+                        )
+                    ) FILTER (WHERE ${pets.id} IS NOT NULL), 
+                    '[]'
+                )`.as("pets"),
             })
             .from(appointmentsToPets)
             .innerJoin(
@@ -53,7 +58,7 @@ export async function GET(request: Request) {
             .innerJoin(services, eq(appointmentsToPets.serviceId, services.id))
             .where(
                 and(
-                    // gte(appointments.event_datetime, startWindow),
+                    gte(appointments.event_datetime, startWindow),
                     lte(appointments.event_datetime, endWindow),
                     eq(appointments.incomingNotification, false)
                 )
@@ -92,7 +97,7 @@ export async function GET(request: Request) {
                     },
                     body: {
                         email: item.userEmail,
-                        pets: formattedPets,
+                        petsWithServiceType: formattedPets,
                         eventDateTime: formattedDate,
                         firstName: item.firstName,
                         id: item.id,
