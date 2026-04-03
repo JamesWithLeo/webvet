@@ -2,6 +2,7 @@ import AppointmentSaved from "@/components/emails/AppointmentSaved";
 import IncomingAppointmentEmail from "@/components/emails/IncomingAppointmentEmail";
 import MagicLinkEmail from "@/components/emails/otp";
 import PaymentReceived from "@/components/emails/PaymentReceived";
+import TestIncoming from "@/components/testIncoming";
 import { render } from "@react-email/render";
 
 export default async function Page() {
@@ -76,6 +77,8 @@ export default async function Page() {
                 title="Email Preview"
                 className="w-full h-200 bg-white rounded shadow-sm"
             />
+
+            <TestIncoming />
         </>
     );
 }
