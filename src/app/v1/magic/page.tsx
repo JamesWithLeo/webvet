@@ -2,14 +2,9 @@ import AppointmentSaved from "@/components/emails/AppointmentSaved";
 import IncomingAppointmentEmail from "@/components/emails/IncomingAppointmentEmail";
 import MagicLinkEmail from "@/components/emails/otp";
 import PaymentReceived from "@/components/emails/PaymentReceived";
-import { Button } from "@mantine/core";
 import { render } from "@react-email/render";
 
 export default async function Page() {
-    // const testIncoming = async () => {
-    //     const response = await fetch("/api/cron/incoming");
-    //     console.log(await response.json());
-    // };
     const incomming = await render(
         <IncomingAppointmentEmail
             id="123"
@@ -81,14 +76,6 @@ export default async function Page() {
                 title="Email Preview"
                 className="w-full h-200 bg-white rounded shadow-sm"
             />
-
-            {/* <Button
-                onClick={() => {
-                    testIncoming();
-                }}
-            >
-                Test incoming
-            </Button> */}
         </>
     );
 }
