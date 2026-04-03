@@ -11,7 +11,7 @@ import { users } from "./db/schema/users";
 import { accounts } from "./db/schema/accounts";
 import Resend from "next-auth/providers/resend";
 import { render } from "@react-email/render";
-import MagicLinkEmail from "./components/emails/MagicLinkEmail";
+import otp from "./components/emails/otp";
 import { getUserById } from "./lib/db/users";
 import { refreshAccessToken } from "./lib/refreshAccessToken";
 import { createHash, randomInt } from "crypto";
@@ -72,7 +72,7 @@ export const authConfig = {
                 token,
             }) => {
                 const emailHtml = await render(
-                    MagicLinkEmail({
+                    otp({
                         name: email.split("@")[0],
                         otp: token,
                     })

@@ -9,24 +9,16 @@ import {
     Text,
     Tailwind,
     Img,
-    Button,
     Hr,
     Font,
 } from "@react-email/components";
 
-export default function AppointmentSaved({
-    id,
-    name,
-    pets,
-    type,
-    eventDateTime,
-}: {
-    id: string;
+interface VerificationCodeEmailProps {
     name: string;
-    pets: string;
-    type: string;
-    eventDateTime: string;
-}) {
+    otp: string;
+}
+
+const VerificationCodeEmail = ({ name, otp }: VerificationCodeEmailProps) => {
     return (
         <Html>
             <Head>
@@ -69,11 +61,11 @@ export default function AppointmentSaved({
                         {/* Main Content Card */}
                         <Section className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
                             <Heading className="text-lg font-normal text-[#1e293b] m-0 ">
-                                Appointment Confirmed!
+                                Login request
                             </Heading>
 
                             <Text className="text-slate-600 text-sm leading-7 mt-6">
-                                Hi{" "}
+                                Welcome{" "}
                                 <span className="font-semibold text-slate-900">
                                     {name}
                                 </span>
@@ -81,38 +73,21 @@ export default function AppointmentSaved({
                             </Text>
 
                             <Text className="text-slate-600 text-sm leading-7">
-                                We are excited to see{" "}
-                                <strong className="text-[#10b981]">
-                                    {pets}
-                                </strong>{" "}
-                                for a <strong>{type}</strong> session. Here are
-                                your appointment details:
+                                We received a request to log in to your account.
+                                Please enter the following code into the login
+                                screen:
                             </Text>
 
-                            {/* Detail Box */}
                             <Section className="bg-slate-50 rounded-lg p-4 my-6 border border-slate-100">
-                                <Text className="m-0 text-sm text-slate-500 uppercase tracking-tight font-semibold">
-                                    Scheduled Date & Time
-                                </Text>
-                                <Text className="m-0 text-lg     font-medium text-slate-900">
-                                    {eventDateTime}
+                                <Text className="text-center  text-lg tracking-widest w-full">
+                                    {otp}
                                 </Text>
                             </Section>
 
                             <Text className="text-slate-600 text-sm italic mb-6">
-                                Please arrive 5 minutes early. If you need to
-                                reschedule, please click the link below to view
-                                your dashboard.
+                                This code is valid for a limited time. If you
+                                did not request this email, please ignore it.
                             </Text>
-
-                            <Section className="text-center">
-                                <Button
-                                    className="bg-[#47a3d8] text-white font-bold py-3 px-8 rounded-lg text-sm decoration-none inline-block shadow-md"
-                                    href={`https://www.josephmary.me/v1/appointments/${id}`}
-                                >
-                                    View Appointment Details
-                                </Button>
-                            </Section>
 
                             <Hr className="border-slate-200 mt-8 mb-4" />
 
@@ -136,4 +111,6 @@ export default function AppointmentSaved({
             </Tailwind>
         </Html>
     );
-}
+};
+
+export default VerificationCodeEmail;
