@@ -107,11 +107,13 @@ export default function IncomingAppointmentEmail({
                                     borderRadius: "8px",
                                     border: "1px solid #f1f5f9", // slate-100
                                     marginTop: "24px",
+                                    paddingLeft: "16px",
+                                    paddingRight: "16px",
                                     marginBottom: "24px",
                                     width: "100%",
                                 }}
                             >
-                                <Text className="text-xs font-semibold text-slate-400 uppercase mb-3">
+                                <Text className="text-xs  font-semibold text-slate-400 uppercase mb-3">
                                     Date & Time
                                 </Text>
                                 <Text className="m-0 text-lg    font-medium text-slate-900">

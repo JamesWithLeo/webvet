@@ -97,6 +97,8 @@ export default function AppointmentSaved({
                                     marginTop: "24px",
                                     marginBottom: "24px",
                                     width: "100%",
+                                    paddingLeft: "16px",
+                                    paddingRight: "16px",
                                 }}
                             >
                                 <Text className="text-xs font-semibold text-slate-400 uppercase mb-3">

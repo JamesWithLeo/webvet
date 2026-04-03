@@ -28,9 +28,8 @@ export async function GET(request: Request) {
             .select({
                 id: appointments.id,
                 firstName: users.firstName,
-                userEmail: users.email,
+                email: users.email,
                 eventDateTime: appointments.event_datetime,
-                serviceName: services.title,
                 pets: sql<
                     {
                         name: string;
@@ -83,10 +82,6 @@ export async function GET(request: Request) {
 
         await qstash.batchJSON(
             result.map((item) => {
-                const formattedPets = LongItemFormatter(
-                    item.pets.map((p) => p.name)
-                );
-
                 const formattedDate = formatDateToReadable(item.eventDateTime);
 
                 return {
@@ -96,8 +91,8 @@ export async function GET(request: Request) {
                         "Content-Type": "application/json",
                     },
                     body: {
-                        email: item.userEmail,
-                        petsWithServiceType: formattedPets,
+                        email: item.email,
+                        petsWithServiceType: item.pets,
                         eventDateTime: formattedDate,
                         firstName: item.firstName,
                         id: item.id,

@@ -11,7 +11,16 @@ async function handler(req: Request) {
     const body = await req.json();
     const { email, petsWithServiceType, firstName, id, eventDateTime } = body;
 
-    if (!email || !petsWithServiceType || !firstName || !id || !eventDateTime) {
+    if (
+        !email ||
+        !(
+            Array.isArray(petsWithServiceType) &&
+            petsWithServiceType.length >= 1
+        ) ||
+        !firstName ||
+        !id ||
+        !eventDateTime
+    ) {
         return NextResponse.json(
             { error: "Missing required fields" },
             { status: 400 }

@@ -81,9 +81,11 @@ const VerificationCodeEmail = ({ name, otp }: VerificationCodeEmailProps) => {
                                     backgroundColor: "#f8fafc", // slate-50
                                     borderRadius: "8px",
                                     border: "1px solid #f1f5f9", // slate-100
+                                    width: "100%",
                                     marginTop: "24px",
                                     marginBottom: "24px",
-                                    width: "100%",
+                                    paddingLeft: "16px",
+                                    paddingRight: "16px",
                                 }}
                             >
                                 <Text className="text-center  text-lg tracking-widest w-full">

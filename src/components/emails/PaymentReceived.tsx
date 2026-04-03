@@ -112,6 +112,8 @@ export default function PaymentReceived({
                                     marginTop: "24px",
                                     marginBottom: "24px",
                                     width: "100%",
+                                    paddingLeft: "16px",
+                                    paddingRight: "16px",
                                 }}
                             >
                                 <Text className="text-slate-900 text-sm leading-7 ">
