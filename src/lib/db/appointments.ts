@@ -162,6 +162,7 @@ export const saveAppointmentToDbV2 = async (
                 id: insertedAppointment.id,
                 petNames: petNames,
                 petServices: [...petServices],
+                event_datetime: insertedAppointment.event_datetime,
             };
         }
     });

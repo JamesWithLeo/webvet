@@ -42,7 +42,7 @@ export default function IncomingAppointmentEmail({
                 />
             </Head>
             <Preview>
-                Appointment Confirmation: Joseph and Mary Veterinary Clinic
+                Incoming Appointment: Joseph and Mary Veterinary Clinic
             </Preview>
             <Tailwind>
                 <Body className="bg-[#f8fafc] py-12 font-sans">

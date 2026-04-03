@@ -33,12 +33,10 @@ const VerificationCodeEmail = ({ name, otp }: VerificationCodeEmailProps) => {
                     fontStyle="normal"
                 />
             </Head>
-            <Preview>
-                Appointment Confirmation: Joseph and Mary Veterinary Clinic
-            </Preview>
+            <Preview>OTP : Joseph and Mary Veterinary Clinic</Preview>
             <Tailwind>
                 <Body className="bg-[#f8fafc] py-12 font-sans">
-                    <Container className="mx-auto max-w-[580px] px-6">
+                    <Container className="mx-auto max-w-145 px-6">
                         {/* Logo Section */}
                         <Section className="text-center mb-8">
                             <Img

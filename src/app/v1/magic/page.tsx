@@ -62,24 +62,24 @@ export default async function Page() {
             <iframe
                 srcDoc={incomming}
                 title="Email Preview"
-                className="w-full h-[800px] bg-white rounded shadow-sm"
+                className="w-full h-200 bg-white rounded shadow-sm"
             />
             <iframe
                 srcDoc={saved}
                 title="Email Preview"
-                className="w-full h-[800px] bg-white rounded shadow-sm"
+                className="w-full h-200 bg-white rounded shadow-sm"
             />
 
             <iframe
                 srcDoc={otp}
                 title="Email Preview"
-                className="w-full h-[800px] bg-white rounded shadow-sm"
+                className="w-full h-200 bg-white rounded shadow-sm"
             />
 
             <iframe
                 srcDoc={payment}
                 title="Email Preview"
-                className="w-full h-[800px] bg-white rounded shadow-sm"
+                className="w-full h-200 bg-white rounded shadow-sm"
             />
 
             {/* <Button

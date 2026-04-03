@@ -28,7 +28,7 @@ async function handler(req: Request) {
             react: IncomingAppointmentEmail({
                 type: type,
                 id: id,
-                name: toTitleCase(firstName!),
+                name: toTitleCase(firstName),
                 pets: pets,
                 eventDateTime: eventDateTime,
             }),

@@ -11,7 +11,7 @@ import {
 import { unauthorized } from "next/navigation";
 import { resend } from "@/lib/resend";
 import LongItemFormatter from "@/lib/LongItemFormatter";
-
+import { formatDateToReadable } from "@/lib/formatDateToReadable";
 /**
  *
  *
@@ -53,6 +53,7 @@ export default async function CreateAppointmentAction(
                 type: formattedServices,
                 name: firstName ? toTitleCase(firstName) : "lovely fur parent",
                 pets: result.petNames.join(", "),
+                eventDateTime: formatDateToReadable(result.event_datetime),
             }),
         });
         if (error) {
