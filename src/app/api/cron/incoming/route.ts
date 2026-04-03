@@ -5,8 +5,9 @@ import { and, gte, lte, eq, sql } from "drizzle-orm";
 import { pets } from "@/db/schema/pets";
 import { users } from "@/db/schema/users";
 import { qstash } from "@/lib/qtash";
-import { toTitleCase } from "@/lib/toTitleCase";
 import { services } from "@/db/schema/services";
+import LongItemFormatter from "@/lib/LongItemFormatter";
+import { formatDateToReadable } from "@/lib/formatDateToReadable";
 
 export async function GET(request: Request) {
     const authHeader = request.headers.get("authorization");
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
             .innerJoin(services, eq(appointmentsToPets.serviceId, services.id))
             .where(
                 and(
-                    gte(appointments.event_datetime, startWindow),
+                    // gte(appointments.event_datetime, startWindow),
                     lte(appointments.event_datetime, endWindow),
                     eq(appointments.incomingNotification, false)
                 )
@@ -74,26 +75,14 @@ export async function GET(request: Request) {
                 message: "No pending notifications",
             });
         }
+
         await qstash.batchJSON(
             result.map((item) => {
-                const petFormatter = new Intl.ListFormat("en", {
-                    style: "long",
-                    type: "conjunction",
-                });
-                const formattedPets = petFormatter.format(
+                const formattedPets = LongItemFormatter(
                     item.pets.map((p) => p.name)
                 );
 
-                const formattedDate = new Date(
-                    item.eventDateTime
-                ).toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                    timeZone: "UTC",
-                });
+                const formattedDate = formatDateToReadable(item.eventDateTime);
 
                 return {
                     url: "https://www.josephmary.me/api/jobs/send-mail",
@@ -104,12 +93,10 @@ export async function GET(request: Request) {
                     body: {
                         email: item.userEmail,
                         pets: formattedPets,
-                        // type: toTitleCase(item.type),
                         eventDateTime: formattedDate,
                         firstName: item.firstName,
                         id: item.id,
                     },
-                    // Optional: delay them it doesn't hit email rate limits
                     delay: 5,
                 };
             })
