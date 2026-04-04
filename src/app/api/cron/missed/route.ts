@@ -6,6 +6,8 @@ import { pets } from "@/db/schema/pets";
 import { users } from "@/db/schema/users";
 import { verifySignatureAppRouter } from "@upstash/qstash/dist/nextjs";
 import { invoices } from "@/db/schema/invoice";
+import { qstash } from "@/lib/qtash";
+import { formatDateToReadable } from "@/lib/formatDateToReadable";
 
 async function handler(request: Request) {
     try {
@@ -26,7 +28,7 @@ async function handler(request: Request) {
                 title: appointments.title,
                 event_datetime: appointments.event_datetime,
                 email: users.email,
-                name: users.firstName,
+                firstName: users.firstName,
             })
             .from(appointmentsToPets)
             .innerJoin(
@@ -63,12 +65,32 @@ async function handler(request: Request) {
             });
         }
 
-        // todo: add push api here
+        console.log("Missed appointment:", result.length);
+        await qstash.batchJSON(
+            result.map((item) => {
+                const formattedDate = formatDateToReadable(item.event_datetime);
+
+                return {
+                    url: "https://www.josephmary.me/api/jobs/mail-missed",
+                    method: "POST" as const,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        email: item.email,
+                        eventDateTime: formattedDate,
+                        title: item.title,
+                        firstName: item.firstName,
+                        id: item.id,
+                    },
+                    delay: 5,
+                };
+            })
+        );
 
         return NextResponse.json({
             success: true,
-            count: result.length,
-            data: result,
+            queued: result.length,
         });
     } catch (error) {
         console.error("Cron Error:", error);

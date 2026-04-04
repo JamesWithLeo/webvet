@@ -74,7 +74,7 @@ async function handler(request: Request) {
                 message: "No pending notifications",
             });
         }
-
+        console.log("Incoming appointment:", result.length);
         await qstash.batchJSON(
             result.map((item) => {
                 const formattedDate = formatDateToReadable(item.eventDateTime);
