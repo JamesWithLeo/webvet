@@ -50,7 +50,7 @@ export default async function Page() {
             amount="600.00"
             name="James"
             pets={["Doggy"]}
-            eventDateTime="Dec 12 2025"
+            paidAt={formatDateToReadable(new Date())}
         />,
         { pretty: true }
     );
