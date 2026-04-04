@@ -1,6 +1,3 @@
-import { appointmentTypeValues } from "@/db/schema/enums";
-import LongItemFormatter from "@/lib/LongItemFormatter";
-import { toTitleCase } from "@/lib/toTitleCase";
 import {
     Body,
     Container,
@@ -15,20 +12,18 @@ import {
     Button,
     Hr,
     Font,
+    Link,
 } from "@react-email/components";
 
-export default function IncomingAppointmentEmail({
+export default function MissedAppointmentEmail({
     id,
     name,
-    petsWithServiceType,
+    title,
     eventDateTime,
 }: {
     id: string;
     name: string;
-    petsWithServiceType: {
-        name: string;
-        type: (typeof appointmentTypeValues)[number];
-    }[];
+    title: string;
     eventDateTime: string;
 }) {
     return (
@@ -46,7 +41,7 @@ export default function IncomingAppointmentEmail({
                 />
             </Head>
             <Preview>
-                Incoming Appointment: Joseph and Mary Veterinary Clinic
+                Missed Appointment: Joseph and Mary Veterinary Clinic
             </Preview>
             <Tailwind>
                 <Body className="bg-[#f8fafc] py-12 font-sans">
@@ -73,9 +68,8 @@ export default function IncomingAppointmentEmail({
                         {/* Main Content Card */}
                         <Section className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
                             <Heading className="text-lg font-normal text-[#1e293b] m-0 ">
-                                Incoming Appointment!
+                                Missed Appointment!
                             </Heading>
-
                             <Text className="text-slate-600 text-sm leading-7 mt-6">
                                 Hi{" "}
                                 <span className="font-semibold text-slate-900">
@@ -83,65 +77,30 @@ export default function IncomingAppointmentEmail({
                                 </span>
                                 ,
                             </Text>
-
                             <Text className="text-slate-600 text-sm leading-7">
-                                You have an appointment in an hour, We are
-                                excited to see{" "}
-                                <strong className="text-[#10b981]">
-                                    {Array.isArray(petsWithServiceType)
-                                        ? LongItemFormatter(
-                                              petsWithServiceType.map((p) =>
-                                                  toTitleCase(p.name)
-                                              )
-                                          )
-                                        : "No pets listed"}
-                                </strong>
-                                . Please arrive at least 5 minutes early to
-                                allow for check-in.
+                                We noticed that you missed your appointment
+                                today,{" "}
+                                <Link
+                                    href={`https://josephmary.me/v1/appointments/${id}`}
+                                    className="font-bold  text-slate-600 "
+                                >
+                                    {title}
+                                </Link>{" "}
+                                at <strong>{eventDateTime}</strong>. If
+                                everything is okay, please reach out to us to
+                                reschedule, as we want to ensure their health is
+                                on track.
                             </Text>
-
-                            {/* Detail Box */}
-                            <Section
-                                style={{
-                                    backgroundColor: "#f8fafc", // slate-50
-                                    borderRadius: "8px",
-                                    border: "1px solid #f1f5f9", // slate-100
-                                    marginTop: "24px",
-                                    paddingLeft: "16px",
-                                    paddingRight: "16px",
-                                    marginBottom: "24px",
-                                    width: "100%",
-                                }}
-                            >
-                                <Text className="text-xs  font-semibold text-slate-400 uppercase mb-3">
-                                    Date & Time
-                                </Text>
-                                <Text className="m-0 text-lg    font-medium text-slate-900">
-                                    {eventDateTime}
-                                </Text>
-
-                                <Text className="text-xs font-semibold text-slate-400 uppercase mb-3">
-                                    Pets Included
-                                </Text>
-                                {petsWithServiceType.map((pet, index) => (
-                                    <Text className=" w-full">
-                                        <strong>{toTitleCase(pet.name)}</strong>{" "}
-                                        → {toTitleCase(pet.type)}
-                                    </Text>
-                                ))}
-                            </Section>
 
                             <Section className="text-center">
                                 <Button
                                     className="bg-[#47a3d8] text-white font-bold py-3 px-8 rounded-lg text-sm decoration-none inline-block shadow-md"
-                                    href={`https://www.josephmary.me/v1/appointments/${id}`}
+                                    href={`https://www.josephmary.me/v1/appointments/new`}
                                 >
-                                    View Appointment Details
+                                    Add new appointment
                                 </Button>
                             </Section>
-
                             <Hr className="border-slate-200 mt-8 mb-4" />
-
                             <Text className="text-slate-400 text-xs leading-5">
                                 Questions? Reply to this email or visit our
                                 website dashboard for assistance.

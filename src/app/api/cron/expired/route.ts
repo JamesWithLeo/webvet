@@ -1,16 +1,13 @@
 import { db } from "@/db";
 import { appointments, appointmentsToPets } from "@/db/schema/appointments";
 import { NextResponse } from "next/server";
-import { and, gte, lte, eq } from "drizzle-orm";
+import { and, gte, lte, eq, or, isNull } from "drizzle-orm";
 import { pets } from "@/db/schema/pets";
 import { users } from "@/db/schema/users";
+import { verifySignatureAppRouter } from "@upstash/qstash/dist/nextjs";
+import { invoices } from "@/db/schema/invoice";
 
-export async function GET(request: Request) {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        return new Response("Unauthorized", { status: 401 });
-    }
-
+async function handler(request: Request) {
     try {
         const now = new Date();
         const isoNow = now.toISOString();
@@ -25,26 +22,38 @@ export async function GET(request: Request) {
 
         const result = await db
             .select({
-                appointmentId: appointments.id,
+                id: appointments.id,
                 title: appointments.title,
-                eventTime: appointments.event_datetime,
-                // type: appointments.type,
+                event_datetime: appointments.event_datetime,
+                email: users.email,
+                name: users.firstName,
             })
             .from(appointmentsToPets)
             .innerJoin(
                 appointments,
                 eq(appointmentsToPets.appointmentId, appointments.id)
             )
-            // Join the pets table to find out who the pet belongs to
             .innerJoin(pets, eq(appointmentsToPets.petId, pets.id))
-            // Join the users table to get the owner's details
             .innerJoin(users, eq(pets.ownerId, users.id))
+            .leftJoin(invoices, eq(appointments.id, invoices.appointmentId))
             .where(
                 and(
-                    gte(appointments.event_datetime, incomingTarget),
+                    // 1. It is past the buffer time (it's in the past)
                     lte(appointments.event_datetime, incomingBuffer),
-                    eq(appointments.expiredNotification, false)
+                    // 2. We haven't sent this notification yet
+                    eq(appointments.expiredNotification, false),
+                    // 3. The "Expired" logic:
+                    or(
+                        isNull(invoices.id), // No invoice created at all
+                        eq(invoices.status, "PENDING") // Invoice exists but they never "Arrived"
+                    )
                 )
+            )
+            .groupBy(
+                appointments.id,
+                invoices.status,
+                users.email,
+                users.firstName
             );
 
         if (result.length === 0) {
@@ -53,6 +62,7 @@ export async function GET(request: Request) {
                 message: "No pending notifications",
             });
         }
+
         // todo: add push api here
 
         return NextResponse.json({
@@ -65,3 +75,8 @@ export async function GET(request: Request) {
         return NextResponse.json({ success: false }, { status: 500 });
     }
 }
+
+export const POST =
+    process.env.NODE_ENV === "production"
+        ? verifySignatureAppRouter(handler)
+        : handler;

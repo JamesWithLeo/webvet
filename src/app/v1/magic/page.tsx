@@ -1,8 +1,9 @@
 import AppointmentSaved from "@/components/emails/AppointmentSaved";
 import IncomingAppointmentEmail from "@/components/emails/IncomingAppointmentEmail";
+import MissedAppointmentEmail from "@/components/emails/MissedAppointmentEmail";
 import MagicLinkEmail from "@/components/emails/otp";
 import PaymentReceived from "@/components/emails/PaymentReceived";
-import TestIncoming from "@/components/testIncoming";
+import TestCron from "@/components/testCron";
 import { formatDateToReadable } from "@/lib/formatDateToReadable";
 import { render } from "@react-email/render";
 
@@ -12,6 +13,14 @@ export default async function Page() {
             id="123"
             name="123"
             petsWithServiceType={[{ name: "chloe", type: "GROOMING" }]}
+            eventDateTime={formatDateToReadable(new Date())}
+        />
+    );
+    const missed = await render(
+        <MissedAppointmentEmail
+            id="123"
+            name="123"
+            title="Grooming"
             eventDateTime={formatDateToReadable(new Date())}
         />
     );
@@ -54,6 +63,11 @@ export default async function Page() {
                 className="w-full h-200 bg-white rounded shadow-sm"
             />
             <iframe
+                srcDoc={missed}
+                title="Email Preview"
+                className="w-full h-200 bg-white rounded shadow-sm"
+            />
+            <iframe
                 srcDoc={saved}
                 title="Email Preview"
                 className="w-full h-200 bg-white rounded shadow-sm"
@@ -71,7 +85,7 @@ export default async function Page() {
                 className="w-full h-200 bg-white rounded shadow-sm"
             />
 
-            <TestIncoming bearer={process.env.CRON_SECRET!} />
+            <TestCron bearer={process.env.CRON_SECRET!} />
         </>
     );
 }

@@ -80,7 +80,7 @@ async function handler(request: Request) {
                 const formattedDate = formatDateToReadable(item.eventDateTime);
 
                 return {
-                    url: "https://www.josephmary.me/api/jobs/send-mail",
+                    url: "https://www.josephmary.me/api/jobs/mail-incoming",
                     method: "POST" as const,
                     headers: {
                         "Content-Type": "application/json",
@@ -107,4 +107,7 @@ async function handler(request: Request) {
     }
 }
 
-export const POST = verifySignatureAppRouter(handler);
+export const POST =
+    process.env.NODE_ENV === "production"
+        ? verifySignatureAppRouter(handler)
+        : handler;
