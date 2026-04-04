@@ -6,16 +6,11 @@ import { pets } from "@/db/schema/pets";
 import { users } from "@/db/schema/users";
 import { qstash } from "@/lib/qtash";
 import { services } from "@/db/schema/services";
-import LongItemFormatter from "@/lib/LongItemFormatter";
 import { formatDateToReadable } from "@/lib/formatDateToReadable";
-import { appointmentStatusValues, appointmentType } from "@/db/schema/enums";
+import { appointmentStatusValues } from "@/db/schema/enums";
+import { verifySignatureAppRouter } from "@upstash/qstash/dist/nextjs";
 
-export async function GET(request: Request) {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        return new Response("Unauthorized", { status: 401 });
-    }
-
+async function handler(request: Request) {
     try {
         const now = new Date();
         // Lower Bound: Right now (don't notify for past events here)
@@ -111,3 +106,5 @@ export async function GET(request: Request) {
         return NextResponse.json({ success: false }, { status: 500 });
     }
 }
+
+export const POST = verifySignatureAppRouter(handler);
