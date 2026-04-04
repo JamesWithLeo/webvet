@@ -17,6 +17,9 @@ import { unauthorized } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { resend } from "@/lib/resend";
+import PaymentReceived from "@/components/emails/PaymentReceived";
+import { formatDateToReadable } from "@/lib/formatDateToReadable";
+import CurrencyFormatter from "@/lib/CurrencyFormatter";
 
 type SavePropType = {
     userId: string;
@@ -83,7 +86,14 @@ export const CreateInvoice = async (
 
 export const MarkAsPaidInvoiceAdmin = async (
     prevState: any,
-    data: { id: string | null; email: string }
+    data: {
+        id: string | null;
+        email: string;
+        firstName: string;
+        total: number;
+        pets: string[];
+        paidAt: Date;
+    }
 ) => {
     try {
         const { id, email } = data;
@@ -111,14 +121,33 @@ export const MarkAsPaidInvoiceAdmin = async (
             };
         }
 
-        revalidatePath("/v1/clinic/invoice");
+        const { error } = await resend.emails.send({
+            from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
+            to: [email],
+            subject: `Payment Received`,
+            react: PaymentReceived({
+                id: updated.id,
+                name: data.firstName,
+                amount: CurrencyFormatter(data.total),
+                paidAt: formatDateToReadable(data.paidAt),
+                pets: data.pets,
+            }),
+        });
+        if (error) {
+            console.log("Resend error:", error);
+            return {
+                success: true,
+                id: id,
+                emailed: false,
+                error: null,
+                debug: {
+                    code: error.name,
+                    message: error.message,
+                },
+            };
+        }
 
-        // const {} = await resend.emails.send({
-        //     from: "Joseph and Mary Clinic <no-reply@updates.josephmary.me>",
-        //     to: [email],
-        //     subject: `Invoice`,
-        //     react:
-        // });
+        revalidatePath("/v1/clinic/invoice");
         return {
             success: true,
             id: updated.id,

@@ -1,6 +1,7 @@
 "use client";
 
 import { MarkAsPaidInvoiceAdmin } from "@/actions/invoice";
+import { toTitleCase } from "@/lib/toTitleCase";
 import { Button, Group, Modal, Stack, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -10,10 +11,16 @@ import { startTransition, useActionState, useEffect } from "react";
 
 export default function ProcessCashButton({
     invoiceId,
+    firstName,
     email,
+    total,
+    pets,
 }: {
     invoiceId: string;
+    firstName: string;
     email: string | null;
+    total: number;
+    pets: string[];
 }) {
     const queryClient = useQueryClient();
     const [
@@ -31,7 +38,14 @@ export default function ProcessCashButton({
         if (!email) return;
 
         startTransition(() => {
-            formAction({ id: invoiceId, email: email });
+            formAction({
+                id: invoiceId,
+                email: email,
+                firstName: firstName,
+                total: total,
+                pets: pets,
+                paidAt: new Date(),
+            });
         });
     };
     useEffect(() => {

@@ -20,13 +20,13 @@ export default function PaymentReceived({
     name,
     pets,
     amount,
-    eventDateTime,
+    paidAt,
 }: {
     id: string;
     name: string;
     pets: string[];
     amount: string;
-    eventDateTime: string;
+    paidAt: string;
 }) {
     return (
         <Html>
@@ -89,21 +89,6 @@ export default function PaymentReceived({
                                 date.
                             </Text>
 
-                            {/* Detail Box */}
-                            {/* <Section className="bg-slate-50 rounded-lg p-4 my-6 border border-slate-100">
-                                <Text className="m-0 text-sm text-slate-500 uppercase tracking-tight font-semibold">
-                                    Scheduled Date & Time
-                                </Text>
-                                <Text className="m-0 text-lg     font-medium text-slate-900">
-                                    {eventDateTime}
-                                </Text>
-                            </Section> */}
-
-                            {/* <Text className="text-slate-600 text-sm italic mb-6">
-                                Please arrive at least 5 minutes early to allow
-                                for check-in.
-                            </Text> */}
-
                             <Section
                                 style={{
                                     backgroundColor: "#f8fafc", // slate-50
@@ -117,7 +102,7 @@ export default function PaymentReceived({
                                 }}
                             >
                                 <Text className="text-slate-900 text-sm leading-7 ">
-                                    Date: {eventDateTime}
+                                    Date: {paidAt}
                                 </Text>
                                 <Text className="text-slate-900 text-sm leading-7 ">
                                     Amount: {amount}
@@ -125,7 +110,6 @@ export default function PaymentReceived({
                             </Section>
 
                             <Section className="text-center">
-                                {" "}
                                 <Button
                                     className="bg-[#47a3d8] text-white font-bold py-3 px-8 rounded-lg text-sm decoration-none inline-block shadow-md"
                                     href={`https://www.josephmary.me/v1/appointments/${id}`}

@@ -58,8 +58,13 @@ export default async function Page({
                         data.status === "COMPLETED" && (
                             <Stack align="end" w={"1000"}>
                                 <ProcessCashButton
+                                    firstName={user.firstName!}
                                     invoiceId={data.id}
                                     email={user.email}
+                                    pets={data.items.map((p) =>
+                                        toTitleCase(p.petName!)
+                                    )}
+                                    total={data.totalAmount}
                                 />
                             </Stack>
                         )}

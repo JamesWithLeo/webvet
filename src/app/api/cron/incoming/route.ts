@@ -69,6 +69,7 @@ async function handler(request: Request) {
             );
 
         if (result.length === 0) {
+            console.log("Incoming appointment:", 0);
             return NextResponse.json({
                 success: true,
                 message: "No pending notifications",
