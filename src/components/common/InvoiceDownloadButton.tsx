@@ -50,7 +50,14 @@ export default function InvoiceDownloadButton({ data, fullName }: Props) {
     }, [data.items]);
     return (
         <PDFDownloadLink
-            document={<InvoiceDocument data={data} totalAmount={totalAmount} />}
+            document={
+                <InvoiceDocument
+                    data={data}
+                    id={data.userId}
+                    fullName={fullName}
+                    totalAmount={totalAmount}
+                />
+            }
             fileName={`invoice-${data.id}.pdf`}
         >
             {({ loading }) => (

@@ -43,7 +43,8 @@ export default function PaymentReceived({
                 />
             </Head>
             <Preview>
-                Receipt for [Pet's Name]'s visit at [Clinic Name] - [Date]
+                Receipt for {name}'s visit at Joseph & Mary Veterinary Clinic -{" "}
+                {paidAt}
             </Preview>
             <Tailwind>
                 <Body className="bg-[#f8fafc] py-12 font-sans">

@@ -59,6 +59,7 @@ async function handler(request: Request) {
             );
 
         if (result.length === 0) {
+            console.log("No pending Missed appointment notification");
             return NextResponse.json({
                 success: true,
                 message: "No pending notifications",
@@ -66,6 +67,7 @@ async function handler(request: Request) {
         }
 
         console.log("Missed appointment:", result.length);
+
         await qstash.batchJSON(
             result.map((item) => {
                 const formattedDate = formatDateToReadable(item.event_datetime);
@@ -77,11 +79,11 @@ async function handler(request: Request) {
                         "Content-Type": "application/json",
                     },
                     body: {
-                        email: item.email,
-                        eventDateTime: formattedDate,
                         title: item.title,
-                        firstName: item.firstName,
                         id: item.id,
+                        event_datetime: formattedDate,
+                        email: item.email,
+                        firstName: item.firstName,
                     },
                     delay: 5,
                 };
