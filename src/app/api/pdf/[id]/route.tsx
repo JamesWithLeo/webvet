@@ -1,15 +1,18 @@
 import { renderToStream } from "@react-pdf/renderer";
 import InvoiceDocument from "@/components/common/InvoiceDocument";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getInvoiceDownloadData } from "@/lib/db/invoice";
-import React from "react";
 import { toTitleCase } from "@/lib/toTitleCase";
 
-export async function GET(
-    req: NextRequest,
-    { params }: { params: { id: string } }
-) {
-    const { id } = params;
+export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    if (!id) {
+        return NextResponse.json(
+            { error: "No appointment id provided" },
+            { status: 400 }
+        );
+    }
 
     const data = await getInvoiceDownloadData(id);
 
