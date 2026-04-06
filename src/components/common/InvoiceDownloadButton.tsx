@@ -18,6 +18,7 @@ type Props = {
             priceAtInvoice: string;
         }[];
 
+        totalAmount: number;
         id: string;
         userId: string;
         appointmentId: string | null;
@@ -50,14 +51,7 @@ export default function InvoiceDownloadButton({ data, fullName }: Props) {
     }, [data.items]);
     return (
         <PDFDownloadLink
-            document={
-                <InvoiceDocument
-                    data={data}
-                    id={data.userId}
-                    fullName={fullName}
-                    totalAmount={totalAmount}
-                />
-            }
+            document={<InvoiceDocument data={data} fullName={fullName} />}
             fileName={`invoice-${data.id}.pdf`}
         >
             {({ loading }) => (

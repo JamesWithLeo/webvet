@@ -5,6 +5,7 @@ import { pdf } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 import InvoiceDocument from "@/components/common/InvoiceDocument";
 import { getInvoiceDownloadDataAction } from "@/actions/invoice";
+import { toTitleCase } from "@/lib/toTitleCase";
 
 export const DownloadInvoiceButton = ({ invoiceId }: { invoiceId: string }) => {
     const [isGenerating, setIsGenerating] = useState(false);
@@ -22,7 +23,10 @@ export const DownloadInvoiceButton = ({ invoiceId }: { invoiceId: string }) => {
             }
             // 2. Generate the PDF Blob
             const doc = (
-                <InvoiceDocument data={data} totalAmount={data.totalAmount} />
+                <InvoiceDocument
+                    fullName={toTitleCase(`${data.firstName} ${data.lastName}`)}
+                    data={data}
+                />
             );
             const blob = await pdf(doc).toBlob();
 

@@ -1,4 +1,3 @@
-import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import {
     Document,
     Page,
@@ -9,7 +8,6 @@ import {
     Image,
 } from "@react-pdf/renderer";
 
-// Register Font
 Font.register({
     family: "Baskervville SC",
     src: "/fonts/BaskervvilleSC-Regular.ttf",
@@ -160,14 +158,36 @@ const styles = StyleSheet.create({
 
 export const InvoiceDocument = ({
     data,
-    totalAmount,
     fullName,
-    id,
 }: {
-    data: any;
-    id: string;
+    data: {
+        appointmentTitle: string;
+        items: {
+            petName: string | null;
+            serviceTitle: string | null;
+            id: string;
+            invoiceId: string | null;
+            petId: string | null;
+            serviceId: string | null;
+            priceAtInvoice: string;
+        }[];
+        id: string;
+        userId: string;
+        totalAmount: number;
+        appointmentId: string | null;
+        status:
+            | "PENDING"
+            | "ARRIVED"
+            | "COMPLETED"
+            | "CANCELLED"
+            | "MISSED"
+            | "IN_PROGRESS"
+            | null;
+        paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
+        createdAt: Date;
+        createdById: string | null;
+    };
     fullName: string;
-    totalAmount: number;
 }) => {
     const formattedDate = new Date(data.createdAt).toLocaleDateString("en-US", {
         year: "numeric",
@@ -257,10 +277,11 @@ export const InvoiceDocument = ({
 
                             <Text>
                                 P
-                                {parseFloat(data.totalAmount).toLocaleString(
-                                    undefined,
-                                    { minimumFractionDigits: 2 }
-                                )}
+                                {parseFloat(
+                                    data.totalAmount.toPrecision(2)
+                                ).toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                })}
                             </Text>
                         </View>
                     </View>

@@ -217,9 +217,15 @@ export const getInvoiceDownloadData = async (invoiceId: string) => {
             items: sql<
                 {
                     id: string;
-                    priceAtInvoice: number;
+
                     petName: string;
+                    petId: string | null;
+
+                    invoiceId: string | null;
+                    priceAtInvoice: string;
+
                     serviceTitle: string;
+                    serviceId: string | null;
                 }[]
             >`
                 COALESCE(
@@ -227,8 +233,13 @@ export const getInvoiceDownloadData = async (invoiceId: string) => {
                         json_build_object(
                             'id', ${invoiceItems.id},
                             'priceAtInvoice', ${invoiceItems.priceAtInvoice},
-                            'petName', ${pets.name},
-                            'serviceTitle', ${services.title}
+
+                            'petName', ${pets.name}, 
+                            'petId', ${pets.id},
+                            'invoiceId', ${invoices.id},
+                            
+                            'serviceTitle', ${services.title},
+                            'serviceId', ${services.id}
                         )
                     ) FILTER (WHERE ${invoiceItems.id} IS NOT NULL),
                     '[]'

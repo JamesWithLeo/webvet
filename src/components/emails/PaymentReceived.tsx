@@ -113,7 +113,7 @@ export default function PaymentReceived({
                             <Section className="text-center">
                                 <Button
                                     className="bg-[#47a3d8] text-white font-bold py-3 px-8 rounded-lg text-sm decoration-none inline-block shadow-md"
-                                    href={`https://www.josephmary.me/v1/appointments/${id}`}
+                                    href={`https://www.josephmary.me/api/pdf/${id}`}
                                 >
                                     Download PDF Receipt
                                 </Button>
