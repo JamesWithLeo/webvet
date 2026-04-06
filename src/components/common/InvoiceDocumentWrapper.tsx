@@ -24,6 +24,7 @@ type Props = {
             priceAtInvoice: string;
         }[];
 
+        totalAmount: number;
         id: string;
         userId: string;
         appointmentId: string | null;
