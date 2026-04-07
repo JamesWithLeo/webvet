@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 export default async function dashboard() {
     const session = await auth();
     checkSetup(session);
-    if (!session?.user) redirect("/");
+    if (!session?.user) return null;
     const { data: appointments, error } = await getAppointmentsWithType({
         id: session.user.id,
     });

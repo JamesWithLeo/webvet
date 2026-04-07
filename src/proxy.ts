@@ -14,58 +14,66 @@ export default auth((req) => {
             !user.dateOfBirth ||
             !user.gender);
 
-    if (isProfileIncomplete && pathname !== "/v1/auth/setup") {
+    const isAuthPage = pathname === "/";
+    const isSetupPage = pathname === "/v1/auth/setup";
+
+    // 1. Profile Setup Guard (Highest Priority)
+    if (isProfileIncomplete) {
+        if (isSetupPage) return NextResponse.next();
         return NextResponse.redirect(new URL("/v1/auth/setup", nextUrl));
     }
 
-    //  Auth Guard: Protect clinic routes from unauthenticated users
-    if (!user && pathname.startsWith("/v1/clinic")) {
-        return NextResponse.redirect(new URL("/", nextUrl));
+    // 2. Prevent Profiled users from going back to Setup
+    if (!isProfileIncomplete && isSetupPage) {
+        return NextResponse.redirect(new URL("/", nextUrl)); // This will then trigger Landing Logic below
     }
 
-    //  Initial Landing Logic: Redirect users from root to their specific dashboards
+    // 3. Consolidated Landing Logic
+    // Only redirect if they are at the "Root" or "Clinic Root"
     const rootPaths = ["/", "/v1", "/v1/clinic"];
     if (user && rootPaths.includes(pathname)) {
-        if (role === "admin")
-            return NextResponse.redirect(
-                new URL("/v1/clinic/dashboard", nextUrl)
-            );
-        if (role === "staff")
-            return NextResponse.redirect(
-                new URL("/v1/clinic/appointments", nextUrl)
-            );
-        if (role === "vet")
-            return NextResponse.redirect(
-                new URL("/v1/clinic/treatment-board", nextUrl)
-            );
-
-        return NextResponse.redirect(new URL("/v1/dashboard", nextUrl));
+        const dashboardMap = {
+            admin: "/v1/clinic/dashboard",
+            staff: "/v1/clinic/appointments",
+            vet: "/v1/clinic/treatment-board",
+            client: "/v1/dashboard",
+        };
+        const target =
+            (role && dashboardMap[role as keyof typeof dashboardMap]) ||
+            "/v1/dashboard";
+        return NextResponse.redirect(new URL(target, nextUrl));
     }
 
+    // 4. Role-Based Route Protection
     const adminOnlyRoutes = ["calendar", "sales", "services", "dashboard"];
     const pathSegments = pathname.split("/");
-    const lastSegment = pathSegments[pathSegments.length - 1]; // Safer than [-1]
+    const lastSegment = pathSegments[pathSegments.length - 1];
 
+    // forbid the diff roles from admin only routes
     if (
         pathname.startsWith("/v1/clinic") &&
         adminOnlyRoutes.includes(lastSegment) &&
         role !== "admin"
     ) {
-        if (role === "vet")
+        // Only redirect if they aren't ALREADY at their safe fallback
+        if (role === "vet" && lastSegment !== "treatment-board") {
             return NextResponse.redirect(
                 new URL("/v1/clinic/treatment-board", nextUrl)
             );
-        if (role === "staff")
+        }
+        if (role === "staff" && lastSegment !== "appointments") {
             return NextResponse.redirect(
                 new URL("/v1/clinic/appointments", nextUrl)
             );
-
-        return NextResponse.redirect(new URL("/v1/dashboard", nextUrl));
+        }
+        // If they are a client or something else trying to access clinic routes
+        if (role !== "vet" && role !== "staff") {
+            return NextResponse.redirect(new URL("/v1/dashboard", nextUrl));
+        }
     }
 
     return NextResponse.next();
 });
-
 export const config = {
     matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
