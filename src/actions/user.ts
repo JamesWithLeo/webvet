@@ -17,7 +17,7 @@ export default async function updateUser(
     const { userId } = editProps;
     if (!userId) {
         console.error("Missing user ID");
-        return { succesful: false };
+        return { success: false };
     }
     const session = await auth();
     if (!session || session.user.id !== userId) unauthorized();
@@ -33,7 +33,7 @@ export default async function updateUser(
 
     if (!parsed.success) {
         console.error(`${parsed.error.name}: ${parsed.error.message}`);
-        return { succesful: false };
+        return { success: false };
     }
     // Filter out empty strings or nulls so they don't overwrite DB defaults
     const filteredData = Object.fromEntries(
@@ -44,9 +44,9 @@ export default async function updateUser(
     const result = await saveSetupInDb(userId, filteredData);
 
     if (!Array.isArray(result) || result.length > 0) {
-        return { succesful: false };
+        return { success: false };
     }
-    return { succesful: true, user: result[0] ? result[0] : undefined };
+    return { success: true, user: result[0] ? result[0] : undefined };
 }
 
 export async function CreateUser(prevState: any, data: userSetupFormInput) {

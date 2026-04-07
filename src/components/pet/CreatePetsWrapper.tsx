@@ -22,7 +22,7 @@ import {
     useModalsStack,
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
-import { FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
+import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import {
     IconUpload,
     IconX,

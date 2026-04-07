@@ -11,6 +11,7 @@ declare module "next-auth" {
         firstName?: string | null;
         lastName?: string | null;
         gender: (typeof userGenderValue)[number];
+        contactNumber: string | null;
         dateOfBirth?: string | null;
         photoUrl?: string | null;
         accessToken?: string | null;
@@ -31,6 +32,7 @@ declare module "next-auth" {
             photoUrl?: string | null;
             accessToken?: string | null;
             image: string | null;
+            contactNumber: string | null;
         } & DefaultSession["user"];
     }
 }
@@ -49,6 +51,7 @@ declare module "next-auth/jwt" {
         image: string | null;
         accessToken?: string | null;
         refreshToken?: string | null;
+        contactNumber: string | null;
         error?: "RefreshAccessTokenError";
         expiresAt: number;
     }
@@ -64,6 +67,7 @@ declare module "@auth/core/adapters" {
         lastName?: string | null;
         gender: (typeof userGenderValue)[number];
         dateOfBirth?: string | null;
+        contactNumber: string | null;
         photoUrl?: string | null;
         accessToken?: string | null;
         image: string | null;

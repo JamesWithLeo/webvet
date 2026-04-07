@@ -182,6 +182,7 @@ export const authConfig = {
                 token.emailVerified = user.emailVerified;
                 token.photoUrl = user.photoUrl;
                 token.image = user.image;
+                token.contactNumber = user.contactNumber;
                 token.accessToken = account?.access_token;
                 token.refreshToken = account?.refresh_token;
                 token.expiresAt =
@@ -197,6 +198,7 @@ export const authConfig = {
                     token.gender = dbUser.gender;
                     token.dateOfBirth = dbUser.dateOfBirth;
                     token.photoUrl = dbUser.photoUrl;
+                    token.contactNumber = dbUser.contactNumber;
                 }
                 return token;
             }
@@ -228,6 +230,7 @@ export const authConfig = {
                 session.user.emailVerified = token.emailVerified;
                 session.user.photoUrl = token.photoUrl;
                 session.user.image = token.image;
+                session.user.contactNumber = token.contactNumber;
                 session.user.accessToken = token.accessToken as string;
                 session.error = token.error;
             }

@@ -31,6 +31,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import ProfileDropzone from "../common/ProfileDropzone";
+import { useForm } from "@mantine/form";
+import { userSetupFormInput } from "@/lib/validators/usersZodSchema";
 
 const PUBLIC_AVATAR = [
     "bunny",
@@ -66,8 +68,18 @@ export default function EditProfileModal({ opened, close }: Props) {
         schema: "edit",
     });
     const [formState, formAction, isPending] = useActionState(editUserWithId, {
-        succesful: false,
+        success: false,
         user: undefined,
+    });
+
+    const form = useForm<userSetupFormInput>({
+        initialValues: {
+            firstName: session?.user.firstName ?? "",
+            lastName: session?.user.lastName ?? "",
+            gender: session?.user.gender ?? "",
+            dateOfBirth: session?.user.dateOfBirth ?? "",
+            contactNumber: session?.user.contactNumber ?? "",
+        },
     });
 
     const [selectedGalleryImg, setSelectedGalleryImg] = useState<string | null>(
@@ -98,7 +110,7 @@ export default function EditProfileModal({ opened, close }: Props) {
         const formData = new FormData(e.currentTarget);
 
         let newPhotoUrl = selectedGalleryImg
-            ? `https://cap1-webvet.vercel.app${selectedGalleryImg}`
+            ? `https://www.josephmary.me${selectedGalleryImg}`
             : null;
 
         if (importedFile) {
@@ -116,7 +128,7 @@ export default function EditProfileModal({ opened, close }: Props) {
     };
 
     useEffect(() => {
-        if (formState.succesful && formState.user) {
+        if (formState.success && formState.user) {
             const filteredData = Object.fromEntries(
                 Object.entries(formState.user).filter(
                     ([_, value]) => value !== "" && value !== null
@@ -152,7 +164,7 @@ export default function EditProfileModal({ opened, close }: Props) {
                     close();
                 });
         }
-    }, [formState, formState.succesful]);
+    }, [formState, formState.success]);
 
     useEffect(() => {
         let objectUrl: string | null = null;
@@ -171,6 +183,15 @@ export default function EditProfileModal({ opened, close }: Props) {
         };
     }, [importedFile, selectedGalleryImg]);
 
+    useEffect(() => {
+        form.initialize({
+            firstName: session?.user.firstName ?? "",
+            lastName: session?.user.lastName ?? "",
+            gender: session?.user.gender ?? "",
+            dateOfBirth: session?.user.dateOfBirth ?? "",
+            contactNumber: session?.user.contactNumber ?? "",
+        });
+    }, [session]);
     return (
         <Modal
             opened={opened}
@@ -298,10 +319,14 @@ export default function EditProfileModal({ opened, close }: Props) {
 
                     <TextInput
                         name="firstName"
-                        label={"First Name"}
-                        data-autofocus
+                        label={"First name"}
+                        {...form.getInputProps("firstName")}
                     />
-                    <TextInput name="lastName" label={"Last Name"} />
+                    <TextInput
+                        name="lastName"
+                        label={"Last name"}
+                        {...form.getInputProps("lastName")}
+                    />
                     <NativeSelect
                         name="gender"
                         className="w-full"
@@ -309,14 +334,21 @@ export default function EditProfileModal({ opened, close }: Props) {
                         data={userGenderValue}
                         multiple={false}
                         label="Gender"
+                        {...form.getInputProps("gender")}
                     />
                     <DatePickerInput
                         name="dateOfBirth"
+                        label="Date of birth"
                         leftSection={<IconCalendarDot size={16} />}
                         size="md"
                         maxDate={new Date()}
                         clearable
                         className="w-full"
+                        {...form.getInputProps("dateOfBirth")}
+                    />
+                    <TextInput
+                        label={"Contact number"}
+                        {...form.getInputProps("contactNumber")}
                     />
                     <Button type="submit">Save</Button>
                 </Stack>
