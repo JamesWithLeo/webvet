@@ -98,7 +98,7 @@ export const saveSetupInDb = async (
             id: users.id,
             firstName: users.firstName,
             lastName: users.lastName,
-            sex: users.gender,
+            gender: users.gender,
             dateOfBirth: users.dateOfBirth,
         });
 };

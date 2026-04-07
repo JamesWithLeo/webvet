@@ -6,13 +6,14 @@ import {
     userSetupSchema,
     userEditSchema,
     userSetupFormInput,
+    userEditFormInput,
 } from "@/lib/validators/usersZodSchema";
 import { unauthorized } from "next/navigation";
 
 export default async function updateUser(
     editProps: { userId: string | undefined; schema: "edit" | "setup" },
     prevState: any,
-    formData: FormData
+    data: userEditFormInput
 ) {
     const { userId } = editProps;
     if (!userId) {
@@ -22,14 +23,7 @@ export default async function updateUser(
     const session = await auth();
     if (!session || session.user.id !== userId) unauthorized();
 
-    const rawData = {
-        firstName: formData.get("firstName")?.toString(),
-        lastName: formData.get("lastName")?.toString(),
-        sex: formData.get("sex")?.toString(),
-        dateOfBirth: formData.get("dateOfBirth")?.toString(),
-        photoUrl: formData.get("photoUrl")?.toString() ?? undefined,
-    };
-    const parsed = userEditSchema.safeParse(rawData);
+    const parsed = userEditSchema.safeParse(data);
 
     if (!parsed.success) {
         console.error(`${parsed.error.name}: ${parsed.error.message}`);
@@ -43,7 +37,7 @@ export default async function updateUser(
     );
     const result = await saveSetupInDb(userId, filteredData);
 
-    if (!Array.isArray(result) || result.length > 0) {
+    if (!Array.isArray(result) || result.length === 0) {
         return { success: false };
     }
     return { success: true, user: result[0] ? result[0] : undefined };

@@ -27,19 +27,9 @@ const NAV_ITEMS = [
         value: "/v1/pricing",
     },
     {
-        label: "Admin",
-        value: "/v1/clinic",
-        roles: ["admin"],
-    },
-    {
         label: "Clinic",
-        value: "/v1/clinic/treatment-board",
-        roles: ["vet"],
-    },
-    {
-        label: "Dashboard",
-        value: "/v1/clinic/medical-logs",
-        roles: ["staff"],
+        value: "/v1/clinic",
+        roles: ["admin", "vet", "staff"],
     },
 ];
 type Props = {

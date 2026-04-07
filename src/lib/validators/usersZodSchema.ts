@@ -39,10 +39,14 @@ export type userSetupFormInput = z.input<typeof userSetupSchema>;
 export const userEditSchema = z.object({
     firstName: z.string().optional(),
     lastName: z.string().optional(),
-    sex: z.enum(userGenderValueTuple, { message: "Invalid sex" }).optional(),
+    gender: z
+        .enum(userGenderValueTuple, { message: "Invalid gender" })
+        .optional(),
     dateOfBirth: z.string().optional(),
     photoUrl: z.string().optional(),
+    contactNumber: z.string().optional(),
 });
+export type userEditFormInput = z.input<typeof userEditSchema>;
 
 export const accountUpdateSchemaAdmin = z.object({
     firstName: z

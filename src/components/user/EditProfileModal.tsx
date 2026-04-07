@@ -29,10 +29,10 @@ import {
 } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useActionState, useEffect, useState, startTransition } from "react";
 import ProfileDropzone from "../common/ProfileDropzone";
 import { useForm } from "@mantine/form";
-import { userSetupFormInput } from "@/lib/validators/usersZodSchema";
+import { userEditFormInput } from "@/lib/validators/usersZodSchema";
 
 const PUBLIC_AVATAR = [
     "bunny",
@@ -72,8 +72,10 @@ export default function EditProfileModal({ opened, close }: Props) {
         user: undefined,
     });
 
-    const form = useForm<userSetupFormInput>({
+    const form = useForm<userEditFormInput>({
+        mode: "uncontrolled",
         initialValues: {
+            photoUrl: session?.user.photoUrl ?? "",
             firstName: session?.user.firstName ?? "",
             lastName: session?.user.lastName ?? "",
             gender: session?.user.gender ?? "",
@@ -100,14 +102,8 @@ export default function EditProfileModal({ opened, close }: Props) {
         setPreviewUrl(null);
     };
 
-    const [isPendingTransition, startTransition] = useTransition();
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        if (isPending || isPendingTransition || isUploading) return;
-
-        const formData = new FormData(e.currentTarget);
+    const handleSubmit = async (value: userEditFormInput) => {
+        if (isPending || isUploading) return;
 
         let newPhotoUrl = selectedGalleryImg
             ? `https://www.josephmary.me${selectedGalleryImg}`
@@ -119,11 +115,11 @@ export default function EditProfileModal({ opened, close }: Props) {
         }
 
         if (newPhotoUrl) {
-            formData.set("photoUrl", newPhotoUrl);
+            value.photoUrl = newPhotoUrl;
         }
 
         startTransition(() => {
-            formAction(formData);
+            formAction(value);
         });
     };
 
@@ -184,7 +180,8 @@ export default function EditProfileModal({ opened, close }: Props) {
     }, [importedFile, selectedGalleryImg]);
 
     useEffect(() => {
-        form.initialize({
+        form.setValues({
+            photoUrl: session?.user.photoUrl ?? "",
             firstName: session?.user.firstName ?? "",
             lastName: session?.user.lastName ?? "",
             gender: session?.user.gender ?? "",
@@ -192,6 +189,7 @@ export default function EditProfileModal({ opened, close }: Props) {
             contactNumber: session?.user.contactNumber ?? "",
         });
     }, [session]);
+
     return (
         <Modal
             opened={opened}
@@ -203,7 +201,7 @@ export default function EditProfileModal({ opened, close }: Props) {
             }}
             title="Edit Profile"
         >
-            <form onSubmit={handleSubmit}>
+            <form>
                 <Stack>
                     <div>
                         <Text>Profile Photo</Text>
@@ -350,7 +348,14 @@ export default function EditProfileModal({ opened, close }: Props) {
                         label={"Contact number"}
                         {...form.getInputProps("contactNumber")}
                     />
-                    <Button type="submit">Save</Button>
+                    <Button
+                        onClick={() => {
+                            form.onSubmit((v) => handleSubmit(v))();
+                        }}
+                        loading={isPending}
+                    >
+                        Save
+                    </Button>
                 </Stack>
             </form>
         </Modal>
