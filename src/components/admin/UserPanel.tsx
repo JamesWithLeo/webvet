@@ -55,11 +55,7 @@ export default function UserPanel() {
     ];
 
     return (
-        <Paper
-            withBorder
-            radius={"lg"}
-            className="w-full flex p-6 col-span-2 row-span-1"
-        >
+        <Paper withBorder radius={"lg"} className="w-full flex p-6 col-span-2 ">
             <div className="flex flex-col justify-between gap-10 ">
                 <div className="flex h-full  flex-col gap-6 ">
                     <div>

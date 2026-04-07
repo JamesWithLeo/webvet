@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
@@ -19,6 +18,7 @@ import RouterLoadingAnimation from "@/components/RouterLoadingAnimation";
 import { theme } from "@/components/MantineThemeConfig";
 import { ModalsProvider } from "@mantine/modals";
 import Providers from "./v1/Provider";
+import ThemeProvider from "./v1/ThemeProvider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -50,7 +50,7 @@ export default function RootLayout({
             >
                 <MantineProvider theme={theme} defaultColorScheme="light">
                     <ModalsProvider>
-                        <ThemeProvider attribute={"class"}>
+                        <ThemeProvider>
                             <Notifications position="bottom-right" limit={3} />
                             <RouterLoadingAnimation />
                             <Providers>{children}</Providers>

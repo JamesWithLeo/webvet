@@ -29,11 +29,7 @@ export default function AdminServiceOpertations() {
     }, [data]);
 
     return (
-        <Paper
-            withBorder
-            radius={"lg"}
-            className="w-full flex p-6 col-span-2 col-start-3 "
-        >
+        <Paper withBorder radius={"lg"} className="w-full flex p-6 col-span-2 ">
             <div className="flex flex-col justify-between gap-10 ">
                 <h1 className="font-bold text-sm text-gray-500">
                     SERVICE UPTAKE

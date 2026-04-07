@@ -48,11 +48,7 @@ export default function PetPanels({ detailed }: { detailed?: boolean }) {
         { name: "cat", label: "Cats", color: "cyan.7" },
     ];
     return (
-        <Paper
-            withBorder
-            radius={"lg"}
-            className="w-full flex p-6 col-span-2 row-start-2 row-span-1"
-        >
+        <Paper withBorder radius={"lg"} className="w-full flex p-6 col-span-2 ">
             <div className="flex flex-col justify-between gap-10 ">
                 <div className="flex h-full  gap-6 flex-1">
                     <div>

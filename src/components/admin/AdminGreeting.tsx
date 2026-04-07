@@ -1,9 +1,6 @@
 "use client";
 
 import { Group, Paper, Stack, Text } from "@mantine/core";
-import StaticMiniCalendar from "../StaticMiniCalendar";
-import Lottie from "lottie-react";
-import animDate from "@/../public/lottie/Meeting.json";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import { toTitleCase } from "@/lib/toTitleCase";
 
@@ -16,11 +13,7 @@ type Props = {
 };
 export default function AdminGreet({ gross, sales }: Props) {
     return (
-        <Paper
-            withBorder
-            className="w-full p-6 col-span-2 col-start-1 row-start-1"
-            radius={"lg"}
-        >
+        <Paper withBorder className="w-full p-6 col-span-2 " radius={"lg"}>
             <Group className="h-full">
                 <div className="flex-1 relative flex flex-col justify-between h-full">
                     <div>
@@ -55,7 +48,7 @@ export default function AdminGreet({ gross, sales }: Props) {
                                         </Group>
                                     ))}
                                 </Stack>
-                                {/* <div>
+                                <div>
                                     <h1 className="font-bold text-sm text-gray-500">
                                         ACCOMPLISHED
                                     </h1>
@@ -70,7 +63,7 @@ export default function AdminGreet({ gross, sales }: Props) {
                                     <h1 className="text-2xl font-bold text-blue-500">
                                         14
                                     </h1>
-                                </div> */}
+                                </div>
                             </div>
                         </div>
                         {/* <Button.Group>
@@ -100,17 +93,6 @@ export default function AdminGreet({ gross, sales }: Props) {
                         </Button.Group> */}
                     </Group>
                 </div>
-
-                {/* <div className="  w-72 h-72 ">
-                    <Lottie animationData={animDate} />
-                </div> */}
-                {/* <Divider orientation="vertical" /> */}
-                {/* <div className="flex-1 flex justify-end  gap-4 h-full">
-                    <div className="flex items-end text-sm  flex-col">
-                        <h1>{new Date().toTimeString()}</h1>
-                    </div>
-                    <StaticMiniCalendar />
-                </div> */}
             </Group>
         </Paper>
     );
