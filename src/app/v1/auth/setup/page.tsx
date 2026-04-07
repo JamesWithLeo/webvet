@@ -1,10 +1,10 @@
-import { auth } from "@/auth";
 import AccountStepperWrapper from "@/components/user/AccountSetupStepperWrapper";
 import Logo from "@/components/common/Logo";
-import LogoutButton from "@/components/common/LogoutButton";
 import { Box, Group } from "@mantine/core";
-import { redirect } from "next/navigation";
 import { Baskervville_SC } from "next/font/google";
+import Image from "next/image";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
 const baskerville = Baskervville_SC({
     subsets: ["latin"],
@@ -22,13 +22,14 @@ export default async function Page() {
         user.lastName &&
         user.dateOfBirth &&
         user.gender &&
+        user.contactNumber &&
         !session.error
     ) {
         redirect("/");
     }
     return (
-        <div className="py-4 px-4 bg-white/35 flex items-center justify-center flex-col gap-8 bg-blend-luminosity min-h-dvh h-full bg-[url(/cover.jpg)] bg-center bg-cover">
-            <Box className=" px-8   backdrop-blur-xs  items-center flex backdrop-grayscale-75  bg-white drop-shadow-2xl  shadow-2xl   py-16   gap-16  flex-col max-w-xl w-full  rounded-2xl ">
+        <div className="py-4 px-4 flex items-center justify-center flex-col gap-8 bg-blend-luminosity min-h-dvh h-full  bg-center bg-cover">
+            <Box className=" px-8  z-10 relative  backdrop-blur-xs bg-white items-center flex backdrop-grayscale-75   drop-shadow-2xl  shadow-2xl   py-16   gap-16  flex-col max-w-xl w-full  rounded-2xl ">
                 <Group>
                     <Logo size="sm" />
                     <h1
@@ -39,15 +40,17 @@ export default async function Page() {
                 </Group>
                 <AccountStepperWrapper currentStep={0} />
             </Box>
-            <div className="w-full h-min flex justify-center gap-1 items-center">
-                <h1 className="text-white">Wrong Account?</h1>
-
-                <LogoutButton
-                    label="Log out"
-                    variant="transparent"
-                    color="red"
-                    size="compact-sm"
+            <div className="absolute inset-0 -z-10">
+                <Image
+                    src="/cover.jpg"
+                    alt=""
+                    fill
+                    priority
+                    quality={75}
+                    className="object-cover bg-blend-luminosity opacity-80" // Adjusted opacity for readability
+                    sizes="(max-width: 768px) 100vw, 1920px"
                 />
+                <div className="absolute inset-0 bg-white/20" />
             </div>
         </div>
     );

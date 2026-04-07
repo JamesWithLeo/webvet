@@ -14,7 +14,6 @@ export default auth((req) => {
             !user.dateOfBirth ||
             !user.gender);
 
-    const isAuthPage = pathname === "/";
     const isSetupPage = pathname === "/v1/auth/setup";
 
     // 1. Profile Setup Guard (Highest Priority)

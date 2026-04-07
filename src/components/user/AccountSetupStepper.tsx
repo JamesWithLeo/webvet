@@ -10,6 +10,9 @@ import {
     NativeSelect,
     NavLink,
     Modal,
+    Divider,
+    Text,
+    Group,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import {
@@ -36,6 +39,7 @@ import {
 } from "@/lib/validators/usersZodSchema";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { notifications } from "@mantine/notifications";
+import LogoutButton from "../common/LogoutButton";
 
 export default function AccountStepper({
     currentStep,
@@ -94,7 +98,7 @@ export default function AccountStepper({
 
     return (
         <>
-            <form className="w-full items-center  ">
+            <form className="w-full  items-center  ">
                 <Stepper
                     ref={stepperRef}
                     active={active}
@@ -125,9 +129,11 @@ export default function AccountStepper({
                                 variant="filled"
                                 withAsterisk
                             />
-                            <div className="flex w-full mt-10 justify-end gap-4">
+                            <div className="flex w-full mt-5 justify-end gap-4">
                                 <Button
+                                    radius={"md"}
                                     size="md"
+                                    fullWidth
                                     onClick={() => {
                                         const result =
                                             form.validateField("firstName");
@@ -176,9 +182,10 @@ export default function AccountStepper({
                                 variant="filled"
                                 withAsterisk
                             />
-                            <div className="flex w-full mt-10 justify-end gap-4">
+                            <div className="flex w-full mt-5 justify-end gap-4">
                                 <Button
                                     size="md"
+                                    fullWidth
                                     onClick={() => {
                                         setActive((prev) => prev - 1);
                                     }}
@@ -187,7 +194,15 @@ export default function AccountStepper({
                                     Prev
                                 </Button>
                                 <Button
+                                    fullWidth
                                     size="md"
+                                    disabled={
+                                        form.validateField("contactNumber")
+                                            .hasError ||
+                                        form.validateField("dateOfBirth")
+                                            .hasError ||
+                                        form.validateField("gender").hasError
+                                    }
                                     onClick={onSave}
                                     variant="light"
                                 >
@@ -223,6 +238,20 @@ export default function AccountStepper({
                         </Box>
                     </Stepper.Completed>
                 </Stepper>
+                <Divider mt="xl" />
+                <Group justify="center" gap={0} mt={"lg"}>
+                    <Text c="dimmed" size="sm">
+                        Signed in as another user?
+                    </Text>
+
+                    <LogoutButton
+                        label="Log out"
+                        variant="transparent"
+                        color="red"
+                        fw={"normal"}
+                        size="compact-sm"
+                    />
+                </Group>
             </form>
 
             <Modal
