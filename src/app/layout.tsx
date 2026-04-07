@@ -50,11 +50,9 @@ export default function RootLayout({
             >
                 <MantineProvider theme={theme} defaultColorScheme="light">
                     <ModalsProvider>
-                        <ThemeProvider>
-                            <Notifications position="bottom-right" limit={3} />
-                            <RouterLoadingAnimation />
-                            <Providers>{children}</Providers>
-                        </ThemeProvider>
+                        <Notifications position="bottom-right" limit={3} />
+                        <RouterLoadingAnimation />
+                        <Providers>{children}</Providers>
                     </ModalsProvider>
                 </MantineProvider>
             </body>

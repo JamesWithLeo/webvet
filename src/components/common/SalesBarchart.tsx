@@ -86,27 +86,6 @@ export default function SalesBarChart({
     };
     return (
         <>
-            <div className="bg-white">
-                <BarChart
-                    h={500}
-                    data={data}
-                    withBarValueLabel
-                    valueFormatter={(value) =>
-                        new Intl.NumberFormat("en-US").format(value)
-                    }
-                    tooltipProps={{
-                        content: ({ label, payload }) => (
-                            <ChartTooltip label={label} payload={payload} />
-                        ),
-                    }}
-                    legendProps={{ verticalAlign: "top", height: 50 }}
-                    dataKey="month"
-                    series={series}
-                    withLegend
-                    tickLine="xy"
-                    gridAxis="xy"
-                />
-            </div>
             <Group align="end" justify="end">
                 <DatePickerInput
                     type="range"
@@ -116,7 +95,6 @@ export default function SalesBarChart({
                     placeholder="Pick date range"
                     value={value}
                     onChange={setValue}
-                    // clearable
                     rightSection={
                         value ? (
                             <IconX
@@ -133,6 +111,27 @@ export default function SalesBarChart({
                     </Button>
                 )}
             </Group>
+            <div>
+                <BarChart
+                    h={500}
+                    data={data}
+                    withBarValueLabel
+                    valueFormatter={(value) =>
+                        new Intl.NumberFormat("en-US").format(value)
+                    }
+                    tooltipProps={{
+                        content: ({ label, payload }) => (
+                            <ChartTooltip label={label} payload={payload} />
+                        ),
+                    }}
+                    legendProps={{ verticalAlign: "bottom", height: 50 }}
+                    dataKey="month"
+                    series={series}
+                    withLegend
+                    tickLine="xy"
+                    gridAxis="xy"
+                />
+            </div>
         </>
     );
 }
