@@ -10,7 +10,11 @@ export async function GET(request: Request) {
         const pageSize = Number(searchParams.get("pageSize")) || 0;
         const highlight = searchParams.get("highlight");
 
-        if (session?.user.role !== "admin" && session?.user.role !== "staff") {
+        if (
+            session?.user.role !== "admin" &&
+            session?.user.role !== "staff" &&
+            session?.user.role !== "vet"
+        ) {
             return NextResponse.json(
                 { error: "Unauthorized" },
                 { status: 403 }

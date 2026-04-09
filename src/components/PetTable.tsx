@@ -104,8 +104,11 @@ export default function PetTable({ role, id }: Props) {
     const key = "draggable-example";
     const queryClient = useQueryClient();
     const drawer = useDrawersStack(["history", "edit"]);
+
     const [page, setPage] = useState(1);
+
     const pageSize = 10;
+
     const { data, totalCount, currentPage, isLoading, queryId, setQueryId } =
         usePetsAdmin(page, pageSize, highlight);
 

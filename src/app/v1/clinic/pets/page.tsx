@@ -32,7 +32,7 @@ export default async function Pets({
     });
     return (
         <Stack
-            className="w-full min-h-screen h-auto     gap-8 p-16 "
+            className="w-full min-h-screen h-auto     gap-8 p-10 "
             bg={"gray.0"}
         >
             <Title>Pets</Title>
