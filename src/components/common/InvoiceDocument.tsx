@@ -8,9 +8,17 @@ import {
     Image,
 } from "@react-pdf/renderer";
 
+import path from "path";
+const fontPath = path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "BaskervvilleSC-Regular.ttf"
+);
+
 Font.register({
     family: "Baskervville SC",
-    src: "/fonts/BaskervvilleSC-Regular.ttf",
+    src: fontPath,
 });
 
 const styles = StyleSheet.create({
@@ -201,7 +209,10 @@ export const InvoiceDocument = ({
                 {/* Header */}
                 <View style={styles.header}>
                     <View style={styles.brandContainer}>
-                        <Image src="/logo.png" style={styles.logoImage} />
+                        <Image
+                            src={`https://www.josephmary.me/logo.png`}
+                            style={styles.logoImage}
+                        />
                         <Text style={styles.logoText}>Joseph & Mary</Text>
                     </View>
                     <View style={styles.receiptType}>
@@ -262,7 +273,10 @@ export const InvoiceDocument = ({
                             <Text style={[styles.infoValue, styles.colPrice]}>
                                 {parseFloat(item.priceAtInvoice).toLocaleString(
                                     undefined,
-                                    { minimumFractionDigits: 2 }
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    }
                                 )}
                             </Text>
                         </View>
