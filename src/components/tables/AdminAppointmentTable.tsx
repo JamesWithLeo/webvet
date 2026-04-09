@@ -14,6 +14,7 @@ import {
     Button,
     Group,
     Loader,
+    NativeSelect,
     Stack,
     Text,
     TextInput,
@@ -51,10 +52,10 @@ import {
     EventSourceInput,
 } from "@fullcalendar/core/index.js";
 import { throttle } from "lodash";
-import { useMarkAsArrived } from "@/lib/hooks/useMarkAsArrived";
-import AppointmentDrawerAdmin from "../appointment/AppointmentDrawerAdmin";
-import { DateInput, DatePicker, DatePickerInput } from "@mantine/dates";
+import { DatePicker, DatePickerInput } from "@mantine/dates";
 import dayjs from "dayjs";
+import { invoiceStatus, paymentStatusTypeValues } from "@/db/schema/invoice";
+import AppointmentDrawerAdmin from "../appointment/AppointmentDrawerAdmin";
 
 export default function AdminAppointmentTable({
     scope,
@@ -80,6 +81,10 @@ export default function AdminAppointmentTable({
         sortStatus,
         searchName,
         setSearchName,
+        filterInvoiceStatus,
+        filterPaymentStatus,
+        setFilterInvoiceStatus,
+        setFilterPaymentStatus,
         dateRange,
         setDateRange,
     } = useAppointmentAdmin(scope);
@@ -269,6 +274,17 @@ export default function AdminAppointmentTable({
                         {data.invoice?.status}
                     </Text>
                 ),
+                filtering: filterInvoiceStatus !== "ALL",
+                filter: () => (
+                    <NativeSelect
+                        label="Invoice status"
+                        onChange={(e) =>
+                            setFilterInvoiceStatus(e.currentTarget.value)
+                        }
+                        description="Shows all appointment that  matches the filter"
+                        data={["ALL"].concat(invoiceStatus.enumValues)}
+                    />
+                ),
             },
             {
                 accessor: "invoice.paymentStatus",
@@ -278,6 +294,17 @@ export default function AdminAppointmentTable({
                     <Text ta={"center"} size="sm">
                         {data.invoice?.paymentStatus}
                     </Text>
+                ),
+                filtering: filterPaymentStatus !== "ALL",
+                filter: () => (
+                    <NativeSelect
+                        label="Invoice payment status"
+                        onChange={(e) =>
+                            setFilterPaymentStatus(e.currentTarget.value)
+                        }
+                        description="Shows all appointment that  matches the filter"
+                        data={["ALL"].concat(paymentStatusTypeValues)}
+                    />
                 ),
             },
 
@@ -361,7 +388,7 @@ export default function AdminAppointmentTable({
                 },
             },
         ],
-        [dateRange, searchName]
+        [dateRange, searchName, filterInvoiceStatus, filterPaymentStatus]
     );
 
     const onEventClick = useCallback(
@@ -385,16 +412,31 @@ export default function AdminAppointmentTable({
     const getEvent = (): EventSourceInput | undefined => {
         const events =
             data && data.length > 0
-                ? data.map((event) => ({
-                      title: event.title,
-                      start: new Date(event.event_datetime).toISOString(),
-                      end: new Date(event.event_datetime).toISOString(),
-                      display: "block",
-                      extendedProps: {
-                          ...event,
-                      },
-                      className: getEventClassnames(event.event_datetime),
-                  }))
+                ? data.map((event) => {
+                      const status = event.invoice?.paymentStatus;
+
+                      // Determine color logic
+                      let statusClass = "bg-blue-500 border-blue-600"; // Default
+                      if (status === "PAID")
+                          statusClass = "!bg-green-500 !border-green-600";
+                      if (status === "UNPAID")
+                          statusClass = "!bg-red-400 dark:!bg-red-900/10";
+                      if (status === "VOID")
+                          statusClass =
+                              "!bg-gray-400 !border-gray-500 !opacity-50 italic";
+
+                      return {
+                          title: event.title,
+                          start: new Date(event.event_datetime).toISOString(),
+                          end: new Date(event.event_datetime).toISOString(),
+                          display: "block",
+                          extendedProps: {
+                              ...event,
+                          },
+                          // Combine your existing past-event logic with the status logic
+                          className: `${getEventClassnames(event.event_datetime)} ${statusClass} text-white px-1 rounded-sm`,
+                      };
+                  })
                 : undefined;
 
         return events;
@@ -518,6 +560,22 @@ export default function AdminAppointmentTable({
                         recordsPerPage={10}
                         onSortStatusChange={setSortStatus}
                         sortStatus={sortStatus}
+                        rowClassName={({ invoice }) => {
+                            if (!invoice) return "";
+
+                            switch (invoice.paymentStatus) {
+                                case "PAID":
+                                    return "!bg-green-50 dark:!bg-green-900/10";
+                                case "UNPAID":
+                                    return "!bg-red-50 dark:!bg-red-900/10";
+                                case "VOID":
+                                    // Using gray-100 for a clear "disabled" look
+                                    // Added 'text-gray-400' to dim the text
+                                    return "!bg-gray-100 dark:!bg-zinc-800 !text-gray-400 italic";
+                                default:
+                                    return "";
+                            }
+                        }}
                     />
                 </div>
             ) : (

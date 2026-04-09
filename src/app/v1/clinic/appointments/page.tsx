@@ -1,5 +1,6 @@
 import AdminAppointmentTable from "@/components/tables/AdminAppointmentTable";
 import { getAllAppointmentsAdmin } from "@/lib/db/appointments";
+import { Stack } from "@mantine/core";
 import {
     dehydrate,
     HydrationBoundary,
@@ -13,11 +14,14 @@ export default function Page() {
         queryFn: () => getAllAppointmentsAdmin("all"),
     });
     return (
-        <div className="w-full h-screen p-8 flex flex-col gap-4">
+        <Stack
+            bg={"gray.0"}
+            className="w-full h-auto min-h-dvh p-10 flex flex-col gap-4"
+        >
             {" "}
             <HydrationBoundary state={dehydrate(queryClient)}>
                 <AdminAppointmentTable scope="all" />
             </HydrationBoundary>
-        </div>
+        </Stack>
     );
 }

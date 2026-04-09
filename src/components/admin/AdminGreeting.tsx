@@ -48,7 +48,7 @@ export default function AdminGreet({ gross, sales }: Props) {
                                         </Group>
                                     ))}
                                 </Stack>
-                                <div>
+                                {/* <div>
                                     <h1 className="font-bold text-sm text-gray-500">
                                         ACCOMPLISHED
                                     </h1>
@@ -63,7 +63,7 @@ export default function AdminGreet({ gross, sales }: Props) {
                                     <h1 className="text-2xl font-bold text-blue-500">
                                         14
                                     </h1>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                         {/* <Button.Group>

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AdminAppointment } from "@/db/schema/appointments";
 import { useState } from "react";
 import { DataTableSortStatus } from "mantine-datatable";
-import { sortBy } from "lodash";
+import { filter, sortBy } from "lodash";
 import dayjs from "dayjs";
 
 export default function useAppointmentAdmin(
@@ -23,6 +23,13 @@ export default function useAppointmentAdmin(
         null,
     ]);
 
+    const [filterInvoiceStatus, setFilterInvoiceStatus] = useState<
+        string | null
+    >(null);
+    const [filterPaymentStatus, setFilterPaymentStatus] = useState<
+        string | null
+    >(null);
+
     const query = useQuery<AdminAppointment[], Error>({
         queryKey: ["appointments", "admin", scope],
         queryFn: async () => {
@@ -40,6 +47,7 @@ export default function useAppointmentAdmin(
         select: (data) => {
             let filtered = data;
 
+            // 1. Name Filter
             if (searchName) {
                 const lowerSearch = searchName.toLowerCase();
                 filtered = filtered.filter(
@@ -51,6 +59,7 @@ export default function useAppointmentAdmin(
                 );
             }
 
+            // 2. Date Range Filter
             const [start, end] = dateRange;
             if (start) {
                 filtered = filtered.filter((appt) => {
@@ -58,20 +67,32 @@ export default function useAppointmentAdmin(
                     const startDate = dayjs(start).startOf("day");
 
                     if (end) {
-                        // Range mode: between start and end
                         const endDate = dayjs(end).endOf("day");
                         return (
                             apptDate.isAfter(startDate) &&
                             apptDate.isBefore(endDate)
                         );
                     } else {
-                        // Single date mode: only same day
                         return apptDate.isSame(startDate, "day");
                     }
                 });
             }
 
-            // 3. Sort (Existing)
+            if (filterInvoiceStatus && filterInvoiceStatus !== "ALL") {
+                filtered = filtered.filter(
+                    (appt) => appt.invoice?.status === filterInvoiceStatus
+                );
+            }
+
+            // 4. Payment Status Filter
+            if (filterPaymentStatus && filterPaymentStatus !== "ALL") {
+                filtered = filtered.filter(
+                    (appt) =>
+                        appt.invoice?.paymentStatus === filterPaymentStatus
+                );
+            }
+
+            // 5. Sort
             const sorted = sortBy(
                 filtered,
                 sortStatus.columnAccessor
@@ -79,6 +100,7 @@ export default function useAppointmentAdmin(
             return sortStatus.direction === "desc" ? sorted.reverse() : sorted;
         },
     });
+
     return {
         ...query,
         sortStatus,
@@ -87,5 +109,10 @@ export default function useAppointmentAdmin(
         setSearchName,
         dateRange,
         setDateRange,
+        // --- Exporting new state and setters ---
+        setFilterInvoiceStatus,
+        setFilterPaymentStatus,
+        filterPaymentStatus,
+        filterInvoiceStatus,
     };
 }
