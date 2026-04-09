@@ -48,8 +48,7 @@ export default function PaymentReceived({
             </Preview>
             <Tailwind>
                 <Body className="bg-[#f8fafc] py-12 font-sans">
-                    <Container className="mx-auto max-w-[580px] px-6">
-                        {/* Logo Section */}
+                    <Container className="mx-auto max-w-145 px-6">
                         <Section className="text-center mb-8">
                             <Img
                                 src="https://www.josephmary.me/logo.png"
