@@ -112,19 +112,6 @@ export default function ProcessCashButton({
                             Cancel Payment
                         </Button>
                     </Group>
-
-                    {/* <Divider
-                        label="Additional Actions"
-                        labelPosition="center"
-                    />
-
-                    <Button
-                        variant="subtle"
-                        color="gray"
-                        // onClick={() => handleAdjustAmount(paymentId)}
-                    >
-                        Edit Amount
-                    </Button> */}
                 </Stack>
             </Modal>
         </>

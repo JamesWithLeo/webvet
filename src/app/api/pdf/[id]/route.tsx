@@ -4,9 +4,12 @@ import { NextResponse } from "next/server";
 import { getInvoiceDownloadData } from "@/lib/db/invoice";
 import { toTitleCase } from "@/lib/toTitleCase";
 
-export async function GET(req: Request) {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
+export async function GET(
+    req: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    const { id } = await params;
+
     if (!id) {
         return NextResponse.json(
             { error: "No appointment id provided" },
