@@ -9,6 +9,7 @@ import {
 } from "@react-pdf/renderer";
 
 import path from "path";
+
 const fontPath = path.join(
     process.cwd(),
     "fonts",
