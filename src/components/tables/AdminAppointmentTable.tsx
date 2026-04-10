@@ -365,7 +365,7 @@ export default function AdminAppointmentTable({
                                                 </Button>
                                             )}
 
-                                        {invoice.status === "ARRIVED" &&
+                                        {/* {invoice.status === "ARRIVED" &&
                                             invoice.paymentStatus !==
                                                 "VOID" && (
                                                 <Button
@@ -377,9 +377,9 @@ export default function AdminAppointmentTable({
                                                         e.stopPropagation();
                                                     }}
                                                 >
-                                                    Mark as cancelled
+                                                    Void invoice
                                                 </Button>
-                                            )}
+                                            )} */}
                                     </>
                                 )}
                             </Group>

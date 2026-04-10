@@ -10,11 +10,6 @@ import {
 
 import path from "path";
 
-Font.register({
-    family: "Baskervville SC",
-    src: "https://www.josepmary.me/fonts/BaskervvilleSC-Regular.ttf",
-});
-
 const styles = StyleSheet.create({
     page: {
         padding: 48,
@@ -42,9 +37,10 @@ const styles = StyleSheet.create({
         height: 32,
     },
     logoText: {
-        fontFamily: "Baskervville SC",
+        fontFamily: "Times-Roman",
         fontSize: 20,
-        color: "#0f172a",
+
+        color: "#14678f",
         letterSpacing: 0.5,
     },
     receiptType: {
@@ -207,7 +203,9 @@ export const InvoiceDocument = ({
                             src={`https://www.josephmary.me/logo.png`}
                             style={styles.logoImage}
                         />
-                        <Text style={styles.logoText}>Joseph & Mary</Text>
+                        <Text style={styles.logoText} color="#14678f">
+                            Joseph & Mary
+                        </Text>
                     </View>
                     <View style={styles.receiptType}>
                         <Text style={styles.receiptTitle}>
