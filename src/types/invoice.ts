@@ -3,11 +3,16 @@ import { InvoiceItemsTypeModel, InvoiceTypeModel } from "@/db/schema/invoice";
 export type InvoiceTypeModelWithItems = {
     appointmentTitle: string;
     items: {
+        petName: string | null;
+        serviceTitle: string | null;
         id: string;
-        priceAtInvoice: number;
-        petName: string;
-        serviceTitle: string;
+        invoiceId: string;
+        petId: string;
+        serviceId: string;
+        itemStatus: "PENDING" | "COMPLETED" | "CANCELLED";
+        priceAtInvoice: string;
     }[];
+
     totalAmount: number;
     id: string;
     userId: string;
@@ -20,9 +25,16 @@ export type InvoiceTypeModelWithItems = {
         | "MISSED"
         | "IN_PROGRESS"
         | null;
-    paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
+    paymentStatus: "UNPAID" | "PAID" | "VOID" | "REFUNDED" | null;
     createdAt: Date;
     createdById: string | null;
+    // refund
+    amountRefunded: number;
+    netAmount: number;
+    refundMethod: "CASH" | "DIGITAL" | null;
+    refundReason: string | null;
+    updatedAt: Date | null;
+    updatedBy: string | null;
 };
 
 export type InvoiceAdmin = {
@@ -40,9 +52,16 @@ export type InvoiceAdmin = {
         | "MISSED"
         | "IN_PROGRESS"
         | null;
-    paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
+    paymentStatus: "UNPAID" | "PAID" | "VOID" | "REFUNDED" | null;
     createdAt: Date;
     createdById: string | null;
+    // refund
+    amountRefunded: number;
+    netAmount: number;
+    refundMethod: "CASH" | "DIGITAL" | null;
+    refundReason: string | null;
+    updatedAt: Date | null;
+    updatedBy: string | null;
 };
 
 export type InvoiceItemWithPetName = InvoiceItemsTypeModel & {

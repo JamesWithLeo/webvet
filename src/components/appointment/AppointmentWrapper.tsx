@@ -78,7 +78,7 @@ type Props = {
         event_datetime: string;
         invoice: {
             id: string;
-            paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
+            paymentStatus: "UNPAID" | "PAID" | "VOID" | null | "REFUNDED";
             status:
                 | "PENDING"
                 | "ARRIVED"

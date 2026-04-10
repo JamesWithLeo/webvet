@@ -24,27 +24,33 @@ export const getInvoiceAdmin = async () => {
     return await db
         .select({
             ...getTableColumns(invoices),
-            totalAmount:
-                sql<number>`sum(${invoiceItems.priceAtInvoice})`.mapWith(
-                    Number
-                ),
-            firstName: sql<string>`COALESCE(MAX(${users.firstName}))`,
-            lastName: sql<string>`COALESCE(MAX(${users.lastName}))`,
+
+            // This sums all items for THIS specific invoice correctly
+            totalAmount: sql<number>`
+                (SELECT COALESCE(SUM(${invoiceItems.priceAtInvoice}), 0) 
+                 FROM ${invoiceItems} 
+                 WHERE ${invoiceItems.invoiceId} = ${invoices.id})
+            `.mapWith(Number),
+
+            // This takes that sum and subtracts the refund column
+            netAmount: sql<number>`
+                (SELECT COALESCE(SUM(${invoiceItems.priceAtInvoice}), 0) 
+                 FROM ${invoiceItems} 
+                 WHERE ${invoiceItems.invoiceId} = ${invoices.id}) 
+                - COALESCE(${invoices.amountRefunded}, 0)
+            `.mapWith(Number),
+
+            firstName: sql<string>`COALESCE(MAX(${users.firstName}), 'N/A')`,
+            lastName: sql<string>`COALESCE(MAX(${users.lastName}), 'N/A')`,
         })
         .from(invoices)
-        // 1. Join to Appointment
         .leftJoin(appointments, eq(appointments.id, invoices.appointmentId))
-        // 2. Join to the Link Table (AppointmentToPets)
         .leftJoin(
             appointmentsToPets,
             eq(appointmentsToPets.appointmentId, appointments.id)
         )
-        // // 3. Join to Pets
         .leftJoin(pets, eq(pets.id, appointmentsToPets.petId))
-        // // 4. Join to Users (Owner)
         .leftJoin(users, eq(users.id, pets.ownerId))
-        // 5. Join items for the total
-        .leftJoin(invoiceItems, eq(invoices.id, invoiceItems.invoiceId))
         .groupBy(invoices.id);
 };
 
@@ -176,11 +182,9 @@ export const getInvoiceWithDetails = async (id: string) => {
         .leftJoin(services, eq(invoiceItems.serviceId, services.id))
         .innerJoin(appointments, eq(appointments.id, invoices.appointmentId))
         .where(eq(invoices.id, id));
-    // DELETE THE .groupBy(invoices.id) LINE HERE
 
     if (rows.length === 0) return null;
 
-    // The rest of your aggregation logic is already perfect for flat rows!
     const invoice = rows[0].invoice;
     const appointmentTitle = rows[0].appointmentTitle;
 
@@ -192,16 +196,23 @@ export const getInvoiceWithDetails = async (id: string) => {
             serviceTitle: r.serviceTitle,
         }));
 
-    // Calculate total on the application side to avoid SQL group-by headaches
+    // 1. Calculate Gross Total (Sum of all items)
     const totalAmount = items.reduce(
         (sum, item) => sum + (Number(item.priceAtInvoice) || 0),
         0
     );
 
+    // 2. Handle Refund Math
+    // Drizzle decimals come back as strings, so we convert to Number
+    const amountRefunded = Number(invoice.amountRefunded) || 0;
+    const netAmount = totalAmount - amountRefunded;
+
     return {
-        ...invoice,
+        ...invoice, // Includes amountRefunded, refundReason, refundMethod automatically
         appointmentTitle,
-        totalAmount,
+        totalAmount, // Gross Total (Original Price)
+        amountRefunded, // The portion returned to client
+        netAmount, // The actual revenue kept by the clinic
         items,
     };
 };

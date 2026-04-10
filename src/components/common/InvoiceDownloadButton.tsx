@@ -4,6 +4,7 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Button, Loader } from "@mantine/core";
 import { InvoiceDocument } from "./InvoiceDocument";
 import { useMemo } from "react";
+import { IconDownload } from "@tabler/icons-react";
 
 type Props = {
     data: {
@@ -30,9 +31,16 @@ type Props = {
             | "MISSED"
             | "IN_PROGRESS"
             | null;
-        paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
+        paymentStatus: "UNPAID" | "PAID" | "REFUNDED" | "VOID" | null;
         createdAt: Date;
         createdById: string | null;
+        // refund
+        amountRefunded: number;
+        netAmount: number;
+        refundMethod: "CASH" | "DIGITAL" | null;
+        refundReason: string | null;
+        updatedAt: Date | null;
+        updatedBy: string | null;
     };
     fullName: string;
 };
@@ -56,12 +64,13 @@ export default function InvoiceDownloadButton({ data, fullName }: Props) {
         >
             {({ loading }) => (
                 <Button
+                    leftSection={<IconDownload size={16} />}
                     disabled={loading}
                     variant="default"
                     size="sm"
                     radius={"md"}
                 >
-                    {loading ? <Loader size="xs" /> : "Download"}
+                    {loading ? <Loader size="xs" /> : "Download Receipt"}
                 </Button>
             )}
         </PDFDownloadLink>

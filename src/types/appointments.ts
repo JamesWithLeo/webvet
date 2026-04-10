@@ -14,7 +14,7 @@ export type AppointmentToPetsItem = {
 export type AppointmentWithInvoice = {
     invoice: {
         id: string;
-        paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
+        paymentStatus: "UNPAID" | "PAID" | "VOID" | "REFUNDED" | null;
         status:
             | "PENDING"
             | "ARRIVED"

@@ -20,6 +20,10 @@ import { resend } from "@/lib/resend";
 import PaymentReceived from "@/components/emails/PaymentReceived";
 import { formatDateToReadable } from "@/lib/formatDateToReadable";
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
+import {
+    refundSchema,
+    RefundSchemaType,
+} from "@/lib/validators/refundZodSchema";
 
 type SavePropType = {
     userId: string;
@@ -262,6 +266,51 @@ export async function MarkAsVoidInvoiceAdmin(
             error: "A database error occurred.",
             id: null,
             status: null,
+        };
+    }
+}
+
+export async function processRefundAction(
+    prevData: any,
+    values: RefundSchemaType
+) {
+    const session = await auth();
+    if (session?.user.role !== "admin") {
+        unauthorized();
+    }
+    const validatedFields = refundSchema.safeParse(values);
+
+    if (!validatedFields.success) {
+        throw new Error("Invalid refund data provided.");
+    }
+
+    const { invoiceId, refundAmount, reason, originalTotal, refundMethod } =
+        validatedFields.data;
+
+    try {
+        // 2. Database Transaction
+
+        await db
+            .update(invoices)
+            .set({
+                updatedBy: session.user.id,
+                paymentStatus: "REFUNDED",
+                amountRefunded: refundAmount.toString(),
+                refundReason: reason,
+                refundMethod: refundMethod,
+                updatedAt: new Date(),
+            })
+            .where(eq(invoices.id, invoiceId));
+
+        // 3. Clear Cache for the specific invoice page and the list
+        revalidatePath(`/v1/clinic/invoice/${invoiceId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error("Database Error:", error);
+        return {
+            success: false,
+            message: "Failed to update the financial record.",
         };
     }
 }

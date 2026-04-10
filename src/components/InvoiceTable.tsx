@@ -2,33 +2,14 @@
 
 import CurrencyFormatter from "@/lib/CurrencyFormatter";
 import { toTitleCase } from "@/lib/toTitleCase";
+import { InvoiceAdmin, InvoiceTypeModelWithItems } from "@/types/invoice";
 import { Table } from "@mantine/core";
-import { useMemo } from "react";
 
 type Props = {
-    items: {
-        petName: string | null;
-        serviceTitle: string | null;
-        id?: string | undefined;
-        invoiceId?: string | null | undefined;
-        petId?: string | null | undefined;
-        serviceId?: string | null | undefined;
-        priceAtInvoice?: string | undefined;
-    }[];
+    data: InvoiceTypeModelWithItems;
 };
-export default function InvoiceTable({ items }: Props) {
-    const totalAmount = useMemo(() => {
-        // 1. Ensure items exist
-        if (!items.length) return 0;
-
-        // 2. Sum up the prices
-        return items.reduce((sum, item) => {
-            // Convert string decimal to number safely
-            const price = parseFloat(item.priceAtInvoice ?? "0");
-            return sum + price;
-        }, 0);
-    }, [items]);
-    const rows = items.map((item) => (
+export default function InvoiceTable({ data }: Props) {
+    const rows = data.items.map((item) => (
         <Table.Tr key={item.id}>
             <Table.Td>{item.id}</Table.Td>
             <Table.Td>
@@ -44,7 +25,7 @@ export default function InvoiceTable({ items }: Props) {
             <Table.Th>Total</Table.Th>
             <Table.Th></Table.Th>
             <Table.Th></Table.Th>
-            <Table.Th>{CurrencyFormatter(totalAmount)}</Table.Th>
+            <Table.Th>{CurrencyFormatter(data.totalAmount)}</Table.Th>
         </Table.Tr>
     );
     return (

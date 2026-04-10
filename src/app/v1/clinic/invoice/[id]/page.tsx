@@ -1,12 +1,23 @@
+import {
+    Stack,
+    Text,
+    Title,
+    Group,
+    Badge,
+    Paper,
+    Divider,
+} from "@mantine/core";
+import { notFound } from "next/navigation";
+import { IconAlertCircle, IconCheck, IconTrash } from "@tabler/icons-react";
+
 import InvoiceTable from "@/components/InvoiceTable";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
-import { Stack, Text, Title, Group, Button } from "@mantine/core";
-import { notFound } from "next/navigation";
 import InvoiceDocumentWrapper from "@/components/common/InvoiceDocumentWrapper";
 import { toTitleCase } from "@/lib/toTitleCase";
 import { getUserById } from "@/lib/db/users";
 import ProcessCashButton from "@/components/admin/invoice/ProcessCashButton";
 import ProcessVoidButton from "@/components/admin/invoice/ProcessVoidButton";
+import IssueRefundButton from "@/components/admin/invoice/IssueRefundButton";
 
 export default async function Page({
     params,
@@ -17,6 +28,7 @@ export default async function Page({
 
     const data = await getInvoiceWithDetails(invoiceId);
     if (!data) notFound();
+
     const [user] = await getUserById(data.userId);
     if (!user) notFound();
 
@@ -26,25 +38,44 @@ export default async function Page({
                 <Stack gap={"xl"}>
                     <Group w={"1000"} justify="space-between">
                         <Title c={"primary"}>Invoice</Title>
-                        {data.paymentStatus === "PAID" && (
-                            <InvoiceDocumentWrapper
-                                data={data}
-                                fullName={toTitleCase(
-                                    `${user.firstName} ${user.lastName}`
-                                )}
-                            />
-                        )}
+                        <Group gap={"sm"}>
+                            {(data.paymentStatus === "PAID" ||
+                                data.paymentStatus === "REFUNDED") && (
+                                <InvoiceDocumentWrapper
+                                    data={data}
+                                    fullName={toTitleCase(
+                                        `${user.firstName} ${user.lastName}`
+                                    )}
+                                />
+                            )}
+                            {data.paymentStatus === "PAID" && (
+                                <IssueRefundButton
+                                    invoiceId={data.id}
+                                    amount={data.totalAmount}
+                                />
+                            )}
+                        </Group>
                     </Group>
 
                     <Stack gap={0}>
                         <Title order={4} c={"dimmed"}>
                             Billing Details
                         </Title>
-                        <Text>Invoice Id: {data.id}</Text>
-                        <Text>{new Date(data.createdAt).toLocaleString()}</Text>
+                        <Text fw={500}>Invoice Id: {data.id}</Text>
+                        <Text size="sm" c="dimmed">
+                            {new Date(data.createdAt).toLocaleString("en-PH", {
+                                timeZone: "Asia/Manila",
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                            })}
+                        </Text>
                         <Text>
                             Client:{" "}
-                            {toTitleCase(`${user.firstName} ${user.lastName}`)}
+                            <Text span fw={600}>
+                                {toTitleCase(
+                                    `${user.firstName} ${user.lastName}`
+                                )}
+                            </Text>
                         </Text>
                     </Stack>
 
@@ -52,11 +83,81 @@ export default async function Page({
                         <Title order={4} c={"dimmed"}>
                             Billing Breakdown
                         </Title>
-                        <InvoiceTable items={data.items} />
+                        <InvoiceTable data={data} />
+
+                        {/* Financial Summary Section */}
+                        <Paper
+                            withBorder
+                            p="xl"
+                            radius="lg"
+                            mt="md"
+                            bg="gray.0"
+                        >
+                            <Stack gap="xs">
+                                <Group justify="space-between">
+                                    <Text size="sm" c="dimmed">
+                                        Subtotal
+                                    </Text>
+                                    <Text fw={500}>
+                                        ₱
+                                        {data.totalAmount.toLocaleString(
+                                            undefined,
+                                            { minimumFractionDigits: 2 }
+                                        )}
+                                    </Text>
+                                </Group>
+
+                                {data.amountRefunded > 0 && (
+                                    <Stack gap={4}>
+                                        <Group justify="space-between" c="red">
+                                            <Group gap="xs">
+                                                <IconAlertCircle size={16} />
+                                                <Text fw={700}>
+                                                    Refunded (
+                                                    {data.refundMethod})
+                                                </Text>
+                                            </Group>
+                                            <Text fw={700}>
+                                                - ₱
+                                                {data.amountRefunded.toLocaleString(
+                                                    undefined,
+                                                    { minimumFractionDigits: 2 }
+                                                )}
+                                            </Text>
+                                        </Group>
+                                        <Text size="xs" c="dimmed" pl={24}>
+                                            Reason: {data.refundReason}
+                                        </Text>
+                                    </Stack>
+                                )}
+
+                                <Divider my="sm" variant="dashed" />
+
+                                <Group justify="space-between">
+                                    <Title order={3}>Net Total</Title>
+                                    <Title
+                                        order={3}
+                                        c={
+                                            data.amountRefunded > 0
+                                                ? "red"
+                                                : "primary"
+                                        }
+                                    >
+                                        ₱
+                                        {data.netAmount.toLocaleString(
+                                            undefined,
+                                            { minimumFractionDigits: 2 }
+                                        )}
+                                    </Title>
+                                </Group>
+                            </Stack>
+                        </Paper>
                     </Stack>
-                    {data.paymentStatus === "UNPAID" &&
-                        data.status === "COMPLETED" && (
-                            <Stack align="end" w={"1000"}>
+
+                    {/* Action & Status Section */}
+                    <Stack align="end" w={"1000"} gap="md">
+                        {data.paymentStatus === "UNPAID" &&
+                            data.status === "COMPLETED" && (
                                 <ProcessCashButton
                                     firstName={user.firstName!}
                                     invoiceId={data.id}
@@ -66,35 +167,34 @@ export default async function Page({
                                     )}
                                     total={data.totalAmount}
                                 />
-                            </Stack>
-                        )}
-                    {data.paymentStatus === "UNPAID" &&
-                        data.status === "ARRIVED" && (
-                            <Stack align="end" w={"1000"}>
-                                <ProcessVoidButton invoiceId={data.id} />
-                            </Stack>
-                        )}
+                            )}
 
-                    {data.paymentStatus === "VOID" && (
-                        <Stack gap={0} align="end" w={"1000"}>
-                            <Text c={"gray"} size="xs">
-                                Payment status
+                        {data.paymentStatus === "UNPAID" &&
+                            data.status === "ARRIVED" && (
+                                <ProcessVoidButton invoiceId={data.id} />
+                            )}
+
+                        <Stack gap={0} align="end">
+                            <Text c={"gray"} size="xs" mb={4}>
+                                Payment Status
                             </Text>
-                            <Text c={"dark"} size="xl" fw={"bolder"}>
-                                VOID
+                            <Text
+                                size="xl"
+                                fw={"bolder"}
+                                c={
+                                    data.paymentStatus === "PAID"
+                                        ? "primary"
+                                        : data.paymentStatus === "REFUNDED"
+                                          ? "red"
+                                          : data.paymentStatus === "VOID"
+                                            ? "dark"
+                                            : "yellow"
+                                }
+                            >
+                                {data.paymentStatus}
                             </Text>
                         </Stack>
-                    )}
-                    {data.paymentStatus === "PAID" && (
-                        <Stack gap={0} align="end" w={"1000"}>
-                            <Text c={"gray"} size="xs">
-                                Payment status
-                            </Text>
-                            <Text c={"primary"} size="xl" fw={"bolder"}>
-                                PAID
-                            </Text>
-                        </Stack>
-                    )}
+                    </Stack>
                 </Stack>
             </Stack>
         </div>

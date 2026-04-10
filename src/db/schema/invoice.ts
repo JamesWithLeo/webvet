@@ -5,6 +5,7 @@ import {
     uuid,
     decimal,
     unique,
+    text,
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { services } from "./services";
@@ -20,11 +21,19 @@ export const invoiceStatus = pgEnum("invoiceStatus", [
     "IN_PROGRESS",
 ]);
 
-export const paymentStatusTypeValues = ["UNPAID", "PAID", "VOID"] as const;
+export const paymentStatusTypeValues = [
+    "UNPAID",
+    "PAID",
+    "VOID",
+    "REFUNDED",
+] as const;
 export const paymentStatusType = pgEnum(
     "payment_status",
     paymentStatusTypeValues
 );
+
+export const refundMethodValues = ["CASH", "DIGITAL"] as const;
+export const refundMethodEnum = pgEnum("refundMethodEnum", refundMethodValues);
 
 export const invoices = pgTable("invoices", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -35,9 +44,13 @@ export const invoices = pgTable("invoices", {
         })
         .unique(),
     status: invoiceStatus("invoice_status").default("PENDING"),
-    // totalAmount: decimal("total_amount", { scale: 2, precision: 10 })
-    //     .notNull()
-    //     .default("0.00"),
+    amountRefunded: decimal("amount_refunded", { precision: 10, scale: 2 })
+        .default("0.00")
+        .notNull(),
+    refundMethod: refundMethodEnum(),
+    refundReason: text("refund_reason"),
+    updatedAt: timestamp("updated_at"),
+    updatedBy: text("updated_by"),
     paymentStatus: paymentStatusType("status").default("UNPAID"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     createdById: uuid("created_by_id").references(() => users.id, {

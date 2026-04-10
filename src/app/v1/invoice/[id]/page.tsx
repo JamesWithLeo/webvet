@@ -3,10 +3,11 @@ import BackToAppointment from "@/components/common/BackToAppointment";
 import InvoiceTable from "@/components/InvoiceTable";
 import ProcessPayment from "@/components/ProcessPayment";
 import { getInvoiceWithDetails } from "@/lib/db/invoice";
-import { Stack, Text, Title, Group } from "@mantine/core";
+import { Stack, Text, Title, Group, Paper, Divider } from "@mantine/core";
 import { notFound } from "next/navigation";
 import InvoiceDocumentWrapper from "@/components/common/InvoiceDocumentWrapper";
 import { toTitleCase } from "@/lib/toTitleCase";
+import { IconAlertCircle, IconReceiptRefund } from "@tabler/icons-react";
 
 export default async function Page({
     params,
@@ -27,9 +28,10 @@ export default async function Page({
                     <BackToAppointment />
                 </Group>
                 <Stack gap={"xl"}>
-                    <Group w={"1000"} justify="space-between">
+                    <Group justify="space-between">
                         <Title c={"primary"}>Invoice</Title>
-                        {data.paymentStatus === "PAID" && (
+                        {(data.paymentStatus === "PAID" ||
+                            data.paymentStatus === "REFUNDED") && (
                             <InvoiceDocumentWrapper
                                 data={data}
                                 fullName={toTitleCase(
@@ -53,15 +55,11 @@ export default async function Page({
                         </Text>
                     </Stack>
 
-                    <Stack w={1000}>
+                    <Stack>
                         <Title order={4} c={"dimmed"}>
                             Billing Breakdown
                         </Title>
-                        <InvoiceTable
-                            items={data.items}
-
-                            // total={data.totalAmount}
-                        />
+                        <InvoiceTable data={data} />
                     </Stack>
                     {data.paymentStatus === "UNPAID" &&
                         data.status === "COMPLETED" && (
@@ -79,6 +77,89 @@ export default async function Page({
                             </Text>
                         </Stack>
                     )}
+
+                    <Paper withBorder p="xl" radius="lg" mt="md" bg="gray.0">
+                        <Stack gap="xs">
+                            {/* The original purchase price */}
+                            <Group justify="space-between">
+                                <Text size="sm" c="dimmed">
+                                    Order Total
+                                </Text>
+                                <Text fw={500}>
+                                    ₱{" "}
+                                    {data.totalAmount.toLocaleString(
+                                        undefined,
+                                        { minimumFractionDigits: 2 }
+                                    )}
+                                </Text>
+                            </Group>
+
+                            {/* Refund section - softer styling for clients */}
+                            {data.amountRefunded > 0 && (
+                                <Stack gap={4}>
+                                    <Group justify="space-between" c="gray.7">
+                                        {" "}
+                                        {/* Use a softer color than bright red */}
+                                        <Group gap="xs">
+                                            <IconReceiptRefund size={16} />
+                                            <Text fw={600}>
+                                                Refunded to {data.refundMethod}
+                                            </Text>
+                                        </Group>
+                                        <Text fw={600}>
+                                            - ₱{" "}
+                                            {data.amountRefunded.toLocaleString(
+                                                undefined,
+                                                { minimumFractionDigits: 2 }
+                                            )}
+                                        </Text>
+                                    </Group>
+                                    {/* Reason is usually omitted for clients unless it's a dispute, 
+                    but if kept, use 'Note' instead of 'Reason' */}
+                                    <Text size="xs" c="dimmed" pl={24}>
+                                        Note: {data.refundReason}
+                                    </Text>
+                                </Stack>
+                            )}
+
+                            <Divider my="sm" variant="dashed" />
+
+                            {/* The final amount the client actually spent */}
+                            <Group justify="space-between">
+                                <Title order={3}>Total Paid</Title>
+                                <Title
+                                    order={3}
+                                    c="blue.9" // Standard brand color instead of "Admin Red"
+                                >
+                                    ₱{" "}
+                                    {data.netAmount.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                    })}
+                                </Title>
+                            </Group>
+                        </Stack>
+                    </Paper>
+
+                    <Stack gap={0} align="end">
+                        <Text c={"gray"} size="xs" mb={4}>
+                            Payment Status
+                        </Text>
+                        <Text
+                            size="xl"
+                            fw={"bolder"}
+                            c={
+                                data.paymentStatus === "PAID"
+                                    ? "primary"
+                                    : data.paymentStatus === "REFUNDED"
+                                      ? "red"
+                                      : data.paymentStatus === "VOID"
+                                        ? "dark"
+                                        : "yellow"
+                            }
+                        >
+                            {data.paymentStatus}
+                        </Text>
+                    </Stack>
                 </Stack>
             </Stack>
         </div>

@@ -162,6 +162,34 @@ export default function AdminInvoiceTable() {
                 ),
             },
             {
+                accessor: "amountRefunded",
+                width: "8%",
+                title: "Refunded ammount",
+                sortable: true,
+                textAlign: "center",
+                render: (record) => (
+                    <Group justify="right">
+                        <Text size="sm">
+                            {CurrencyFormatter(record.amountRefunded)}
+                        </Text>
+                    </Group>
+                ),
+            },
+            {
+                accessor: "netAmount",
+                width: "8%",
+                title: "Net Ammount",
+                sortable: true,
+                textAlign: "center",
+                render: (record) => (
+                    <Group justify="right">
+                        <Text size="sm">
+                            {CurrencyFormatter(record.netAmount)}
+                        </Text>
+                    </Group>
+                ),
+            },
+            {
                 accessor: "createdAt",
                 title: "Created At",
                 width: "8%",
@@ -205,7 +233,8 @@ export default function AdminInvoiceTable() {
                         ) : null}
                         {record.totalAmount &&
                             record.status === "COMPLETED" &&
-                            record.paymentStatus === "PAID" && (
+                            (record.paymentStatus === "PAID" ||
+                                record.paymentStatus === "REFUNDED") && (
                                 <DownloadInvoiceButton invoiceId={record.id} />
                             )}
                     </Group>
@@ -224,9 +253,6 @@ export default function AdminInvoiceTable() {
         key,
         columns: columns,
     });
-    useEffect(() => {
-        console.log(filteredData);
-    }, [filteredData]);
     return (
         <Stack>
             <Group justify="flex-end">

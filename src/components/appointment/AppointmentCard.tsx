@@ -106,7 +106,8 @@ export default function AppointmentCard({
                     variant="default"
                     onClick={handleInvoiceClick}
                 >
-                    {invoice.paymentStatus === "PAID"
+                    {invoice.paymentStatus === "PAID" ||
+                    invoice.paymentStatus === "REFUNDED"
                         ? "View Invoice"
                         : "Pay now"}
                 </Button>

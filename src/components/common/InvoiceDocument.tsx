@@ -4,11 +4,8 @@ import {
     Text,
     View,
     StyleSheet,
-    Font,
     Image,
 } from "@react-pdf/renderer";
-
-import path from "path";
 
 const styles = StyleSheet.create({
     page: {
@@ -22,8 +19,9 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        borderBottom: 1,
-        borderColor: "#e5e7eb",
+        borderBottomWidth: 1,
+        borderBottomColor: "#e5e7eb",
+        borderBottomStyle: "solid",
         paddingBottom: 20,
         marginBottom: 30,
     },
@@ -39,7 +37,6 @@ const styles = StyleSheet.create({
     logoText: {
         fontFamily: "Times-Roman",
         fontSize: 20,
-
         color: "#14678f",
         letterSpacing: 0.5,
     },
@@ -59,7 +56,7 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
 
-    // --- Info Grid (Bill To / Date) ---
+    // --- Info Grid ---
     infoGrid: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -78,7 +75,6 @@ const styles = StyleSheet.create({
     infoValue: {
         fontSize: 10,
         color: "#1e293b",
-        fontWeight: "medium",
     },
 
     // --- Table Styling ---
@@ -90,15 +86,17 @@ const styles = StyleSheet.create({
     tableHeader: {
         flexDirection: "row",
         backgroundColor: "#f8fafc",
-        borderBottom: 1,
-        borderColor: "#e2e8f0",
+        borderBottomWidth: 1,
+        borderBottomColor: "#e2e8f0",
+        borderBottomStyle: "solid",
         paddingVertical: 8,
         paddingHorizontal: 4,
     },
     tableRow: {
         flexDirection: "row",
-        borderBottom: 0.5,
-        borderColor: "#f1f5f9",
+        borderBottomWidth: 0.5,
+        borderBottomColor: "#f1f5f9",
+        borderBottomStyle: "solid",
         paddingVertical: 12,
         paddingHorizontal: 4,
         alignItems: "center",
@@ -125,32 +123,57 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     summaryBox: {
-        width: "40%",
-        borderTop: 1,
-        borderColor: "#0f172a",
+        width: "45%",
+        borderTopWidth: 1,
+        borderTopColor: "#0f172a",
+        borderTopStyle: "solid",
         paddingTop: 8,
     },
     summaryRow: {
         flexDirection: "row",
         justifyContent: "space-between",
-        paddingVertical: 4,
+        paddingVertical: 3,
     },
-    totalLabel: { fontSize: 12, fontWeight: "bold", color: "#0f172a" },
-    totalAmount: { fontSize: 14, fontWeight: "bold", color: "#004a7c" },
+    totalLabel: { fontSize: 10, fontWeight: "bold", color: "#0f172a" },
+    refundLabel: { fontSize: 10, fontWeight: "bold", color: "#dc2626" },
+    netTotalLabel: {
+        fontSize: 12,
+        fontWeight: "bold",
+        color: "#14678f",
+        marginTop: 4,
+    },
+    totalValue: { fontSize: 10, textAlign: "right" },
+    netTotalValue: {
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#14678f",
+        textAlign: "right",
+        marginTop: 4,
+    },
 
-    // --- Status Badge ---
+    // --- Footer ---
     statusWrapper: {
         marginTop: 40,
-        padding: 10,
+        padding: 8,
         backgroundColor: "#f0f9ff",
         borderRadius: 4,
         alignSelf: "flex-start",
+        borderWidth: 1,
+        borderStyle: "solid",
+        borderColor: "#bae6fd",
     },
     statusText: {
-        fontSize: 10,
+        fontSize: 9,
         color: "#0369a1",
         fontWeight: "bold",
         textTransform: "uppercase",
+    },
+    refundReason: {
+        fontSize: 8,
+        color: "#64748b",
+        fontStyle: "italic",
+        marginTop: 4,
+        textAlign: "right",
     },
 });
 
@@ -158,33 +181,7 @@ export const InvoiceDocument = ({
     data,
     fullName,
 }: {
-    data: {
-        appointmentTitle: string;
-        items: {
-            petName: string | null;
-            serviceTitle: string | null;
-            id: string;
-            invoiceId: string | null;
-            petId: string | null;
-            serviceId: string | null;
-            priceAtInvoice: string;
-        }[];
-        id: string;
-        userId: string;
-        totalAmount: number;
-        appointmentId: string | null;
-        status:
-            | "PENDING"
-            | "ARRIVED"
-            | "COMPLETED"
-            | "CANCELLED"
-            | "MISSED"
-            | "IN_PROGRESS"
-            | null;
-        paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
-        createdAt: Date;
-        createdById: string | null;
-    };
+    data: any;
     fullName: string;
 }) => {
     const formattedDate = new Date(data.createdAt).toLocaleDateString("en-US", {
@@ -192,6 +189,13 @@ export const InvoiceDocument = ({
         month: "long",
         day: "numeric",
     });
+
+    const formatCurrency = (val: number | string) => {
+        return parseFloat(val.toString()).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    };
 
     return (
         <Document>
@@ -203,9 +207,7 @@ export const InvoiceDocument = ({
                             src={`https://www.josephmary.me/logo.png`}
                             style={styles.logoImage}
                         />
-                        <Text style={styles.logoText} color="#14678f">
-                            Joseph & Mary
-                        </Text>
+                        <Text style={styles.logoText}>Joseph & Mary</Text>
                     </View>
                     <View style={styles.receiptType}>
                         <Text style={styles.receiptTitle}>
@@ -219,7 +221,7 @@ export const InvoiceDocument = ({
                 <View style={styles.infoGrid}>
                     <View style={styles.infoBlock}>
                         <Text style={styles.infoLabel}>Billed To</Text>
-                        <Text style={styles.infoValue}>{`${fullName}`}</Text>
+                        <Text style={styles.infoValue}>{fullName}</Text>
                         <Text style={styles.itemSub}>
                             Client ID: {data.userId || "N/A"}
                         </Text>
@@ -245,7 +247,7 @@ export const InvoiceDocument = ({
                             Pet
                         </Text>
                         <Text style={[styles.tableHeaderText, styles.colPrice]}>
-                            Amount
+                            Amount (PHP)
                         </Text>
                     </View>
 
@@ -256,20 +258,14 @@ export const InvoiceDocument = ({
                                     {item.serviceTitle || "General Service"}
                                 </Text>
                                 <Text style={styles.itemSub}>
-                                    Item ID: {item.id}
+                                    ID: {item.id}
                                 </Text>
                             </View>
                             <Text style={[styles.infoValue, styles.colPet]}>
                                 {item.petName || "—"}
                             </Text>
                             <Text style={[styles.infoValue, styles.colPrice]}>
-                                {parseFloat(item.priceAtInvoice).toLocaleString(
-                                    undefined,
-                                    {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                    }
-                                )}
+                                {formatCurrency(item.priceAtInvoice)}
                             </Text>
                         </View>
                     ))}
@@ -279,26 +275,60 @@ export const InvoiceDocument = ({
                 <View style={styles.summaryContainer}>
                     <View style={styles.summaryBox}>
                         <View style={styles.summaryRow}>
-                            <Text style={styles}>Total Amount</Text>
+                            <Text style={styles.totalLabel}>Subtotal</Text>
+                            <Text style={styles.totalValue}>
+                                Php {formatCurrency(data.totalAmount)}
+                            </Text>
+                        </View>
 
-                            <Text>
-                                P
-                                {parseFloat(
-                                    data.totalAmount.toPrecision(2)
-                                ).toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                })}
+                        {data.amountRefunded > 0 && (
+                            <>
+                                <View style={styles.summaryRow}>
+                                    <Text style={styles.refundLabel}>
+                                        Refunded ({data.refundMethod})
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            styles.totalValue,
+                                            { color: "#dc2626" },
+                                        ]}
+                                    >
+                                        - Php{" "}
+                                        {formatCurrency(data.amountRefunded)}
+                                    </Text>
+                                </View>
+                                <Text style={styles.refundReason}>
+                                    Reason: {data.refundReason}
+                                </Text>
+                            </>
+                        )}
+
+                        <View
+                            style={[
+                                styles.summaryRow,
+                                {
+                                    borderTopWidth: 0.5,
+                                    borderTopColor: "#e2e8f0",
+                                    borderTopStyle: "solid",
+                                    marginTop: 4,
+                                    paddingTop: 4,
+                                },
+                            ]}
+                        >
+                            <Text style={styles.netTotalLabel}>Net Total</Text>
+                            <Text style={styles.netTotalValue}>
+                                Php {formatCurrency(data.netAmount)}
                             </Text>
                         </View>
                     </View>
                 </View>
 
-                {/* Status Badge */}
-                {/* <View style={styles.statusWrapper}>
+                {/* Footer */}
+                <View style={styles.statusWrapper}>
                     <Text style={styles.statusText}>
-                        Status: {data.paymentStatus}
+                        Payment Status: {data.paymentStatus}
                     </Text>
-                </View> */}
+                </View>
             </Page>
         </Document>
     );
