@@ -8,17 +8,10 @@ import {
     Image,
 } from "@react-pdf/renderer";
 
-import path from "path";
-const fontPath = path.join(
-    process.cwd(),
-    "public",
-    "fonts",
-    "BaskervvilleSC-Regular.ttf"
-);
-
 Font.register({
     family: "Baskervville SC",
-    src: fontPath,
+    // Use an absolute path relative to the domain root
+    src: "/fonts/BaskervvilleSC-Regular.ttf",
 });
 
 const styles = StyleSheet.create({
