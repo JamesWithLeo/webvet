@@ -15,7 +15,7 @@ import otp from "./components/emails/otp";
 import { getUserById } from "./lib/db/users";
 import { refreshAccessToken } from "./lib/refreshAccessToken";
 import { createHash, randomInt } from "crypto";
-import { and, eq, ne, not } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { checkAuthLimit } from "./actions/rateLimit";
 import { CredentialsSignin } from "next-auth";
 
@@ -110,53 +110,67 @@ export const authConfig = {
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.otp) return null;
-                const email = credentials?.email as string;
-                const otp = credentials?.otp as string;
+                const email = credentials.email as string;
+                const otp = credentials.otp as string;
 
-                const limit = await checkAuthLimit(email);
-                if (!limit.success) {
-                    throw new RateError();
+                // 1. Get the existing token to check attempts
+                const [vToken] = await db
+                    .select()
+                    .from(verificationTokens)
+                    .where(eq(verificationTokens.identifier, email));
+
+                // No token found? Either expired or never requested.
+                if (!vToken) throw new Error("Invalid or expired code.");
+
+                // 2. Brute Force Check (Pre-verification)
+                if (vToken.attempts >= 5) {
+                    await db
+                        .delete(verificationTokens)
+                        .where(eq(verificationTokens.identifier, email));
+                    throw new Error(
+                        "Too many attempts. Please request a new code."
+                    );
                 }
 
+                // 3. Speed Limit Check (Upstash)
+                const limit = await checkAuthLimit(email);
+                if (!limit.success) throw new RateError();
+
+                // 4. Hash and Compare
                 const hashedToken = createHash("sha256")
                     .update(`${otp}${process.env.NEXTAUTH_SECRET}`)
                     .digest("hex");
 
-                const [verificationToken] = await db
-                    .select()
-                    .from(verificationTokens)
-                    .where(
-                        and(
-                            eq(verificationTokens.identifier, email),
-                            eq(verificationTokens.token, hashedToken)
-                        )
-                    );
+                if (vToken.token !== hashedToken) {
+                    // IMPORTANT: Update the counter BEFORE throwing the error
+                    await db
+                        .update(verificationTokens)
+                        .set({ attempts: vToken.attempts + 1 })
+                        .where(eq(verificationTokens.identifier, email));
 
-                if (!verificationToken) throw new WrongPinError();
+                    throw new WrongPinError();
+                }
 
-                const now = new Date().getTime();
-                const expiry = new Date(verificationToken.expires).getTime();
-                if (expiry < now) {
+                // 5. Expiry Check
+                const now = new Date();
+                if (new Date(vToken.expires) < now) {
                     await db
                         .delete(verificationTokens)
-                        .where(eq(verificationTokens.token, hashedToken));
+                        .where(eq(verificationTokens.identifier, email));
                     throw new ExpiredError();
                 }
 
+                // 6. Success - Fetch User
                 let [user] = await db
                     .select()
                     .from(users)
-                    .where(eq(users.email, credentials.email as string))
+                    .where(eq(users.email, email))
                     .limit(1);
 
+                // 7. Cleanup: Delete the used token
                 await db
                     .delete(verificationTokens)
-                    .where(
-                        eq(
-                            verificationTokens.identifier,
-                            credentials.email as string
-                        )
-                    );
+                    .where(eq(verificationTokens.identifier, email));
 
                 return user || null;
             },

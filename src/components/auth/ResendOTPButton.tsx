@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Divider, Group, Stack, Text } from "@mantine/core";
+import { Button, Divider, Stack, Text } from "@mantine/core";
 import { useInterval } from "@mantine/hooks";
 import { useState, useEffect } from "react";
 import { notifications } from "@mantine/notifications";

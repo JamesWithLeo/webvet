@@ -1,4 +1,10 @@
-import { text, pgTable, timestamp, primaryKey } from "drizzle-orm/pg-core";
+import {
+    text,
+    pgTable,
+    timestamp,
+    primaryKey,
+    integer,
+} from "drizzle-orm/pg-core";
 export const verificationTokens = pgTable(
     "verificationToken",
     {
@@ -8,6 +14,7 @@ export const verificationTokens = pgTable(
             mode: "date",
             withTimezone: true,
         }).notNull(),
+        attempts: integer("attempts").default(0).notNull(),
     },
     (verificationToken) => [
         {
