@@ -16,6 +16,7 @@ export default function AuthPin() {
     const [loading, setLoading] = useState(false);
     const [value, setValue] = useState("");
     const [isError, setIsError] = useState(false);
+    const [isDisabled, setIsDisabled] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -78,6 +79,7 @@ export default function AuthPin() {
                     icon: <IconLock size={16} />,
                 });
             } else if (result.code === "TOO_MANY_ATTEMPTS") {
+                setIsDisabled(true);
                 notifications.show({
                     title: "Account Locked",
                     message:
@@ -130,7 +132,7 @@ export default function AuthPin() {
                     type="number"
                     placeholder="○"
                     oneTimeCode
-                    disabled={loading}
+                    disabled={loading || isDisabled}
                     size="lg"
                     autoFocus={false}
                     onComplete={handleVerify}
