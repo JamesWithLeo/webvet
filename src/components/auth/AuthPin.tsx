@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
 import { checkAuthLimit } from "@/actions/rateLimit";
-import { IconLock } from "@tabler/icons-react";
+import { IconAlertCircle, IconLock } from "@tabler/icons-react";
 import EmailAnimation from "../common/EmailAnimation";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -76,6 +76,14 @@ export default function AuthPin() {
                         "This code is no longer valid. Please request a new one.",
                     color: "orange",
                     icon: <IconLock size={16} />,
+                });
+            } else if (result.code === "TOO_MANY_ATTEMPTS") {
+                notifications.show({
+                    title: "Account Locked",
+                    message:
+                        "Too many failed guesses. This code has been deactivated for your security. Please request a new one.",
+                    color: "red",
+                    icon: <IconAlertCircle size={16} />,
                 });
             } else if (result.code === "WRONG_PIN") {
                 notifications.show({

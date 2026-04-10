@@ -15,7 +15,7 @@ import otp from "./components/emails/otp";
 import { getUserById } from "./lib/db/users";
 import { refreshAccessToken } from "./lib/refreshAccessToken";
 import { createHash, randomInt } from "crypto";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { checkAuthLimit } from "./actions/rateLimit";
 import { CredentialsSignin } from "next-auth";
 
@@ -27,6 +27,10 @@ class ExpiredError extends CredentialsSignin {
 }
 class WrongPinError extends CredentialsSignin {
     code = "WRONG_PIN";
+}
+
+class BruteForceError extends CredentialsSignin {
+    code = "TOO_MANY_ATTEMPTS";
 }
 
 export const authConfig = {
@@ -127,9 +131,7 @@ export const authConfig = {
                     await db
                         .delete(verificationTokens)
                         .where(eq(verificationTokens.identifier, email));
-                    throw new Error(
-                        "Too many attempts. Please request a new code."
-                    );
+                    throw new BruteForceError();
                 }
 
                 // 3. Speed Limit Check (Upstash)
