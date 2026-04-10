@@ -10,14 +10,9 @@ import {
 
 import path from "path";
 
-const fontPath = path.join(
-    process.cwd(),
-    "fonts",
-    "BaskervvilleSC-Regular.ttf"
-);
 Font.register({
     family: "Baskervville SC",
-    src: fontPath,
+    src: "https://www.josepmary.me/fonts/BaskervvilleSC-Regular.ttf",
 });
 
 const styles = StyleSheet.create({
