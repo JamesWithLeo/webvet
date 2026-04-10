@@ -15,11 +15,6 @@ export default async function Page() {
                 <h1 className="font-bold text-xl">Please verify your email</h1>
                 <Text>We send an OTP to the email address you provided.</Text>
                 <AuthPin />
-                <Text mt={"md"} c={"dimmed"} size="sm">
-                    Didn't receive the email? Check your spam folder. Still
-                    can't find it?
-                </Text>
-                <ResendOTPButton />
             </div>
         </div>
     );
