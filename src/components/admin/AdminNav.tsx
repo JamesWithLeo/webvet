@@ -12,6 +12,7 @@ import {
     IconFileInvoice,
     IconChartHistogram,
     IconLayoutKanban,
+    IconCurrencyPeso,
 } from "@tabler/icons-react";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -83,6 +84,12 @@ const data = [
         label: "Services",
         icon: <IconCategory2 stroke={1.5} />,
         roles: ["admin"],
+    },
+    {
+        label: "Pricing",
+        icon: <IconCurrencyPeso stroke={1.5} />,
+        roles: ["admin", "staff"],
+        link: "/clinic/pricing",
     },
 ];
 const NavLink = ({

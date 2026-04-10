@@ -261,7 +261,7 @@ export default function ServicesTable() {
                 title: "title",
                 draggable: true,
                 ellipsis: true,
-                width: "20%",
+                width: "10%",
                 resizable: true,
                 render: (rowData) => (
                     <p className="line-clamp-2">{rowData.title}</p>
@@ -272,7 +272,7 @@ export default function ServicesTable() {
                 title: "type",
                 draggable: true,
                 ellipsis: true,
-                width: "20%",
+                width: "10%",
                 resizable: true,
                 render: (rowData) => (
                     <p className="line-clamp-2">{rowData.type}</p>
@@ -283,7 +283,7 @@ export default function ServicesTable() {
                 title: "species",
                 draggable: true,
                 ellipsis: true,
-                width: "20%",
+                width: "10%",
                 resizable: true,
                 render: (rowData) => (
                     <p className="line-clamp-2">{rowData.species}</p>
@@ -337,6 +337,7 @@ export default function ServicesTable() {
                 // draggable: true,
                 accessor: "actions",
                 title: "Actions",
+                width: "10%",
                 textAlign: "right",
                 render: (rowData) => (
                     <Group wrap="nowrap" gap={"xs"}>
