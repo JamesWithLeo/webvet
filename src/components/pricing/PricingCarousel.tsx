@@ -60,15 +60,17 @@ export default function PricingCarousel({
                 # {title}
             </Title>
             <Carousel
+                className="w-min"
                 slideGap="md"
+                emblaOptions={{
+                    containScroll: "trimSnaps", // Important: prevents "over-scrolling" into empty space
+                    dragFree: true,
+                    loop: carouselData.length > 3, // Only loop if you actually have enough content
+                    align: "center",
+                }}
                 controlSize={26}
                 withControls={carouselData.length > 1}
                 withIndicators={false}
-                emblaOptions={{
-                    loop: true,
-                    dragFree: true,
-                    align: isMobile ? "start" : "center",
-                }}
                 slideSize={{
                     base: "100%",
                     sm: "50%",
@@ -77,7 +79,10 @@ export default function PricingCarousel({
                 }}
             >
                 {carouselData.map((v, index) => (
-                    <CarouselSlide key={`${v.title}-${index}`}>
+                    <CarouselSlide
+                        key={`${v.title}-${index}`}
+                        className="w-full"
+                    >
                         <Card
                             withBorder
                             p={isMobile ? "md" : "lg"}

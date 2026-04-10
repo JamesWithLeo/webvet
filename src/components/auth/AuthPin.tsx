@@ -49,6 +49,7 @@ export default function AuthPin() {
 
         if (!limit.success) {
             setLoadingPin(false);
+            setValuePin("");
             notifications.show({
                 title: "Too many attempts",
                 message: `Please wait ${limit.retryInSeconds}s before trying again.`,

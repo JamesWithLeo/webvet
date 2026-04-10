@@ -13,17 +13,7 @@ export default async function Page() {
     const vaccines = await getServiceByType("VACCINATION");
     const dewormming = await getServiceByType("DEWORMING");
     return (
-        <div className="h-full  flex-col min-h-dvh md:px-16 px-8 py-8 pb-16 gap-16 w-full flex">
-            <PricingCarousel
-                title="Check up"
-                carouselData={checkups}
-                icon={<IconZoomCheckFilled stroke={1.5} size={20} />}
-            />
-            <PricingCarousel
-                title="Dewormming"
-                carouselData={dewormming}
-                icon={<IconPill stroke={1.5} size={20} />}
-            />
+        <div className="h-full  flex-col min-h-dvh items-center md:px-16 px-8 py-8 pb-16 gap-16 w-full flex">
             <PricingCarousel
                 title="Vaccines"
                 carouselData={vaccines}
@@ -33,6 +23,16 @@ export default async function Page() {
                 title="Grooming"
                 carouselData={grooming}
                 icon={<IconHeartCheck stroke={1.5} size={20} />}
+            />
+            <PricingCarousel
+                title="Check up"
+                carouselData={checkups}
+                icon={<IconZoomCheckFilled stroke={1.5} size={20} />}
+            />
+            <PricingCarousel
+                title="Dewormming"
+                carouselData={dewormming}
+                icon={<IconPill stroke={1.5} size={20} />}
             />
         </div>
     );
