@@ -111,7 +111,7 @@ export default function AuthPin() {
             }
         } else {
             sessionStorage.removeItem("auth_email");
-            router.push("/v1/dashboard");
+            router.push("/");
         }
     };
 
