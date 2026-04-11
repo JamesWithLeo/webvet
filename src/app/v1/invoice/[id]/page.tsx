@@ -61,22 +61,6 @@ export default async function Page({
                         </Title>
                         <InvoiceTable data={data} />
                     </Stack>
-                    {data.paymentStatus === "UNPAID" &&
-                        data.status === "COMPLETED" && (
-                            <Stack align="end" w={"1000"}>
-                                <ProcessPayment invoiceId={invoiceId} />
-                            </Stack>
-                        )}
-                    {data.paymentStatus === "PAID" && (
-                        <Stack gap={0} align="end" w={"1000"}>
-                            <Text c={"gray"} size="xs">
-                                Payment status
-                            </Text>
-                            <Text c={"primary"} size="xl" fw={"bolder"}>
-                                PAID
-                            </Text>
-                        </Stack>
-                    )}
 
                     <Paper withBorder p="xl" radius="lg" mt="md" bg="gray.0">
                         <Stack gap="xs">
@@ -160,6 +144,12 @@ export default async function Page({
                             {data.paymentStatus}
                         </Text>
                     </Stack>
+                    {data.paymentStatus === "UNPAID" &&
+                        data.status === "COMPLETED" && (
+                            <Stack align="end">
+                                <ProcessPayment invoiceId={invoiceId} />
+                            </Stack>
+                        )}
                 </Stack>
             </Stack>
         </div>
