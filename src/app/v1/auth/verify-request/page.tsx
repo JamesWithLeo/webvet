@@ -2,7 +2,6 @@ import { Group, Text } from "@mantine/core";
 import LogoWithText from "@/components/common/LogoWithText";
 import CenterPattern from "@/components/common/CenterPattern";
 import AuthPin from "@/components/auth/AuthPin";
-import { ResendOTPButton } from "@/components/auth/ResendOTPButton";
 
 export default async function Page() {
     return (

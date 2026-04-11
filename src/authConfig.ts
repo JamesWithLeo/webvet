@@ -15,7 +15,7 @@ import otp from "./components/emails/otp";
 import { getUserById } from "./lib/db/users";
 import { refreshAccessToken } from "./lib/refreshAccessToken";
 import { createHash, randomInt } from "crypto";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { checkAuthLimit } from "./actions/rateLimit";
 import { CredentialsSignin } from "next-auth";
 
@@ -143,8 +143,19 @@ export const authConfig = {
                     .update(`${otp}${process.env.NEXTAUTH_SECRET}`)
                     .digest("hex");
 
-                if (vToken.token !== hashedToken) {
-                    // IMPORTANT: Update the counter BEFORE throwing the error
+                const [validToken] = await db
+                    .select()
+                    .from(verificationTokens)
+                    .where(
+                        and(
+                            eq(verificationTokens.identifier, email),
+                            eq(verificationTokens.token, hashedToken)
+                        )
+                    );
+
+                // If no record is found with that EMAIL + HASH combination
+                if (!validToken) {
+                    // Increment the attempts on the record we found in Step 1
                     await db
                         .update(verificationTokens)
                         .set({ attempts: vToken.attempts + 1 })
