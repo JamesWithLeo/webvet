@@ -24,6 +24,7 @@ import {
     refundSchema,
     RefundSchemaType,
 } from "@/lib/validators/refundZodSchema";
+import { success } from "zod";
 
 type SavePropType = {
     userId: string;
@@ -276,7 +277,10 @@ export async function processRefundAction(
 ) {
     const session = await auth();
     if (session?.user.role !== "admin") {
-        unauthorized();
+        return {
+            success: false,
+            error: "Unauthorized action, only the admin can perform this action.",
+        };
     }
     const validatedFields = refundSchema.safeParse(values);
 
