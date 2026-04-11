@@ -5,6 +5,7 @@ import { Baskervville_SC } from "next/font/google";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import coverImg from "@/public/cover.jpg";
 
 const baskerville = Baskervville_SC({
     subsets: ["latin"],
@@ -42,7 +43,7 @@ export default async function Page() {
             </Box>
             <div className="absolute inset-0 -z-10">
                 <Image
-                    src="/cover.jpg"
+                    src={coverImg}
                     alt=""
                     fill
                     priority
