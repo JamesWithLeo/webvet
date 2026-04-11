@@ -211,19 +211,24 @@ export default function AppointmentDrawerAdmin({
                             </Button>
                         ) : (
                             <>
-                                {selectedRow.invoice?.paymentStatus ===
-                                    "PAID" && (
-                                    <Button
-                                        fullWidth
-                                        mt={"lg"}
-                                        variant="default"
-                                        onClick={() => {
-                                            router.push(`/v1/clinic/invoice`);
-                                        }}
-                                    >
-                                        View Invoice
-                                    </Button>
-                                )}
+                                {(selectedRow.invoice.paymentStatus ===
+                                    "PAID" ||
+                                    selectedRow.invoice.paymentStatus ===
+                                        "REFUNDED") &&
+                                    selectedRow.invoice && (
+                                        <Button
+                                            fullWidth
+                                            mt={"lg"}
+                                            variant="default"
+                                            onClick={() => {
+                                                router.push(
+                                                    `/v1/clinic/invoice/${selectedRow.invoice?.id}`
+                                                );
+                                            }}
+                                        >
+                                            View Invoice
+                                        </Button>
+                                    )}
                                 {selectedRow.invoice.paymentStatus ===
                                     "UNPAID" && (
                                     <Button

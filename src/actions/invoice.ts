@@ -308,6 +308,7 @@ export async function processRefundAction(
 
         // 3. Clear Cache for the specific invoice page and the list
         revalidatePath(`/v1/clinic/invoice/${invoiceId}`);
+        revalidatePath(`/v1/clinic/invoice/`);
 
         return { success: true };
     } catch (error) {

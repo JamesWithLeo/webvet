@@ -415,13 +415,12 @@ export default function AdminAppointmentTable({
                 ? data.map((event) => {
                       const status = event.invoice?.paymentStatus;
 
-                      // Determine color logic
                       let statusClass = "bg-blue-500 border-blue-600"; // Default
-                      if (status === "PAID")
+                      if (status === "PAID" || status === "REFUNDED")
                           statusClass = "!bg-green-500 !border-green-600";
-                      if (status === "UNPAID")
+                      else if (status === "UNPAID")
                           statusClass = "!bg-red-400 dark:!bg-red-900/10";
-                      if (status === "VOID")
+                      else if (status === "VOID")
                           statusClass =
                               "!bg-gray-400 !border-gray-500 !opacity-50 italic";
 
@@ -565,6 +564,8 @@ export default function AdminAppointmentTable({
 
                             switch (invoice.paymentStatus) {
                                 case "PAID":
+                                    return "!bg-green-50 dark:!bg-green-900/10";
+                                case "REFUNDED":
                                     return "!bg-green-50 dark:!bg-green-900/10";
                                 case "UNPAID":
                                     return "!bg-red-50 dark:!bg-red-900/10";

@@ -179,7 +179,7 @@ export type AdminAppointment = {
     invoice: {
         id: string;
         totalAmount: string;
-        paymentStatus: "UNPAID" | "PAID" | "VOID" | null;
+        paymentStatus: "UNPAID" | "PAID" | "VOID" | "REFUNDED" | null;
         createdAt: Date;
         status: (typeof invoiceStatus.enumValues)[number];
     } | null;
