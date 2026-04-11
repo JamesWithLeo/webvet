@@ -97,6 +97,7 @@ export default function AdminAppointmentTable({
                 accessor: "firstName", // Use dot notation for nested fields
                 title: "Full name",
 
+                toggleable: true,
                 render: (
                     { user } // Destructure user from the record
                 ) => (
@@ -133,6 +134,7 @@ export default function AdminAppointmentTable({
             {
                 accessor: "contactNumber",
                 title: "contact no.",
+                toggleable: true,
                 resizable: true,
                 render: ({ user }) => (
                     <Text>{toTitleCase(user.contactNumber)}</Text>
@@ -142,6 +144,7 @@ export default function AdminAppointmentTable({
                 accessor: "event_datetime",
                 title: "Event Date time",
                 resizable: true,
+                toggleable: true,
                 sortable: true,
 
                 filter: ({ close }) => (
@@ -253,6 +256,7 @@ export default function AdminAppointmentTable({
             {
                 accessor: "created_at",
                 title: "createdAt",
+                toggleable: true,
                 resizable: true,
                 sortable: true,
                 render: (data) => (
@@ -268,6 +272,7 @@ export default function AdminAppointmentTable({
             {
                 accessor: "invoice.status",
                 title: "Status",
+                toggleable: true,
                 resizable: true,
                 render: (data) => (
                     <Text ta={"center"} size="sm">
@@ -289,6 +294,7 @@ export default function AdminAppointmentTable({
             {
                 accessor: "invoice.paymentStatus",
                 title: "Payment status",
+                toggleable: true,
                 resizable: true,
                 render: (data) => (
                     <Text ta={"center"} size="sm">
@@ -460,7 +466,12 @@ export default function AdminAppointmentTable({
     };
 
     const key = `admin-appointment-table-${scope}`;
-    const { effectiveColumns } = useDataTableColumns<AdminAppointment>({
+    const {
+        effectiveColumns,
+        resetColumnsOrder,
+        resetColumnsToggle,
+        resetColumnsWidth,
+    } = useDataTableColumns<AdminAppointment>({
         key,
         columns: columns,
     });
@@ -491,32 +502,62 @@ export default function AdminAppointmentTable({
                     >
                         {currentTitle}
                     </label>
-                    <div className="flex gap-2" hidden={view !== "calendar"}>
-                        <Button.Group>
+                    {view !== "table" ? (
+                        <div className="flex gap-2">
+                            <Button.Group>
+                                <Button
+                                    onClick={() =>
+                                        calendarRef.current?.getApi().prev()
+                                    }
+                                    radius={"md"}
+                                    size={isMobile ? "xs" : "sm"}
+                                    variant="default"
+                                    c="gray.7"
+                                >
+                                    <IconChevronLeft size={20} />
+                                </Button>
+                                <Button
+                                    onClick={() =>
+                                        calendarRef.current?.getApi().next()
+                                    }
+                                    radius={"md"}
+                                    size={isMobile ? "xs" : "sm"}
+                                    variant="default"
+                                    c="gray.7"
+                                >
+                                    <IconChevronRight size={20} />
+                                </Button>
+                            </Button.Group>
+                        </div>
+                    ) : (
+                        <Group justify="flex-end">
                             <Button
-                                onClick={() =>
-                                    calendarRef.current?.getApi().prev()
-                                }
-                                radius={"md"}
-                                size={isMobile ? "xs" : "sm"}
+                                size="sm"
+                                onClick={resetColumnsToggle}
                                 variant="default"
-                                c="gray.7"
+                                radius={"md"}
                             >
-                                <IconChevronLeft size={20} />
+                                Reset column Toggle
+                            </Button>
+
+                            <Button
+                                size="sm"
+                                onClick={resetColumnsOrder}
+                                radius={"md"}
+                                variant="default"
+                            >
+                                Reset Column Order
                             </Button>
                             <Button
-                                onClick={() =>
-                                    calendarRef.current?.getApi().next()
-                                }
+                                size="sm"
+                                onClick={resetColumnsWidth}
                                 radius={"md"}
-                                size={isMobile ? "xs" : "sm"}
                                 variant="default"
-                                c="gray.7"
                             >
-                                <IconChevronRight size={20} />
+                                Reset Column Width
                             </Button>
-                        </Button.Group>
-                    </div>
+                        </Group>
+                    )}
                     <Button
                         variant="default"
                         radius={"md"}
@@ -537,6 +578,7 @@ export default function AdminAppointmentTable({
                         withTableBorder={true}
                         withColumnBorders={true}
                         withRowBorders
+                        storeColumnsKey={key}
                         verticalSpacing={"xs"}
                         horizontalSpacing={"xs"}
                         borderRadius="md"

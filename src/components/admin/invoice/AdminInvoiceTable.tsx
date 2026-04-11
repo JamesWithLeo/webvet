@@ -28,7 +28,7 @@ import {
     useDataTableColumns,
 } from "mantine-datatable";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { DownloadInvoiceButton } from "./DownloadInvoiceButtonAsync";
 import CopyButton from "@/components/common/CopyButton";
 
@@ -54,6 +54,8 @@ export default function AdminInvoiceTable() {
                 title: "ID",
                 resizable: true,
                 width: "8%",
+                toggleable: true,
+                defaultToggle: true,
                 ellipsis: true,
                 filter: (record) => (
                     <TextInput
@@ -82,6 +84,7 @@ export default function AdminInvoiceTable() {
                 width: "8%",
                 resizable: true,
                 ellipsis: true,
+                toggleable: true,
                 render: (record) => (
                     <Group
                         className="group"
@@ -104,6 +107,7 @@ export default function AdminInvoiceTable() {
                 accessor: "status",
                 title: "Status",
                 width: "10%",
+                toggleable: true,
                 filter: () => (
                     <NativeSelect
                         label="Seach by invoice status"
@@ -126,6 +130,7 @@ export default function AdminInvoiceTable() {
             {
                 accessor: "paymentStatus",
                 title: "Payment Status",
+                toggleable: true,
                 width: "8%",
 
                 filter: () => (
@@ -150,6 +155,7 @@ export default function AdminInvoiceTable() {
             {
                 accessor: "totalAmount",
                 width: "8%",
+                toggleable: true,
                 title: "Total Amount",
                 sortable: true,
                 textAlign: "center",
@@ -164,6 +170,7 @@ export default function AdminInvoiceTable() {
             {
                 accessor: "amountRefunded",
                 width: "8%",
+                toggleable: true,
                 title: "Refunded ammount",
                 sortable: true,
                 textAlign: "center",
@@ -178,6 +185,8 @@ export default function AdminInvoiceTable() {
             {
                 accessor: "netAmount",
                 width: "8%",
+                toggleable: true,
+                defaultToggle: true,
                 title: "Net Ammount",
                 sortable: true,
                 textAlign: "center",
@@ -193,13 +202,14 @@ export default function AdminInvoiceTable() {
                 accessor: "createdAt",
                 title: "Created At",
                 width: "8%",
+                toggleable: true,
                 sortable: true,
                 render: (record) => new Date(record.createdAt).toLocaleString(),
             },
 
             {
                 accessor: "action",
-                width: "4%",
+                width: "8%",
                 title: (
                     <Group justify="center" wrap="nowrap">
                         <IconPointerCode size={16} />
@@ -257,17 +267,28 @@ export default function AdminInvoiceTable() {
         <Stack>
             <Group justify="flex-end">
                 <Button
-                    size="xs"
+                    size="sm"
                     onClick={resetColumnsToggle}
                     variant="default"
+                    radius={"md"}
                 >
                     Reset column Toggle
                 </Button>
 
-                <Button size="xs" onClick={resetColumnsOrder} variant="default">
+                <Button
+                    size="sm"
+                    onClick={resetColumnsOrder}
+                    radius={"md"}
+                    variant="default"
+                >
                     Reset Column Order
                 </Button>
-                <Button size="xs" onClick={resetColumnsWidth} variant="default">
+                <Button
+                    size="sm"
+                    onClick={resetColumnsWidth}
+                    radius={"md"}
+                    variant="default"
+                >
                     Reset Column Width
                 </Button>
             </Group>
@@ -277,6 +298,7 @@ export default function AdminInvoiceTable() {
                 withColumnBorders
                 highlightOnHover={true}
                 columns={effectiveColumns}
+                storeColumnsKey={key}
                 records={filteredData}
                 fetching={isPending}
                 sortStatus={sortStatus}
