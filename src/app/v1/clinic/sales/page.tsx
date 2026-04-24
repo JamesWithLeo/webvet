@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import SalesBarChart from "@/components/common/SalesBarchart";
-import { getServices, salesPerService } from "@/lib/db/services";
+import {
+    getServices,
+    getTransactionalLogs,
+    salesPerService,
+} from "@/lib/db/services";
 import { Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { unauthorized } from "next/navigation";
 
@@ -9,11 +13,10 @@ import {
     IconPill,
     IconShieldCheckFilled,
     IconHeartCheck,
-    IconComponents,
     IconStethoscope,
 } from "@tabler/icons-react";
-import React from "react";
 import { AppointmentType } from "@/db/schema/appointments";
+import ExportSales from "@/components/admin/sales/ExportSales";
 
 export default async function Page({
     searchParams,
@@ -27,6 +30,9 @@ export default async function Page({
     const { from, to } = await searchParams;
 
     const { data, keys } = await salesPerService(from, to);
+    const transactionLogs = await getTransactionalLogs(from, to);
+
+    console.log(transactionLogs);
     const services = await getServices();
     const serviceList = services.map((s) => ({ title: s.title, type: s.type }));
 
@@ -72,7 +78,17 @@ export default async function Page({
             bg={"gray.0"}
             className="w-full h-screen gap-4 p-8 md:p-16 light:bg-gray-50"
         >
-            <Title>Sales</Title>
+            <Group justify="space-between">
+                <Title>Sales</Title>
+
+                <Group>
+                    <ExportSales
+                        transactionData={transactionLogs}
+                        summaryData={totals}
+                        dateRange={{ from, to }}
+                    />
+                </Group>
+            </Group>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <Paper p="md" withBorder radius="md" shadow="xs" bg={"blue"}>
                     <Text size="xs" c="black" fw={700} tt="uppercase">

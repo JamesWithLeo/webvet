@@ -11,6 +11,7 @@ import { and, desc, eq, getTableColumns, gte, lte, sql } from "drizzle-orm";
 import { AppointmentType } from "@/db/schema/appointments";
 import { ServiceVariantFormOutput } from "../validators/serviceVariantSchema";
 import { invoiceItems, invoices } from "@/db/schema/invoice";
+import { users } from "@/db/schema/users";
 
 export async function saveServiceToDb({
     serviceData,
@@ -307,4 +308,43 @@ export const salesPerService = async (fromStr?: string, toStr?: string) => {
         data: finalData,
         keys: Array.from(allServiceTitles),
     };
+};
+
+export const getTransactionalLogs = async (
+    fromStr?: string,
+    toStr?: string
+) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    const startRange = fromStr
+        ? new Date(fromStr)
+        : new Date(currentYear, 0, 1);
+    const endRange = toStr
+        ? new Date(toStr)
+        : new Date(currentYear, 11, 31, 23, 59, 59);
+
+    return await db
+        .select({
+            date: invoices.createdAt,
+            invoiceId: invoices.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            userId: users.id,
+            serviceTitle: services.title,
+            type: services.type,
+            price: invoiceItems.priceAtInvoice,
+        })
+        .from(invoiceItems)
+        .innerJoin(invoices, eq(invoiceItems.invoiceId, invoices.id))
+        .innerJoin(services, eq(invoiceItems.serviceId, services.id))
+        .innerJoin(users, eq(invoices.userId, users.id))
+        .where(
+            and(
+                eq(invoices.paymentStatus, "PAID"),
+                gte(invoices.createdAt, startRange),
+                lte(invoices.createdAt, endRange)
+            )
+        )
+        .orderBy(desc(invoices.createdAt));
 };
