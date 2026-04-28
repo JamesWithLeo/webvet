@@ -20,8 +20,6 @@ export default async function Page() {
     if (
         user.firstName &&
         user.lastName &&
-        user.dateOfBirth &&
-        user.gender &&
         user.contactNumber &&
         !session.error
     ) {

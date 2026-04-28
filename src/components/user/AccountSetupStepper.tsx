@@ -1,20 +1,17 @@
 "use client";
 
-import { userGenderValue } from "@/types/user";
 import successAnimation from "@/../public/lottie/Cat Coding.json";
 import {
     Box,
     TextInput,
     Button,
     Stepper,
-    NativeSelect,
     NavLink,
     Modal,
     Divider,
     Text,
     Group,
 } from "@mantine/core";
-import { DatePickerInput } from "@mantine/dates";
 import {
     useState,
     useRef,
@@ -53,7 +50,7 @@ export default function AccountStepper({
 
     const [isOpenModal, { open, close }] = useDisclosure();
 
-    const onSave = () => {
+    const handleSave = () => {
         open();
     };
 
@@ -129,30 +126,31 @@ export default function AccountStepper({
                                 variant="filled"
                                 withAsterisk
                             />
+
+                            <TextInput
+                                {...form.getInputProps("contactNumber")}
+                                label="Contact number"
+                                className="w-full"
+                                variant="filled"
+                                withAsterisk
+                            />
                             <div className="flex w-full mt-5 justify-end gap-4">
                                 <Button
                                     radius={"md"}
                                     size="md"
                                     fullWidth
                                     onClick={() => {
-                                        const result =
-                                            form.validateField("firstName");
-                                        const result2 =
-                                            form.validateField("lastName");
-                                        if (
-                                            !result.hasError &&
-                                            !result2.hasError
-                                        )
-                                            setActive((prev) => prev + 1);
+                                        if (form.isValid()) handleSave();
                                     }}
                                     variant="light"
                                 >
-                                    Next
+                                    Save
                                 </Button>
                             </div>
                         </Box>
                     </Stepper.Step>
-                    <Stepper.Step>
+                    {/* Remove unnessecary data */}
+                    {/* <Stepper.Step>
                         <Box className="flex mt-8 gap-4 flex-col">
                             <NativeSelect
                                 className="w-full"
@@ -172,13 +170,6 @@ export default function AccountStepper({
                                 maxDate={new Date()}
                                 className="w-full"
                                 label="Date of Birth"
-                                variant="filled"
-                                withAsterisk
-                            />
-                            <TextInput
-                                {...form.getInputProps("contactNumber")}
-                                label="Contact number"
-                                className="w-full"
                                 variant="filled"
                                 withAsterisk
                             />
@@ -210,7 +201,7 @@ export default function AccountStepper({
                                 </Button>
                             </div>
                         </Box>
-                    </Stepper.Step>
+                    </Stepper.Step> */}
 
                     <Stepper.Completed>
                         <Box className="flex gap-4 flex-col">

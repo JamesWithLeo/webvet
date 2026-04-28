@@ -8,11 +8,7 @@ export default auth((req) => {
     const pathname = nextUrl.pathname;
 
     const isProfileIncomplete =
-        user &&
-        (!user.firstName ||
-            !user.lastName ||
-            !user.dateOfBirth ||
-            !user.gender);
+        user && (!user.firstName || !user.lastName || !user.contactNumber);
 
     const isSetupPage = pathname === "/v1/auth/setup";
 

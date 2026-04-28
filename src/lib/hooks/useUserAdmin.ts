@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { AdminUserSummary, Role, UserGender } from "@/types/user";
+import { AdminUserSummary, Role } from "@/types/user";
 import { useMemo, useState } from "react";
 import { sortBy } from "lodash";
 import { DataTableSortStatus } from "mantine-datatable";
@@ -16,7 +16,6 @@ export default function useUserAdmin() {
     const [searchFirstName, setSearchFirstName] = useState("");
     const [searchLastName, setSearchLastName] = useState("");
     const [searchRole, setSearchRole] = useState<"all" | Role>("all");
-    const [searchGender, setSearchGender] = useState<"all" | UserGender>("all");
 
     const query = useQuery<AdminUserSummary[], Error>({
         queryKey: ["user", "admin"],
@@ -41,9 +40,7 @@ export default function useUserAdmin() {
                 !lSearch || user.lastName?.toLowerCase().includes(lSearch);
             const matchesRole =
                 searchRole === "all" || user.role === searchRole;
-            const matchesGender =
-                searchGender === "all" || user.gender === searchGender;
-            return matchesFirst && matchesLast && matchesRole && matchesGender;
+            return matchesFirst && matchesLast && matchesRole;
         });
 
         const sorted = sortBy(filtered, (item) => {
@@ -56,14 +53,7 @@ export default function useUserAdmin() {
         });
 
         return sortStatus.direction === "desc" ? sorted.reverse() : sorted;
-    }, [
-        query.data,
-        sortStatus,
-        searchFirstName,
-        searchLastName,
-        searchRole,
-        searchGender,
-    ]);
+    }, [query.data, sortStatus, searchFirstName, searchLastName, searchRole]);
     return {
         ...query,
         records,
@@ -75,7 +65,5 @@ export default function useUserAdmin() {
         setSearchLastName,
         searchRole,
         setSearchRole,
-        searchGender,
-        setSearchGender,
     };
 }

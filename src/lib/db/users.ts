@@ -98,8 +98,6 @@ export const saveSetupInDb = async (
             id: users.id,
             firstName: users.firstName,
             lastName: users.lastName,
-            gender: users.gender,
-            dateOfBirth: users.dateOfBirth,
         });
 };
 
@@ -112,13 +110,11 @@ export const getAllUsersAdmin = async () => {
         const response = await db
             .select({
                 id: users.id,
-                dateOfBirth: users.dateOfBirth,
                 role: users.role,
                 firstName: users.firstName,
                 lastName: users.lastName,
                 email: users.email,
                 contactNumber: users.contactNumber,
-                gender: users.gender,
                 created_at: users.created_at,
             })
             .from(users);

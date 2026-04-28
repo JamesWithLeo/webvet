@@ -1,4 +1,4 @@
-import { role, userGenderValueTuple } from "@/db/schema/users";
+import { role } from "@/db/schema/users";
 import { z } from "zod";
 
 export const userSetupSchema = z.object({
@@ -16,13 +16,13 @@ export const userSetupSchema = z.object({
         .max(25, { message: "Last name is too long" })
         .regex(/^[a-zA-Z ]*$/, "Only letters are allowed")
         .transform((v) => v.toLowerCase()),
-    gender: z.enum(userGenderValueTuple, { message: "Invalid gender" }),
-    dateOfBirth: z
-        .string()
-        .nonempty("Missing date of birth")
-        .refine((date) => !isNaN(Date.parse(date)), {
-            message: "Invalid date format",
-        }),
+    // gender: z.enum(userGenderValueTuple, { message: "Invalid gender" }),
+    // dateOfBirth: z
+    //     .string()
+    //     .nonempty("Missing date of birth")
+    //     .refine((date) => !isNaN(Date.parse(date)), {
+    //         message: "Invalid date format",
+    //     }),
     contactNumber: z
         .string()
         // Remove all non-numeric characters except the leading '+'
@@ -39,10 +39,10 @@ export type userSetupFormInput = z.input<typeof userSetupSchema>;
 export const userEditSchema = z.object({
     firstName: z.string().optional(),
     lastName: z.string().optional(),
-    gender: z
-        .enum(userGenderValueTuple, { message: "Invalid gender" })
-        .optional(),
-    dateOfBirth: z.string().optional(),
+    // gender: z
+    //     .enum(userGenderValueTuple, { message: "Invalid gender" })
+    //     .optional(),
+    // dateOfBirth: z.string().optional(),
     photoUrl: z.string().optional(),
     contactNumber: z.string().optional(),
 });
@@ -63,13 +63,13 @@ export const accountUpdateSchemaAdmin = z.object({
         .max(25, { message: "Last name is too long" })
         .regex(/^[a-zA-Z ]*$/, "Only letters are allowed")
         .transform((v) => v.toLowerCase().trim()),
-    gender: z.enum(userGenderValueTuple, { message: "Invalid gender" }),
-    dateOfBirth: z
-        .string()
-        // .nonempty("Missing date of birth")
-        .refine((date) => !isNaN(Date.parse(date)), {
-            message: "Invalid date format",
-        }),
+    // gender: z.enum(userGenderValueTuple, { message: "Invalid gender" }),
+    // dateOfBirth: z
+    //     .string()
+    //     // .nonempty("Missing date of birth")
+    //     .refine((date) => !isNaN(Date.parse(date)), {
+    //         message: "Invalid date format",
+    //     }),
     contactNumber: z
         .string()
         // Remove all non-numeric characters except the leading '+'

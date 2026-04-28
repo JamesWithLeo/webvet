@@ -1,20 +1,8 @@
 "use client";
 
-import { userGenderValue } from "@/types/user";
-
-import {
-    Group,
-    Avatar,
-    Space,
-    Stack,
-    Text,
-    Title,
-    ActionIcon,
-} from "@mantine/core";
+import { Avatar, Space, Stack, Text, Title } from "@mantine/core";
 
 import { useMediaQuery } from "@mantine/hooks";
-
-import { IconGenderMale, IconGenderFemale } from "@tabler/icons-react";
 
 import { toTitleCase } from "@/lib/toTitleCase";
 
@@ -22,22 +10,10 @@ export default function ProfileCardGroup(user: {
     firstName?: string | null;
     lastName?: string | null;
     photoUrl?: string | null;
-    dateOfBirth?: string | null;
     email?: string | null;
     id: string;
-    gender: (typeof userGenderValue)[number];
 }) {
     const isMobile = useMediaQuery("(max-width: 64rem)");
-    const gender = () => {
-        switch (user.gender) {
-            case "female":
-                return <IconGenderFemale color="blue" size={20} />;
-            case "male":
-                return <IconGenderMale color="blue" size={20} />;
-            default:
-                return <></>;
-        }
-    };
     return (
         <>
             <div
@@ -63,12 +39,6 @@ export default function ProfileCardGroup(user: {
                         {toTitleCase(`${user.firstName} ${user.lastName}`)}
                     </Title>
                     <Text>{user.email}</Text>
-                    <Group>
-                        <Text c={"dimmed"}>{user.dateOfBirth} </Text>
-                        <ActionIcon variant="transparent">
-                            {gender()}
-                        </ActionIcon>
-                    </Group>
                 </Stack>
 
                 {/* <div className=" flex justify-end flex-1 h-28">

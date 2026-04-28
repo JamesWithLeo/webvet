@@ -28,10 +28,9 @@ export default async function ProfilePage() {
                             id={session.user.id}
                             firstName={session.user.firstName}
                             lastName={session.user.lastName}
-                            dateOfBirth={session.user.dateOfBirth}
                             photoUrl={session.user.photoUrl}
                             email={session.user.email}
-                            gender={session.user.gender}
+                            // dateOfBirth={session.user.dateOfBirth} gender={session.user.gender}
                         />
                     </Paper>
                     <ProfileStats id={session.user.id} />

@@ -12,14 +12,11 @@ import {
     Button,
     NativeSelect,
     TextInput,
-    Title,
     Text,
-    Box,
     Paper,
     Menu,
     Drawer,
     Grid,
-    Badge,
     Alert,
 } from "@mantine/core";
 import {
@@ -31,15 +28,9 @@ import {
 } from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState, useTransition } from "react";
 import useUserAdmin from "@/lib/hooks/useUserAdmin";
-import {
-    AdminUserSummary,
-    Role,
-    UserGender,
-    userGenderValue,
-} from "@/types/user";
-import { role, userGender } from "@/db/schema/users";
+import { AdminUserSummary, Role } from "@/types/user";
+import { role } from "@/db/schema/users";
 import AdminAccountPetTable from "./AdminAccountTablePet";
-import { DatePickerInput } from "@mantine/dates";
 import { modals } from "@mantine/modals";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
@@ -62,8 +53,6 @@ export default function AccountTable() {
         searchLastName,
         searchRole,
         setSearchRole,
-        searchGender,
-        setSearchGender,
         setSortStatus,
         sortStatus,
     } = useUserAdmin();
@@ -78,8 +67,6 @@ export default function AccountTable() {
         initialValues: {
             firstName: editingAccount?.firstName ?? "",
             lastName: editingAccount?.lastName ?? "",
-            gender: editingAccount?.gender ?? "other",
-            dateOfBirth: editingAccount?.dateOfBirth ?? "",
             contactNumber: editingAccount?.contactNumber ?? "",
             role: editingAccount?.role ?? "client",
         },
@@ -151,16 +138,6 @@ export default function AccountTable() {
                 filtering: searchLastName !== "",
             },
             {
-                accessor: "dateOfBirth",
-                title: "Date of Birth",
-                resizable: true,
-                ellipsis: true,
-                width: "8%",
-                toggleable: true,
-                draggable: true,
-                sortable: true,
-            },
-            {
                 accessor: "contactNumber",
                 title: "Contact Number",
                 resizable: true,
@@ -177,30 +154,6 @@ export default function AccountTable() {
                 width: "10%",
                 toggleable: true,
                 draggable: true,
-            },
-            {
-                accessor: "gender",
-                title: "Gender",
-                textAlign: "center",
-                width: "8%",
-                resizable: true,
-                toggleable: true,
-                defaultToggle: true,
-                filter: (
-                    <NativeSelect
-                        data={["all"].concat(userGenderValue)}
-                        label="Gender"
-                        description="Show account whose gender match the selected."
-                        defaultValue={searchGender}
-                        onChange={(e) => {
-                            console.log(e.currentTarget.value);
-                            setSearchGender(
-                                e.currentTarget.value as "all" | UserGender
-                            );
-                        }}
-                    />
-                ),
-                filtering: searchGender !== "all",
             },
             {
                 accessor: "role",
@@ -272,7 +225,7 @@ export default function AccountTable() {
                 ),
             },
         ],
-        [searchFirstName, searchGender, searchLastName, searchRole, sortStatus]
+        [searchFirstName, searchLastName, searchRole, sortStatus]
     );
 
     const key = `admin-user-table`;
@@ -432,8 +385,6 @@ export default function AccountTable() {
             form.setValues({
                 firstName: editingAccount.firstName ?? "",
                 lastName: editingAccount.lastName ?? "",
-                gender: editingAccount.gender ?? "other",
-                dateOfBirth: editingAccount.dateOfBirth ?? "",
                 contactNumber: editingAccount.contactNumber ?? "",
                 role: editingAccount.role ?? "client",
             });
@@ -523,20 +474,10 @@ export default function AccountTable() {
                             label="Last name"
                             {...form.getInputProps("lastName")}
                         />
-                    </Group>
-                    <Group>
-                        <DatePickerInput
-                            label="Date of birth"
-                            flex={1}
-                            {...form.getInputProps("dateOfBirth")}
-                        />
-                    </Group>
-                    <Group>
-                        <NativeSelect
-                            label="Gender"
-                            flex={1}
-                            data={userGender.enumValues}
-                            {...form.getInputProps("gender")}
+
+                        <TextInput
+                            label="Contact number"
+                            {...form.getInputProps("contactNumber")}
                         />
                     </Group>
                     <Group>

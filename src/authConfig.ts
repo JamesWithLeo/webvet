@@ -203,8 +203,6 @@ export const authConfig = {
                 token.role = user.role;
                 token.firstName = user.firstName;
                 token.lastName = user.lastName;
-                token.gender = user.gender;
-                token.dateOfBirth = user.dateOfBirth;
                 token.email = user.email;
                 token.emailVerified = user.emailVerified;
                 token.photoUrl = user.photoUrl;
@@ -222,8 +220,6 @@ export const authConfig = {
                 if (dbUser) {
                     token.firstName = dbUser.firstName;
                     token.lastName = dbUser.lastName;
-                    token.gender = dbUser.gender;
-                    token.dateOfBirth = dbUser.dateOfBirth;
                     token.photoUrl = dbUser.photoUrl;
                     token.contactNumber = dbUser.contactNumber;
                 }
@@ -252,8 +248,6 @@ export const authConfig = {
                 session.user.role = token.role;
                 session.user.firstName = token.firstName;
                 session.user.lastName = token.lastName;
-                session.user.gender = token.gender;
-                session.user.dateOfBirth = token.dateOfBirth;
                 session.user.emailVerified = token.emailVerified;
                 session.user.photoUrl = token.photoUrl;
                 session.user.image = token.image;

@@ -16,7 +16,5 @@ export type AdminUserSummary = Pick<
     | "contactNumber"
     | "firstName"
     | "lastName"
-    | "dateOfBirth"
-    | "gender"
     | "created_at"
 >;

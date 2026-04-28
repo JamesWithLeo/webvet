@@ -1,7 +1,6 @@
 "use client";
 
 import updateUser from "@/actions/user";
-import { userGenderValue } from "@/types/user";
 import { useUploadThing } from "@/lib/uploadThing";
 import {
     Stack,
@@ -16,11 +15,9 @@ import {
     Paper,
 } from "@mantine/core";
 import Image from "next/image";
-import { DatePickerInput } from "@mantine/dates";
 import { FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
 import {
-    IconCalendarDot,
     IconUpload,
     IconX,
     IconUserSquareRounded,
@@ -78,8 +75,6 @@ export default function EditProfileModal({ opened, close }: Props) {
             photoUrl: session?.user.photoUrl ?? "",
             firstName: session?.user.firstName ?? "",
             lastName: session?.user.lastName ?? "",
-            gender: session?.user.gender ?? "",
-            dateOfBirth: session?.user.dateOfBirth ?? "",
             contactNumber: session?.user.contactNumber ?? "",
         },
     });
@@ -184,8 +179,6 @@ export default function EditProfileModal({ opened, close }: Props) {
             photoUrl: session?.user.photoUrl ?? "",
             firstName: session?.user.firstName ?? "",
             lastName: session?.user.lastName ?? "",
-            gender: session?.user.gender ?? "",
-            dateOfBirth: session?.user.dateOfBirth ?? "",
             contactNumber: session?.user.contactNumber ?? "",
         });
     }, [session]);
@@ -324,25 +317,6 @@ export default function EditProfileModal({ opened, close }: Props) {
                         name="lastName"
                         label={"Last name"}
                         {...form.getInputProps("lastName")}
-                    />
-                    <NativeSelect
-                        name="gender"
-                        className="w-full"
-                        size="md"
-                        data={userGenderValue}
-                        multiple={false}
-                        label="Gender"
-                        {...form.getInputProps("gender")}
-                    />
-                    <DatePickerInput
-                        name="dateOfBirth"
-                        label="Date of birth"
-                        leftSection={<IconCalendarDot size={16} />}
-                        size="md"
-                        maxDate={new Date()}
-                        clearable
-                        className="w-full"
-                        {...form.getInputProps("dateOfBirth")}
                     />
                     <TextInput
                         label={"Contact number"}
