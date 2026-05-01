@@ -19,7 +19,7 @@ import {
 
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import SelectDateCal from "../calendars/SelectDateCal";
 import SelectTimeCal from "../calendars/SelectTimeCal";
 import {
@@ -81,17 +81,18 @@ export default function AppointmentStepper({
 
     const createAppointment = CreateAppointmentAction.bind(null);
 
-    const [formState, formAction] = useActionState(createAppointment, {
-        successful: false,
-    });
-
-    const [isPending, startTransition] = useTransition();
+    const [formState, formAction, isPending] = useActionState(
+        createAppointment,
+        {
+            successful: false,
+        }
+    );
 
     const form = useForm<AppointmentFormInput>({
         initialValues: {
             title: "",
             selections: {},
-            date: "",
+            date: new Date(),
             event_datetime: "",
         },
         validateInputOnChange: true,
@@ -112,7 +113,8 @@ export default function AppointmentStepper({
         if (isPending) return;
 
         startTransition(() => {
-            formAction(value);
+            const { date, ...appointmentData } = value;
+            formAction(appointmentData);
         });
     };
 
@@ -186,10 +188,11 @@ export default function AppointmentStepper({
             <form className="w-full h-full flex items-center flex-col">
                 {active === 0 && (
                     <section className="w-full h-full items-center   flex flex-col justify-between max-w-7xl">
-                        <div className="w-full justify-center  gap-8 flex h-full flex-col max-w-md">
+                        <div className="w-full justify-center  gap-8 flex h-full flex-col max-w-2xl">
                             <TextInput
                                 label="Title / Reason:"
                                 withAsterisk
+                                size="md"
                                 name="title"
                                 {...form.getInputProps("title")}
                             />
@@ -206,7 +209,7 @@ export default function AppointmentStepper({
                             <div className="w-full flex justify-between">
                                 <Button
                                     variant="light"
-                                    disabled={!form.isDirty()}
+                                    disabled={form ? !form.isDirty() : true}
                                     color="red"
                                     onClick={() => {
                                         form.reset();
@@ -217,9 +220,11 @@ export default function AppointmentStepper({
                                 </Button>
                                 <Button
                                     disabled={
-                                        form.values.title.trim().length === 0 ||
-                                        Object.keys(form.values.selections)
-                                            .length === 0
+                                        (form.values.title.trim().length ===
+                                            0 ||
+                                            Object.keys(form.values.selections)
+                                                .length === 0) ??
+                                        false
                                     }
                                     onClick={() => {
                                         nextStep();
@@ -243,7 +248,7 @@ export default function AppointmentStepper({
                     <section className="w-full h-full gap-4 flex flex-col  justify-between max-w-7xl">
                         <SelectDateCal
                             {...form.getInputProps("date")}
-                            onChange={(date: string) => {
+                            onChange={(date: Date) => {
                                 form.setFieldValue("date", date);
                                 nextStep();
                             }}

@@ -5,7 +5,7 @@ import AppointmentSaved from "@/components/emails/AppointmentSaved";
 import { saveAppointmentToDbV2 } from "@/lib/db/appointments";
 import { toTitleCase } from "@/lib/toTitleCase";
 import {
-    AppointmentFormInput,
+    CreateAppointmentPayload,
     newAppointmentSchema,
 } from "@/lib/validators/newAppointmentSchema";
 import { unauthorized } from "next/navigation";
@@ -20,14 +20,15 @@ import { formatDateToReadable } from "@/lib/formatDateToReadable";
  * existing appointment will not apply and
  * email the user if succesful,
  */
+
 export default async function CreateAppointmentAction(
     prevState: any,
-    data: AppointmentFormInput
+    data: CreateAppointmentPayload
 ) {
     const session = await auth();
     if (!session?.user?.id) unauthorized();
 
-    const parsed = newAppointmentSchema.safeParse(data);
+    const parsed = newAppointmentSchema.omit({ date: true }).safeParse(data);
     if (!parsed.success)
         return {
             successful: false,

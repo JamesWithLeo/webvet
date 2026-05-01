@@ -14,6 +14,7 @@ import { pets } from "@/db/schema/pets";
 import {
     and,
     asc,
+    count,
     desc,
     eq,
     getTableColumns,
@@ -28,7 +29,10 @@ import { PgTransaction } from "drizzle-orm/pg-core";
 import { toTitleCase } from "../toTitleCase";
 import { services } from "@/db/schema/services";
 import { users } from "@/db/schema/users";
-import { AppointmentFormInput } from "../validators/newAppointmentSchema";
+import {
+    AppointmentFormInput,
+    CreateAppointmentPayload,
+} from "../validators/newAppointmentSchema";
 import PetServiceMerged from "@/types/PetsServiceMerged";
 import { invoiceItems, invoices } from "@/db/schema/invoice";
 import { medicalLogs } from "@/db/schema/medicalLogs";
@@ -47,6 +51,14 @@ export class ExistingAppointmentConflictError extends Error {
         this.name = "ExistingAppointmentConflictError";
         this.code = "Existing Appointment";
         this.petIds = petIds;
+    }
+}
+
+export class TimeSlotFullError extends Error {
+    public code = "SLOT_FULL";
+    constructor() {
+        super("The selected time slot is already fully booked (max 3 pets).");
+        this.name = "TimeSlotFullError";
     }
 }
 const validateAllPetsAvailability = async (
@@ -116,12 +128,44 @@ const validateAllPetsAvailability = async (
     }
 };
 
+const validateTimeSlotCapacity = async (
+    tx: PgTransaction<any, any, any>,
+    eventDateTime: string,
+    maxCapacity: number = 3
+) => {
+    // 1. Calculate the start and end of the 1-hour slot
+    const slotStart = new Date(eventDateTime);
+    const slotEnd = new Date(slotStart.getTime() + 60 * 60 * 1000); // +1 hour
+
+    // 2. Count existing appointments in this range
+    const existingCount = await tx
+        .select({ count: count() })
+        .from(appointments)
+        .where(
+            and(
+                gte(appointments.event_datetime, slotStart.toISOString()),
+                lt(appointments.event_datetime, slotEnd.toISOString())
+            )
+        );
+
+    const total = Number(existingCount[0].count);
+
+    if (total >= maxCapacity) {
+        throw new Error(
+            `The selected time slot is full (${total}/${maxCapacity}).`
+        );
+    }
+};
+
 export const saveAppointmentToDbV2 = async (
-    appointmentData: AppointmentFormInput
+    appointmentData: CreateAppointmentPayload
 ) => {
     return await dbTx.transaction(async (tx) => {
-        // Validate everything first
-        await validateAllPetsAvailability(tx, appointmentData.selections);
+        // Validate time slot availability ( each 1 hour slot, cannot exceed 4/3 appointments while 3/3 is the max )
+        await Promise.all([
+            validateAllPetsAvailability(tx, appointmentData.selections),
+            validateTimeSlotCapacity(tx, appointmentData.event_datetime, 3),
+        ]);
 
         // Create a unique appointment record for THIS pet
         const [insertedAppointment] = await tx
@@ -167,6 +211,7 @@ export const saveAppointmentToDbV2 = async (
         }
     });
 };
+
 /**
  * Insert AppointmentToPets row, then return the inserted Id if successful.
  * Throws database errors so the caller (Server Action) can handle them specifically.
@@ -816,5 +861,22 @@ export const getAppointmentFullDetailsAdmin = async (appointmentId: string) => {
     } catch (error) {
         console.error(error);
         return { data: null, error: "Failed to fetch appointment details" };
+    }
+};
+
+export const getAppointmentsByStartEnd = async (start: string, end: string) => {
+    try {
+        const result = await db
+            .select()
+            .from(appointments)
+            .where(
+                and(
+                    gte(appointments.event_datetime, start),
+                    lte(appointments.event_datetime, end)
+                )
+            );
+        return { data: result };
+    } catch (error) {
+        return { error: "Failed to fetch appointments" };
     }
 };

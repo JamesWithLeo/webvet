@@ -2,63 +2,102 @@
 
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import monthGridPlugin from "@fullcalendar/multimonth";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
 import { DatesSetArg, DayCellContentArg } from "@fullcalendar/core/index.js";
 import { notifications } from "@mantine/notifications";
-import { BlockDatesTypeModel } from "@/db/schema/appointments";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Button, em, Group, Text } from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
+import { Button, em, Group } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
 import { useAppointment } from "@/lib/hooks/useAppointmentContext";
 
 interface Props {
     children: React.ReactNode;
-    onChange: (value: string) => void;
+    onChange: (value: Date) => void;
     error?: string;
 }
 
+const BLOCKED_DATES = "BLOCKED_DATES" as const;
+
 export default function SelectDateCal({ children, onChange, error }: Props) {
+    const [successFetching, setSuccessFetching] = useState(false);
     const calendarRef = useRef<FullCalendar>(null);
     const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
     const [currentTitle, setCurrentTitle] = useState("loading...");
     const [now, setNow] = useState(new Date());
-    const { allowedDays, hasConflict, incompatibleServices } = useAppointment();
+    const { allowedDays, monthEvents, setRange } = useAppointment();
 
     const handleDatesSet = (dateInfo: DatesSetArg) => {
         const calendarApi = calendarRef.current?.getApi();
+        const utcStart = new Date(dateInfo.startStr).toISOString();
+        const utcEnd = new Date(dateInfo.endStr).toISOString();
+
+        setRange({
+            start: utcStart,
+            end: utcEnd,
+        });
         if (calendarApi) {
             const title = calendarApi.view.title;
             setCurrentTitle(title);
         }
     };
-
-    const onDateClick = (dateArg: DateClickArg) => {
-        // check blocked date first
-        const eventsOnDate = calendarRef.current
-            ?.getApi()
-            .getEvents()
-            .filter((event) => {
-                return event.startStr === dateArg.dateStr && event.allDay;
-            });
-        if (!eventsOnDate || eventsOnDate.length > 0) {
+    const handleDateClick = (dateArg: DateClickArg) => {
+        if (!successFetching) {
             notifications.show({
-                title: "Date blocked",
-                message: "The clinic is not open for specific reason.",
+                title: "Available dates failed to load",
+                message: "Please try again later",
+                color: "orange",
+            });
+            return;
+        }
+        handleGeneralClick(dateArg.date);
+    };
+
+    const handleGeneralClick = (date: Date) => {
+        /// check past dates
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const clickedDate = date;
+        clickedDate.setHours(0, 0, 0, 0);
+
+        if (clickedDate < today) {
+            notifications.show({
+                title: "Appointment Not Available",
+                message:
+                    "The selected date is no longer available. Please choose another date.",
                 color: "red",
             });
             return;
         }
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // check blocked date first
+        const calApi = calendarRef.current?.getApi();
 
-        const clickedDate = dateArg.date;
-        clickedDate.setHours(0, 0, 0, 0);
+        if (calApi) {
+            const eventsOnDate = calApi.getEvents().filter((event) => {
+                const isBlockedSource = event.source?.id === BLOCKED_DATES;
+
+                const isSameDate =
+                    event.extendedProps.date ===
+                    date.toLocaleDateString("en-CA");
+
+                return isBlockedSource && isSameDate && event.allDay;
+            });
+
+            if (!eventsOnDate || eventsOnDate.length > 0) {
+                notifications.show({
+                    title: "Date blocked",
+                    message: eventsOnDate
+                        ? eventsOnDate[0].title
+                        : "The clinic is not open for specific reason.",
+                    color: "red",
+                });
+                return;
+            }
+        }
+
         const dayOfWeek = clickedDate.getDay();
-
         if (dayOfWeek === 0) {
             notifications.show({
                 title: "Appointment Not Available",
@@ -76,7 +115,9 @@ export default function SelectDateCal({ children, onChange, error }: Props) {
             });
             return;
         } else if (clickedDate >= today) {
-            onChange(dateArg.dateStr);
+            console.log("Clicked", clickedDate.toISOString().split("T")[0]);
+            // onChange(date.toISOString().split("T")[0]);
+            onChange(date);
             return;
         } else {
             notifications.show({
@@ -88,14 +129,6 @@ export default function SelectDateCal({ children, onChange, error }: Props) {
             return;
         }
     };
-
-    const { data } = useQuery({
-        queryKey: ["blockedDates"],
-        queryFn: async (): Promise<BlockDatesTypeModel[]> => {
-            const res = await fetch("/api/blockdates");
-            return res.json();
-        },
-    });
 
     const getDayClassNames = (arg: DayCellContentArg) => {
         const date = arg.date;
@@ -174,32 +207,52 @@ export default function SelectDateCal({ children, onChange, error }: Props) {
                     </Button>
                 </div>
             </div>
+
             <FullCalendar
                 ref={calendarRef}
                 datesSet={handleDatesSet}
-                plugins={[dayGridPlugin, monthGridPlugin, interactionPlugin]}
+                plugins={[dayGridPlugin, interactionPlugin]}
+                eventSources={[
+                    {
+                        url: "/api/blockdates",
+                        id: BLOCKED_DATES,
+
+                        textColor: "#ffffff",
+                        color: "#4a5565",
+
+                        success: () => {
+                            setSuccessFetching(true);
+                        },
+                        failure: () => {
+                            setSuccessFetching(false);
+                        },
+                    },
+                    {
+                        events: monthEvents,
+                        success: () => {
+                            setSuccessFetching(true);
+                        },
+                        failure: () => {
+                            setSuccessFetching(false);
+                        },
+                    },
+                ]}
+                lazyFetching={false}
+                eventSourceFailure={() => setSuccessFetching(false)}
+                eventSourceSuccess={() => setSuccessFetching(true)}
                 initialView="dayGridMonth"
-                multiMonthMaxColumns={1}
                 headerToolbar={false}
                 footerToolbar={false}
                 aspectRatio={isMobile ? 1 : 2}
-                dateClick={onDateClick}
+                dateClick={handleDateClick}
                 businessHours={{
                     daysOfWeek: [1, 2, 3, 4, 5, 6],
                     startTime: "08:00",
                     endTime: "17:00",
                 }}
-                events={data?.map((v) => ({
-                    title: v.reason || "Blocked",
-                    id: v.id,
-                    date: v.date,
-                    start: v.startTime,
-                    end: v.endTime,
-                    display: "block",
-                    color: "#4a5565",
-                }))}
                 slotMinTime="08:00:00"
                 slotMaxTime="17:00:00"
+                displayEventTime={false}
                 dayCellClassNames={getDayClassNames}
             />
 

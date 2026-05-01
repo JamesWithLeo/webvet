@@ -13,10 +13,10 @@ import {
 } from "drizzle-orm/pg-core";
 import { pets } from "./pets";
 import { InferSelectModel } from "drizzle-orm";
-import { invoices, invoiceStatus } from "./invoice";
+import { invoiceStatus } from "./invoice";
 import { users } from "./users";
 import { appointmentType } from "./enums";
-import { prices, services } from "./services";
+import { services } from "./services";
 
 export type AppointmentType = (typeof appointmentType.enumValues)[number];
 

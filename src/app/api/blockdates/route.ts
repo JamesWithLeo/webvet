@@ -8,8 +8,39 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
     try {
+        /// add start and end
         const data = await getBlockDates();
-        return NextResponse.json(data);
+
+        const formattedData = data?.map((v) => {
+            const cleanStart = v.startTime
+                .replace(" ", "T")
+                .split("+")[0]
+                .replace("Z", "");
+            const cleanEnd = v.endTime
+                .replace(" ", "T")
+                .split("+")[0]
+                .replace("Z", "");
+
+            const isAllDay =
+                v.startTime.endsWith("00:00:00+00") &&
+                v.endTime.endsWith("04:00:00+00");
+            return {
+                title: v.reason || "Blocked",
+                id: v.id,
+                date: v.date,
+                start: cleanStart,
+                end: cleanEnd,
+                // start: v.startTime,
+                // end: v.endTime,
+                display: "block",
+                allDay: isAllDay,
+                extendedProps: {
+                    date: v.date,
+                },
+            };
+        });
+
+        return NextResponse.json(formattedData);
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
     }

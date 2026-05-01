@@ -38,24 +38,23 @@ export default function PetAccordionItem({ pet, services }: Props) {
     return (
         <Accordion.Item
             value={pet.id}
-            className="outline outline-gray-300 bg-white rounded"
+            className="outline outline-gray-300 p-3 bg-white rounded"
         >
             <Accordion.Control
                 icon={
-                    <Avatar src={pet.photoUrl} size={36} radius="xl">
+                    <Avatar src={pet.photoUrl} size={"lg"} radius="xl">
                         {pet.name[0]}
                     </Avatar>
                 }
             >
                 <Group justify="space-between" pr="md">
                     <Stack gap={0}>
-                        <Text fw={500}>{pet.name}</Text>
-                        <Text size="xs" c={"dimmed"}>
-                            {toTitleCase(pet.breed)}
-                        </Text>
+                        <Text fw={600}>{toTitleCase(pet.name)}</Text>
+                        <Text c={"dimmed"}>{toTitleCase(pet.breed)}</Text>
                     </Stack>
                     <Badge
                         variant="light"
+                        size="md"
                         color={totalServices > 0 ? "blue" : "gray"}
                     >
                         {totalServices}{" "}
@@ -192,7 +191,6 @@ export default function PetAccordionItem({ pet, services }: Props) {
                                                 />
                                                 <Badge
                                                     ml={"xl"}
-                                                    size="sm"
                                                     color="gray"
                                                     variant="outline"
                                                 >

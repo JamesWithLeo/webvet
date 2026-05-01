@@ -3,20 +3,22 @@
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "@mantine/notifications/styles.css";
 import { notifications } from "@mantine/notifications";
 import { useQuery } from "@tanstack/react-query";
 import { BlockDatesTypeModel } from "@/db/schema/appointments";
+import { useAppointment } from "@/lib/hooks/useAppointmentContext";
+import { EventClickArg } from "@fullcalendar/core/index.js";
 
-// Define the slot duration in minutes (FullCalendar default is 30)
-const SLOT_DURATION_MINUTES = 30;
+const SLOT_DURATION_MINUTES = 60;
+
 type Props = {
     value: string | null;
     onChange: (value: string) => void;
     onBlur?: () => void;
     error?: string;
-    initialDate: string;
+    initialDate: Date;
 };
 
 export default function SelectTimeCal({
@@ -26,15 +28,11 @@ export default function SelectTimeCal({
     error,
     initialDate,
 }: Props) {
+    const calendarRef = useRef<FullCalendar>(null);
     const [currentTime, setCurrentTime] = useState(new Date());
 
-    const { data } = useQuery({
-        queryKey: ["blockedDates"],
-        queryFn: async (): Promise<BlockDatesTypeModel[]> => {
-            const res = await fetch("/api/blockdates");
-            return res.json();
-        },
-    });
+    const { timeEvents } = useAppointment();
+
     // update the time per minute
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -114,7 +112,7 @@ export default function SelectTimeCal({
         }
     };
 
-    const onDateClick = (dateArg: DateClickArg) => {
+    const handleDateClick = (dateArg: DateClickArg) => {
         const clickedTime = new Date(dateArg.dateStr);
         if (isToday) {
             if (clickedTime < minSelectableTime) {
@@ -127,16 +125,51 @@ export default function SelectTimeCal({
                 return;
             }
         }
+
         onChange(dateArg.dateStr);
+    };
+
+    const onEventClick = (eventArg: EventClickArg) => {
+        const isFull = eventArg.event.extendedProps.isFull;
+
+        if (isFull) {
+            notifications.show({
+                color: "red",
+                title: "Fully Booked",
+                message:
+                    "The selected time slot is fully booked. Please choose another time.",
+            });
+            return;
+        }
+        // 1. Get the ISO string (e.g., "2026-02-12T13:00:00+08:00" or "2026-02-12T05:00:00Z")
+        const isoString = eventArg.event.startStr;
+
+        onChange(isoString);
     };
 
     return (
         <>
             <FullCalendar
+                ref={calendarRef}
                 height={"100%"}
+                eventSources={[
+                    {
+                        url: "/api/blockdates",
+                        textColor: "#ffffff",
+                        color: "#4a5565",
+                    },
+                    {
+                        url: "/api/calendar/timeslot",
+                        id: "time-slot",
+                        textColor: "#ffffff",
+                        color: "#4a5565",
+                    },
+                ]}
+                eventClick={onEventClick}
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView="timeGridDay"
                 initialDate={initialDate}
+                key={timeEvents.length}
                 headerToolbar={{
                     left: "title",
                     center: "",
@@ -148,7 +181,7 @@ export default function SelectTimeCal({
                     right: "",
                 }}
                 aspectRatio={2}
-                dateClick={onDateClick}
+                dateClick={handleDateClick}
                 businessHours={{
                     daysOfWeek: [1, 2, 3, 4, 5, 6],
                     startTime: "08:00", // 8am
@@ -158,15 +191,8 @@ export default function SelectTimeCal({
                 slotMaxTime="17:00:00"
                 allDaySlot={false}
                 slotLaneDidMount={handleSlotRender}
-                events={data?.map((v) => ({
-                    title: v.reason || "Blocked",
-                    id: v.id,
-                    date: v.date,
-                    start: v.startTime,
-                    end: v.endTime,
-                    display: "block",
-                    color: "#4a5565",
-                }))}
+                slotDuration={"00:60:00"}
+                expandRows={true}
             />
             {error && <h1 className="text-red-500">{error}</h1>}
         </>

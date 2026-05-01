@@ -60,14 +60,6 @@ export default function AdminCalendar() {
         useState<boolean>(false);
     const calendarRef = useRef<FullCalendar>(null);
 
-    const { data } = useQuery({
-        queryKey: ["blockedDates"],
-        queryFn: async (): Promise<BlockDatesTypeModel[]> => {
-            const res = await fetch("/api/blockdates");
-            return res.json();
-        },
-    });
-
     const { mutateAsync: addBlockDates, isPending: isPendingAddBlockDates } =
         useAddBlockDates();
     const {
@@ -260,9 +252,6 @@ export default function AdminCalendar() {
         if (!calendar) return;
         setCurrentTitle(calendar.view.title);
     }, []);
-    useEffect(() => {
-        console.log(data);
-    }, [data]);
 
     return (
         <>
@@ -341,18 +330,28 @@ export default function AdminCalendar() {
                         timeGridPlugin,
                     ]}
                     initialView="multiMonthYear"
-                    events={data?.map((v) => {
-                        return {
-                            title: v.reason || "Blocked",
-                            start: v.startTime.replace(" ", "T"),
-                            end: v.endTime.replace(" ", "T"),
-                            display: "block",
+                    eventSources={[
+                        {
+                            url: "/api/blockdates",
+                            textColor: "#ffffff",
                             color: "#4a5565",
-                        };
-                    })}
+                        },
+                    ]}
+                    // events={data?.map((v) => {
+                    //     return {
+                    //         title: v.reason || "Blocked",
+                    //         start: v.start.replace(" ", "T"),
+                    //         end: v.end.replace(" ", "T"),
+                    //         display: "block",
+                    //         color: "#4a5565",
+                    //     };
+                    // })}
                     aspectRatio={1.8}
                     multiMonthMaxColumns={2}
                     datesSet={handleDatesSet}
+                    hiddenDays={[0]}
+                    expandRows
+                    slotDuration={"00:60:00"}
                     businessHours={{
                         daysOfWeek: [1, 2, 3, 4, 5, 6],
                         startTime: "08:00",

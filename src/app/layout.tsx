@@ -18,7 +18,6 @@ import RouterLoadingAnimation from "@/components/RouterLoadingAnimation";
 import { theme } from "@/components/MantineThemeConfig";
 import { ModalsProvider } from "@mantine/modals";
 import Providers from "./v1/Provider";
-import ThemeProvider from "./v1/ThemeProvider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",

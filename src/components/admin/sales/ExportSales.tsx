@@ -91,17 +91,24 @@ export default function ExportSales({
             row.getCell("totalRevenue").numFmt = '"₱"#,##0.00';
         });
 
+        // Calculate Summary Totals
         const totalRevenueSummary = data.reduce(
             (sum, item) => sum + Number(item.totalRevenue),
             0
         );
+        const totalQtySummary = data.reduce(
+            (sum, item) => sum + Number(item.totalQty),
+            0
+        );
+
         const totalSumRow = summaryWorkSheet.addRow([
             "",
             "GRAND TOTAL",
-            "",
+            totalQtySummary,
             totalRevenueSummary,
         ]);
         totalSumRow.font = { bold: true };
+        totalSumRow.getCell(3).alignment = { horizontal: "right" };
         totalSumRow.getCell(4).numFmt = '"₱"#,##0.00';
 
         // --- SHEET 2: TRANSACTION LOGS ---
@@ -117,7 +124,6 @@ export default function ExportSales({
             horizontal: "center",
         };
 
-        // Define Columns with First and Last Name separated
         transactionLogsWorkSheet.getRow(4).values = [
             "Date",
             "Invoice ID",
@@ -157,18 +163,22 @@ export default function ExportSales({
         });
 
         // Add Total Row to Logs Sheet
+        // transactionData.length gives the total count of items/transactions
         const totalLogRow = transactionLogsWorkSheet.addRow([
             "",
             "",
             "",
             "",
-            "",
+            `TOTAL ITEMS: ${transactionData.length}`, // Total Quantity for logs
             "TOTAL SALES",
             totalRevenueLogs,
         ]);
+
         totalLogRow.font = { bold: true };
         totalLogRow.getCell(7).numFmt = '"₱"#,##0.00';
-        // Add a top border to the total row to make it look distinct
+
+        // Styling the footer
+        totalLogRow.getCell(5).alignment = { horizontal: "right" };
         totalLogRow.getCell(6).border = { top: { style: "thin" } };
         totalLogRow.getCell(7).border = { top: { style: "thin" } };
 

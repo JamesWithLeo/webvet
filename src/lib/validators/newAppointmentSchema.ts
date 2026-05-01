@@ -10,21 +10,6 @@ export const newAppointmentSchema = z.object({
         .string()
         .trim()
         .min(3, { message: "Title must be at least 3 characters long" }),
-    // type: z
-    //     .union([AllowedType, z.literal("")])
-    //     .refine((value) => value !== "", {
-    //         message: "Please select an appointment type",
-    //     }),
-    // serviceId: z.string().trim().min(1),
-    // petIds: z
-    //     .array(
-    //         z
-    //             .string()
-    //             .nonempty("Missing pet")
-    //             .refine((val) => val !== "", "Please select pet to be seen")
-    //     )
-    //     .min(1, "Please select at least one pet")
-    //     .nonoptional(),
     selections: z
         .record(
             z.string(), // Pet ID
@@ -48,10 +33,12 @@ export const newAppointmentSchema = z.object({
         .refine((val) => Object.keys(val).length > 0, {
             message: "Please select at least one pet and service",
         }),
-    date: z.string().nonempty({ message: "Please select a date" }),
+    date: z.date(),
     event_datetime: z.string().nonempty({ message: "Please select a time" }),
 });
 
 export type AppointmentFormInput = z.input<typeof newAppointmentSchema>;
+
+export type CreateAppointmentPayload = Omit<AppointmentFormInput, "date">;
 
 // export type AppointmentFormOutput = z.output<typeof newAppointmentSchema>;
