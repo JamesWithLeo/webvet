@@ -1,0 +1,20 @@
+name: Veterinary Appointment Cron
+on:
+    # schedule:
+    #     - cron: "*/5 * * * *"
+    workflow_dispatch: # Allows you to run it manually for testing
+
+jobs:
+    check-incoming:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check Incoming Appointment
+              env:
+                  MY_SECRET_VALUE: ${{ secrets.CRON_SECRET }}
+              run: |
+                  curl -L -X GET "https://www.josephmary.me/api/cron/incoming" \
+                  -H "Authorization: Bearer $MY_SECRET_VALUE"
+
+              #   curl -f -L -X GET "https://www.josephmary.me/api/cron/expired" \
+              #   -H "Authorization: Bearer $MY_SECRET_VALUE"
