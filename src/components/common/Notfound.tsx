@@ -1,11 +1,9 @@
 "use client";
 
-import { ActionIcon, Text, Title } from "@mantine/core";
-import { IconChevronLeft } from "@tabler/icons-react";
+import { Text, Title } from "@mantine/core";
 import Lottie from "lottie-react";
 import lottieData from "@/../public/lottie/Error.json";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function NotFoundComponent({
     backTo,
@@ -14,22 +12,9 @@ export default function NotFoundComponent({
     backTo?: string;
     link: string;
 }) {
-    const router = useRouter();
     return (
-        <div className="min-h-screen w-full items-center md:px-16 p-8 flex gap-8 flex-col">
-            <div className="w-full h-full max-w-7xl items-center gap-8 flex flex-col">
-                <div className="flex w-full  justify-between">
-                    <ActionIcon
-                        variant="transparent"
-                        c={"dimmed"}
-                        size={"input-sm"}
-                        onClick={() => {
-                            router.back();
-                        }}
-                    >
-                        <IconChevronLeft />
-                    </ActionIcon>
-                </div>
+        <div className="min-h-screen w-full items-center md:px-16 justify-center  flex gap-8 flex-col">
+            <div className="w-full h-full max-w-7xl   items-center gap-8 flex flex-col">
                 <div className="w-xs h-auto   max-w-sm">
                     <Lottie
                         animationData={lottieData}

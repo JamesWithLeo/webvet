@@ -14,7 +14,7 @@ export default function NewAppointmentButton({
     return (
         <Button
             size={size}
-            variant="default"
+            variant="filled"
             radius={"md"}
             onClick={() => {
                 router.push("/v1/appointments/new");
