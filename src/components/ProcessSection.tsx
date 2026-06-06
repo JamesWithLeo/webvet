@@ -10,6 +10,8 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useRouter } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
+import bg from "@/../public/bg.svg";
+import paw from "@/../public/paw.svg";
 
 const processSteps = [
     {
@@ -66,11 +68,22 @@ export default function ProcessSection() {
             gsap.set(imageElements.slice(1), { xPercent: 100 });
         }
 
-        // Initialize Call-to-Action states for the punchy entry later
+        // Initialize Call-to-Action states
         gsap.set(thatsItTitleRef.current, { scale: 0.3, opacity: 0 });
         gsap.set(thatsItActionsRef.current, { y: 50, opacity: 0 });
-        // Keeping it interactive-hidden when starting out
         gsap.set(thatsItRef.current, { pointerEvents: "none" });
+
+        // FIX: Initialize the mask size to 0% so the blue screen is completely hidden at first
+        gsap.set(thatsItRef.current, {
+            maskImage: `url(${paw.src})`,
+            maskPosition: "center",
+            maskRepeat: "no-repeat",
+            maskSize: "0%",
+            WebkitMaskImage: `url(${paw.src})`,
+            WebkitMaskPosition: "center",
+            WebkitMaskRepeat: "no-repeat",
+            WebkitMaskSize: "0%",
+        });
 
         const tl = gsap.timeline({
             scrollTrigger: {
@@ -79,7 +92,6 @@ export default function ProcessSection() {
                 end: "+=4000",
                 scrub: 1,
                 start: "top top",
-                // invalidateOnRefresh recalculates smoothly if browser resizing happens
                 invalidateOnRefresh: true,
             },
         });
@@ -118,11 +130,7 @@ export default function ProcessSection() {
                     textDesc1Ref.current,
                     textDesc2Ref.current,
                 ],
-                {
-                    opacity: 0,
-                    duration: 0.15,
-                    ease: "none",
-                },
+                { opacity: 0, duration: 0.15, ease: "none" },
                 label
             )
                 .set(textTitleRef.current, { textContent: currentStep.title })
@@ -138,11 +146,7 @@ export default function ProcessSection() {
                         textDesc1Ref.current,
                         textDesc2Ref.current,
                     ],
-                    {
-                        opacity: 1,
-                        duration: 0.1,
-                        ease: "none",
-                    },
+                    { opacity: 1, duration: 0.1, ease: "none" },
                     `+=${0.1}`
                 );
 
@@ -174,7 +178,6 @@ export default function ProcessSection() {
         const finalLabel = "conclusion";
         tl.addLabel(finalLabel);
 
-        // Slide the transition/process elements up and clear out opacity
         tl.to(
             transitionBlockRef.current,
             { opacity: 0, duration: 2, ease: "power2.inOut" },
@@ -191,14 +194,15 @@ export default function ProcessSection() {
             finalLabel
         );
 
-        // Turn pointer events back on immediately when the circle wipe begins
         tl.set(thatsItRef.current, { pointerEvents: "all" }, finalLabel);
 
-        // Snap open the fixed full screen background container
+        // FIX: Scale the mask properties directly via standard percentage values.
+        // Moving from 0% up to 700% guarantees the paw swells up big enough to show the full screen.
         tl.to(
             thatsItRef.current,
             {
-                clipPath: "circle(141.4% at 50% 50%)", // 141.4% guarantees the corners are fully filled
+                maskSize: "3500%", // Boosted from 700% to 3500% to handle ultrawide / tall monitors
+                WebkitMaskSize: "3500%",
                 duration: 2.5,
                 ease: "power3.inOut",
             },
@@ -229,14 +233,14 @@ export default function ProcessSection() {
                 >
                     {/* Header Transition Block */}
                     <div
-                        className="w-full h-screen  flex items-center justify-center flex-col z-10"
+                        className="w-full h-screen flex items-center justify-center flex-col z-10"
                         ref={transitionBlockRef}
                     >
-                        <h1 className="thatswhy text-5xl  font-extrabold text-[#14678f] lg:text-9xl tracking-tight">
+                        <h1 className="thatswhy text-5xl font-extrabold text-[#14678f] lg:text-9xl tracking-tight">
                             That&apos;s why
                         </h1>
                         <h1
-                            className="threestep   lg:text-nowrap text-center   lg:text-left mt-6 text-slate-800 lg:text-4xl font-semibold  "
+                            className="threestep lg:text-nowrap text-center lg:text-left mt-6 text-slate-800 lg:text-4xl font-semibold"
                             id="3steps"
                         >
                             we&apos;ve streamlined the entire booking process
@@ -249,8 +253,8 @@ export default function ProcessSection() {
                     </div>
 
                     {/* Step Graphics and Copy Layout */}
-                    <section className="lg:flex  pt-40 place-content-center grid grid-cols-1 grid-rows-2 w-full lg:min-h-[60vh] px-6 lg:px-28 items-center bottom-12 z-10 ">
-                        <div className="lg:w-1/2   w-full  col-start-1 row-start-2">
+                    <section className="lg:flex pt-40 place-content-center grid grid-cols-1 grid-rows-2 w-full lg:min-h-[60vh] px-6 lg:px-28 items-center bottom-12 z-10">
+                        <div className="lg:w-1/2 w-full col-start-1 row-start-2">
                             <h2
                                 ref={textTitleRef}
                                 className="font-bold text-3xl lg:text-5xl mt-4 text-slate-900 tracking-tight"
@@ -273,7 +277,7 @@ export default function ProcessSection() {
 
                         <div
                             ref={imageContainerRef}
-                            className="relative   items- col-start-1 row-start-1  w-full lg:w-1/2 grid items-center pt-4"
+                            className="relative col-start-1 row-start-1 w-full lg:w-1/2 grid items-center pt-4"
                         >
                             <div className="w-full flex items-center justify-center h-64 lg:h-125 relative">
                                 {imageRefs.map((ref, idx) => (
@@ -301,11 +305,13 @@ export default function ProcessSection() {
                 </section>
             </section>
 
-            {/* Changed from absolute to fixed. Kept outside the pinned container so it stays stuck to viewport */}
+            {/* Target Final UI Wrapper Panel */}
             <div
                 ref={thatsItRef}
-                className="fixed inset-0 w-screen h-screen flex flex-col gap-8 items-center justify-center bg-[url('/pattern.svg')] bg-[#14678f] z-[9999]"
-                style={{ clipPath: "circle(0% at 50% 50%)" }}
+                className="fixed inset-0 w-screen h-screen flex flex-col gap-8 items-center justify-center bg-[#14678f] z-9999 bg-cover"
+                style={{
+                    backgroundImage: `url(${bg.src})`,
+                }}
             >
                 <Stack align="center" gap="xl">
                     <h1
@@ -347,10 +353,7 @@ export default function ProcessSection() {
                             mt="xl"
                             className="opacity-80 hover:opacity-100 underline decoration-dotted"
                             onClick={() =>
-                                window.scrollTo({
-                                    top: 0,
-                                    behavior: "smooth",
-                                })
+                                window.scrollTo({ top: 0, behavior: "smooth" })
                             }
                         >
                             Back to top ↑

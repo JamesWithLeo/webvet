@@ -1,6 +1,6 @@
 import CenterPattern from "@/components/common/CenterPattern";
 import LogoWithText from "@/components/common/LogoWithText";
-import { Button, Card, Divider, Paper, Text, Title } from "@mantine/core";
+import { Button, Paper, Text, Title } from "@mantine/core";
 const heart = () => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +43,12 @@ export default function Page() {
             <CenterPattern />
             <div className="flex flex-col  h-220 justify-center items-center gap-16 max-w-4xl">
                 <LogoWithText href="/" />
-                <Text fz={{xs:"md", sm:"xl"}} ta={"center"} ff={"monospace"} fs={"italic"}>
+                <Text
+                    fz={{ xs: "md", sm: "xl" }}
+                    ta={"center"}
+                    ff={"monospace"}
+                    fs={"italic"}
+                >
                     At Joseph & Mary Veterinary Clinic, we prioritize heart over
                     transactions. We’ve created a sanctuary for our community
                     where every pet is treated like family. Our mission is
@@ -57,21 +62,21 @@ export default function Page() {
                     What Makes Us Different:
                 </Title>
                 <div className="flex max-w-7xl  w-full gap-8 flex-col sm:flex-row  ">
-                    <Paper  withBorder p={"xl"} w="100%" >
+                    <Paper withBorder p={"xl"} w="100%">
                         {heart()}
                         <Text c={"primary"} mt={"sm"} fw={"600"} size="lg">
                             Family First
                         </Text>
                         <Text>We treat your pets like our own.</Text>
                     </Paper>
-                    <Paper  withBorder p={"xl"} w="100%" >
+                    <Paper withBorder p={"xl"} w="100%">
                         {stress()}
                         <Text c={"primary"} mt={"sm"} fw={"600"} size="lg">
                             Stress Free Visits
                         </Text>
                         <Text>A calm environment for happy tails.</Text>
                     </Paper>
-                    <Paper  withBorder p={"xl"} w="100%" >
+                    <Paper withBorder p={"xl"} w="100%">
                         {care()}
                         <Text c={"primary"} mt={"sm"} fw={"600"} size="lg">
                             Expert Care
@@ -83,7 +88,12 @@ export default function Page() {
             <div className="max-w-4xl gap-4 flex flex-col">
                 <div className="flex gap-4 items-center justify-center w-full ">
                     <Text>Ready to join the Joseph & Mary family?</Text>
-                    <Button size="sm" variant="gradient" component={"a"} href="/v1/appointments/new">
+                    <Button
+                        size="sm"
+                        variant="gradient"
+                        component={"a"}
+                        href="/v1/appointments/new"
+                    >
                         Book an Appointment
                     </Button>
                 </div>
